@@ -1,0 +1,1635 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { getProviderDashboard, createProviderProfile, updateProviderProfile, getMySubscription } from '@/services/api';
+import { useAuth } from '@/context/AuthContext';
+import { 
+  ChatCircle, CheckCircle, User, MapPin, Camera, Clock, 
+  CurrencyDollar, FileText, Phone, EnvelopeSimple, WhatsappLogo,
+  Plus, Trash, CaretRight, CaretLeft, UploadSimple, X, VideoCamera, ShieldCheck, Crown
+} from 'phosphor-react';
+import { toast } from 'sonner';
+import CharacteristicsForm from '@/components/CharacteristicsForm';
+import VerificationModal from '@/components/VerificationModal';
+import SiteHeader from '@/components/SiteHeader';
+
+export default function ProviderDashboard() {
+  const { user, logout } = useAuth();
+  const [dashboard, setDashboard] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [mode, setMode] = useState('overview'); // 'overview' | 'edit' | 'create'
+  const [saving, setSaving] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [subscription, setSubscription] = useState(null);
+  const [profileData, setProfileData] = useState({
+    display_name: '',
+    age: '',
+    gender: '',
+    essence: '',
+    companionshipType: '',
+    location: { city: '', country: '' },
+    bio: '',
+    services: {}, // Changed to object: { serviceName: { type: 'inclusive' | 'extra' | null, price: '' } }
+    rates: { 
+      '1hour': '',
+      '2hours': '',
+      '3hours': '',
+      'overnight': ''
+    },
+    contact: {
+      phone: '',
+      whatsapp: '',
+      email: ''
+    },
+    schedule: {
+      monday: { available: true, start: '10:00', end: '22:00' },
+      tuesday: { available: true, start: '10:00', end: '22:00' },
+      wednesday: { available: true, start: '10:00', end: '22:00' },
+      thursday: { available: true, start: '10:00', end: '22:00' },
+      friday: { available: true, start: '10:00', end: '23:00' },
+      saturday: { available: true, start: '10:00', end: '23:00' },
+      sunday: { available: true, start: '10:00', end: '22:00' }
+    },
+    photos: [],
+    characteristics: {
+      nationality: '',
+      ethnicity: '',
+      orientation: '',
+      height: '',
+      weight: '',
+      eye_color: '',
+      hair_color: '',
+      hair_length: '',
+      breast_size: '',
+      breast_type: '',
+      pubic_hair: '',
+      languages: [],
+      tattoos: '',
+      piercings: '',
+      smoker: ''
+    }
+  });
+  const [newService, setNewService] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+
+  const steps = [
+    { id: 1, title: 'Basic Info', icon: User },
+    { id: 2, title: "Photos & Video's", icon: Camera },
+    { id: 3, title: 'Services', icon: FileText },
+    { id: 4, title: 'Rates', icon: CurrencyDollar },
+    { id: 5, title: 'Availability', icon: Clock }
+  ];
+
+  const escortServices = [
+    'Relaxing massage', 'Erotic massage', 'Couple massage', 'Body to body', 
+    'Travel', 'Classic sex', '69 position', 'Cunnilingus', 'Dirty talk', 'Duo with girl', 
+    'Facesitting', 'Fingering', 'French kissing', 'Handjob', 'GFE', 'Masturbation', 
+    'Oral without condom', 'Rimming', 'Role-play', 'Greek', 'Sex toys', 'Shower together', 
+    'Squirting', 'Striptease', 'Uniform', 'Casual photos', 'Couples', 'Cum on face', 
+    'Cum in mouth', 'Deepthroat', 'Erotic photos', 'Filming', 'Facefuck', 
+    'Porn star experience', 'Strapon service', 'Swallowing', 'With 2 men', 'Group sex', 
+    'Findom', 'Double penetration', 'BDSM - Femdom'
+  ];
+
+  const massageServices = [
+    'Relaxing massage', 'Erotic massage', 'Couple massage', 'Body to body',
+    'Role-play', 'Sex toys', 'Shower together', 'Striptease', 'Uniform',
+    'Casual photos', 'Couples', 'Erotic photos', 'Filming'
+  ];
+
+  const serviceOptions = profileData.companionshipType === 'erotic-massage' ? massageServices : escortServices;
+
+  useEffect(() => {
+    fetchDashboard();
+    fetchSubscription();
+  }, []);
+
+  const fetchSubscription = async () => {
+    try {
+      const { data } = await getMySubscription();
+      setSubscription(data);
+    } catch {
+      // ignore — banner just won't render
+    }
+  };
+
+  const fetchDashboard = async () => {
+    try {
+      const response = await getProviderDashboard();
+      setDashboard(response.data);
+      const p = response.data?.profile;
+      if (p) {
+        // Hydrate profileData from existing profile (normalize legacy schema)
+        const servicesNormalized = Array.isArray(p.services)
+          ? p.services.reduce((acc, s) => ({ ...acc, [s]: { type: 'inclusive', price: '' } }), {})
+          : (p.services || {});
+        const ratesNormalized = {
+          '1hour': p.rates?.['1hour'] ?? p.rates?.hourly ?? '',
+          '2hours': p.rates?.['2hours'] ?? '',
+          '3hours': p.rates?.['3hours'] ?? '',
+          'overnight': p.rates?.['overnight'] ?? ''
+        };
+        const defaultSchedule = {
+          monday: { available: true, start: '10:00', end: '22:00' },
+          tuesday: { available: true, start: '10:00', end: '22:00' },
+          wednesday: { available: true, start: '10:00', end: '22:00' },
+          thursday: { available: true, start: '10:00', end: '22:00' },
+          friday: { available: true, start: '10:00', end: '23:00' },
+          saturday: { available: true, start: '10:00', end: '23:00' },
+          sunday: { available: true, start: '10:00', end: '22:00' }
+        };
+        setProfileData({
+          display_name: p.display_name || '',
+          age: p.age || '',
+          gender: p.gender || '',
+          essence: p.essence || '',
+          companionshipType: p.companionshipType || '',
+          location: { city: p.location?.city || '', country: p.location?.country || '' },
+          bio: p.bio || '',
+          services: servicesNormalized,
+          rates: ratesNormalized,
+          contact: p.contact || { phone: '', whatsapp: '', email: '' },
+          schedule: p.schedule || defaultSchedule,
+          photos: p.photos || [],
+          characteristics: {
+            nationality: p.characteristics?.nationality || '',
+            ethnicity: p.characteristics?.ethnicity || '',
+            orientation: p.characteristics?.orientation || '',
+            height: p.characteristics?.height || '',
+            weight: p.characteristics?.weight || '',
+            eye_color: p.characteristics?.eye_color || '',
+            hair_color: p.characteristics?.hair_color || '',
+            hair_length: p.characteristics?.hair_length || '',
+            breast_size: p.characteristics?.breast_size || '',
+            breast_type: p.characteristics?.breast_type || '',
+            pubic_hair: p.characteristics?.pubic_hair || '',
+            languages: Array.isArray(p.characteristics?.languages) ? p.characteristics.languages : [],
+            tattoos: p.characteristics?.tattoos || '',
+            piercings: p.characteristics?.piercings || '',
+            smoker: p.characteristics?.smoker || ''
+          }
+        });
+        setMode('overview');
+      } else {
+        setMode('create');
+      }
+    } catch (error) {
+      toast.error('Failed to load dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openEdit = (step) => {
+    setCurrentStep(step);
+    setMode('edit');
+  };
+
+  const filesToBase64 = (files) => {
+    return Promise.all(files.map(f => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(f.file);
+    })));
+  };
+
+  const cancelEdit = () => {
+    setMode('overview');
+    setUploadedFiles([]);
+    // Re-hydrate from server copy to discard changes
+    fetchDashboard();
+  };
+
+  const saveStep = async () => {
+    setSaving(true);
+    try {
+      // If there are new uploaded files, convert them to base64 data URLs and append
+      let newPhotos = profileData.photos || [];
+      if (uploadedFiles.length > 0) {
+        const imageFiles = uploadedFiles.filter(f => f.type === 'photo');
+        const base64List = await filesToBase64(imageFiles);
+        newPhotos = [...newPhotos, ...base64List];
+      }
+      const payload = {
+        display_name: profileData.display_name,
+        age: profileData.age ? parseInt(profileData.age) : null,
+        gender: profileData.gender,
+        essence: profileData.essence,
+        companionshipType: profileData.companionshipType,
+        location: profileData.location,
+        bio: profileData.bio,
+        services: profileData.services,
+        rates: profileData.rates,
+        contact: profileData.contact,
+        schedule: profileData.schedule,
+        photos: newPhotos,
+        characteristics: profileData.characteristics
+      };
+      await updateProviderProfile(payload);
+      setUploadedFiles([]);
+      toast.success('Profile updated');
+      await fetchDashboard();
+      setMode('overview');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCreateProfile = async () => {
+    try {
+      // Persist uploaded files as base64 data URLs so they survive page refresh
+      let newPhotos = profileData.photos || [];
+      if (uploadedFiles.length > 0) {
+        const imageFiles = uploadedFiles.filter(f => f.type === 'photo');
+        const base64List = await filesToBase64(imageFiles);
+        newPhotos = [...newPhotos, ...base64List];
+      }
+      const payload = {
+        display_name: profileData.display_name,
+        age: profileData.age ? parseInt(profileData.age) : null,
+        gender: profileData.gender,
+        essence: profileData.essence,
+        companionshipType: profileData.companionshipType,
+        location: profileData.location,
+        bio: profileData.bio,
+        services: profileData.services,
+        rates: profileData.rates,
+        contact: profileData.contact,
+        schedule: profileData.schedule,
+        photos: newPhotos,
+        characteristics: profileData.characteristics
+      };
+      if (dashboard?.profile) {
+        await updateProviderProfile(payload);
+        toast.success('Profile updated successfully!');
+      } else {
+        await createProviderProfile(payload);
+        toast.success('Profile created! Now let\'s verify your identity.');
+        // Auto-open verification modal on first create
+        setTimeout(() => setShowVerificationModal(true), 800);
+      }
+      setUploadedFiles([]);
+      fetchDashboard();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to save profile');
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    handleFiles(files);
+  };
+
+  const handleFileInput = (e) => {
+    const files = Array.from(e.target.files);
+    handleFiles(files);
+  };
+
+  const handleFiles = (files) => {
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime'];
+    const validFiles = files.filter(file => validTypes.includes(file.type));
+    
+    if (validFiles.length !== files.length) {
+      toast.error('Some files were skipped. Only JPG, PNG, WebP images and MP4 videos are allowed.');
+    }
+
+    const newFiles = validFiles.map(file => ({
+      id: `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      file,
+      preview: URL.createObjectURL(file),
+      type: file.type.startsWith('video') ? 'video' : 'photo',
+      name: file.name
+    }));
+
+    setUploadedFiles(prev => [...prev, ...newFiles]);
+  };
+
+  const removeFile = (fileId) => {
+    setUploadedFiles(prev => {
+      const fileToRemove = prev.find(f => f.id === fileId);
+      if (fileToRemove) {
+        URL.revokeObjectURL(fileToRemove.preview);
+      }
+      return prev.filter(f => f.id !== fileId);
+    });
+  };
+
+  const nextStep = () => {
+    if (currentStep < 6) setCurrentStep(currentStep + 1);
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0C] flex items-center justify-center">
+        <div className="shimmer w-16 h-16 rounded-full"></div>
+      </div>
+    );
+  }
+
+  // If provider has a profile AND is in overview mode → show Management Dashboard
+  if (dashboard?.profile && mode === 'overview') {
+    const p = dashboard.profile;
+    const inclusiveServices = Object.entries(profileData.services || {}).filter(([_, v]) => v?.type === 'inclusive');
+    const extraServices = Object.entries(profileData.services || {}).filter(([_, v]) => v?.type === 'extra');
+    const legacyServices = Array.isArray(p.services) ? p.services : [];
+    const scheduleDays = Object.entries(profileData.schedule || {});
+    const availableDays = scheduleDays.filter(([_, v]) => v?.available).length;
+    const dayLabels = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' };
+
+    return (
+      <div className="min-h-screen bg-[#0A0A0C]">
+        <SiteHeader
+          links={[
+            { to: '/messages', label: 'Messages', testId: 'messages-link' },
+            { label: 'Logout', onClick: logout, testId: 'logout-btn' }
+          ]}
+        />
+
+        <div className="pt-32 pb-20 section-padding">
+          <div className="max-w-6xl mx-auto">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12" data-testid="manage-header">
+              <div>
+                <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-3">Manage Profile</p>
+                <h2 className="text-4xl md:text-5xl font-playfair text-[#F2F0ED] mb-3">Welcome, {p.display_name}</h2>
+                <div className="flex items-center gap-4">
+                  {p.verified ? (
+                    <div className="verified-badge" data-testid="verified-badge"><CheckCircle size={16} weight="fill" />Verified Provider</div>
+                  ) : (
+                    <div className="status-badge status-pending">Verification {p.verification_status}</div>
+                  )}
+                  <span className="text-[#71717A] text-sm">·</span>
+                  <span className="text-[#A1A1AA] text-sm">{p.location?.city}, {p.location?.country}</span>
+                </div>
+              </div>
+              <Link
+                to={`/providers/${p.provider_id}`}
+                className="btn-secondary flex items-center gap-2"
+                data-testid="view-public-profile-btn"
+              >
+                View Public Profile
+                <CaretRight size={16} />
+              </Link>
+            </div>
+
+            {/* Subscription banner */}
+            {subscription && (
+              <div className="mb-8" data-testid="subscription-banner">
+                {!subscription.featured_active ? (
+                  <div className="rounded-lg border border-[#C6A87C]/40 bg-gradient-to-r from-[#C6A87C]/10 to-transparent p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <Crown size={22} weight="fill" className="text-[#C6A87C] mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-[#F2F0ED] font-medium mb-1">Activate your profile</p>
+                        <p className="text-[#A1A1AA] text-sm">
+                          Choose a Featured plan to appear on Browse. Add VIP Boost to be displayed at the top of every search.
+                        </p>
+                      </div>
+                    </div>
+                    <Link to="/subscribe" className="btn-primary whitespace-nowrap" data-testid="activate-cta">
+                      Choose a plan
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-[#27272A] bg-[#141416] p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      {subscription.vip_active ? (
+                        <Crown size={22} weight="fill" className="text-[#C6A87C] mt-0.5 shrink-0" />
+                      ) : (
+                        <CheckCircle size={22} weight="fill" className="text-[#22C55E] mt-0.5 shrink-0" />
+                      )}
+                      <div>
+                        <p className="text-[#F2F0ED] font-medium mb-1">
+                          {subscription.vip_active ? 'VIP Featured · live' : 'Featured · live'}
+                        </p>
+                        <p className="text-[#A1A1AA] text-sm">
+                          Your profile expires in <span className="text-[#F2F0ED] font-medium">{Math.ceil(subscription.featured_days_left)} day{Math.ceil(subscription.featured_days_left) === 1 ? '' : 's'}</span>
+                          {subscription.vip_active && subscription.vip_days_left ? (
+                            <> · VIP Boost: {Math.ceil(subscription.vip_days_left)} day{Math.ceil(subscription.vip_days_left) === 1 ? '' : 's'} remaining</>
+                          ) : null}
+                          .
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      {!subscription.vip_active && (
+                        <Link to="/subscribe" className="btn-secondary whitespace-nowrap" data-testid="upgrade-vip-cta">
+                          Upgrade to VIP
+                        </Link>
+                      )}
+                      <Link to="/subscribe" className="btn-primary whitespace-nowrap" data-testid="renew-cta">
+                        Renew / extend
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Verification banner / status */}
+            {(() => {
+              const s = p.verification_status || 'pending';
+              const verified = p.verified === true;
+              if (verified) {
+                return (
+                  <div
+                    className="mb-8 rounded-lg border border-green-500/30 bg-green-500/5 p-5 flex items-start gap-4"
+                    data-testid="verification-banner-approved"
+                  >
+                    <CheckCircle size={22} weight="fill" className="text-green-500 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-[#F2F0ED] font-medium mb-1">Profile verified</p>
+                      <p className="text-[#A1A1AA] text-sm">Your profile is live and appears in client search results with the Verified badge.</p>
+                    </div>
+                  </div>
+                );
+              }
+              if (s === 'submitted') {
+                return (
+                  <div
+                    className="mb-8 rounded-lg border border-[#C6A87C]/30 bg-[#C6A87C]/5 p-5 flex items-start gap-4"
+                    data-testid="verification-banner-submitted"
+                  >
+                    <ShieldCheck size={22} weight="thin" className="text-[#C6A87C] mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-[#F2F0ED] font-medium mb-1">Verification under review</p>
+                      <p className="text-[#A1A1AA] text-sm">We're reviewing your documents — you'll receive an email within 24 hours. Your profile becomes visible to clients once approved.</p>
+                    </div>
+                  </div>
+                );
+              }
+              if (s === 'rejected') {
+                return (
+                  <div
+                    className="mb-8 rounded-lg border border-red-500/30 bg-red-500/5 p-5"
+                    data-testid="verification-banner-rejected"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="w-9 h-9 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
+                        <span className="text-red-400 text-lg">!</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[#F2F0ED] font-medium mb-1">Verification needs attention</p>
+                        {p.rejection_reason && (
+                          <p className="text-[#A1A1AA] text-sm mb-3"><span className="text-[#F2F0ED]">Reason:</span> {p.rejection_reason}</p>
+                        )}
+                        <button
+                          onClick={() => setShowVerificationModal(true)}
+                          className="btn-primary text-sm"
+                          data-testid="verification-resubmit-btn"
+                        >
+                          Resubmit documents
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              // pending (not submitted)
+              return (
+                <div
+                  className="mb-8 rounded-lg border border-[#C6A87C]/40 bg-gradient-to-br from-[#C6A87C]/10 to-transparent p-6"
+                  data-testid="verification-banner-pending"
+                >
+                  <div className="flex items-start gap-4">
+                    <ShieldCheck size={24} weight="thin" className="text-[#C6A87C] mt-1 shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-[#F2F0ED] font-medium mb-1">Unlock the Verified badge</p>
+                      <p className="text-[#A1A1AA] text-sm mb-4 leading-relaxed">
+                        Your profile is created — verify your identity to appear in client search and build trust. Takes about 2 minutes. We review within 24 hours.
+                      </p>
+                      <button
+                        onClick={() => setShowVerificationModal(true)}
+                        className="btn-primary text-sm"
+                        data-testid="verification-start-btn"
+                      >
+                        Start verification
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* 5 Management Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 1. Basic Info */}
+              <div className="card-premium p-8" data-testid="card-basic-info">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                      <User size={18} className="text-[#C6A87C]" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 1</p>
+                      <h3 className="text-xl font-playfair text-[#F2F0ED]">Basic Info</h3>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => openEdit(1)}
+                    className="text-[#C6A87C] hover:text-[#D4B88C] uppercase tracking-wider text-xs"
+                    data-testid="edit-basic-info-btn"
+                  >
+                    Edit
+                  </button>
+                </div>
+                <dl className="space-y-3 text-sm">
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-[#A1A1AA]">Display name</dt>
+                    <dd className="text-[#F2F0ED] text-right">{p.display_name || '—'}</dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-[#A1A1AA]">Age</dt>
+                    <dd className="text-[#F2F0ED]">{p.age || '—'}</dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-[#A1A1AA]">Gender</dt>
+                    <dd className="text-[#F2F0ED] capitalize">{p.gender || '—'}</dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-[#A1A1AA]">Location</dt>
+                    <dd className="text-[#F2F0ED] text-right">{p.location?.city ? `${p.location.city}, ${p.location.country}` : '—'}</dd>
+                  </div>
+                  <div className="pt-2 border-t border-[#27272A]">
+                    <dt className="text-[#A1A1AA] mb-2">Bio</dt>
+                    <dd className="text-[#F2F0ED] line-clamp-3 leading-relaxed">{p.bio || <span className="text-[#6B7280] italic">Not set</span>}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              {/* 2. Photos & Videos */}
+              <div className="card-premium p-8" data-testid="card-photos">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                      <Camera size={18} className="text-[#C6A87C]" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 2</p>
+                      <h3 className="text-xl font-playfair text-[#F2F0ED]">Photos & Video's</h3>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => openEdit(2)}
+                    className="text-[#C6A87C] hover:text-[#D4B88C] uppercase tracking-wider text-xs"
+                    data-testid="edit-photos-btn"
+                  >
+                    Edit
+                  </button>
+                </div>
+                {p.photos && p.photos.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-4 gap-2 mb-4">
+                      {p.photos.slice(0, 8).map((photo, i) => (
+                        <div key={i} className="aspect-[3/4] overflow-hidden rounded">
+                          <img src={photo} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-[#A1A1AA] text-sm">{p.photos.length} media uploaded</p>
+                  </>
+                ) : (
+                  <div className="h-32 flex items-center justify-center border border-dashed border-[#52525B] rounded">
+                    <p className="text-[#6B7280] text-sm italic">No photos yet</p>
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Services */}
+              <div className="card-premium p-8" data-testid="card-services">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                      <FileText size={18} className="text-[#C6A87C]" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 3</p>
+                      <h3 className="text-xl font-playfair text-[#F2F0ED]">Services</h3>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => openEdit(3)}
+                    className="text-[#C6A87C] hover:text-[#D4B88C] uppercase tracking-wider text-xs"
+                    data-testid="edit-services-btn"
+                  >
+                    Edit
+                  </button>
+                </div>
+                {legacyServices.length === 0 && inclusiveServices.length === 0 && extraServices.length === 0 ? (
+                  <p className="text-[#6B7280] text-sm italic">No services set</p>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Prefer new-schema (dict) rendering; fall back to legacy list only if dict is empty */}
+                    {inclusiveServices.length === 0 && extraServices.length === 0 && legacyServices.length > 0 && (
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] mb-2">Offered</p>
+                        <div className="flex flex-wrap gap-2">
+                          {legacyServices.map((s) => (
+                            <span key={s} className="px-3 py-1 text-xs border border-[#52525B] text-[#F2F0ED] rounded-full">{s}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {inclusiveServices.length > 0 && (
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] mb-2">Inclusive ({inclusiveServices.length})</p>
+                        <div className="flex flex-wrap gap-2">
+                          {inclusiveServices.slice(0, 8).map(([name]) => (
+                            <span key={name} className="px-3 py-1 text-xs border border-[#52525B] text-[#F2F0ED] rounded-full">{name}</span>
+                          ))}
+                          {inclusiveServices.length > 8 && <span className="px-3 py-1 text-xs text-[#A1A1AA]">+{inclusiveServices.length - 8} more</span>}
+                        </div>
+                      </div>
+                    )}
+                    {extraServices.length > 0 && (
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] mb-2">Extra ({extraServices.length})</p>
+                        <div className="flex flex-wrap gap-2">
+                          {extraServices.slice(0, 6).map(([name, v]) => (
+                            <span key={name} className="px-3 py-1 text-xs border border-[#C6A87C]/40 bg-[#C6A87C]/10 text-[#C6A87C] rounded-full">
+                              {name} {v.price && `· €${v.price}`}
+                            </span>
+                          ))}
+                          {extraServices.length > 6 && <span className="px-3 py-1 text-xs text-[#A1A1AA]">+{extraServices.length - 6} more</span>}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* 4. Rates */}
+              <div className="card-premium p-8" data-testid="card-rates">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                      <CurrencyDollar size={18} className="text-[#C6A87C]" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 4</p>
+                      <h3 className="text-xl font-playfair text-[#F2F0ED]">Rates</h3>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => openEdit(4)}
+                    className="text-[#C6A87C] hover:text-[#D4B88C] uppercase tracking-wider text-xs"
+                    data-testid="edit-rates-btn"
+                  >
+                    Edit
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { key: '1hour', label: '1 Hour' },
+                    { key: '2hours', label: '2 Hours' },
+                    { key: '3hours', label: '3 Hours' },
+                    { key: 'overnight', label: 'Overnight' }
+                  ].map(({ key, label }) => {
+                    const v = profileData.rates?.[key];
+                    return (
+                      <div key={key} className="border border-[#27272A] p-4">
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] mb-1">{label}</p>
+                        <p className="text-xl font-playfair text-[#C6A87C]">
+                          {v ? `€${v}` : <span className="text-[#6B7280] text-sm italic">Not set</span>}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 5. Availability */}
+              <div className="card-premium p-8 md:col-span-2" data-testid="card-availability">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                      <Clock size={18} className="text-[#C6A87C]" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 5</p>
+                      <h3 className="text-xl font-playfair text-[#F2F0ED]">Availability</h3>
+                      <p className="text-[#A1A1AA] text-xs mt-1">{availableDays} of 7 days available</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => openEdit(5)}
+                    className="text-[#C6A87C] hover:text-[#D4B88C] uppercase tracking-wider text-xs"
+                    data-testid="edit-availability-btn"
+                  >
+                    Edit
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
+                  {scheduleDays.map(([day, sched]) => (
+                    <div
+                      key={day}
+                      className={`border p-3 text-center transition-colors ${
+                        sched?.available ? 'border-[#C6A87C]/40 bg-[#C6A87C]/5' : 'border-[#27272A] opacity-50'
+                      }`}
+                    >
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] mb-2">{dayLabels[day] || day.slice(0, 3)}</p>
+                      {sched?.available ? (
+                        <>
+                          <p className="text-[#F2F0ED] text-sm">{sched.start}</p>
+                          <p className="text-[#A1A1AA] text-xs">to</p>
+                          <p className="text-[#F2F0ED] text-sm">{sched.end}</p>
+                        </>
+                      ) : (
+                        <p className="text-[#6B7280] text-xs italic">Closed</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <VerificationModal
+          open={showVerificationModal}
+          onClose={() => setShowVerificationModal(false)}
+          onSubmitted={fetchDashboard}
+        />
+      </div>
+    );
+  }
+
+  // Profile setup flow - full page experience
+  return (
+    <div className="min-h-screen bg-[#0A0A0C]">
+      {/* Header */}
+      <SiteHeader
+        leftSlot={
+          mode === 'edit' ? (
+            <button
+              onClick={cancelEdit}
+              className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#C6A87C] transition-colors"
+              data-testid="back-to-overview-btn"
+            >
+              <CaretLeft size={18} />
+              <span className="uppercase tracking-wider text-xs md:text-sm">Back to Overview</span>
+            </button>
+          ) : null
+        }
+        links={[
+          { to: '/messages', label: 'Messages', testId: 'messages-link' },
+          { label: 'Logout', onClick: logout, testId: 'logout-btn' }
+        ]}
+      />
+
+      <div className="pt-32 pb-20 section-padding">
+        <div className="max-w-4xl mx-auto">
+          {/* Page Title */}
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-playfair text-[#F2F0ED] mb-4">
+              {mode === 'edit' ? `Edit ${steps[currentStep - 1]?.title}` : 'Complete Your Profile'}
+            </h2>
+            <p className="text-[#A1A1AA]">
+              {mode === 'edit' ? 'Update this section of your profile' : 'Set up your provider profile to start receiving enquiries'}
+            </p>
+          </div>
+
+          {/* Progress Steps - only for creation flow */}
+          {mode !== 'edit' && (
+          <div className="flex items-center justify-between mb-12 px-4">
+            {steps.map((step, index) => (
+              <div key={step.id} className="flex items-center">
+                <button
+                  onClick={() => setCurrentStep(step.id)}
+                  className={`flex flex-col items-center gap-2 transition-all ${
+                    currentStep === step.id 
+                      ? 'text-[#C6A87C]' 
+                      : currentStep > step.id 
+                        ? 'text-green-500' 
+                        : 'text-[#9CA3AF]'
+                  }`}
+                  data-testid={`step-${step.id}`}
+                >
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
+                    currentStep === step.id 
+                      ? 'border-[#C6A87C] bg-[#C6A87C]/10' 
+                      : currentStep > step.id 
+                        ? 'border-green-500 bg-green-500/10' 
+                        : 'border-[#52525B]'
+                  }`}>
+                    {currentStep > step.id ? (
+                      <CheckCircle size={24} weight="fill" />
+                    ) : (
+                      <step.icon size={24} />
+                    )}
+                  </div>
+                  <span className="text-xs uppercase tracking-wider hidden md:block">{step.title}</span>
+                </button>
+                {index < steps.length - 1 && (
+                  <div className={`w-8 md:w-16 h-0.5 mx-2 ${
+                    currentStep > step.id ? 'bg-green-500' : 'bg-[#52525B]'
+                  }`} />
+                )}
+              </div>
+            ))}
+          </div>
+          )}
+
+          {/* Step Content */}
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="card-premium p-8"
+          >
+            {/* Step 1: Basic Info */}
+            {currentStep === 1 && (
+              <div className="space-y-8">
+                {/* Box 1: Basic Information */}
+                <div className="border border-[#27272A] rounded-lg p-6">
+                  <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Basic Information</h3>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <label className="input-label">Display Name</label>
+                      <input
+                        type="text"
+                        value={profileData.display_name}
+                        onChange={(e) => setProfileData({ ...profileData, display_name: e.target.value })}
+                        className="input-premium w-full"
+                        placeholder="Your display name"
+                        data-testid="display-name-input"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <label className="input-label">Age</label>
+                        <input
+                          type="number"
+                          value={profileData.age}
+                          onChange={(e) => setProfileData({ ...profileData, age: e.target.value })}
+                          className="input-premium w-full"
+                          placeholder="Your age"
+                          min="18"
+                          data-testid="age-input"
+                        />
+                      </div>
+                      <div>
+                        <label className="input-label">Gender</label>
+                        <select
+                          value={profileData.gender}
+                          onChange={(e) => setProfileData({ ...profileData, gender: e.target.value })}
+                          className="input-premium w-full"
+                          data-testid="gender-input"
+                        >
+                          <option value="">Select gender</option>
+                          <option value="female">Female</option>
+                          <option value="male">Male</option>
+                          <option value="trans">Trans</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <label className="input-label">City</label>
+                        <input
+                          type="text"
+                          value={profileData.location.city}
+                          onChange={(e) => setProfileData({ ...profileData, location: { ...profileData.location, city: e.target.value } })}
+                          className="input-premium w-full"
+                          placeholder="Your city"
+                          data-testid="city-input"
+                        />
+                      </div>
+                      <div>
+                        <label className="input-label">Country</label>
+                        <select
+                          value={profileData.location.country}
+                          onChange={(e) => setProfileData({ ...profileData, location: { ...profileData.location, country: e.target.value } })}
+                          className="input-premium w-full"
+                          data-testid="country-input"
+                        >
+                          <option value="">Select country</option>
+                          <option value="Belgium">Belgium</option>
+                          <option value="Netherlands">Netherlands</option>
+                          <option value="Luxembourg">Luxembourg</option>
+                          <option value="France">France</option>
+                          <option value="Germany">Germany</option>
+                          <option value="United Kingdom">United Kingdom</option>
+                          <option value="Spain">Spain</option>
+                          <option value="Italy">Italy</option>
+                          <option value="Portugal">Portugal</option>
+                          <option value="Switzerland">Switzerland</option>
+                          <option value="Austria">Austria</option>
+                          <option value="Ireland">Ireland</option>
+                          <option value="Denmark">Denmark</option>
+                          <option value="Sweden">Sweden</option>
+                          <option value="Norway">Norway</option>
+                          <option value="Finland">Finland</option>
+                          <option value="Poland">Poland</option>
+                          <option value="Czech Republic">Czech Republic</option>
+                          <option value="Greece">Greece</option>
+                          <option value="Croatia">Croatia</option>
+                          <option value="Hungary">Hungary</option>
+                          <option value="Romania">Romania</option>
+                          <option value="Bulgaria">Bulgaria</option>
+                          <option value="Slovenia">Slovenia</option>
+                          <option value="Slovakia">Slovakia</option>
+                          <option value="Estonia">Estonia</option>
+                          <option value="Latvia">Latvia</option>
+                          <option value="Lithuania">Lithuania</option>
+                          <option value="Cyprus">Cyprus</option>
+                          <option value="Malta">Malta</option>
+                          <option value="Monaco">Monaco</option>
+                          <option value="Andorra">Andorra</option>
+                          <option value="United States">United States</option>
+                          <option value="Canada">Canada</option>
+                          <option value="Australia">Australia</option>
+                          <option value="New Zealand">New Zealand</option>
+                          <option value="Brazil">Brazil</option>
+                          <option value="Argentina">Argentina</option>
+                          <option value="Mexico">Mexico</option>
+                          <option value="United Arab Emirates">United Arab Emirates</option>
+                          <option value="Singapore">Singapore</option>
+                          <option value="Japan">Japan</option>
+                          <option value="South Korea">South Korea</option>
+                          <option value="Thailand">Thailand</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Box 2: Describe Yourself */}
+                <div className="border border-[#27272A] rounded-lg p-6">
+                  <div>
+                    <label className="input-label">Describe Yourself</label>
+                    <textarea
+                      value={profileData.bio}
+                      onChange={(e) => setProfileData({ ...profileData, bio: e.target.value.slice(0, 500) })}
+                      className="input-premium w-full h-32 resize-none"
+                      placeholder="Share what makes you unique. This will be displayed in 'My Essence' on your profile..."
+                      maxLength={500}
+                      data-testid="essence-input"
+                    />
+                    <div className="flex justify-between mt-2">
+                      <p className="input-helper">This will be displayed in "My Essence" on your profile</p>
+                      <span className="text-xs text-[#9CA3AF]">{(profileData.bio || '').length}/500</span>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="mt-8 mb-6 border-t border-[#27272A]"></div>
+
+                  <h3 className="text-xl font-playfair text-[#F2F0ED] mb-1">Physical Characteristics</h3>
+                  <p className="text-[#71717A] text-sm mb-6">All fields are optional — fill what you want shown on your profile.</p>
+
+                  <CharacteristicsForm
+                    characteristics={profileData.characteristics}
+                    onChange={(c) => setProfileData({ ...profileData, characteristics: c })}
+                  />
+                </div>
+
+                {/* Box 3: Contact Information */}
+                <div className="border border-[#27272A] rounded-lg p-6">
+                  <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Contact Information</h3>
+                  
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <label className="input-label">Mobile Phone</label>
+                        <input
+                          type="tel"
+                          value={profileData.contact.phone}
+                          onChange={(e) => setProfileData({ ...profileData, contact: { ...profileData.contact, phone: e.target.value } })}
+                          className="input-premium w-full"
+                          placeholder="+32 XXX XX XX XX"
+                          data-testid="phone-input"
+                        />
+                      </div>
+                      <div>
+                        <label className="input-label">E-mail</label>
+                        <input
+                          type="email"
+                          value={profileData.contact.email}
+                          onChange={(e) => setProfileData({ ...profileData, contact: { ...profileData.contact, email: e.target.value } })}
+                          className="input-premium w-full"
+                          placeholder="your@email.com"
+                          data-testid="email-input"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="input-label mb-4">Available on</label>
+                      <div className="flex gap-6">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={profileData.contact.hasWhatsapp || false}
+                            onChange={(e) => setProfileData({ 
+                              ...profileData, 
+                              contact: { ...profileData.contact, hasWhatsapp: e.target.checked } 
+                            })}
+                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#25D366] checked:border-[#25D366]"
+                          />
+                          <span className="text-[#A1A1AA]">WhatsApp</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={profileData.contact.hasTelegram || false}
+                            onChange={(e) => setProfileData({ 
+                              ...profileData, 
+                              contact: { ...profileData.contact, hasTelegram: e.target.checked } 
+                            })}
+                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#0088cc] checked:border-[#0088cc]"
+                          />
+                          <span className="text-[#A1A1AA]">Telegram</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={profileData.contact.hasSignal || false}
+                            onChange={(e) => setProfileData({ 
+                              ...profileData, 
+                              contact: { ...profileData.contact, hasSignal: e.target.checked } 
+                            })}
+                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#3A76F0] checked:border-[#3A76F0]"
+                          />
+                          <span className="text-[#A1A1AA]">Signal</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Photos & Video's */}
+            {currentStep === 2 && (
+              <div className="space-y-6">
+                <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-6">Photos & Video's</h3>
+                <p className="text-[#A1A1AA] text-sm mb-6">Add photos and videos to your profile. Media will be reviewed before being published.</p>
+
+                {/* Upload Zone */}
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-lg p-12 text-center transition-all cursor-pointer ${
+                    isDragging 
+                      ? 'border-[#C6A87C] bg-[#C6A87C]/5' 
+                      : 'border-[#52525B] hover:border-[#C6A87C]'
+                  }`}
+                  onClick={() => document.getElementById('file-upload').click()}
+                  data-testid="upload-zone"
+                >
+                  <input
+                    id="file-upload"
+                    type="file"
+                    multiple
+                    accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime"
+                    onChange={handleFileInput}
+                    className="hidden"
+                  />
+                  <UploadSimple size={48} className={`mx-auto mb-4 transition-colors ${isDragging ? 'text-[#C6A87C]' : 'text-[#9CA3AF]'}`} />
+                  <p className="text-[#F2F0ED] text-lg mb-2">
+                    {isDragging ? 'Drop files here' : 'Drag & drop your files here'}
+                  </p>
+                  <p className="text-[#9CA3AF] text-sm mb-4">or click to browse</p>
+                  <p className="text-[#6B7280] text-xs">
+                    Supported formats: JPG, PNG, WebP, MP4 • Max 10MB per file
+                  </p>
+                </div>
+
+                {/* Existing photos from profile */}
+                {profileData.photos && profileData.photos.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-[#F2F0ED] font-medium">Current media ({profileData.photos.length})</h4>
+                    </div>
+                    <div className="grid grid-cols-4 gap-4">
+                      {profileData.photos.map((photoUrl, idx) => (
+                        <div key={`existing-${idx}`} className="relative group aspect-[3/4]">
+                          <img
+                            src={photoUrl}
+                            alt={`Photo ${idx + 1}`}
+                            className="w-full h-full object-cover rounded"
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setProfileData({
+                                ...profileData,
+                                photos: profileData.photos.filter((_, i) => i !== idx)
+                              });
+                            }}
+                            className="absolute top-2 right-2 w-6 h-6 bg-black/70 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            data-testid={`remove-existing-photo-${idx}`}
+                          >
+                            <X size={14} className="text-white" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Uploaded Files Preview */}
+                {uploadedFiles.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-[#F2F0ED] font-medium">{uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} selected</h4>
+                      <button
+                        type="button"
+                        onClick={() => setUploadedFiles([])}
+                        className="text-[#9CA3AF] hover:text-red-500 text-sm transition-colors"
+                      >
+                        Remove all
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-4 gap-4">
+                      {uploadedFiles.map((file) => (
+                        <div key={file.id} className="relative group aspect-[3/4]">
+                          {file.type === 'video' ? (
+                            <div className="w-full h-full bg-[#1F1F23] rounded flex items-center justify-center">
+                              <VideoCamera size={32} className="text-[#9CA3AF]" />
+                            </div>
+                          ) : (
+                            <img
+                              src={file.preview}
+                              alt={file.name}
+                              className="w-full h-full object-cover rounded"
+                            />
+                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeFile(file.id);
+                            }}
+                            className="absolute top-2 right-2 w-6 h-6 bg-black/70 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            data-testid={`remove-file-${file.id}`}
+                          >
+                            <X size={14} className="text-white" />
+                          </button>
+                          {file.type === 'video' && (
+                            <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-xs text-white">
+                              Video
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <p className="text-[#9CA3AF] text-sm">
+                  Tip: Use high-quality photos that show your personality. Avoid filters and ensure good lighting.
+                </p>
+              </div>
+            )}
+
+            {/* Step 3: Services */}
+            {currentStep === 3 && (
+              <div className="space-y-6">
+                <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-6">Services</h3>
+                
+                {/* Type of Companionship */}
+                <div className="mb-8">
+                  <label className="input-label mb-4">Type of Companionship</label>
+                  <div className="flex gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setProfileData({ ...profileData, companionshipType: 'escort' })}
+                      className={`px-6 py-3 border text-sm transition-all ${
+                        profileData.companionshipType === 'escort'
+                          ? 'border-[#C6A87C] bg-[#C6A87C]/20 text-[#C6A87C]'
+                          : 'border-[#52525B] text-[#9CA3AF] hover:border-[#C6A87C]'
+                      }`}
+                    >
+                      Escort
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setProfileData({ ...profileData, companionshipType: 'erotic-massage' })}
+                      className={`px-6 py-3 border text-sm transition-all ${
+                        profileData.companionshipType === 'erotic-massage'
+                          ? 'border-[#C6A87C] bg-[#C6A87C]/20 text-[#C6A87C]'
+                          : 'border-[#52525B] text-[#9CA3AF] hover:border-[#C6A87C]'
+                      }`}
+                    >
+                      Erotic Massage
+                    </button>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-[#52525B] my-4"></div>
+                
+                <p className="text-[#A1A1AA] text-sm mb-4">Select the services you offer and specify if they are inclusive or at an extra cost</p>
+                
+                {/* Services Table */}
+                <div className="border border-[#27272A] rounded-lg overflow-hidden">
+                  {/* Table Header */}
+                  <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-[#1F1F23] border-b border-[#27272A]">
+                    <div className="col-span-5 text-[#A1A1AA] text-sm font-medium">Service</div>
+                    <div className="col-span-3 text-[#A1A1AA] text-sm font-medium">Type</div>
+                    <div className="col-span-4 text-[#A1A1AA] text-sm font-medium text-right">Price</div>
+                  </div>
+                  
+                  {/* Table Body */}
+                  <div>
+                    {serviceOptions.map((service, index) => {
+                      const serviceData = profileData.services[service] || { type: null, price: '' };
+                      return (
+                        <div 
+                          key={service} 
+                          className={`grid grid-cols-12 gap-4 px-4 py-3 items-center ${
+                            index !== serviceOptions.length - 1 ? 'border-b border-[#27272A]' : ''
+                          } ${serviceData.type ? 'bg-[#C6A87C]/5' : ''}`}
+                        >
+                          {/* Service Name */}
+                          <div className="col-span-5 text-[#F2F0ED] text-sm">{service}</div>
+                          
+                          {/* Type Selectors */}
+                          <div className="col-span-3 flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setProfileData({
+                                ...profileData,
+                                services: {
+                                  ...profileData.services,
+                                  [service]: { 
+                                    type: serviceData.type === 'inclusive' ? null : 'inclusive', 
+                                    price: '' 
+                                  }
+                                }
+                              })}
+                              className={`px-3 h-9 text-xs border transition-all ${
+                                serviceData.type === 'inclusive'
+                                  ? 'border-[#C6A87C] bg-[#C6A87C]/20 text-[#C6A87C]'
+                                  : 'border-[#52525B] text-[#9CA3AF] hover:border-[#C6A87C]'
+                              }`}
+                            >
+                              Inclusive
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setProfileData({
+                                ...profileData,
+                                services: {
+                                  ...profileData.services,
+                                  [service]: { 
+                                    type: serviceData.type === 'extra' ? null : 'extra', 
+                                    price: serviceData.price 
+                                  }
+                                }
+                              })}
+                              className={`px-3 h-9 text-xs border transition-all ${
+                                serviceData.type === 'extra'
+                                  ? 'border-[#C6A87C] bg-[#C6A87C]/20 text-[#C6A87C]'
+                                  : 'border-[#52525B] text-[#9CA3AF] hover:border-[#C6A87C]'
+                              }`}
+                            >
+                              Extra
+                            </button>
+                          </div>
+                          
+                          {/* Price Field */}
+                          <div className="col-span-4 flex justify-end">
+                            {serviceData.type === 'extra' ? (
+                              <div className="relative w-24">
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[#9CA3AF] text-sm">€</span>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={serviceData.price}
+                                  onChange={(e) => {
+                                    const value = e.target.value.replace(/[^0-9]/g, '');
+                                    setProfileData({
+                                      ...profileData,
+                                      services: {
+                                        ...profileData.services,
+                                        [service]: { ...serviceData, price: value }
+                                      }
+                                    });
+                                  }}
+                                  className="input-premium w-full h-9 !pl-7 !pr-2 text-xs"
+                                  placeholder="0"
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-[#52525B] text-sm">-</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Add Custom Service */}
+                <div className="mt-6 p-4 border border-[#27272A] rounded-lg">
+                  <label className="input-label mb-3">Add another service</label>
+                  <div className="flex gap-3 items-center">
+                    <input
+                      type="text"
+                      value={newService}
+                      onChange={(e) => setNewService(e.target.value)}
+                      className="input-premium w-64"
+                      placeholder="Enter service name..."
+                      data-testid="custom-service-input"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (newService.trim()) {
+                          setProfileData({
+                            ...profileData,
+                            services: {
+                              ...profileData.services,
+                              [newService.trim()]: { type: 'inclusive', price: '' }
+                            }
+                          });
+                          setNewService('');
+                        }
+                      }}
+                      className="btn-secondary h-[50px] px-6 flex items-center gap-2"
+                    >
+                      <Plus size={18} />
+                      Add
+                    </button>
+                  </div>
+                </div>
+
+                {/* Summary */}
+                {Object.keys(profileData.services).filter(s => profileData.services[s]?.type).length > 0 && (
+                  <div className="mt-4 p-4 border border-[#27272A] rounded">
+                    <p className="text-[#A1A1AA] text-sm mb-2">
+                      Selected: {Object.keys(profileData.services).filter(s => profileData.services[s]?.type === 'inclusive').length} inclusive, {Object.keys(profileData.services).filter(s => profileData.services[s]?.type === 'extra').length} extra
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Step 4: Rates */}
+            {currentStep === 4 && (
+              <div className="space-y-6">
+                <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-6">Rates</h3>
+                <p className="text-[#A1A1AA] text-sm mb-6">Set your pricing for different durations</p>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="input-label">1 Hour</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={profileData.rates['1hour']}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, '');
+                          setProfileData({ ...profileData, rates: { ...profileData.rates, '1hour': value } });
+                        }}
+                        className="input-premium w-full !pl-10"
+                        placeholder="0"
+                        data-testid="rate-1hour"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="input-label">2 Hours</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={profileData.rates['2hours']}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, '');
+                          setProfileData({ ...profileData, rates: { ...profileData.rates, '2hours': value } });
+                        }}
+                        className="input-premium w-full !pl-10"
+                        placeholder="0"
+                        data-testid="rate-2hours"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="input-label">3 Hours</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={profileData.rates['3hours']}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, '');
+                          setProfileData({ ...profileData, rates: { ...profileData.rates, '3hours': value } });
+                        }}
+                        className="input-premium w-full !pl-10"
+                        placeholder="0"
+                        data-testid="rate-3hours"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="input-label">Overnight</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={profileData.rates['overnight']}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^0-9]/g, '');
+                          setProfileData({ ...profileData, rates: { ...profileData.rates, 'overnight': value } });
+                        }}
+                        className="input-premium w-full !pl-10"
+                        placeholder="0"
+                        data-testid="rate-overnight"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 5: Availability */}
+            {currentStep === 5 && (
+              <div className="space-y-6">
+                <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-6">Availability</h3>
+                <p className="text-[#A1A1AA] text-sm mb-6">Set your availability for each day</p>
+
+                {/* 24/7 Option */}
+                <label className="flex items-center gap-3 cursor-pointer py-3 border-b border-[#52525B]">
+                  <input
+                    type="checkbox"
+                    checked={profileData.available247 || false}
+                    onChange={(e) => {
+                      const is247 = e.target.checked;
+                      const updatedSchedule = {};
+                      Object.keys(profileData.schedule).forEach(day => {
+                        updatedSchedule[day] = { 
+                          available: !is247,
+                          start: '10:00',
+                          end: '22:00'
+                        };
+                      });
+                      setProfileData({
+                        ...profileData,
+                        available247: is247,
+                        schedule: updatedSchedule
+                      });
+                    }}
+                    className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                  />
+                  <span className="text-[#F2F0ED]">Available 24/7</span>
+                </label>
+
+                <div className="space-y-4">
+                  {Object.entries(profileData.schedule).map(([day, schedule]) => (
+                    <div key={day} className="flex items-center gap-4 py-3 border-b border-[#27272A]">
+                      <label className="flex items-center gap-3 cursor-pointer w-32">
+                        <input
+                          type="checkbox"
+                          checked={schedule.available}
+                          onChange={(e) => setProfileData({
+                            ...profileData,
+                            schedule: {
+                              ...profileData.schedule,
+                              [day]: { ...schedule, available: e.target.checked }
+                            }
+                          })}
+                          className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                        />
+                        <span className="text-[#F2F0ED] capitalize">{day}</span>
+                      </label>
+                      {schedule.available && (
+                        <>
+                          <input
+                            type="time"
+                            value={schedule.start}
+                            onChange={(e) => setProfileData({
+                              ...profileData,
+                              schedule: {
+                                ...profileData.schedule,
+                                [day]: { ...schedule, start: e.target.value }
+                              }
+                            })}
+                            className="input-premium px-3 py-2"
+                          />
+                          <span className="text-[#A1A1AA]">to</span>
+                          <input
+                            type="time"
+                            value={schedule.end}
+                            onChange={(e) => setProfileData({
+                              ...profileData,
+                              schedule: {
+                                ...profileData.schedule,
+                                [day]: { ...schedule, end: e.target.value }
+                              }
+                            })}
+                            className="input-premium px-3 py-2"
+                          />
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between mt-8 pt-6 border-t border-[#27272A]">
+              {mode === 'edit' ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={cancelEdit}
+                    className="btn-secondary flex items-center gap-2"
+                    data-testid="cancel-edit-button"
+                  >
+                    <CaretLeft size={20} />
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={saveStep}
+                    disabled={saving}
+                    className="btn-primary flex items-center gap-2 disabled:opacity-50"
+                    data-testid="save-step-button"
+                  >
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    disabled={currentStep === 1}
+                    className="btn-secondary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    data-testid="prev-button"
+                  >
+                    <CaretLeft size={20} />
+                    Previous
+                  </button>
+
+                  {currentStep < 5 ? (
+                    <button
+                      type="button"
+                      onClick={nextStep}
+                      className="btn-primary flex items-center gap-2"
+                      data-testid="next-button"
+                    >
+                      Next
+                      <CaretRight size={20} />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleCreateProfile}
+                      className="btn-primary"
+                      data-testid="submit-profile-button"
+                    >
+                      Complete Profile
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+      <VerificationModal
+        open={showVerificationModal}
+        onClose={() => setShowVerificationModal(false)}
+        onSubmitted={fetchDashboard}
+      />
+    </div>
+  );
+}

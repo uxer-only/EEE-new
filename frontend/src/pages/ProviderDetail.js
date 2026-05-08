@@ -1,0 +1,495 @@
+import { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { getProviderById, createConversation } from '@/services/api';
+import { toast } from 'sonner';
+import {
+  MapPin, CheckCircle, Star, Calendar, Clock, ChatCircle, CaretLeft,
+  Phone, WhatsappLogo, EnvelopeSimple
+} from 'phosphor-react';
+import { useAuth } from '@/context/AuthContext';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+
+export default function ProviderDetail() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [provider, setProvider] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [extraRequest, setExtraRequest] = useState('');
+  const [sendingRequest, setSendingRequest] = useState(false);
+
+  useEffect(() => {
+    fetchProvider();
+  }, [id]);
+
+  const fetchProvider = async () => {
+    try {
+      const response = await getProviderById(id);
+      setProvider(response.data);
+      // Track as recently viewed (for offline fallback browsing)
+      try {
+        const KEY = 'lumiere-recent-providers';
+        const existing = JSON.parse(localStorage.getItem(KEY) || '[]');
+        const p = response.data;
+        const slim = {
+          provider_id: p.provider_id,
+          display_name: p.display_name,
+          age: p.age,
+          photos: (p.photos || []).slice(0, 1),
+          location: p.location,
+          verified: p.verified,
+          viewed_at: Date.now()
+        };
+        const next = [slim, ...existing.filter((x) => x.provider_id !== slim.provider_id)].slice(0, 10);
+        localStorage.setItem(KEY, JSON.stringify(next));
+      } catch {
+        // ignore storage errors (quota, private mode)
+      }
+    } catch (error) {
+      toast.error('Provider not found');
+      navigate('/browse');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMessage = async () => {
+    if (!user) {
+      toast.error('Please login to message');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await createConversation(id);
+      navigate('/messages');
+    } catch (error) {
+      toast.error('Failed to start conversation');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0C] flex items-center justify-center">
+        <div className="shimmer w-16 h-16 rounded-full"></div>
+      </div>
+    );
+  }
+
+  if (!provider) return null;
+
+  return (
+    <div className="min-h-screen bg-[#0A0A0C]">
+      {/* Header */}
+      <header className="floating-header" data-testid="header">
+        <div className="section-padding py-6 flex items-center justify-between">
+          <Link to="/browse" className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#C6A87C] transition-colors">
+            <CaretLeft size={20} />
+            <span className="uppercase tracking-wider text-sm">Back to Browse</span>
+          </Link>
+          <nav className="flex items-center gap-8">
+            {user && (
+              <Link to="/dashboard" className="btn-ghost" data-testid="dashboard-link">
+                Dashboard
+              </Link>
+            )}
+          </nav>
+        </div>
+      </header>
+
+      <div className="pt-24 md:pt-32 pb-12 md:pb-20 section-padding">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+            {/* Left - Images */}
+            <div>
+              {provider.photos && provider.photos.length > 0 ? (
+                <>
+                  <Carousel className="w-full mb-6">
+                    <CarouselContent>
+                      {provider.photos.map((photo, index) => (
+                        <CarouselItem key={index}>
+                          <div className="aspect-[3/4] w-full">
+                            <img
+                              src={photo}
+                              alt={`${provider.display_name} ${index + 1}`}
+                              className="w-full h-full object-cover"
+                              data-testid={`provider-photo-${index}`}
+                            />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="left-4" />
+                    <CarouselNext className="right-4" />
+                  </Carousel>
+                  
+                  {/* Thumbnail Gallery */}
+                  <div className="grid grid-cols-4 gap-3">
+                    {provider.photos.map((photo, index) => (
+                      <div key={index} className="aspect-[3/4] overflow-hidden border border-[#27272A] hover:border-[#C6A87C] transition-all cursor-pointer group" data-testid={`thumbnail-${index}`}>
+                        <img
+                          src={photo}
+                          alt={`${provider.display_name} thumbnail ${index + 1}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="aspect-[3/4] w-full">
+                  <img
+                    src="https://images.unsplash.com/photo-1768609957045-591c79431f48?crop=entropy&cs=srgb&fm=jpg&q=85"
+                    alt={provider.display_name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Right - Details */}
+            <div>
+              <div className="flex items-start justify-between gap-4 mb-6">
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-4xl md:text-5xl font-playfair text-[#F2F0ED] mb-3" data-testid="provider-name">
+                    {provider.display_name}{provider.age && <span className="text-[#A1A1AA]">, {provider.age}</span>}
+                  </h1>
+                  <div className="flex items-start gap-4 text-[#A1A1AA]">
+                    <div className="flex items-start gap-2">
+                      <MapPin size={20} weight="thin" className="shrink-0 mt-0.5" />
+                      <span className="text-sm md:text-base">Luxury companion based in {provider.location?.city || 'Brussels'}</span>
+                    </div>
+                  </div>
+                </div>
+                {provider.verified && (
+                  <div className="verified-badge shrink-0" data-testid="verified-badge">
+                    <CheckCircle size={16} weight="fill" />
+                    <span className="hidden sm:inline">Verified</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Rating */}
+              {provider.avg_rating > 0 && (
+                <div className="flex items-center gap-2 mb-8" data-testid="rating">
+                  <Star size={20} weight="fill" className="text-[#C6A87C]" />
+                  <span className="text-[#F2F0ED] font-medium">{provider.avg_rating}</span>
+                  <span className="text-[#A1A1AA]">({provider.review_count} reviews)</span>
+                </div>
+              )}
+
+              {/* Bio + Physical characteristics */}
+              {(provider.bio || provider.essence || provider.characteristics) && (
+                <div className="mb-8 card-premium p-6 md:p-8">
+                  {(provider.bio || provider.essence) && (
+                    <>
+                      <h3 className="text-xl font-playfair text-[#F2F0ED] mb-4">My essence...</h3>
+                      <p className="text-[#A1A1AA] leading-relaxed" data-testid="provider-bio">
+                        {provider.bio || provider.essence}
+                      </p>
+                    </>
+                  )}
+
+                  {/* Divider + Characteristics */}
+                  {(() => {
+                    const c = provider.characteristics || {};
+                    const LANG_ORDER = ['English', 'French', 'German', 'Russian'];
+                    const langs = Array.isArray(c.languages)
+                      ? c.languages.filter((l) => LANG_ORDER.includes(l))
+                      : [];
+                    const rows = [
+                      ['Nationality', c.nationality],
+                      ['Ethnicity', c.ethnicity],
+                      ['Orientation', c.orientation],
+                      ['Height', c.height ? `${c.height} cm` : ''],
+                      ['Weight', c.weight ? `${c.weight} kg` : ''],
+                      ['Eye color', c.eye_color],
+                      ['Hair color', c.hair_color],
+                      ['Hair length', c.hair_length],
+                      ['Breast size', c.breast_size],
+                      ['Breast type', c.breast_type],
+                      ['Pubic hair', c.pubic_hair],
+                      ['Languages', langs.length ? langs.join(', ') : ''],
+                      ['Tattoos', c.tattoos === 'yes' ? 'Yes' : c.tattoos === 'no' ? 'No' : ''],
+                      ['Piercings', c.piercings === 'yes' ? 'Yes' : c.piercings === 'no' ? 'No' : ''],
+                      ['Smoker', c.smoker === 'yes' ? 'Yes' : c.smoker === 'no' ? 'No' : '']
+                    ].filter(([, v]) => v !== '' && v !== null && v !== undefined);
+                    if (rows.length === 0) return null;
+                    return (
+                      <>
+                        {(provider.bio || provider.essence) && (
+                          <div className="my-6 border-t border-[#27272A]"></div>
+                        )}
+                        <dl
+                          className="grid grid-cols-2 gap-x-6 md:gap-x-10 gap-y-5"
+                          data-testid="provider-characteristics"
+                        >
+                          {rows.map(([label, value]) => (
+                            <div
+                              key={label}
+                              className="flex flex-col gap-1"
+                              data-testid={`char-row-${label.toLowerCase().replace(/ /g, '-')}`}
+                            >
+                              <dt className="text-[#F2F0ED] text-sm md:text-base">{label}</dt>
+                              <dd className="text-[#A1A1AA] text-sm md:text-base break-words">{value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {/* Services */}
+              {(() => {
+                const services = provider.services;
+                let serviceList = [];
+                if (Array.isArray(services)) {
+                  serviceList = services.map(s => ({ name: s, type: 'inclusive', price: '' }));
+                } else if (services && typeof services === 'object') {
+                  serviceList = Object.entries(services)
+                    .filter(([_, v]) => v && v.type)
+                    .map(([name, v]) => ({ name, type: v.type, price: v.price }));
+                }
+                if (serviceList.length === 0) return null;
+                const inclusive = serviceList.filter(s => s.type === 'inclusive');
+                const extras = serviceList.filter(s => s.type === 'extra');
+                return (
+                  <div className="mb-8 card-premium p-6 md:p-8">
+                    <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">What we can share together...</h3>
+                    {inclusive.length > 0 && (
+                      <div className="mb-4">
+                        {extras.length > 0 && (
+                          <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] mb-3">Inclusive</p>
+                        )}
+                        <div className="flex flex-wrap gap-3">
+                          {inclusive.map((s, i) => (
+                            <span
+                              key={`inc-${i}`}
+                              className="px-4 py-2 border border-[#3F3F46] text-[#A1A1AA] text-sm uppercase tracking-wider hover:border-[#C6A87C] hover:text-[#C6A87C] transition-colors"
+                              data-testid={`service-${i}`}
+                            >
+                              {s.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {extras.length > 0 && (
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] mb-3">Extra</p>
+                        <div className="flex flex-wrap gap-3">
+                          {extras.map((s, i) => (
+                            <span
+                              key={`ext-${i}`}
+                              className="px-4 py-2 border border-[#C6A87C]/40 bg-[#C6A87C]/10 text-[#C6A87C] text-sm uppercase tracking-wider"
+                              data-testid={`service-extra-${i}`}
+                            >
+                              {s.name}{s.price && ` · €${s.price}`}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Schedule */}
+              {(() => {
+                const dayOrder = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+                const labels = { monday:'Monday', tuesday:'Tuesday', wednesday:'Wednesday', thursday:'Thursday', friday:'Friday', saturday:'Saturday', sunday:'Sunday' };
+                const schedule = provider.schedule && typeof provider.schedule === 'object' ? provider.schedule : null;
+                if (!schedule) return null;
+                return (
+                  <div className="mb-8 card-premium p-6 md:p-8">
+                    <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">My schedule</h3>
+                    <div className="space-y-3">
+                      {dayOrder.filter(d => schedule[d]).map((day) => {
+                        const s = schedule[day];
+                        return (
+                          <div key={day} className="flex justify-between items-center py-2" data-testid={`schedule-${day}`}>
+                            <span className="text-[#F2F0ED] font-medium">{labels[day]}</span>
+                            <span className="text-[#A1A1AA]">
+                              {s.available ? `${s.start} - ${s.end}` : 'Closed'}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Let's Connect */}
+              <div className="mb-8 card-premium p-6 md:p-8" data-testid="contact-section">
+                <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Let's connect</h3>
+                <div className="space-y-4">
+                  {/* Mobile */}
+                  <a 
+                    href={`tel:${provider.contact?.phone || '+32 XXX XX XX XX'}`}
+                    className="flex items-center gap-4 p-4 border border-[#27272A] hover:border-[#C6A87C] transition-colors group"
+                    data-testid="contact-phone"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-[#C6A87C]/10 flex items-center justify-center group-hover:bg-[#C6A87C]/20 transition-colors">
+                      <Phone size={20} className="text-[#C6A87C]" />
+                    </div>
+                    <div>
+                      <p className="text-[#A1A1AA] text-sm">Mobile</p>
+                      <p className="text-[#F2F0ED]">{provider.contact?.phone || '+32 XXX XX XX XX'}</p>
+                    </div>
+                  </a>
+
+                  {/* WhatsApp */}
+                  <a 
+                    href={`https://wa.me/${(provider.contact?.whatsapp || '+32XXXXXXXXX').replace(/[^0-9]/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 p-4 border border-[#27272A] hover:border-[#25D366] transition-colors group"
+                    data-testid="contact-whatsapp"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-[#25D366]/10 flex items-center justify-center group-hover:bg-[#25D366]/20 transition-colors">
+                      <WhatsappLogo size={20} className="text-[#25D366]" />
+                    </div>
+                    <div>
+                      <p className="text-[#A1A1AA] text-sm">WhatsApp</p>
+                      <p className="text-[#F2F0ED]">{provider.contact?.whatsapp || '+32 XXX XX XX XX'}</p>
+                    </div>
+                  </a>
+
+                  {/* Email */}
+                  <a 
+                    href={`mailto:${provider.contact?.email || provider.user?.email || 'contact@example.com'}`}
+                    className="flex items-center gap-4 p-4 border border-[#27272A] hover:border-[#C6A87C] transition-colors group"
+                    data-testid="contact-email"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-[#C6A87C]/10 flex items-center justify-center group-hover:bg-[#C6A87C]/20 transition-colors">
+                      <EnvelopeSimple size={20} className="text-[#C6A87C]" />
+                    </div>
+                    <div>
+                      <p className="text-[#A1A1AA] text-sm">E-mail</p>
+                      <p className="text-[#F2F0ED]">{provider.contact?.email || provider.user?.email || 'contact@example.com'}</p>
+                    </div>
+                  </a>
+
+                  {/* Message CTA */}
+                  <button
+                    onClick={handleMessage}
+                    className="btn-primary w-full mt-4"
+                    data-testid="message-button"
+                  >
+                    <ChatCircle size={20} className="inline mr-2" />
+                    Send Message
+                  </button>
+                </div>
+              </div>
+
+              {/* Rates */}
+              {provider.rates && Object.keys(provider.rates).length > 0 && (
+                <div className="mb-8 card-premium p-6 md:p-8">
+                  <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Time & investment</h3>
+                  <div className="space-y-4">
+                    {Object.entries(provider.rates).map(([type, rate]) => (
+                      <div key={type} className="flex justify-between items-center pb-4 border-b border-[#27272A] last:border-b-0 last:pb-0" data-testid={`rate-${type}`}>
+                        <span className="text-[#A1A1AA] capitalize text-lg">{type}</span>
+                        <span className="text-[#C6A87C] text-2xl font-playfair">€{rate}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Extra Requests */}
+              <div className="mb-8 card-premium p-6 md:p-8">
+                <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Do you have extra requests?</h3>
+                <div className="space-y-4">
+                  <textarea
+                    value={extraRequest}
+                    onChange={(e) => setExtraRequest(e.target.value.slice(0, 350))}
+                    placeholder="Share your special requests or preferences..."
+                    className="input-premium w-full h-32 resize-none"
+                    maxLength={350}
+                    data-testid="extra-request-input"
+                  />
+                  <div className="flex justify-between items-center">
+                    <span className="text-[#52525B] text-sm">{extraRequest.length}/350 characters</span>
+                    <button
+                      onClick={() => {
+                        if (!user) {
+                          toast.error('Please login to send requests');
+                          navigate('/login');
+                          return;
+                        }
+                        if (!extraRequest.trim()) {
+                          toast.error('Please enter your request');
+                          return;
+                        }
+                        setSendingRequest(true);
+                        // Simulate sending request
+                        setTimeout(() => {
+                          toast.success('Request sent successfully!');
+                          setExtraRequest('');
+                          setSendingRequest(false);
+                        }, 1000);
+                      }}
+                      disabled={sendingRequest || !extraRequest.trim()}
+                      className="btn-primary px-8 disabled:opacity-50"
+                      data-testid="send-request-button"
+                    >
+                      {sendingRequest ? 'Sending...' : 'Send'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Reviews */}
+          {provider.reviews && provider.reviews.length > 0 && (
+            <div className="mt-24">
+              <h3 className="text-3xl font-playfair text-[#F2F0ED] mb-12">Reviews</h3>
+              <div className="space-y-8">
+                {provider.reviews.map((review, index) => (
+                  <motion.div
+                    key={review.review_id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="card-premium p-6 md:p-8"
+                    data-testid={`review-${index}`}
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <img
+                        src={review.reviewer?.picture || 'https://via.placeholder.com/50'}
+                        alt={review.reviewer?.name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="text-[#F2F0ED] font-medium">{review.reviewer?.name}</p>
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              size={16}
+                              weight={i < review.rating ? 'fill' : 'regular'}
+                              className={i < review.rating ? 'text-[#C6A87C]' : 'text-[#52525B]'}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    {review.comment && (
+                      <p className="text-[#A1A1AA] leading-relaxed">{review.comment}</p>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

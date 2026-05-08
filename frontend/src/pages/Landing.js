@@ -1,0 +1,298 @@
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
+import { Shield, Lock, CheckCircle, ChatCircle, Star, Calendar, Warning } from 'phosphor-react';
+import { getProviders } from '@/services/api';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import SiteHeader from '@/components/SiteHeader';
+
+export default function Landing() {
+  const navigate = useNavigate();
+  const [showAgeModal, setShowAgeModal] = useState(false);
+  const [providers, setProviders] = useState([]);
+  const [loadingProviders, setLoadingProviders] = useState(true);
+
+  useEffect(() => {
+    // Check if user has already confirmed age
+    const ageConfirmed = localStorage.getItem('ageConfirmed');
+    if (!ageConfirmed) {
+      setShowAgeModal(true);
+    }
+    
+    // Fetch latest providers
+    fetchProviders();
+  }, []);
+
+  const fetchProviders = async () => {
+    try {
+      const response = await getProviders({ limit: 18 });
+      setProviders(response.data.slice(0, 18));
+    } catch (error) {
+      console.error('Failed to fetch providers:', error);
+    } finally {
+      setLoadingProviders(false);
+    }
+  };
+
+  const handleAgeConfirm = () => {
+    localStorage.setItem('ageConfirmed', 'true');
+    setShowAgeModal(false);
+  };
+
+  const handleLeaveWebsite = () => {
+    window.location.href = 'https://google.com';
+  };
+
+  const features = [
+    {
+      icon: <Shield size={32} weight="thin" />,
+      title: 'Verified Profiles',
+      description: 'Every provider undergoes rigorous verification for your peace of mind'
+    },
+    {
+      icon: <Lock size={32} weight="thin" />,
+      title: 'Complete Discretion',
+      description: 'Your privacy is paramount. All interactions are encrypted and secure'
+    },
+    {
+      icon: <ChatCircle size={32} weight="thin" />,
+      title: 'Secure Messaging',
+      description: 'Private, encrypted conversations from first contact to last'
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#0A0A0C]">
+      {/* Age Verification Modal */}
+      <Dialog open={showAgeModal} onOpenChange={() => {}}>
+        <DialogContent className="bg-[#141416] border-[#27272A] text-[#F2F0ED] max-w-md p-0 overflow-hidden" hideClose>
+          <div className="p-6 md:p-8 text-center">
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#C6A87C]/10 flex items-center justify-center">
+              <Warning size={32} className="text-[#C6A87C]" weight="fill" />
+            </div>
+            <h2 className="text-2xl font-playfair text-[#F2F0ED] mb-4">
+              Age Verification Required
+            </h2>
+            <p className="text-[#A1A1AA] mb-8 text-sm leading-relaxed">
+              This website contains adult content and is intended for individuals 18 years of age or older. By entering, you confirm that you are of legal age in your jurisdiction.
+            </p>
+            <div className="space-y-3">
+              <button
+                onClick={handleAgeConfirm}
+                className="btn-primary w-full"
+                data-testid="age-confirm-button"
+              >
+                I am 18 or older
+              </button>
+              <button
+                onClick={handleLeaveWebsite}
+                className="btn-secondary w-full"
+                data-testid="leave-website-button"
+              >
+                Leave Website
+              </button>
+            </div>
+            <div className="mt-6 pt-6 border-t border-[#27272A] flex justify-center gap-6 text-xs text-[#52525B]">
+              <Link to="/privacy" className="hover:text-[#C6A87C] transition-colors">
+                Privacy Policy
+              </Link>
+              <Link to="/terms" className="hover:text-[#C6A87C] transition-colors">
+                Terms & Conditions
+              </Link>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      {/* Floating Header */}
+      <SiteHeader
+        links={[
+          { to: '/browse', label: 'Browse', testId: 'browse-link' },
+          { to: '/login', label: 'Login', testId: 'login-link' },
+          { to: '/register', label: 'Join', variant: 'primary', testId: 'join-button' }
+        ]}
+      />
+
+      {/* Hero Section with Overlapping Profiles */}
+      <section className="relative" data-testid="hero-section">
+        {/* Hero Background - extends behind profiles */}
+        <div className="absolute inset-0 z-0 h-[100vh] overflow-hidden">
+          <picture>
+            <source
+              media="(max-width: 767px)"
+              type="image/webp"
+              srcSet="/hero-bg-mobile.webp"
+            />
+            <source
+              media="(max-width: 767px)"
+              srcSet="/hero-bg-mobile.jpg"
+            />
+            <source type="image/webp" srcSet="/hero-bg.webp" />
+            <img
+              src="/hero-bg.jpg"
+              alt=""
+              fetchpriority="high"
+              className="w-full h-full object-cover"
+              data-testid="hero-bg-image"
+            />
+          </picture>
+          <div className="hero-gradient absolute inset-0"></div>
+        </div>
+
+        {/* Hero Text Content */}
+        <div className="section-padding relative z-10 pt-32 md:pt-40 pb-12 md:pb-16 w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-3xl mx-auto text-center"
+          >
+            <h2
+              className="text-5xl sm:text-6xl lg:text-7xl font-playfair text-[#F2F0ED] mb-6"
+              data-testid="hero-title"
+            >
+              The Art of
+              <br />
+              Companionship
+            </h2>
+            <p
+              className="text-base md:text-xl text-[#A1A1AA] max-w-xl mx-auto"
+              data-testid="hero-subtitle"
+            >
+              Discreet. Curated. Exceptional. Connect with verified independent professionals in a safe, premium environment.
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Latest Profiles - Overlapping onto hero */}
+        <div className="section-padding relative z-10 pb-12" data-testid="latest-profiles-section">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-8 md:mb-12">
+              <span className="label-premium">Discover</span>
+              <h3 className="text-3xl md:text-4xl lg:text-5xl font-playfair text-[#F2F0ED] mt-4">
+                Latest Profiles
+              </h3>
+            </div>
+
+            {loadingProviders ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {[...Array(18)].map((_, index) => (
+                  <div key={index} className="aspect-[3/4] shimmer rounded-sm"></div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {providers.map((provider, index) => (
+                  <motion.div
+                    key={provider.provider_id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: index * 0.03 }}
+                  >
+                    <Link
+                      to={`/providers/${provider.provider_id}`}
+                      className="block group"
+                      data-testid={`profile-card-${index}`}
+                    >
+                      <div className="relative aspect-[3/4] overflow-hidden bg-[#141416] border border-[#27272A] hover:border-[#C6A87C] transition-all duration-300">
+                        <img
+                          src={provider.photos?.[0] || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400'}
+                          alt={provider.display_name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                          <p className="text-[#F2F0ED] font-medium text-sm truncate">
+                            {provider.display_name}{provider.age && <span className="text-[#A1A1AA]">, {provider.age}</span>}
+                          </p>
+                          <p className="text-[#A1A1AA] text-xs truncate">
+                            {provider.location?.city}
+                          </p>
+                        </div>
+                        {provider.verified && (
+                          <div className="absolute top-2 right-2">
+                            <CheckCircle size={16} weight="fill" className="text-[#22C55E]" />
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+
+            {/* CTAs moved below profiles */}
+            <div className="flex gap-6 justify-center mt-16">
+              <Link
+                to="/browse"
+                className="btn-primary"
+                data-testid="cta-browse-button"
+              >
+                Explore Profiles
+              </Link>
+              <Link
+                to="/register/provider"
+                className="btn-secondary"
+                data-testid="cta-register-button"
+              >
+                Become a Provider
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="section-padding py-32" data-testid="features-section">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <span className="label-premium">Why Choose Us</span>
+            <h3 className="text-4xl lg:text-5xl font-playfair text-[#F2F0ED] mt-4">
+              Trust. Privacy. Excellence.
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.6,
+                  delay: index * 0.1,
+                  ease: [0.22, 1, 0.36, 1]
+                }}
+                className="card-premium p-8"
+                data-testid={`feature-card-${index}`}
+              >
+                <div className="text-[#C6A87C] mb-6">{feature.icon}</div>
+                <h4 className="text-xl font-playfair text-[#F2F0ED] mb-3">
+                  {feature.title}
+                </h4>
+                <p className="text-[#A1A1AA] text-sm leading-relaxed">
+                  {feature.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="section-padding py-12 border-t border-[#27272A]" data-testid="footer">
+        <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4">
+          <p className="text-[#52525B] text-sm text-center sm:text-left">
+            © 2026 High Class Companionship. All rights reserved.
+          </p>
+          <div className="flex gap-6 sm:gap-8 text-[#52525B] text-sm">
+            <button className="hover:text-[#C6A87C] transition-colors">Privacy</button>
+            <button className="hover:text-[#C6A87C] transition-colors">Terms</button>
+            <button className="hover:text-[#C6A87C] transition-colors">Contact</button>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
