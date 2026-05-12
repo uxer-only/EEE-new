@@ -8,8 +8,7 @@ export default function Register() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
-    role: 'client'
+    password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -21,7 +20,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await register(formData.email, formData.password, formData.name, formData.role);
+      await register(formData.email, formData.password, formData.name, 'provider');
       toast.success('Account created successfully');
       navigate('/dashboard');
     } catch (error) {
@@ -67,37 +66,6 @@ export default function Register() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* I am a - Role Selection */}
-            <div>
-              <label className="input-label">I am a</label>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, role: 'client' })}
-                  className={`py-3 px-6 border transition-all ${
-                    formData.role === 'client'
-                      ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                      : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
-                  }`}
-                  data-testid="client-role-button"
-                >
-                  <span className="uppercase tracking-wider text-sm font-medium">Client</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, role: 'provider' })}
-                  className={`py-3 px-6 border transition-all ${
-                    formData.role === 'provider'
-                      ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                      : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
-                  }`}
-                  data-testid="provider-role-button"
-                >
-                  <span className="uppercase tracking-wider text-sm font-medium">Provider</span>
-                </button>
-              </div>
-            </div>
-
             {/* Sign up with Google */}
             <div>
               <label className="input-label">Sign up with</label>
