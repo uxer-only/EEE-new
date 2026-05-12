@@ -19,7 +19,7 @@
 
 /* Input styles */
 .input-premium {
-  @apply bg-transparent border border-[#52525B] focus:border-[#C6A87C] px-4 py-3 text-base text-[#F2F0ED] placeholder:text-[#9CA3AF] placeholder:italic focus:ring-0 focus:outline-none transition-colors;
+  @apply bg-transparent border border-[#52525B] focus:border-[#C6A87C] px-4 py-3 text-[13px] text-[#A1A1AA] placeholder:text-[#9CA3AF] placeholder:italic focus:ring-0 focus:outline-none transition-colors;
 }
 
 select.input-premium {
@@ -27,11 +27,11 @@ select.input-premium {
 }
 
 select.input-premium option {
-  @apply bg-[#1F1F23] text-[#F2F0ED];
+  @apply bg-[#1F1F23] text-[#A1A1AA];
 }
 
 .input-label {
-  @apply text-xs uppercase tracking-widest text-[#A1A1AA] mb-3 block font-medium;
+  @apply text-sm uppercase tracking-widest text-[#F2F0ED] mb-3 block font-medium;
 }
 
 .input-helper {

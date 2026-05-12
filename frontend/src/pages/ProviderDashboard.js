@@ -24,6 +24,7 @@ export default function ProviderDashboard() {
   const [subscription, setSubscription] = useState(null);
   const [profileData, setProfileData] = useState({
     display_name: '',
+    account_type: 'independent',
     age: '',
     gender: '',
     essence: '',
@@ -866,6 +867,37 @@ export default function ProviderDashboard() {
                   <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Basic Information</h3>
                   
                   <div className="space-y-6">
+                    {/* Account Type */}
+                    <div>
+                      <label className="input-label">I am</label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          type="button"
+                          onClick={() => setProfileData({ ...profileData, account_type: 'independent' })}
+                          className={`py-3 px-6 border transition-all ${
+                            profileData.account_type === 'independent'
+                              ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
+                              : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
+                          }`}
+                          data-testid="account-type-independent"
+                        >
+                          <span className="uppercase tracking-wider text-sm font-medium">Independent Companion</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setProfileData({ ...profileData, account_type: 'agency' })}
+                          className={`py-3 px-6 border transition-all ${
+                            profileData.account_type === 'agency'
+                              ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
+                              : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
+                          }`}
+                          data-testid="account-type-agency"
+                        >
+                          <span className="uppercase tracking-wider text-sm font-medium">Agency</span>
+                        </button>
+                      </div>
+                    </div>
+
                     <div>
                       <label className="input-label">Display Name</label>
                       <input
