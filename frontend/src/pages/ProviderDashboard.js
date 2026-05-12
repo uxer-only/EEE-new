@@ -95,6 +95,7 @@ export default function ProviderDashboard() {
   const [planFeatured, setPlanFeatured] = useState('featured_4w');
   const [planVipOn, setPlanVipOn] = useState(false);
   const [planVip, setPlanVip] = useState('vip_4w');
+  const [autoRenew, setAutoRenew] = useState(true);
   const [payRedirecting, setPayRedirecting] = useState(false);
 
   const planTotal =
@@ -107,6 +108,7 @@ export default function ProviderDashboard() {
       const { data } = await createSubscriptionCheckout({
         featured_plan: planFeatured,
         vip_plan: planVipOn ? planVip : null,
+        auto_renew: autoRenew,
         origin_url: window.location.origin
       });
       if (data?.url) {
@@ -1721,34 +1723,63 @@ export default function ProviderDashboard() {
                       />
                     </button>
                   </div>
-                  {planVipOn && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {VIP_OPTIONS.map((opt) => (
-                        <button
-                          key={opt.id}
-                          type="button"
-                          onClick={() => setPlanVip(opt.id)}
-                          className={`relative text-left p-4 border-2 transition-all ${
-                            planVip === opt.id
-                              ? 'border-[#C6A87C] bg-[#C6A87C]/5'
-                              : 'border-[#27272A] hover:border-[#3F3F46]'
-                          }`}
-                          data-testid={`vip-option-${opt.id}`}
-                        >
-                          {opt.badge && (
-                            <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#C6A87C] text-[#0A0A0C] font-medium">
-                              {opt.badge}
-                            </span>
-                          )}
-                          <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
-                          <p className="text-2xl font-playfair text-[#F2F0ED]">€{opt.price}</p>
-                          {planVip === opt.id && (
-                            <CheckCircle size={16} weight="fill" className="absolute bottom-3 right-3 text-[#C6A87C]" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  {/* VIP cards: always visible (prices shown upfront), dimmed when toggle is OFF */}
+                  <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-opacity ${planVipOn ? 'opacity-100' : 'opacity-50'}`}>
+                    {VIP_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => {
+                          // First click selects + auto-enables VIP toggle; subsequent click just switches option
+                          if (!planVipOn) setPlanVipOn(true);
+                          setPlanVip(opt.id);
+                        }}
+                        className={`relative text-left p-4 border-2 transition-all ${
+                          planVipOn && planVip === opt.id
+                            ? 'border-[#C6A87C] bg-[#C6A87C]/5'
+                            : 'border-[#27272A] hover:border-[#3F3F46]'
+                        }`}
+                        data-testid={`vip-option-${opt.id}`}
+                      >
+                        {opt.badge && (
+                          <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#C6A87C] text-[#0A0A0C] font-medium">
+                            {opt.badge}
+                          </span>
+                        )}
+                        <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
+                        <p className="text-2xl font-playfair text-[#F2F0ED]">€{opt.price}</p>
+                        {planVipOn && planVip === opt.id && (
+                          <CheckCircle size={16} weight="fill" className="absolute bottom-3 right-3 text-[#C6A87C]" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Auto-renew */}
+                <div className="card-premium p-6 flex items-center justify-between gap-4 flex-wrap">
+                  <div>
+                    <h4 className="text-lg font-playfair text-[#F2F0ED] mb-1">Auto-renew</h4>
+                    <p className="text-[#A1A1AA] text-sm">
+                      Automatically renew your plan when it expires. Cancel any time from your dashboard.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={autoRenew}
+                    onClick={() => setAutoRenew(!autoRenew)}
+                    className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
+                      autoRenew ? 'bg-[#C6A87C]' : 'bg-[#27272A]'
+                    }`}
+                    data-testid="auto-renew-toggle"
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-[#F2F0ED] transition-transform ${
+                        autoRenew ? 'translate-x-5' : ''
+                      }`}
+                    />
+                  </button>
                 </div>
 
                 {/* Total */}
@@ -1758,7 +1789,9 @@ export default function ProviderDashboard() {
                     <p className="text-4xl font-playfair text-[#F2F0ED]" data-testid="total-amount">€{planTotal}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[#71717A] text-xs">One-time payment</p>
+                    <p className="text-[#71717A] text-xs">
+                      {autoRenew ? `Then €${planTotal} per period until cancelled` : 'One-time payment'}
+                    </p>
                     <p className="text-[#71717A] text-xs">Visa, Mastercard, Apple Pay, PayPal & more</p>
                   </div>
                 </div>

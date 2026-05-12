@@ -580,6 +580,7 @@ def _stripe_checkout(http_request: "Request"):
 class CheckoutBody(BaseModel):
     featured_plan: str           # e.g. "featured_2w" — required
     vip_plan: Optional[str] = None  # e.g. "vip_4w" — optional add-on
+    auto_renew: bool = True      # provider's preference; stored for future Stripe Billing migration
     origin_url: str              # frontend window.location.origin
 
 
@@ -614,6 +615,7 @@ async def create_subscription_checkout(
         "provider_id": profile["provider_id"],
         "featured_plan": body.featured_plan,
         "vip_plan": body.vip_plan or "",
+        "auto_renew": "1" if body.auto_renew else "0",
         "kind": "subscription_purchase",
     }
 
@@ -641,6 +643,7 @@ async def create_subscription_checkout(
         "currency": CURRENCY,
         "featured_plan": body.featured_plan,
         "vip_plan": body.vip_plan,
+        "auto_renew": body.auto_renew,
         "metadata": metadata,
         "payment_status": "pending",
         "status": "open",
