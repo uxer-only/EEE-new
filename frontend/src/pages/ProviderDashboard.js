@@ -79,8 +79,7 @@ export default function ProviderDashboard() {
     { id: 1, title: 'Basic Info', icon: User },
     { id: 2, title: "Photos & Video's", icon: Camera },
     { id: 3, title: 'Services', icon: FileText },
-    { id: 4, title: 'Rates', icon: CurrencyDollar },
-    { id: 5, title: 'Availability', icon: Clock }
+    { id: 4, title: 'Rates & Availability', icon: CurrencyDollar }
   ];
 
   const escortServices = [
@@ -333,7 +332,7 @@ export default function ProviderDashboard() {
   };
 
   const nextStep = () => {
-    if (currentStep < 6) setCurrentStep(currentStep + 1);
+    if (currentStep < 4) setCurrentStep(currentStep + 1);
   };
 
   const prevStep = () => {
@@ -728,13 +727,13 @@ export default function ProviderDashboard() {
                       <Clock size={18} className="text-[#C6A87C]" />
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 5</p>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 4</p>
                       <h3 className="text-xl font-playfair text-[#F2F0ED]">Availability</h3>
                       <p className="text-[#A1A1AA] text-xs mt-1">{availableDays} of 7 days available</p>
                     </div>
                   </div>
                   <button
-                    onClick={() => openEdit(5)}
+                    onClick={() => openEdit(4)}
                     className="text-[#C6A87C] hover:text-[#D4B88C] uppercase tracking-wider text-xs"
                     data-testid="edit-availability-btn"
                   >
@@ -1427,170 +1426,178 @@ export default function ProviderDashboard() {
               </div>
             )}
 
-            {/* Step 4: Rates */}
+            {/* Step 4: Rates & Availability */}
             {currentStep === 4 && (
-              <div className="space-y-6">
-                <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-6">Rates</h3>
-                <p className="text-[#A1A1AA] text-sm mb-6">Set your pricing for different durations</p>
-                
-                <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-10">
+                {/* Rates */}
+                <div className="space-y-6">
                   <div>
-                    <label className="input-label">1 hour</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={profileData.rates['1hour']}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9]/g, '');
-                          setProfileData({ ...profileData, rates: { ...profileData.rates, '1hour': value } });
-                        }}
-                        className="input-premium w-full !pl-10"
-                        placeholder="0"
-                        data-testid="rate-1hour"
-                      />
-                    </div>
+                    <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-1">Rates</h3>
+                    <p className="text-[#A1A1AA] text-sm">Set your pricing for different durations</p>
                   </div>
-                  <div>
-                    <label className="input-label">2 hours</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={profileData.rates['2hours']}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9]/g, '');
-                          setProfileData({ ...profileData, rates: { ...profileData.rates, '2hours': value } });
-                        }}
-                        className="input-premium w-full !pl-10"
-                        placeholder="0"
-                        data-testid="rate-2hours"
-                      />
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="input-label">1 hour</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={profileData.rates['1hour']}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            setProfileData({ ...profileData, rates: { ...profileData.rates, '1hour': value } });
+                          }}
+                          className="input-premium w-full !pl-10"
+                          placeholder="0"
+                          data-testid="rate-1hour"
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <label className="input-label">3 hours</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={profileData.rates['3hours']}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9]/g, '');
-                          setProfileData({ ...profileData, rates: { ...profileData.rates, '3hours': value } });
-                        }}
-                        className="input-premium w-full !pl-10"
-                        placeholder="0"
-                        data-testid="rate-3hours"
-                      />
+                    <div>
+                      <label className="input-label">2 hours</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={profileData.rates['2hours']}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            setProfileData({ ...profileData, rates: { ...profileData.rates, '2hours': value } });
+                          }}
+                          className="input-premium w-full !pl-10"
+                          placeholder="0"
+                          data-testid="rate-2hours"
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <label className="input-label">Overnight</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={profileData.rates['overnight']}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9]/g, '');
-                          setProfileData({ ...profileData, rates: { ...profileData.rates, 'overnight': value } });
-                        }}
-                        className="input-premium w-full !pl-10"
-                        placeholder="0"
-                        data-testid="rate-overnight"
-                      />
+                    <div>
+                      <label className="input-label">3 hours</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={profileData.rates['3hours']}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            setProfileData({ ...profileData, rates: { ...profileData.rates, '3hours': value } });
+                          }}
+                          className="input-premium w-full !pl-10"
+                          placeholder="0"
+                          data-testid="rate-3hours"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="input-label">Overnight</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={profileData.rates['overnight']}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            setProfileData({ ...profileData, rates: { ...profileData.rates, 'overnight': value } });
+                          }}
+                          className="input-premium w-full !pl-10"
+                          placeholder="0"
+                          data-testid="rate-overnight"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* Step 5: Availability */}
-            {currentStep === 5 && (
-              <div className="space-y-6">
-                <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-6">Availability</h3>
-                <p className="text-[#A1A1AA] text-sm mb-6">Set your availability for each day</p>
+                {/* Divider */}
+                <div className="border-t border-[#27272A]"></div>
 
-                {/* 24/7 Option */}
-                <label className="flex items-center gap-3 cursor-pointer py-3 border-b border-[#52525B]">
-                  <input
-                    type="checkbox"
-                    checked={profileData.available247 || false}
-                    onChange={(e) => {
-                      const is247 = e.target.checked;
-                      const updatedSchedule = {};
-                      Object.keys(profileData.schedule).forEach(day => {
-                        updatedSchedule[day] = { 
-                          available: !is247,
-                          start: '10:00',
-                          end: '22:00'
-                        };
-                      });
-                      setProfileData({
-                        ...profileData,
-                        available247: is247,
-                        schedule: updatedSchedule
-                      });
-                    }}
-                    className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
-                  />
-                  <span className="text-[#F2F0ED]">Available 24/7</span>
-                </label>
+                {/* Availability */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-1">Availability</h3>
+                    <p className="text-[#A1A1AA] text-sm">Set your availability for each day</p>
+                  </div>
 
-                <div className="space-y-4">
-                  {Object.entries(profileData.schedule).map(([day, schedule]) => (
-                    <div key={day} className="flex items-center gap-4 py-3 border-b border-[#27272A]">
-                      <label className="flex items-center gap-3 cursor-pointer w-32">
-                        <input
-                          type="checkbox"
-                          checked={schedule.available}
-                          onChange={(e) => setProfileData({
-                            ...profileData,
-                            schedule: {
-                              ...profileData.schedule,
-                              [day]: { ...schedule, available: e.target.checked }
-                            }
-                          })}
-                          className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
-                        />
-                        <span className="text-[#F2F0ED] capitalize">{day}</span>
-                      </label>
-                      {schedule.available && (
-                        <>
+                  {/* 24/7 Option */}
+                  <label className="flex items-center gap-3 cursor-pointer py-3 border-b border-[#52525B]">
+                    <input
+                      type="checkbox"
+                      checked={profileData.available247 || false}
+                      onChange={(e) => {
+                        const is247 = e.target.checked;
+                        const updatedSchedule = {};
+                        Object.keys(profileData.schedule).forEach(day => {
+                          updatedSchedule[day] = {
+                            available: !is247,
+                            start: '10:00',
+                            end: '22:00'
+                          };
+                        });
+                        setProfileData({
+                          ...profileData,
+                          available247: is247,
+                          schedule: updatedSchedule
+                        });
+                      }}
+                      className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                    />
+                    <span className="text-[#F2F0ED]">Available 24/7</span>
+                  </label>
+
+                  <div className="space-y-4">
+                    {Object.entries(profileData.schedule).map(([day, schedule]) => (
+                      <div key={day} className="flex items-center gap-4 py-3 border-b border-[#27272A]">
+                        <label className="flex items-center gap-3 cursor-pointer w-32">
                           <input
-                            type="time"
-                            value={schedule.start}
+                            type="checkbox"
+                            checked={schedule.available}
                             onChange={(e) => setProfileData({
                               ...profileData,
                               schedule: {
                                 ...profileData.schedule,
-                                [day]: { ...schedule, start: e.target.value }
+                                [day]: { ...schedule, available: e.target.checked }
                               }
                             })}
-                            className="input-premium px-3 py-2"
+                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
                           />
-                          <span className="text-[#A1A1AA]">to</span>
-                          <input
-                            type="time"
-                            value={schedule.end}
-                            onChange={(e) => setProfileData({
-                              ...profileData,
-                              schedule: {
-                                ...profileData.schedule,
-                                [day]: { ...schedule, end: e.target.value }
-                              }
-                            })}
-                            className="input-premium px-3 py-2"
-                          />
-                        </>
-                      )}
-                    </div>
-                  ))}
+                          <span className="text-[#F2F0ED] capitalize">{day}</span>
+                        </label>
+                        {schedule.available && (
+                          <>
+                            <input
+                              type="time"
+                              value={schedule.start}
+                              onChange={(e) => setProfileData({
+                                ...profileData,
+                                schedule: {
+                                  ...profileData.schedule,
+                                  [day]: { ...schedule, start: e.target.value }
+                                }
+                              })}
+                              className="input-premium px-3 py-2"
+                            />
+                            <span className="text-[#A1A1AA]">to</span>
+                            <input
+                              type="time"
+                              value={schedule.end}
+                              onChange={(e) => setProfileData({
+                                ...profileData,
+                                schedule: {
+                                  ...profileData.schedule,
+                                  [day]: { ...schedule, end: e.target.value }
+                                }
+                              })}
+                              className="input-premium px-3 py-2"
+                            />
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -1631,7 +1638,7 @@ export default function ProviderDashboard() {
                     Previous
                   </button>
 
-                  {currentStep < 5 ? (
+                  {currentStep < 4 ? (
                     <button
                       type="button"
                       onClick={nextStep}
