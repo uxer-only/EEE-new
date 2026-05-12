@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getProviderDashboard, createProviderProfile, updateProviderProfile, getMySubscription } from '@/services/api';
+import { getProviderDashboard, createProviderProfile, updateProviderProfile, getMySubscription, createSubscriptionCheckout } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { 
   ChatCircle, CheckCircle, User, MapPin, Camera, Clock, 
   CurrencyDollar, FileText, Phone, EnvelopeSimple, WhatsappLogo,
-  Plus, Trash, CaretRight, CaretLeft, UploadSimple, X, VideoCamera, ShieldCheck, Crown
+  Plus, Trash, CaretRight, CaretLeft, UploadSimple, X, VideoCamera, ShieldCheck, Crown, Sparkle, ArrowRight
 } from 'phosphor-react';
 import { toast } from 'sonner';
 import CharacteristicsForm from '@/components/CharacteristicsForm';
@@ -79,8 +79,47 @@ export default function ProviderDashboard() {
     { id: 1, title: 'Basic Info', icon: User },
     { id: 2, title: "Photos & Video's", icon: Camera },
     { id: 3, title: 'Services', icon: FileText },
-    { id: 4, title: 'Rates & Availability', icon: CurrencyDollar }
+    { id: 4, title: 'Rates & Availability', icon: CurrencyDollar },
+    { id: 5, title: 'Activate', icon: Crown }
   ];
+
+  // Plan options for Step 5 (mirrors Subscribe.js / backend PLANS allowlist)
+  const FEATURED_OPTIONS = [
+    { id: 'featured_2w', label: '2 weeks', price: 30, perDay: '€2.14 / day' },
+    { id: 'featured_4w', label: '4 weeks', price: 55, perDay: '€1.96 / day', badge: 'Save €5' }
+  ];
+  const VIP_OPTIONS = [
+    { id: 'vip_2w', label: '2 weeks', price: 15 },
+    { id: 'vip_4w', label: '4 weeks', price: 25, badge: 'Save €5' }
+  ];
+  const [planFeatured, setPlanFeatured] = useState('featured_4w');
+  const [planVipOn, setPlanVipOn] = useState(false);
+  const [planVip, setPlanVip] = useState('vip_4w');
+  const [payRedirecting, setPayRedirecting] = useState(false);
+
+  const planTotal =
+    (FEATURED_OPTIONS.find((o) => o.id === planFeatured)?.price || 0) +
+    (planVipOn ? VIP_OPTIONS.find((o) => o.id === planVip)?.price || 0 : 0);
+
+  const handlePayAndActivate = async () => {
+    setPayRedirecting(true);
+    try {
+      const { data } = await createSubscriptionCheckout({
+        featured_plan: planFeatured,
+        vip_plan: planVipOn ? planVip : null,
+        origin_url: window.location.origin
+      });
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error('Could not start checkout');
+        setPayRedirecting(false);
+      }
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || 'Checkout failed');
+      setPayRedirecting(false);
+    }
+  };
 
   const escortServices = [
     'Relaxing massage', 'Erotic massage', 'Couple massage', 'Body to body', 
@@ -215,6 +254,7 @@ export default function ProviderDashboard() {
       }
       const payload = {
         display_name: profileData.display_name,
+        account_type: profileData.account_type,
         age: profileData.age ? parseInt(profileData.age) : null,
         gender: profileData.gender,
         essence: profileData.essence,
@@ -251,6 +291,7 @@ export default function ProviderDashboard() {
       }
       const payload = {
         display_name: profileData.display_name,
+        account_type: profileData.account_type,
         age: profileData.age ? parseInt(profileData.age) : null,
         gender: profileData.gender,
         essence: profileData.essence,
@@ -332,7 +373,7 @@ export default function ProviderDashboard() {
   };
 
   const nextStep = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1);
+    if (currentStep < 5) setCurrentStep(currentStep + 1);
   };
 
   const prevStep = () => {
@@ -1602,7 +1643,127 @@ export default function ProviderDashboard() {
               </div>
             )}
 
-            {/* Navigation Buttons */}
+            {/* Step 5: Activate (paid advertising) */}
+            {currentStep === 5 && (
+              <div className="space-y-8">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#C6A87C] mb-3">Final step</p>
+                  <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-2">Activate your profile</h3>
+                  <p className="text-[#A1A1AA] text-sm max-w-xl">
+                    Your profile is saved. A Featured listing makes you visible to clients on Browse. Add VIP Boost to appear at the top of every search.
+                  </p>
+                </div>
+
+                {/* Featured */}
+                <div className="card-premium p-6">
+                  <div className="flex items-start gap-3 mb-5">
+                    <Sparkle size={20} weight="fill" className="text-[#C6A87C] mt-1 flex-shrink-0" />
+                    <div>
+                      <h4 className="text-xl font-playfair text-[#F2F0ED]">Featured listing</h4>
+                      <p className="text-[#A1A1AA] text-sm">Required to be visible on Browse.</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {FEATURED_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setPlanFeatured(opt.id)}
+                        className={`relative text-left p-5 border-2 transition-all ${
+                          planFeatured === opt.id
+                            ? 'border-[#C6A87C] bg-[#C6A87C]/5'
+                            : 'border-[#27272A] hover:border-[#3F3F46]'
+                        }`}
+                        data-testid={`featured-option-${opt.id}`}
+                      >
+                        {opt.badge && (
+                          <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#C6A87C] text-[#0A0A0C] font-medium">
+                            {opt.badge}
+                          </span>
+                        )}
+                        <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
+                        <p className="text-3xl font-playfair text-[#F2F0ED] mb-1">€{opt.price}</p>
+                        <p className="text-[#71717A] text-xs">{opt.perDay}</p>
+                        {planFeatured === opt.id && (
+                          <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#C6A87C]" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* VIP Boost */}
+                <div className="card-premium p-6">
+                  <div className="flex items-start justify-between mb-5 gap-4">
+                    <div className="flex items-start gap-3">
+                      <Crown size={20} weight="fill" className="text-[#C6A87C] mt-1 flex-shrink-0" />
+                      <div>
+                        <h4 className="text-xl font-playfair text-[#F2F0ED]">
+                          VIP Boost <span className="text-xs uppercase tracking-[0.2em] text-[#71717A] ml-2">Optional</span>
+                        </h4>
+                        <p className="text-[#A1A1AA] text-sm">Be displayed at the very top of Browse.</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={planVipOn}
+                      onClick={() => setPlanVipOn(!planVipOn)}
+                      className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
+                        planVipOn ? 'bg-[#C6A87C]' : 'bg-[#27272A]'
+                      }`}
+                      data-testid="vip-toggle"
+                    >
+                      <span
+                        className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-[#F2F0ED] transition-transform ${
+                          planVipOn ? 'translate-x-5' : ''
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  {planVipOn && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {VIP_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => setPlanVip(opt.id)}
+                          className={`relative text-left p-4 border-2 transition-all ${
+                            planVip === opt.id
+                              ? 'border-[#C6A87C] bg-[#C6A87C]/5'
+                              : 'border-[#27272A] hover:border-[#3F3F46]'
+                          }`}
+                          data-testid={`vip-option-${opt.id}`}
+                        >
+                          {opt.badge && (
+                            <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#C6A87C] text-[#0A0A0C] font-medium">
+                              {opt.badge}
+                            </span>
+                          )}
+                          <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
+                          <p className="text-2xl font-playfair text-[#F2F0ED]">€{opt.price}</p>
+                          {planVip === opt.id && (
+                            <CheckCircle size={16} weight="fill" className="absolute bottom-3 right-3 text-[#C6A87C]" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Total */}
+                <div className="card-premium p-6 flex items-end justify-between flex-wrap gap-4">
+                  <div>
+                    <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-1">Total today</p>
+                    <p className="text-4xl font-playfair text-[#F2F0ED]" data-testid="total-amount">€{planTotal}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[#71717A] text-xs">One-time payment</p>
+                    <p className="text-[#71717A] text-xs">Visa, Mastercard, Apple Pay, PayPal & more</p>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="flex justify-between mt-8 pt-6 border-t border-[#27272A]">
               {mode === 'edit' ? (
                 <>
@@ -1648,14 +1809,30 @@ export default function ProviderDashboard() {
                       Next
                       <CaretRight size={20} />
                     </button>
+                  ) : currentStep === 4 ? (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await handleCreateProfile();
+                        setCurrentStep(5);
+                      }}
+                      className="btn-primary flex items-center gap-2"
+                      data-testid="save-and-continue-button"
+                    >
+                      Save & continue
+                      <CaretRight size={20} />
+                    </button>
                   ) : (
                     <button
                       type="button"
-                      onClick={handleCreateProfile}
-                      className="btn-primary"
-                      data-testid="submit-profile-button"
+                      onClick={handlePayAndActivate}
+                      disabled={payRedirecting}
+                      className="btn-primary flex items-center gap-2 disabled:opacity-50"
+                      data-testid="pay-and-activate-button"
                     >
-                      Complete Profile
+                      {payRedirecting ? 'Redirecting…' : (
+                        <>Pay €{planTotal} & activate <ArrowRight size={18} /></>
+                      )}
                     </button>
                   )}
                 </>
