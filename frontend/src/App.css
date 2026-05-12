@@ -1,4 +1,8 @@
 /* App-specific styles */
+:root {
+  color-scheme: dark;
+}
+
 .App {
   min-height: 100vh;
   position: relative;
