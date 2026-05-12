@@ -387,7 +387,7 @@ export default function AdminProviderDetail() {
             <DialogTitle className="text-xl font-playfair">Reject Media</DialogTitle>
           </DialogHeader>
           <div className="mt-4">
-            <label className="input-label">Rejection Reason</label>
+            <label className="input-label">Rejection reason</label>
             <textarea
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}

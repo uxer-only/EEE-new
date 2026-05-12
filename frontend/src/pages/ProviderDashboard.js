@@ -864,7 +864,7 @@ export default function ProviderDashboard() {
               <div className="space-y-8">
                 {/* Box 1: Basic Information */}
                 <div className="border border-[#27272A] rounded-lg p-6">
-                  <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Basic Information</h3>
+                  <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-6">Basic Information</h3>
                   
                   <div className="space-y-6">
                     {/* Account Type */}
@@ -899,7 +899,7 @@ export default function ProviderDashboard() {
                     </div>
 
                     <div>
-                      <label className="input-label">Display Name</label>
+                      <label className="input-label">Display name</label>
                       <input
                         type="text"
                         value={profileData.display_name}
@@ -1014,7 +1014,7 @@ export default function ProviderDashboard() {
                 {/* Box 2: Describe Yourself */}
                 <div className="border border-[#27272A] rounded-lg p-6">
                   <div>
-                    <label className="input-label">Describe Yourself</label>
+                    <label className="input-label">Describe yourself</label>
                     <textarea
                       value={profileData.bio}
                       onChange={(e) => setProfileData({ ...profileData, bio: e.target.value.slice(0, 500) })}
@@ -1032,7 +1032,7 @@ export default function ProviderDashboard() {
                   {/* Divider */}
                   <div className="mt-8 mb-6 border-t border-[#27272A]"></div>
 
-                  <h3 className="text-xl font-playfair text-[#F2F0ED] mb-1">Physical Characteristics</h3>
+                  <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-1">Physical Characteristics</h3>
                   <p className="text-[#71717A] text-sm mb-6">All fields are optional — fill what you want shown on your profile.</p>
 
                   <CharacteristicsForm
@@ -1043,12 +1043,12 @@ export default function ProviderDashboard() {
 
                 {/* Box 3: Contact Information */}
                 <div className="border border-[#27272A] rounded-lg p-6">
-                  <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Contact Information</h3>
+                  <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-6">Contact Information</h3>
                   
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-6">
                       <div>
-                        <label className="input-label">Mobile Phone</label>
+                        <label className="input-label">Mobile phone</label>
                         <input
                           type="tel"
                           value={profileData.contact.phone}
@@ -1250,7 +1250,7 @@ export default function ProviderDashboard() {
                 
                 {/* Type of Companionship */}
                 <div className="mb-8">
-                  <label className="input-label mb-4">Type of Companionship</label>
+                  <label className="input-label mb-4">Type of companionship</label>
                   <div className="flex gap-4">
                     <button
                       type="button"
@@ -1435,7 +1435,7 @@ export default function ProviderDashboard() {
                 
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label className="input-label">1 Hour</label>
+                    <label className="input-label">1 hour</label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
                       <input
@@ -1453,7 +1453,7 @@ export default function ProviderDashboard() {
                     </div>
                   </div>
                   <div>
-                    <label className="input-label">2 Hours</label>
+                    <label className="input-label">2 hours</label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
                       <input
@@ -1471,7 +1471,7 @@ export default function ProviderDashboard() {
                     </div>
                   </div>
                   <div>
-                    <label className="input-label">3 Hours</label>
+                    <label className="input-label">3 hours</label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
                       <input

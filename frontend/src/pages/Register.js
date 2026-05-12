@@ -94,7 +94,7 @@ export default function Register() {
 
             {/* Full Name */}
             <div>
-              <label className="input-label">Full Name</label>
+              <label className="input-label">Full name</label>
               <input
                 type="text"
                 value={formData.name}
@@ -108,7 +108,7 @@ export default function Register() {
 
             {/* Email Address */}
             <div>
-              <label className="input-label">Email Address</label>
+              <label className="input-label">Email address</label>
               <input
                 type="email"
                 value={formData.email}

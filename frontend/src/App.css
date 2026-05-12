@@ -31,7 +31,7 @@ select.input-premium option {
 }
 
 .input-label {
-  @apply text-sm uppercase tracking-widest text-[#F2F0ED] mb-3 block font-medium;
+  @apply text-sm text-[#F2F0ED] mb-3 block font-medium;
 }
 
 .input-helper {

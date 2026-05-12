@@ -116,7 +116,7 @@ export default function ProviderRegister() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="input-label">Full Name</label>
+              <label className="input-label">Full name</label>
               <input
                 type="text"
                 value={formData.name}
@@ -130,7 +130,7 @@ export default function ProviderRegister() {
             </div>
 
             <div>
-              <label className="input-label">Email Address</label>
+              <label className="input-label">Email address</label>
               <input
                 type="email"
                 value={formData.email}
@@ -168,7 +168,7 @@ export default function ProviderRegister() {
             </div>
 
             <div>
-              <label className="input-label">Confirm Password</label>
+              <label className="input-label">Confirm password</label>
               <div className="relative">
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}

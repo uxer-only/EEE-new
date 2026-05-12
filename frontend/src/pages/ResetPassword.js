@@ -97,7 +97,7 @@ export default function ResetPassword() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="input-label">New Password</label>
+                  <label className="input-label">New password</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -122,7 +122,7 @@ export default function ResetPassword() {
                 </div>
 
                 <div>
-                  <label className="input-label">Confirm Password</label>
+                  <label className="input-label">Confirm password</label>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={confirm}

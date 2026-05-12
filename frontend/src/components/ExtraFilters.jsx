@@ -92,7 +92,7 @@ export default function ExtraFilters({ filters, setFilters, onClear }) {
       <Section title="Pricing & service">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="input-label">Service Type</label>
+            <label className="input-label">Service type</label>
             <input
               type="text"
               value={filters.service || ''}
@@ -103,7 +103,7 @@ export default function ExtraFilters({ filters, setFilters, onClear }) {
             />
           </div>
           <div>
-            <label className="input-label">Min Rate (€/hr)</label>
+            <label className="input-label">Min rate (€/hr)</label>
             <input
               type="number"
               value={filters.min_rate || ''}
@@ -114,7 +114,7 @@ export default function ExtraFilters({ filters, setFilters, onClear }) {
             />
           </div>
           <div>
-            <label className="input-label">Max Rate (€/hr)</label>
+            <label className="input-label">Max rate (€/hr)</label>
             <input
               type="number"
               value={filters.max_rate || ''}
