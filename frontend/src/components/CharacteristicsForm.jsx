@@ -51,6 +51,46 @@ const YES_NO = [
   { value: 'no', label: 'No' }
 ];
 
+const SelectField = ({ label, value, options, onChange, testId }) => (
+  <div>
+    <label className="input-label">{label}</label>
+    <select
+      value={value || ''}
+      onChange={(e) => onChange(e.target.value)}
+      className="input-premium w-full"
+      data-testid={testId}
+    >
+      <option value="">—</option>
+      {options.map((o) => (
+        <option key={o} value={o}>{o}</option>
+      ))}
+    </select>
+  </div>
+);
+
+const YesNoField = ({ label, value, onChange, testIdBase }) => (
+  <div>
+    <label className="input-label">{label}</label>
+    <div className="grid grid-cols-2 gap-2 max-w-xs">
+      {YES_NO.map((opt) => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onChange(value === opt.value ? '' : opt.value)}
+          className={`py-2 border text-sm uppercase tracking-wider transition-all ${
+            value === opt.value
+              ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
+              : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
+          }`}
+          data-testid={`${testIdBase}-${opt.value}`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
 export default function CharacteristicsForm({ characteristics, onChange }) {
   const update = (key, value) => onChange({ ...characteristics, [key]: value });
 
@@ -63,56 +103,34 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
     }
   };
 
-  const SelectField = ({ label, value, options, k }) => (
-    <div>
-      <label className="input-label">{label}</label>
-      <select
-        value={value || ''}
-        onChange={(e) => update(k, e.target.value)}
-        className="input-premium w-full"
-        data-testid={`char-${k}`}
-      >
-        <option value="">—</option>
-        {options.map((o) => (
-          <option key={o} value={o}>{o}</option>
-        ))}
-      </select>
-    </div>
-  );
-
-  const YesNoField = ({ label, value, k }) => (
-    <div>
-      <label className="input-label">{label}</label>
-      <div className="grid grid-cols-2 gap-2 max-w-xs">
-        {YES_NO.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => update(k, value === opt.value ? '' : opt.value)}
-            className={`py-2 border text-sm uppercase tracking-wider transition-all ${
-              value === opt.value
-                ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
-            }`}
-            data-testid={`char-${k}-${opt.value}`}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
   return (
     <div className="space-y-6">
       {/* Nationality */}
-      <SelectField label="Nationality" value={characteristics.nationality} options={NATIONALITIES} k="nationality" />
+      <SelectField
+        label="Nationality"
+        value={characteristics.nationality}
+        options={NATIONALITIES}
+        onChange={(v) => update('nationality', v)}
+        testId="char-nationality"
+      />
 
       {/* Ethnicity */}
-      <SelectField label="Ethnicity" value={characteristics.ethnicity} options={ETHNICITIES} k="ethnicity" />
+      <SelectField
+        label="Ethnicity"
+        value={characteristics.ethnicity}
+        options={ETHNICITIES}
+        onChange={(v) => update('ethnicity', v)}
+        testId="char-ethnicity"
+      />
 
       {/* Orientation */}
-      <SelectField label="Orientation" value={characteristics.orientation} options={ORIENTATIONS} k="orientation" />
+      <SelectField
+        label="Orientation"
+        value={characteristics.orientation}
+        options={ORIENTATIONS}
+        onChange={(v) => update('orientation', v)}
+        testId="char-orientation"
+      />
 
       {/* Height + Weight */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -146,8 +164,20 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
 
       {/* Breast size + Breast type */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <SelectField label="Breast size" value={characteristics.breast_size} options={BREAST_SIZES} k="breast_size" />
-        <SelectField label="Breast type" value={characteristics.breast_type} options={BREAST_TYPES} k="breast_type" />
+        <SelectField
+          label="Breast size"
+          value={characteristics.breast_size}
+          options={BREAST_SIZES}
+          onChange={(v) => update('breast_size', v)}
+          testId="char-breast_size"
+        />
+        <SelectField
+          label="Breast type"
+          value={characteristics.breast_type}
+          options={BREAST_TYPES}
+          onChange={(v) => update('breast_type', v)}
+          testId="char-breast_type"
+        />
       </div>
 
       {/* Languages */}
@@ -186,13 +216,28 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
       </div>
 
       {/* Tattoos */}
-      <YesNoField label="Tattoos" value={characteristics.tattoos} k="tattoos" />
+      <YesNoField
+        label="Tattoos"
+        value={characteristics.tattoos}
+        onChange={(v) => update('tattoos', v)}
+        testIdBase="char-tattoos"
+      />
 
       {/* Piercings */}
-      <YesNoField label="Piercings" value={characteristics.piercings} k="piercings" />
+      <YesNoField
+        label="Piercings"
+        value={characteristics.piercings}
+        onChange={(v) => update('piercings', v)}
+        testIdBase="char-piercings"
+      />
 
       {/* Smoker */}
-      <YesNoField label="Smoker" value={characteristics.smoker} k="smoker" />
+      <YesNoField
+        label="Smoker"
+        value={characteristics.smoker}
+        onChange={(v) => update('smoker', v)}
+        testIdBase="char-smoker"
+      />
     </div>
   );
 }
