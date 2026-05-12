@@ -13,6 +13,23 @@ const BREAST_SIZES = ['A', 'B', 'C', 'D', 'DD', 'E', 'F', 'G+'];
 const BREAST_TYPES = ['Natural', 'Implants'];
 const PUBIC_HAIR = ['Natural', 'Trimmed', 'Shaved', 'Partial'];
 const LANGUAGES = ['English', 'French', 'German', 'Russian'];
+const NATIONALITIES = [
+  'Belgian', 'Dutch', 'Luxembourgish', 'French', 'German', 'British', 'Irish',
+  'Spanish', 'Portuguese', 'Italian', 'Swiss', 'Austrian',
+  'Danish', 'Swedish', 'Norwegian', 'Finnish', 'Icelandic',
+  'Polish', 'Czech', 'Slovak', 'Hungarian', 'Romanian', 'Bulgarian',
+  'Greek', 'Croatian', 'Serbian', 'Slovenian', 'Albanian',
+  'Russian', 'Ukrainian', 'Belarusian', 'Lithuanian', 'Latvian', 'Estonian',
+  'American', 'Canadian', 'Mexican', 'Brazilian', 'Argentinian', 'Colombian',
+  'Venezuelan', 'Chilean', 'Peruvian', 'Cuban', 'Dominican',
+  'Chinese', 'Japanese', 'Korean', 'Thai', 'Vietnamese', 'Filipino',
+  'Indonesian', 'Malaysian', 'Indian', 'Pakistani', 'Kazakh', 'Uzbek',
+  'Turkish', 'Israeli', 'Lebanese', 'Iranian', 'Syrian',
+  'Egyptian', 'Moroccan', 'Tunisian', 'Algerian', 'South African', 'Nigerian',
+  'Ethiopian', 'Kenyan', 'Ghanaian',
+  'Australian', 'New Zealander',
+  'Other'
+];
 const YES_NO = ['yes', 'no'];
 
 const Section = ({ title, children }) => (
@@ -132,17 +149,7 @@ export default function ExtraFilters({ filters, setFilters, onClear }) {
       {/* Background */}
       <Section title="Background">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label className="input-label">Nationality</label>
-            <input
-              type="text"
-              value={filters.nationality || ''}
-              onChange={(e) => set('nationality', e.target.value)}
-              className="input-premium w-full"
-              placeholder="e.g. French"
-              data-testid="extra-nationality"
-            />
-          </div>
+          <Select label="Nationality" value={filters.nationality} options={NATIONALITIES} onChange={(v) => set('nationality', v)} testId="extra-nationality" />
           <Select label="Ethnicity" value={filters.ethnicity} options={ETHNICITIES} onChange={(v) => set('ethnicity', v)} testId="extra-ethnicity" />
           <Select label="Orientation" value={filters.orientation} options={ORIENTATIONS} onChange={(v) => set('orientation', v)} testId="extra-orientation" />
         </div>

@@ -21,6 +21,31 @@ const BREAST_TYPES = ['Natural', 'Implants'];
 const LANGUAGES = ['English', 'French', 'German', 'Russian'];
 const MAX_LANGUAGES = 4;
 
+const NATIONALITIES = [
+  // Europe
+  'Belgian', 'Dutch', 'Luxembourgish', 'French', 'German', 'British', 'Irish',
+  'Spanish', 'Portuguese', 'Italian', 'Swiss', 'Austrian',
+  'Danish', 'Swedish', 'Norwegian', 'Finnish', 'Icelandic',
+  'Polish', 'Czech', 'Slovak', 'Hungarian', 'Romanian', 'Bulgarian',
+  'Greek', 'Croatian', 'Serbian', 'Slovenian', 'Albanian',
+  'Russian', 'Ukrainian', 'Belarusian', 'Lithuanian', 'Latvian', 'Estonian',
+  // Americas
+  'American', 'Canadian', 'Mexican', 'Brazilian', 'Argentinian', 'Colombian',
+  'Venezuelan', 'Chilean', 'Peruvian', 'Cuban', 'Dominican',
+  // Asia
+  'Chinese', 'Japanese', 'Korean', 'Thai', 'Vietnamese', 'Filipino',
+  'Indonesian', 'Malaysian', 'Indian', 'Pakistani', 'Kazakh', 'Uzbek',
+  // Middle East
+  'Turkish', 'Israeli', 'Lebanese', 'Iranian', 'Syrian',
+  // Africa
+  'Egyptian', 'Moroccan', 'Tunisian', 'Algerian', 'South African', 'Nigerian',
+  'Ethiopian', 'Kenyan', 'Ghanaian',
+  // Oceania
+  'Australian', 'New Zealander',
+  // Catch-all
+  'Other'
+];
+
 const YES_NO = [
   { value: 'yes', label: 'Yes' },
   { value: 'no', label: 'No' }
@@ -81,17 +106,7 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
   return (
     <div className="space-y-6">
       {/* Nationality */}
-      <div>
-        <label className="input-label">Nationality</label>
-        <input
-          type="text"
-          value={characteristics.nationality || ''}
-          onChange={(e) => update('nationality', e.target.value)}
-          className="input-premium w-full"
-          placeholder="e.g. French"
-          data-testid="char-nationality"
-        />
-      </div>
+      <SelectField label="Nationality" value={characteristics.nationality} options={NATIONALITIES} k="nationality" />
 
       {/* Ethnicity */}
       <SelectField label="Ethnicity" value={characteristics.ethnicity} options={ETHNICITIES} k="ethnicity" />
