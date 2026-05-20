@@ -1051,11 +1051,9 @@ export default function ProviderDashboard() {
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Box 2: Describe Yourself */}
-                <div className="border border-[#27272A] rounded-lg p-6">
-                  <div>
+                  {/* Describe yourself */}
+                  <div className="mt-8 pt-8 border-t border-[#27272A]">
                     <label className="input-label">Describe yourself</label>
                     <textarea
                       value={profileData.bio}
@@ -1071,23 +1069,10 @@ export default function ProviderDashboard() {
                     </div>
                   </div>
 
-                  {/* Divider */}
-                  <div className="mt-8 mb-6 border-t border-[#27272A]"></div>
+                  {/* Contact Information */}
+                  <div className="mt-8 pt-8 border-t border-[#27272A] space-y-6">
+                    <h4 className="text-lg font-playfair text-[#F2F0ED]">Contact information</h4>
 
-                  <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-1">Physical Characteristics</h3>
-                  <p className="text-[#71717A] text-sm mb-6">All fields are optional — fill what you want shown on your profile.</p>
-
-                  <CharacteristicsForm
-                    characteristics={profileData.characteristics}
-                    onChange={(c) => setProfileData({ ...profileData, characteristics: c })}
-                  />
-                </div>
-
-                {/* Box 3: Contact Information */}
-                <div className="border border-[#27272A] rounded-lg p-6">
-                  <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-6">Contact Information</h3>
-                  
-                  <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-6">
                       <div>
                         <label className="input-label">Mobile phone</label>
@@ -1115,14 +1100,14 @@ export default function ProviderDashboard() {
 
                     <div>
                       <label className="input-label mb-4">Available on</label>
-                      <div className="flex gap-6">
+                      <div className="flex gap-6 flex-wrap">
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={profileData.contact.hasWhatsapp || false}
-                            onChange={(e) => setProfileData({ 
-                              ...profileData, 
-                              contact: { ...profileData.contact, hasWhatsapp: e.target.checked } 
+                            onChange={(e) => setProfileData({
+                              ...profileData,
+                              contact: { ...profileData.contact, hasWhatsapp: e.target.checked }
                             })}
                             className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#25D366] checked:border-[#25D366]"
                           />
@@ -1132,9 +1117,9 @@ export default function ProviderDashboard() {
                           <input
                             type="checkbox"
                             checked={profileData.contact.hasTelegram || false}
-                            onChange={(e) => setProfileData({ 
-                              ...profileData, 
-                              contact: { ...profileData.contact, hasTelegram: e.target.checked } 
+                            onChange={(e) => setProfileData({
+                              ...profileData,
+                              contact: { ...profileData.contact, hasTelegram: e.target.checked }
                             })}
                             className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#0088cc] checked:border-[#0088cc]"
                           />
@@ -1144,9 +1129,9 @@ export default function ProviderDashboard() {
                           <input
                             type="checkbox"
                             checked={profileData.contact.hasSignal || false}
-                            onChange={(e) => setProfileData({ 
-                              ...profileData, 
-                              contact: { ...profileData.contact, hasSignal: e.target.checked } 
+                            onChange={(e) => setProfileData({
+                              ...profileData,
+                              contact: { ...profileData.contact, hasSignal: e.target.checked }
                             })}
                             className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#3A76F0] checked:border-[#3A76F0]"
                           />
@@ -1155,6 +1140,17 @@ export default function ProviderDashboard() {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                {/* Box 2: Physical Characteristics (optional) */}
+                <div className="border border-[#27272A] rounded-lg p-6">
+                  <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-1">Physical Characteristics</h3>
+                  <p className="text-[#71717A] text-sm mb-6">All fields are optional — fill what you want shown on your profile.</p>
+
+                  <CharacteristicsForm
+                    characteristics={profileData.characteristics}
+                    onChange={(c) => setProfileData({ ...profileData, characteristics: c })}
+                  />
                 </div>
               </div>
             )}
