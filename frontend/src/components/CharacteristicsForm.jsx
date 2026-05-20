@@ -16,10 +16,6 @@
 
 const ETHNICITIES = ['European', 'Asian', 'Latin', 'African', 'Middle Eastern', 'Mixed', 'Other'];
 const ORIENTATIONS = ['Straight', 'Bi', 'Lesbian', 'Gay', 'Pansexual'];
-const BREAST_SIZES = ['A', 'B', 'C', 'D', 'DD', 'E', 'F', 'G+'];
-const BREAST_TYPES = ['Natural', 'Implants'];
-const LANGUAGES = ['English', 'French', 'German', 'Russian'];
-const MAX_LANGUAGES = 4;
 
 const NATIONALITIES = [
   // Europe
@@ -94,15 +90,6 @@ const YesNoField = ({ label, value, onChange, testIdBase }) => (
 export default function CharacteristicsForm({ characteristics, onChange }) {
   const update = (key, value) => onChange({ ...characteristics, [key]: value });
 
-  const toggleLanguage = (lang) => {
-    const current = characteristics.languages || [];
-    if (current.includes(lang)) {
-      update('languages', current.filter((l) => l !== lang));
-    } else if (current.length < MAX_LANGUAGES) {
-      update('languages', [...current, lang]);
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Nationality */}
@@ -162,56 +149,33 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
         </div>
       </div>
 
-      {/* Breast size + Breast type */}
+      {/* Breast size (free-text) + Breast type (implants checkbox) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <SelectField
-          label="Breast size"
-          value={characteristics.breast_size}
-          options={BREAST_SIZES}
-          onChange={(v) => update('breast_size', v)}
-          testId="char-breast_size"
-        />
-        <SelectField
-          label="Breast type"
-          value={characteristics.breast_type}
-          options={BREAST_TYPES}
-          onChange={(v) => update('breast_type', v)}
-          testId="char-breast_type"
-        />
-      </div>
-
-      {/* Languages */}
-      <div>
-        <div className="flex items-end justify-between mb-2">
-          <label className="input-label !mb-0">Languages</label>
-          <span className="text-xs text-[#71717A]">
-            {(characteristics.languages || []).length}/{MAX_LANGUAGES} selected
-          </span>
+        <div>
+          <label className="input-label">Breast size</label>
+          <input
+            type="text"
+            value={characteristics.breast_size || ''}
+            onChange={(e) => update('breast_size', e.target.value)}
+            className="input-premium w-full"
+            placeholder="e.g. C"
+            data-testid="char-breast_size"
+          />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {LANGUAGES.map((lang) => {
-            const selected = (characteristics.languages || []).includes(lang);
-            const disabled =
-              !selected && (characteristics.languages || []).length >= MAX_LANGUAGES;
-            return (
-              <button
-                key={lang}
-                type="button"
-                onClick={() => toggleLanguage(lang)}
-                disabled={disabled}
-                className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
-                  selected
-                    ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                    : disabled
-                      ? 'border-[#27272A] text-[#52525B] cursor-not-allowed'
-                      : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
-                }`}
-                data-testid={`char-lang-${lang.toLowerCase()}`}
-              >
-                {lang}
-              </button>
-            );
-          })}
+        <div>
+          <label className="input-label">Breast type</label>
+          <label className="flex items-center gap-3 cursor-pointer py-3 select-none">
+            <input
+              type="checkbox"
+              checked={characteristics.breast_type === 'Implants'}
+              onChange={(e) =>
+                update('breast_type', e.target.checked ? 'Implants' : '')
+              }
+              className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+              data-testid="char-breast_type-implants"
+            />
+            <span className="text-[#A1A1AA]">Implants</span>
+          </label>
         </div>
       </div>
 

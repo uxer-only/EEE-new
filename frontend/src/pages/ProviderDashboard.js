@@ -1069,6 +1069,52 @@ export default function ProviderDashboard() {
                     </div>
                   </div>
 
+                  {/* Languages */}
+                  <div className="mt-8 pt-8 border-t border-[#27272A]">
+                    <div className="flex items-end justify-between mb-3">
+                      <label className="input-label !mb-0">Languages</label>
+                      <span className="text-xs text-[#71717A]">
+                        {(profileData.characteristics?.languages || []).length}/4 selected
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {['English', 'French', 'German', 'Russian'].map((lang) => {
+                        const current = profileData.characteristics?.languages || [];
+                        const selected = current.includes(lang);
+                        const disabled = !selected && current.length >= 4;
+                        return (
+                          <button
+                            key={lang}
+                            type="button"
+                            onClick={() => {
+                              const next = selected
+                                ? current.filter((l) => l !== lang)
+                                : current.length < 4 ? [...current, lang] : current;
+                              setProfileData({
+                                ...profileData,
+                                characteristics: {
+                                  ...(profileData.characteristics || {}),
+                                  languages: next
+                                }
+                              });
+                            }}
+                            disabled={disabled}
+                            className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
+                              selected
+                                ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
+                                : disabled
+                                  ? 'border-[#27272A] text-[#52525B] cursor-not-allowed'
+                                  : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
+                            }`}
+                            data-testid={`basic-lang-${lang.toLowerCase()}`}
+                          >
+                            {lang}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   {/* Contact Information */}
                   <div className="mt-8 pt-8 border-t border-[#27272A] space-y-6">
                     <h4 className="text-lg font-playfair text-[#F2F0ED]">Contact information</h4>
