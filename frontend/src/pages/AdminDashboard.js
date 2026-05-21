@@ -109,7 +109,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <p className="text-[#A1A1AA] text-sm">Total Providers</p>
-                  <p className="text-2xl font-playfair text-[#F2F0ED]">{stats?.total_providers || 0}</p>
+                  <p className="text-2xl text-[#F2F0ED]">{stats?.total_providers || 0}</p>
                 </div>
               </div>
             </motion.div>
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <p className="text-[#A1A1AA] text-sm">Total Clients</p>
-                  <p className="text-2xl font-playfair text-[#F2F0ED]">{stats?.total_clients || 0}</p>
+                  <p className="text-2xl text-[#F2F0ED]">{stats?.total_clients || 0}</p>
                 </div>
               </div>
             </motion.div>
@@ -145,7 +145,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <p className="text-[#A1A1AA] text-sm">Pending Media</p>
-                  <p className="text-2xl font-playfair text-amber-500">{stats?.pending_media || 0}</p>
+                  <p className="text-2xl text-amber-500">{stats?.pending_media || 0}</p>
                 </div>
               </div>
             </motion.div>
@@ -163,7 +163,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <p className="text-[#A1A1AA] text-sm">Need Action</p>
-                  <p className="text-2xl font-playfair text-red-500">{stats?.providers_needing_action || 0}</p>
+                  <p className="text-2xl text-red-500">{stats?.providers_needing_action || 0}</p>
                 </div>
               </div>
             </motion.div>
@@ -181,7 +181,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <p className="text-[#A1A1AA] text-sm">Pending Media</p>
-                  <p className="text-2xl font-playfair text-[#F2F0ED]">{stats?.pending_media || 0}</p>
+                  <p className="text-2xl text-[#F2F0ED]">{stats?.pending_media || 0}</p>
                 </div>
               </div>
             </motion.div>
@@ -214,15 +214,15 @@ export default function AdminDashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="text-center p-4 border border-[#27272A] rounded">
-                <p className="text-3xl font-playfair text-[#C6A87C]">{traffic?.total_views || 0}</p>
+                <p className="text-3xl text-[#C6A87C]">{traffic?.total_views || 0}</p>
                 <p className="text-[#A1A1AA] text-sm mt-1">Total Page Views</p>
               </div>
               <div className="text-center p-4 border border-[#27272A] rounded">
-                <p className="text-3xl font-playfair text-[#C6A87C]">{traffic?.total_unique_visitors || 0}</p>
+                <p className="text-3xl text-[#C6A87C]">{traffic?.total_unique_visitors || 0}</p>
                 <p className="text-[#A1A1AA] text-sm mt-1">Unique Visitors</p>
               </div>
               <div className="text-center p-4 border border-[#27272A] rounded">
-                <p className="text-3xl font-playfair text-[#C6A87C]">
+                <p className="text-3xl text-[#C6A87C]">
                   {traffic?.daily_stats?.length > 0 
                     ? Math.round(traffic.total_views / traffic.daily_stats.length) 
                     : 0}

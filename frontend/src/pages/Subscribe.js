@@ -149,7 +149,7 @@ export default function Subscribe() {
                   </span>
                 )}
                 <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
-                <p className="text-4xl font-playfair text-[#F2F0ED] mb-1">€{opt.price}</p>
+                <p className="text-4xl text-[#F2F0ED] mb-1">€{opt.price}</p>
                 <p className="text-[#71717A] text-xs">{opt.perDay}</p>
                 {featuredPlan === opt.id && (
                   <CheckCircle size={20} weight="fill" className="absolute bottom-4 right-4 text-[#C6A87C]" />
@@ -211,7 +211,7 @@ export default function Subscribe() {
                     </span>
                   )}
                   <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
-                  <p className="text-3xl font-playfair text-[#F2F0ED]">€{opt.price}</p>
+                  <p className="text-3xl text-[#F2F0ED]">€{opt.price}</p>
                   {vipPlan === opt.id && (
                     <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#C6A87C]" />
                   )}
@@ -226,7 +226,7 @@ export default function Subscribe() {
           <div className="flex items-end justify-between mb-6 flex-wrap gap-4">
             <div>
               <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-1">Total today</p>
-              <p className="text-5xl font-playfair text-[#F2F0ED]" data-testid="total-amount">€{total}</p>
+              <p className="text-5xl text-[#F2F0ED]" data-testid="total-amount">€{total}</p>
             </div>
             <div className="text-right">
               <p className="text-[#71717A] text-xs">One-time payment</p>

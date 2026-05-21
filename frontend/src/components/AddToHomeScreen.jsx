@@ -107,7 +107,7 @@ export default function AddToHomeScreen() {
           <div className="p-5">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-11 h-11 rounded-xl bg-[#C6A87C] flex items-center justify-center shadow-lg shadow-[#C6A87C]/20">
-                <span className="text-[#0A0A0C] font-playfair italic text-2xl">L</span>
+                <span className="text-[#0A0A0C] italic text-2xl">L</span>
               </div>
               <div>
                 <p className="text-[#F2F0ED] font-medium leading-tight">Install High Class Companionship</p>

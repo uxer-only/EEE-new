@@ -791,7 +791,7 @@ export default function ProviderDashboard() {
                           return (
                             <div key={key} className="flex items-center justify-between border-b border-[#27272A] pb-2">
                               <span className="text-[#A1A1AA] text-sm">{label}</span>
-                              <span className="text-[#C6A87C] font-playfair">
+                              <span className="text-[#C6A87C]">
                                 {v ? `€${v}` : <span className="text-[#6B7280] text-sm italic">Not set</span>}
                               </span>
                             </div>
@@ -800,7 +800,7 @@ export default function ProviderDashboard() {
                         {(profileData.rates?.[kind]?.extras || []).map((extra, i) => (
                           <div key={`extra-${i}`} className="flex items-center justify-between border-b border-[#27272A] pb-2">
                             <span className="text-[#A1A1AA] text-sm">{extra.hours} hours</span>
-                            <span className="text-[#C6A87C] font-playfair">
+                            <span className="text-[#C6A87C]">
                               {extra.price ? `€${extra.price}` : <span className="text-[#6B7280] text-sm italic">Not set</span>}
                             </span>
                           </div>
@@ -1902,7 +1902,7 @@ export default function ProviderDashboard() {
                           </span>
                         )}
                         <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
-                        <p className="text-3xl font-playfair text-[#F2F0ED] mb-1">€{opt.price}</p>
+                        <p className="text-3xl text-[#F2F0ED] mb-1">€{opt.price}</p>
                         <p className="text-[#71717A] text-xs">{opt.perDay}</p>
                         {planFeatured === opt.id && (
                           <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#C6A87C]" />
@@ -1965,7 +1965,7 @@ export default function ProviderDashboard() {
                           </span>
                         )}
                         <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
-                        <p className="text-2xl font-playfair text-[#F2F0ED]">€{opt.price}</p>
+                        <p className="text-2xl text-[#F2F0ED]">€{opt.price}</p>
                         {planVipOn && planVip === opt.id && (
                           <CheckCircle size={16} weight="fill" className="absolute bottom-3 right-3 text-[#C6A87C]" />
                         )}
@@ -2004,7 +2004,7 @@ export default function ProviderDashboard() {
                 <div className="card-premium p-6 flex items-end justify-between flex-wrap gap-4">
                   <div>
                     <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-1">Total today</p>
-                    <p className="text-4xl font-playfair text-[#F2F0ED]" data-testid="total-amount">€{planTotal}</p>
+                    <p className="text-4xl text-[#F2F0ED]" data-testid="total-amount">€{planTotal}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-[#71717A] text-xs">

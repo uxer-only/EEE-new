@@ -147,9 +147,9 @@ export default function Landing() {
             className="max-w-3xl mx-auto text-center"
           >
             <h2
- className="text-5xl sm:text-6xl lg:text-7xl text-[#F2F0ED] mb-6"
- data-testid="hero-title"
- >
+              className="text-5xl sm:text-6xl lg:text-7xl font-playfair text-[#F2F0ED] mb-6"
+              data-testid="hero-title"
+            >
  The Art of
  <br />
  Companionship

@@ -408,13 +408,13 @@ export default function ProviderDetail() {
                       {standard.map((k) => (
                         <div key={k} className="flex justify-between items-center pb-3 border-b border-[#27272A]" data-testid={`rate-${kind}-${k}`}>
                           <span className="text-[#A1A1AA]">{DURATION_LABELS[k]}</span>
-                          <span className="text-[#C6A87C] text-xl font-playfair">€{col[k]}</span>
+                          <span className="text-[#C6A87C] text-xl">€{col[k]}</span>
                         </div>
                       ))}
                       {extras.map((extra, i) => (
                         <div key={`x-${i}`} className="flex justify-between items-center pb-3 border-b border-[#27272A]" data-testid={`rate-${kind}-extra-${i}`}>
                           <span className="text-[#A1A1AA]">{extra.hours} hours</span>
-                          <span className="text-[#C6A87C] text-xl font-playfair">€{extra.price}</span>
+                          <span className="text-[#C6A87C] text-xl">€{extra.price}</span>
                         </div>
                       ))}
                     </div>
@@ -434,7 +434,7 @@ export default function ProviderDetail() {
                         {Object.entries(r).map(([type, rate]) => (
                           <div key={type} className="flex justify-between items-center pb-4 border-b border-[#27272A] last:border-b-0 last:pb-0" data-testid={`rate-${type}`}>
                             <span className="text-[#A1A1AA] capitalize text-lg">{DURATION_LABELS[type] || type}</span>
-                            <span className="text-[#C6A87C] text-2xl font-playfair">€{rate}</span>
+                            <span className="text-[#C6A87C] text-2xl">€{rate}</span>
                           </div>
                         ))}
                       </div>
