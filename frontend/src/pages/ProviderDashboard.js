@@ -1773,7 +1773,7 @@ export default function ProviderDashboard() {
                       };
 
                       return (
-                        <div key={kind} className="space-y-5">
+                        <div key={kind} className="space-y-8">
                           <h4 className="text-lg font-playfair text-[#C6A87C] uppercase tracking-[0.2em] text-sm border-b border-[#27272A] pb-3">
                             {kind === 'incall' ? 'Incall' : 'Outcall'}
                           </h4>
