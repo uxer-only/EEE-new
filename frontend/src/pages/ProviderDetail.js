@@ -387,19 +387,61 @@ export default function ProviderDetail() {
               </div>
 
               {/* Rates */}
-              {provider.rates && Object.keys(provider.rates).length > 0 && (
-                <div className="mb-8 card-premium p-6 md:p-8">
-                  <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Time & investment</h3>
-                  <div className="space-y-4">
-                    {Object.entries(provider.rates).map(([type, rate]) => (
-                      <div key={type} className="flex justify-between items-center pb-4 border-b border-[#27272A] last:border-b-0 last:pb-0" data-testid={`rate-${type}`}>
-                        <span className="text-[#A1A1AA] capitalize text-lg">{type}</span>
-                        <span className="text-[#C6A87C] text-2xl font-playfair">€{rate}</span>
+              {provider.rates && Object.keys(provider.rates).length > 0 && (() => {
+                const r = provider.rates;
+                const isNested = r.incall || r.outcall;
+
+                const DURATION_LABELS = {
+                  '1hour':     '1 hour',
+                  '2hours':    '2 hours',
+                  '3hours':    '3 hours',
+                  'overnight': 'Overnight'
+                };
+                const renderColumn = (kind, col) => {
+                  const standard = ['1hour', '2hours', '3hours', 'overnight']
+                    .filter((k) => col[k] !== undefined && col[k] !== '');
+                  const extras = Array.isArray(col.extras) ? col.extras : [];
+                  if (standard.length === 0 && extras.length === 0) return null;
+                  return (
+                    <div key={kind} className="space-y-3">
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-[#C6A87C]">{kind}</p>
+                      {standard.map((k) => (
+                        <div key={k} className="flex justify-between items-center pb-3 border-b border-[#27272A]" data-testid={`rate-${kind}-${k}`}>
+                          <span className="text-[#A1A1AA]">{DURATION_LABELS[k]}</span>
+                          <span className="text-[#C6A87C] text-xl font-playfair">€{col[k]}</span>
+                        </div>
+                      ))}
+                      {extras.map((extra, i) => (
+                        <div key={`x-${i}`} className="flex justify-between items-center pb-3 border-b border-[#27272A]" data-testid={`rate-${kind}-extra-${i}`}>
+                          <span className="text-[#A1A1AA]">{extra.hours} hours</span>
+                          <span className="text-[#C6A87C] text-xl font-playfair">€{extra.price}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                };
+
+                return (
+                  <div className="mb-8 card-premium p-6 md:p-8">
+                    <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Time & investment</h3>
+                    {isNested ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {renderColumn('incall', r.incall || {})}
+                        {renderColumn('outcall', r.outcall || {})}
                       </div>
-                    ))}
+                    ) : (
+                      <div className="space-y-4">
+                        {Object.entries(r).map(([type, rate]) => (
+                          <div key={type} className="flex justify-between items-center pb-4 border-b border-[#27272A] last:border-b-0 last:pb-0" data-testid={`rate-${type}`}>
+                            <span className="text-[#A1A1AA] capitalize text-lg">{DURATION_LABELS[type] || type}</span>
+                            <span className="text-[#C6A87C] text-2xl font-playfair">€{rate}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Extra Requests */}
               <div className="mb-8 card-premium p-6 md:p-8">

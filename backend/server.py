@@ -524,19 +524,54 @@ async def reset_password(payload: ResetPasswordRequest):
 
 # ===== PROVIDER ROUTES =====
 
-def _normalize_rates(rates: Optional[Dict[str, Any]]) -> Dict[str, float]:
-    """Convert rate values (which may be empty strings) to floats. Skip empty."""
+def _normalize_rates(rates: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """Convert rate values to floats. Supports both legacy flat shape
+    ({'1hour': 150, ...}) and new nested shape ({'incall': {...}, 'outcall': {...}}).
+    Skip empty values. Preserves the 'extras' list ([{hours, price}])."""
     if not rates:
         return {}
-    out = {}
+    # Nested incall/outcall shape
+    if isinstance(rates, dict) and ('incall' in rates or 'outcall' in rates):
+        out: Dict[str, Any] = {}
+        for kind in ('incall', 'outcall'):
+            col = rates.get(kind)
+            if not isinstance(col, dict):
+                continue
+            col_out: Dict[str, Any] = {}
+            for k, v in col.items():
+                if k == 'extras':
+                    extras_out = []
+                    for item in (v or []):
+                        if not isinstance(item, dict):
+                            continue
+                        try:
+                            h = int(item.get('hours'))
+                            p = float(item.get('price'))
+                            extras_out.append({'hours': h, 'price': p})
+                        except (TypeError, ValueError):
+                            continue
+                    if extras_out:
+                        col_out['extras'] = extras_out
+                    continue
+                if v is None or v == '':
+                    continue
+                try:
+                    col_out[k] = float(v)
+                except (TypeError, ValueError):
+                    continue
+            if col_out:
+                out[kind] = col_out
+        return out
+    # Legacy flat shape
+    out_flat: Dict[str, Any] = {}
     for k, v in rates.items():
         if v is None or v == "":
             continue
         try:
-            out[k] = float(v)
+            out_flat[k] = float(v)
         except (TypeError, ValueError):
             continue
-    return out
+    return out_flat
 
 def _add_numeric_range_expr(query: dict, field_path: str, min_val, max_val):
     """Add a $expr range condition that safely handles values stored as either
@@ -843,7 +878,11 @@ async def browse_providers(
             rate_query["$gte"] = min_rate
         if max_rate is not None:
             rate_query["$lte"] = max_rate
-        query["rates.1hour"] = rate_query
+        # Support both nested (rates.incall.1hour) and legacy flat (rates.1hour) docs
+        query["$or"] = [
+            {"rates.incall.1hour": rate_query},
+            {"rates.1hour": rate_query},
+        ]
 
     if gender:
         query["gender"] = gender

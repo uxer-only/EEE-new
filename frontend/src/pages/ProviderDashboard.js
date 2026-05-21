@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { 
   ChatCircle, CheckCircle, User, MapPin, Camera, Clock, 
   CurrencyDollar, FileText, Phone, EnvelopeSimple, WhatsappLogo,
-  Plus, Trash, CaretRight, CaretLeft, UploadSimple, X, VideoCamera, ShieldCheck, Crown, Sparkle, ArrowRight
+  Plus, Trash, CaretRight, CaretLeft, UploadSimple, X, VideoCamera, ShieldCheck, Crown, Sparkle, ArrowRight, DotsSixVertical
 } from 'phosphor-react';
 import { toast } from 'sonner';
 import CharacteristicsForm from '@/components/CharacteristicsForm';
@@ -32,11 +32,9 @@ export default function ProviderDashboard() {
     location: { city: '', country: '' },
     bio: '',
     services: {}, // Changed to object: { serviceName: { type: 'inclusive' | 'extra' | null, price: '' } }
-    rates: { 
-      '1hour': '',
-      '2hours': '',
-      '3hours': '',
-      'overnight': ''
+    rates: {
+      incall: { '1hour': '', '2hours': '', '3hours': '', 'overnight': '', extras: [] },
+      outcall: { '1hour': '', '2hours': '', '3hours': '', 'overnight': '', extras: [] }
     },
     contact: {
       phone: '',
@@ -74,6 +72,23 @@ export default function ProviderDashboard() {
   const [newService, setNewService] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [draggedPhotoIdx, setDraggedPhotoIdx] = useState(null);
+
+  // Reorder helpers for existing profile photos
+  const movePhoto = (from, to) => {
+    if (to < 0 || to >= (profileData.photos || []).length) return;
+    const next = [...profileData.photos];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    setProfileData({ ...profileData, photos: next });
+  };
+  const onPhotoDragStart = (idx) => setDraggedPhotoIdx(idx);
+  const onPhotoDragOver = (e) => e.preventDefault();
+  const onPhotoDrop = (targetIdx) => {
+    if (draggedPhotoIdx === null || draggedPhotoIdx === targetIdx) return;
+    movePhoto(draggedPhotoIdx, targetIdx);
+    setDraggedPhotoIdx(null);
+  };
 
   const steps = [
     { id: 1, title: 'Basic Info', icon: User },
@@ -166,12 +181,27 @@ export default function ProviderDashboard() {
         const servicesNormalized = Array.isArray(p.services)
           ? p.services.reduce((acc, s) => ({ ...acc, [s]: { type: 'inclusive', price: '' } }), {})
           : (p.services || {});
-        const ratesNormalized = {
-          '1hour': p.rates?.['1hour'] ?? p.rates?.hourly ?? '',
-          '2hours': p.rates?.['2hours'] ?? '',
-          '3hours': p.rates?.['3hours'] ?? '',
-          'overnight': p.rates?.['overnight'] ?? ''
-        };
+        // Normalize rates: legacy flat {1hour, 2hours,...} → nested {incall, outcall}
+        const blank = { '1hour': '', '2hours': '', '3hours': '', 'overnight': '', extras: [] };
+        let ratesNormalized;
+        if (p.rates?.incall || p.rates?.outcall) {
+          ratesNormalized = {
+            incall:  { ...blank, ...(p.rates.incall  || {}), extras: Array.isArray(p.rates.incall?.extras)  ? p.rates.incall.extras  : [] },
+            outcall: { ...blank, ...(p.rates.outcall || {}), extras: Array.isArray(p.rates.outcall?.extras) ? p.rates.outcall.extras : [] }
+          };
+        } else {
+          // Legacy: map flat rates into incall, leave outcall blank
+          ratesNormalized = {
+            incall: {
+              '1hour':    p.rates?.['1hour']    ?? p.rates?.hourly ?? '',
+              '2hours':   p.rates?.['2hours']   ?? '',
+              '3hours':   p.rates?.['3hours']   ?? '',
+              'overnight':p.rates?.['overnight']?? '',
+              extras: []
+            },
+            outcall: { ...blank }
+          };
+        }
         const defaultSchedule = {
           monday: { available: true, start: '10:00', end: '22:00' },
           tuesday: { available: true, start: '10:00', end: '22:00' },
@@ -742,23 +772,38 @@ export default function ProviderDashboard() {
                     Edit
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    { key: '1hour', label: '1 Hour' },
-                    { key: '2hours', label: '2 Hours' },
-                    { key: '3hours', label: '3 Hours' },
-                    { key: 'overnight', label: 'Overnight' }
-                  ].map(({ key, label }) => {
-                    const v = profileData.rates?.[key];
-                    return (
-                      <div key={key} className="border border-[#27272A] p-4">
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] mb-1">{label}</p>
-                        <p className="text-xl font-playfair text-[#C6A87C]">
-                          {v ? `€${v}` : <span className="text-[#6B7280] text-sm italic">Not set</span>}
-                        </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {['incall', 'outcall'].map((kind) => (
+                    <div key={kind}>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#C6A87C] mb-3">{kind}</p>
+                      <div className="space-y-2">
+                        {[
+                          { key: '1hour', label: '1 hour' },
+                          { key: '2hours', label: '2 hours' },
+                          { key: '3hours', label: '3 hours' },
+                          { key: 'overnight', label: 'Overnight' }
+                        ].map(({ key, label }) => {
+                          const v = profileData.rates?.[kind]?.[key];
+                          return (
+                            <div key={key} className="flex items-center justify-between border-b border-[#27272A] pb-2">
+                              <span className="text-[#A1A1AA] text-sm">{label}</span>
+                              <span className="text-[#C6A87C] font-playfair">
+                                {v ? `€${v}` : <span className="text-[#6B7280] text-sm italic">Not set</span>}
+                              </span>
+                            </div>
+                          );
+                        })}
+                        {(profileData.rates?.[kind]?.extras || []).map((extra, i) => (
+                          <div key={`extra-${i}`} className="flex items-center justify-between border-b border-[#27272A] pb-2">
+                            <span className="text-[#A1A1AA] text-sm">{extra.hours} hours</span>
+                            <span className="text-[#C6A87C] font-playfair">
+                              {extra.price ? `€${extra.price}` : <span className="text-[#6B7280] text-sm italic">Not set</span>}
+                            </span>
+                          </div>
+                        ))}
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -906,7 +951,7 @@ export default function ProviderDashboard() {
               <div className="space-y-8">
                 {/* Box 1: Basic Information */}
                 <div className="border border-[#27272A] rounded-lg p-6">
-                  <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-6">Basic Information</h3>
+                  <h3 className="text-2xl font-playfair text-[#C6A87C] mb-6">Basic Information</h3>
                   
                   <div className="space-y-6">
                     {/* Account Type */}
@@ -1114,11 +1159,12 @@ export default function ProviderDashboard() {
                       })}
                     </div>
                   </div>
+                </div>
 
-                  {/* Contact Information */}
-                  <div className="mt-8 pt-8 border-t border-[#27272A] space-y-6">
-                    <h4 className="text-lg font-playfair text-[#F2F0ED]">Contact information</h4>
-
+                {/* Box 2: Contact Information */}
+                <div className="border border-[#27272A] rounded-lg p-6">
+                  <h3 className="text-2xl font-playfair text-[#C6A87C] mb-6">Contact information</h3>
+                  <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-6">
                       <div>
                         <label className="input-label">Mobile phone</label>
@@ -1190,7 +1236,7 @@ export default function ProviderDashboard() {
 
                 {/* Box 2: Physical Characteristics (optional) */}
                 <div className="border border-[#27272A] rounded-lg p-6">
-                  <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-1">Physical Characteristics</h3>
+                  <h3 className="text-2xl font-playfair text-[#C6A87C] mb-1">Physical Characteristics</h3>
                   <p className="text-[#71717A] text-sm mb-6">All fields are optional — fill what you want shown on your profile.</p>
 
                   <CharacteristicsForm
@@ -1204,7 +1250,7 @@ export default function ProviderDashboard() {
             {/* Step 2: Photos & Video's */}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-6">Photos & Video's</h3>
+                <h3 className="text-2xl font-playfair text-[#C6A87C] mb-6">Photos & Video's</h3>
                 <p className="text-[#A1A1AA] text-sm mb-6">Add photos and videos to your profile. Media will be reviewed before being published.</p>
 
                 {/* Upload Zone */}
@@ -1243,15 +1289,41 @@ export default function ProviderDashboard() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h4 className="text-[#F2F0ED] font-medium">Current media ({profileData.photos.length})</h4>
+                      <p className="text-[#71717A] text-xs">Drag to reorder · the first photo is your cover</p>
                     </div>
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {profileData.photos.map((photoUrl, idx) => (
-                        <div key={`existing-${idx}`} className="relative group aspect-[3/4]">
+                        <div
+                          key={`existing-${idx}`}
+                          draggable
+                          onDragStart={() => onPhotoDragStart(idx)}
+                          onDragOver={onPhotoDragOver}
+                          onDrop={() => onPhotoDrop(idx)}
+                          onDragEnd={() => setDraggedPhotoIdx(null)}
+                          className={`relative group aspect-[3/4] cursor-grab active:cursor-grabbing transition-opacity ${
+                            draggedPhotoIdx === idx ? 'opacity-40' : ''
+                          }`}
+                          data-testid={`existing-photo-${idx}`}
+                        >
                           <img
                             src={photoUrl}
                             alt={`Photo ${idx + 1}`}
-                            className="w-full h-full object-cover rounded"
+                            className="w-full h-full object-cover rounded pointer-events-none"
                           />
+
+                          {/* Cover badge */}
+                          {idx === 0 && (
+                            <span className="absolute top-2 left-2 px-2 py-1 bg-[#C6A87C] text-[#0A0A0C] text-[10px] uppercase tracking-wider font-medium rounded-sm">
+                              Cover
+                            </span>
+                          )}
+
+                          {/* Drag handle indicator (top center) */}
+                          <div className="absolute top-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/60 backdrop-blur-sm rounded text-[#F2F0ED] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            <DotsSixVertical size={14} />
+                          </div>
+
+                          {/* Delete */}
                           <button
                             type="button"
                             onClick={(e) => {
@@ -1261,11 +1333,36 @@ export default function ProviderDashboard() {
                                 photos: profileData.photos.filter((_, i) => i !== idx)
                               });
                             }}
-                            className="absolute top-2 right-2 w-6 h-6 bg-black/70 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-2 right-2 w-7 h-7 bg-black/70 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                             data-testid={`remove-existing-photo-${idx}`}
+                            aria-label="Delete photo"
                           >
                             <X size={14} className="text-white" />
                           </button>
+
+                          {/* Reorder arrows (bottom) */}
+                          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); movePhoto(idx, idx - 1); }}
+                              disabled={idx === 0}
+                              className="w-7 h-7 bg-black/70 hover:bg-[#C6A87C] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
+                              data-testid={`photo-move-left-${idx}`}
+                              aria-label="Move left"
+                            >
+                              <CaretLeft size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); movePhoto(idx, idx + 1); }}
+                              disabled={idx === profileData.photos.length - 1}
+                              className="w-7 h-7 bg-black/70 hover:bg-[#C6A87C] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
+                              data-testid={`photo-move-right-${idx}`}
+                              aria-label="Move right"
+                            >
+                              <CaretRight size={14} />
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1330,7 +1427,7 @@ export default function ProviderDashboard() {
             {/* Step 3: Services */}
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-6">Services</h3>
+                <h3 className="text-2xl font-playfair text-[#C6A87C] mb-6">Services</h3>
                 
                 {/* Type of Companionship */}
                 <div className="mb-8">
@@ -1517,83 +1614,118 @@ export default function ProviderDashboard() {
                 {/* Rates */}
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-1">Rates</h3>
-                    <p className="text-[#A1A1AA] text-sm">Set your pricing for different durations</p>
+                    <h3 className="text-2xl font-playfair text-[#C6A87C] mb-1">Rates</h3>
+                    <p className="text-[#A1A1AA] text-sm">Set your pricing for different durations. Incall = client visits you. Outcall = you visit the client.</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <label className="input-label">1 hour</label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={profileData.rates['1hour']}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/[^0-9]/g, '');
-                            setProfileData({ ...profileData, rates: { ...profileData.rates, '1hour': value } });
-                          }}
-                          className="input-premium w-full !pl-10"
-                          placeholder="0"
-                          data-testid="rate-1hour"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="input-label">2 hours</label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={profileData.rates['2hours']}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/[^0-9]/g, '');
-                            setProfileData({ ...profileData, rates: { ...profileData.rates, '2hours': value } });
-                          }}
-                          className="input-premium w-full !pl-10"
-                          placeholder="0"
-                          data-testid="rate-2hours"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="input-label">3 hours</label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={profileData.rates['3hours']}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/[^0-9]/g, '');
-                            setProfileData({ ...profileData, rates: { ...profileData.rates, '3hours': value } });
-                          }}
-                          className="input-premium w-full !pl-10"
-                          placeholder="0"
-                          data-testid="rate-3hours"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="input-label">Overnight</label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={profileData.rates['overnight']}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/[^0-9]/g, '');
-                            setProfileData({ ...profileData, rates: { ...profileData.rates, 'overnight': value } });
-                          }}
-                          className="input-premium w-full !pl-10"
-                          placeholder="0"
-                          data-testid="rate-overnight"
-                        />
-                      </div>
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {['incall', 'outcall'].map((kind) => {
+                      const col = profileData.rates?.[kind] || { '1hour':'', '2hours':'', '3hours':'', 'overnight':'', extras: [] };
+                      const setCol = (next) => setProfileData({
+                        ...profileData,
+                        rates: { ...profileData.rates, [kind]: next }
+                      });
+                      const setKey = (key, value) => setCol({ ...col, [key]: value });
+                      const setExtra = (idx, patch) => {
+                        const extras = [...(col.extras || [])];
+                        extras[idx] = { ...extras[idx], ...patch };
+                        setCol({ ...col, extras });
+                      };
+                      const removeExtra = (idx) => {
+                        const extras = (col.extras || []).filter((_, i) => i !== idx);
+                        setCol({ ...col, extras });
+                      };
+                      const addExtra = () => {
+                        const used = new Set([1, 2, 3, ...(col.extras || []).map((e) => Number(e.hours))]);
+                        let next = 4;
+                        while (used.has(next)) next += 1;
+                        setCol({ ...col, extras: [...(col.extras || []), { hours: next, price: '' }] });
+                      };
+
+                      return (
+                        <div key={kind} className="space-y-5">
+                          <h4 className="text-lg font-playfair text-[#C6A87C] uppercase tracking-[0.2em] text-sm border-b border-[#27272A] pb-3">
+                            {kind === 'incall' ? 'Incall' : 'Outcall'}
+                          </h4>
+
+                          {[
+                            { key: '1hour',     label: '1 hour'    },
+                            { key: '2hours',    label: '2 hours'   },
+                            { key: '3hours',    label: '3 hours'   },
+                            { key: 'overnight', label: 'Overnight' }
+                          ].map(({ key, label }) => (
+                            <div key={key}>
+                              <label className="input-label">{label}</label>
+                              <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={col[key]}
+                                  onChange={(e) => setKey(key, e.target.value.replace(/[^0-9]/g, ''))}
+                                  className="input-premium w-full !pl-10"
+                                  placeholder="0"
+                                  data-testid={`rate-${kind}-${key}`}
+                                />
+                              </div>
+                            </div>
+                          ))}
+
+                          {/* Custom extra hours */}
+                          {(col.extras || []).map((extra, idx) => (
+                            <div key={`extra-${idx}`} className="flex items-end gap-2">
+                              <div className="w-20">
+                                <label className="input-label">Hours</label>
+                                <input
+                                  type="number"
+                                  min="4"
+                                  max="48"
+                                  value={extra.hours || ''}
+                                  onChange={(e) => setExtra(idx, { hours: e.target.value.replace(/[^0-9]/g, '') })}
+                                  className="input-premium w-full text-center"
+                                  data-testid={`rate-${kind}-extra-hours-${idx}`}
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <label className="input-label">Price</label>
+                                <div className="relative">
+                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
+                                  <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={extra.price || ''}
+                                    onChange={(e) => setExtra(idx, { price: e.target.value.replace(/[^0-9]/g, '') })}
+                                    className="input-premium w-full !pl-10"
+                                    placeholder="0"
+                                    data-testid={`rate-${kind}-extra-price-${idx}`}
+                                  />
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeExtra(idx)}
+                                className="h-[50px] px-3 border border-[#3F3F46] text-[#A1A1AA] hover:border-red-500 hover:text-red-500 transition-colors"
+                                data-testid={`rate-${kind}-extra-remove-${idx}`}
+                                aria-label="Remove duration"
+                              >
+                                <Trash size={16} />
+                              </button>
+                            </div>
+                          ))}
+
+                          {/* Add hour CTA */}
+                          <button
+                            type="button"
+                            onClick={addExtra}
+                            className="w-full py-3 border border-dashed border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C] hover:text-[#C6A87C] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
+                            data-testid={`rate-${kind}-add-hour`}
+                          >
+                            <Plus size={16} />
+                            Add hour
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1603,7 +1735,7 @@ export default function ProviderDashboard() {
                 {/* Availability */}
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-1">Availability</h3>
+                    <h3 className="text-2xl font-playfair text-[#C6A87C] mb-1">Availability</h3>
                     <p className="text-[#A1A1AA] text-sm">Set your availability for each day</p>
                   </div>
 
@@ -1692,7 +1824,7 @@ export default function ProviderDashboard() {
               <div className="space-y-8">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.3em] text-[#C6A87C] mb-3">Final step</p>
-                  <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-2">Activate your profile</h3>
+                  <h3 className="text-2xl font-playfair text-[#C6A87C] mb-2">Activate your profile</h3>
                   <p className="text-[#A1A1AA] text-sm max-w-xl">
                     Your profile is saved. A Featured listing makes you visible to clients on Browse. Add VIP Boost to appear at the top of every search.
                   </p>
