@@ -70,9 +70,9 @@ export default function Landing() {
             <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#C6A87C]/10 flex items-center justify-center">
               <Warning size={32} className="text-[#C6A87C]" weight="fill" />
             </div>
-            <h2 className="text-2xl font-playfair text-[#F2F0ED] mb-4">
-              Age Verification Required
-            </h2>
+            <h2 className="text-2xl text-[#F2F0ED] mb-4">
+ Age Verification Required
+ </h2>
             <p className="text-[#A1A1AA] mb-8 text-sm leading-relaxed">
               This website contains adult content and is intended for individuals 18 years of age or older. By entering, you confirm that you are of legal age in your jurisdiction.
             </p>
@@ -147,13 +147,13 @@ export default function Landing() {
             className="max-w-3xl mx-auto text-center"
           >
             <h2
-              className="text-5xl sm:text-6xl lg:text-7xl font-playfair text-[#F2F0ED] mb-6"
-              data-testid="hero-title"
-            >
-              The Art of
-              <br />
-              Companionship
-            </h2>
+ className="text-5xl sm:text-6xl lg:text-7xl text-[#F2F0ED] mb-6"
+ data-testid="hero-title"
+ >
+ The Art of
+ <br />
+ Companionship
+ </h2>
             <p
               className="text-base md:text-xl text-[#A1A1AA] max-w-xl mx-auto"
               data-testid="hero-subtitle"
@@ -168,9 +168,9 @@ export default function Landing() {
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-8 md:mb-12">
               <span className="label-premium">Discover</span>
-              <h3 className="text-3xl md:text-4xl lg:text-5xl font-playfair text-[#F2F0ED] mt-4">
-                Latest Profiles
-              </h3>
+              <h3 className="text-3xl md:text-4xl lg:text-5xl text-[#F2F0ED] mt-4">
+ Latest Profiles
+ </h3>
             </div>
 
             {loadingProviders ? (
@@ -247,9 +247,9 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <span className="label-premium">Why Choose Us</span>
-            <h3 className="text-4xl lg:text-5xl font-playfair text-[#F2F0ED] mt-4">
-              Trust. Privacy. Excellence.
-            </h3>
+            <h3 className="text-4xl lg:text-5xl text-[#F2F0ED] mt-4">
+ Trust. Privacy. Excellence.
+ </h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -268,9 +268,9 @@ export default function Landing() {
                 data-testid={`feature-card-${index}`}
               >
                 <div className="text-[#C6A87C] mb-6">{feature.icon}</div>
-                <h4 className="text-xl font-playfair text-[#F2F0ED] mb-3">
-                  {feature.title}
-                </h4>
+                <h4 className="text-xl text-[#F2F0ED] mb-3">
+ {feature.title}
+ </h4>
                 <p className="text-[#A1A1AA] text-sm leading-relaxed">
                   {feature.description}
                 </p>

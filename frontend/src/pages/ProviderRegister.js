@@ -72,9 +72,9 @@ export default function ProviderRegister() {
             <h1 className="text-3xl md:text-4xl font-playfair text-[#C6A87C]">High Class Companionship</h1>
           </Link>
           
-          <h2 className="text-5xl font-playfair text-[#F2F0ED] mb-6 leading-tight">
-            Join Our Exclusive Network
-          </h2>
+          <h2 className="text-5xl text-[#F2F0ED] mb-6 leading-tight">
+ Join Our Exclusive Network
+ </h2>
           
           <p className="text-xl text-[#A1A1AA] mb-12 leading-relaxed">
             Connect with discerning clients in a premium, secure environment designed for independent professionals.
@@ -106,9 +106,9 @@ export default function ProviderRegister() {
           </Link>
 
           <div className="mb-12">
-            <h2 className="text-4xl font-playfair text-[#F2F0ED] mb-3" data-testid="register-title">
-              Create Your Account
-            </h2>
+            <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="register-title">
+ Create Your Account
+ </h2>
             <p className="text-[#A1A1AA]">
               Begin your journey as a verified provider
             </p>

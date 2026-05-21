@@ -449,7 +449,7 @@ export default function ProviderDashboard() {
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12" data-testid="manage-header">
               <div>
                 <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-3">Manage Profile</p>
-                <h2 className="text-4xl md:text-5xl font-playfair text-[#F2F0ED] mb-3">Welcome, {p.display_name}</h2>
+                <h2 className="text-4xl md:text-5xl text-[#F2F0ED] mb-3">Welcome, {p.display_name}</h2>
                 <div className="flex items-center gap-4">
                   {p.verified ? (
                     <div className="verified-badge" data-testid="verified-badge"><CheckCircle size={16} weight="fill" />Verified Provider</div>
@@ -620,7 +620,7 @@ export default function ProviderDashboard() {
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 1</p>
-                      <h3 className="text-xl font-playfair text-[#F2F0ED]">Basic Info</h3>
+                      <h3 className="text-xl text-[#F2F0ED]">Basic Info</h3>
                     </div>
                   </div>
                   <button
@@ -664,7 +664,7 @@ export default function ProviderDashboard() {
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 2</p>
-                      <h3 className="text-xl font-playfair text-[#F2F0ED]">Photos & Video's</h3>
+                      <h3 className="text-xl text-[#F2F0ED]">Photos & Video's</h3>
                     </div>
                   </div>
                   <button
@@ -702,7 +702,7 @@ export default function ProviderDashboard() {
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 3</p>
-                      <h3 className="text-xl font-playfair text-[#F2F0ED]">Services</h3>
+                      <h3 className="text-xl text-[#F2F0ED]">Services</h3>
                     </div>
                   </div>
                   <button
@@ -765,7 +765,7 @@ export default function ProviderDashboard() {
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 4</p>
-                      <h3 className="text-xl font-playfair text-[#F2F0ED]">Rates</h3>
+                      <h3 className="text-xl text-[#F2F0ED]">Rates</h3>
                     </div>
                   </div>
                   <button
@@ -820,7 +820,7 @@ export default function ProviderDashboard() {
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 4</p>
-                      <h3 className="text-xl font-playfair text-[#F2F0ED]">Availability</h3>
+                      <h3 className="text-xl text-[#F2F0ED]">Availability</h3>
                       <p className="text-[#A1A1AA] text-xs mt-1">{availableDays} of 7 days available</p>
                     </div>
                   </div>
@@ -893,9 +893,9 @@ export default function ProviderDashboard() {
         <div className="max-w-4xl mx-auto">
           {/* Page Title */}
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-playfair text-[#F2F0ED] mb-4">
-              {mode === 'edit' ? `Edit ${steps[currentStep - 1]?.title}` : 'Complete Your Profile'}
-            </h2>
+            <h2 className="text-4xl text-[#F2F0ED] mb-4">
+ {mode === 'edit' ? `Edit ${steps[currentStep - 1]?.title}` : 'Complete Your Profile'}
+ </h2>
             <p className="text-[#A1A1AA]">
               {mode === 'edit' ? 'Update this section of your profile' : 'Set up your provider profile to start receiving enquiries'}
             </p>
@@ -955,7 +955,7 @@ export default function ProviderDashboard() {
               <div className="space-y-8">
                 {/* Box 1: Basic Information */}
                 <div className="border border-[#27272A] rounded-lg p-6">
-                  <h3 className="text-2xl font-playfair text-[#C6A87C] mb-6">Basic Information</h3>
+                  <h3 className="text-2xl text-[#C6A87C] mb-6">Basic Information</h3>
                   
                   <div className="space-y-6">
                     {/* Account Type */}
@@ -1167,7 +1167,7 @@ export default function ProviderDashboard() {
 
                 {/* Box 2: Contact Information */}
                 <div className="border border-[#27272A] rounded-lg p-6">
-                  <h3 className="text-2xl font-playfair text-[#C6A87C] mb-6">Contact information</h3>
+                  <h3 className="text-2xl text-[#C6A87C] mb-6">Contact information</h3>
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-6">
                       <div>
@@ -1240,7 +1240,7 @@ export default function ProviderDashboard() {
 
                 {/* Box 2: Physical Characteristics (optional) */}
                 <div className="border border-[#27272A] rounded-lg p-6">
-                  <h3 className="text-2xl font-playfair text-[#C6A87C] mb-1">Physical Characteristics</h3>
+                  <h3 className="text-2xl text-[#C6A87C] mb-1">Physical Characteristics</h3>
                   <p className="text-[#71717A] text-sm mb-6">All fields are optional — fill what you want shown on your profile.</p>
 
                   <CharacteristicsForm
@@ -1254,7 +1254,7 @@ export default function ProviderDashboard() {
             {/* Step 2: Photos & Video's */}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <h3 className="text-2xl font-playfair text-[#C6A87C] mb-6">Photos & Video's</h3>
+                <h3 className="text-2xl text-[#C6A87C] mb-6">Photos & Video's</h3>
                 <p className="text-[#A1A1AA] text-sm mb-6">Add photos and videos to your profile. Media will be reviewed before being published.</p>
 
                 {/* Upload Zone */}
@@ -1431,7 +1431,7 @@ export default function ProviderDashboard() {
             {/* Step 3: Services */}
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h3 className="text-2xl font-playfair text-[#C6A87C] mb-6">Services</h3>
+                <h3 className="text-2xl text-[#C6A87C] mb-6">Services</h3>
                 
                 {/* Type of Companionship */}
                 <div className="mb-8">
@@ -1618,7 +1618,7 @@ export default function ProviderDashboard() {
                 {/* Availability */}
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-2xl font-playfair text-[#C6A87C] mb-1">Availability</h3>
+                    <h3 className="text-2xl text-[#C6A87C] mb-1">Availability</h3>
                     <p className="text-[#A1A1AA] text-sm">Set your availability for each day</p>
                   </div>
 
@@ -1732,7 +1732,7 @@ export default function ProviderDashboard() {
                 {/* Rates */}
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-2xl font-playfair text-[#C6A87C] mb-1">Rates</h3>
+                    <h3 className="text-2xl text-[#C6A87C] mb-1">Rates</h3>
                     <p className="text-[#A1A1AA] text-sm">
                       Set your pricing for different durations.{' '}
                       {profileData.availability_type === 'incall'
@@ -1774,9 +1774,9 @@ export default function ProviderDashboard() {
 
                       return (
                         <div key={kind} className="space-y-8">
-                          <h4 className="text-lg font-playfair text-[#C6A87C] uppercase tracking-[0.2em] text-sm border-b border-[#27272A] pb-3">
-                            {kind === 'incall' ? 'Incall' : 'Outcall'}
-                          </h4>
+                          <h4 className="text-lg text-[#C6A87C] uppercase tracking-[0.2em] text-sm border-b border-[#27272A] pb-3">
+ {kind === 'incall' ? 'Incall' : 'Outcall'}
+ </h4>
 
                           {[
                             { key: '1hour',     label: '1 hour'    },
@@ -1868,7 +1868,7 @@ export default function ProviderDashboard() {
               <div className="space-y-8">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.3em] text-[#C6A87C] mb-3">Final step</p>
-                  <h3 className="text-2xl font-playfair text-[#C6A87C] mb-2">Activate your profile</h3>
+                  <h3 className="text-2xl text-[#C6A87C] mb-2">Activate your profile</h3>
                   <p className="text-[#A1A1AA] text-sm max-w-xl">
                     Your profile is saved. A Featured listing makes you visible to clients on Browse. Add VIP Boost to appear at the top of every search.
                   </p>
@@ -1879,7 +1879,7 @@ export default function ProviderDashboard() {
                   <div className="flex items-start gap-3 mb-5">
                     <Sparkle size={20} weight="fill" className="text-[#C6A87C] mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="text-xl font-playfair text-[#F2F0ED]">Featured listing</h4>
+                      <h4 className="text-xl text-[#F2F0ED]">Featured listing</h4>
                       <p className="text-[#A1A1AA] text-sm">Required to be visible on Browse.</p>
                     </div>
                   </div>
@@ -1918,9 +1918,9 @@ export default function ProviderDashboard() {
                     <div className="flex items-start gap-3">
                       <Crown size={20} weight="fill" className="text-[#C6A87C] mt-1 flex-shrink-0" />
                       <div>
-                        <h4 className="text-xl font-playfair text-[#F2F0ED]">
-                          VIP Boost <span className="text-xs uppercase tracking-[0.2em] text-[#71717A] ml-2">Optional</span>
-                        </h4>
+                        <h4 className="text-xl text-[#F2F0ED]">
+ VIP Boost <span className="text-xs uppercase tracking-[0.2em] text-[#71717A] ml-2">Optional</span>
+ </h4>
                         <p className="text-[#A1A1AA] text-sm">Be displayed at the very top of Browse.</p>
                       </div>
                     </div>
@@ -1977,7 +1977,7 @@ export default function ProviderDashboard() {
                 {/* Auto-renew */}
                 <div className="card-premium p-6 flex items-center justify-between gap-4 flex-wrap">
                   <div>
-                    <h4 className="text-lg font-playfair text-[#F2F0ED] mb-1">Auto-renew</h4>
+                    <h4 className="text-lg text-[#F2F0ED] mb-1">Auto-renew</h4>
                     <p className="text-[#A1A1AA] text-sm">
                       Automatically renew your plan when it expires. Cancel any time from your dashboard.
                     </p>

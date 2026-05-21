@@ -59,9 +59,9 @@ export default function ResetPassword() {
         <div className="w-full max-w-md">
           {invalidToken ? (
             <div data-testid="reset-invalid">
-              <h2 className="text-4xl font-playfair text-[#F2F0ED] mb-4">
-                Invalid reset link
-              </h2>
+              <h2 className="text-4xl text-[#F2F0ED] mb-4">
+ Invalid reset link
+ </h2>
               <p className="text-[#A1A1AA] mb-10 leading-relaxed">
                 This reset link is malformed or missing. Please request a new one.
               </p>
@@ -74,9 +74,9 @@ export default function ResetPassword() {
               <div className="w-14 h-14 rounded-full bg-[#C6A87C]/10 border border-[#C6A87C]/30 flex items-center justify-center mb-8">
                 <CheckCircle size={28} className="text-[#C6A87C]" weight="thin" />
               </div>
-              <h2 className="text-4xl font-playfair text-[#F2F0ED] mb-4">
-                Password updated
-              </h2>
+              <h2 className="text-4xl text-[#F2F0ED] mb-4">
+ Password updated
+ </h2>
               <p className="text-[#A1A1AA] leading-relaxed mb-10">
                 Your password has been updated successfully. Redirecting you to sign in...
               </p>
@@ -87,9 +87,9 @@ export default function ResetPassword() {
           ) : (
             <>
               <div className="mb-10">
-                <h2 className="text-4xl font-playfair text-[#F2F0ED] mb-3" data-testid="reset-title">
-                  Create a new password
-                </h2>
+                <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="reset-title">
+ Create a new password
+ </h2>
                 <p className="text-[#A1A1AA]">
                   Choose something only you'll remember. At least 8 characters.
                 </p>

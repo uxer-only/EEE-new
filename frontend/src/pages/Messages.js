@@ -80,7 +80,7 @@ export default function Messages() {
       <div className="pt-24 md:pt-28 h-screen flex">
         <div className="w-1/3 border-r border-[#27272A] overflow-y-auto" data-testid="conversations-list">
           <div className="p-8">
-            <h2 className="text-3xl font-playfair text-[#F2F0ED] mb-8">Messages</h2>
+            <h2 className="text-3xl text-[#F2F0ED] mb-8">Messages</h2>
             {loading ? (
               <div className="space-y-4">{[...Array(5)].map((_, i) => <div key={i} className="shimmer h-20"></div>)}</div>
             ) : conversations.length === 0 ? (
@@ -122,7 +122,7 @@ export default function Messages() {
                     return (
                       <>
                         <img src={otherPerson?.picture || otherPerson?.photos?.[0] || 'https://via.placeholder.com/60'} alt={otherPerson?.name || otherPerson?.display_name} className="w-14 h-14 rounded-full object-cover" />
-                        <h3 className="text-2xl font-playfair text-[#F2F0ED]">{otherPerson?.name || otherPerson?.display_name}</h3>
+                        <h3 className="text-2xl text-[#F2F0ED]">{otherPerson?.name || otherPerson?.display_name}</h3>
                       </>
                     );
                   })()}

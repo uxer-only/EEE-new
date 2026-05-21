@@ -136,9 +136,9 @@ export default function Browse() {
         )}
         {/* Search Bar */}
         <div className="max-w-4xl mx-auto mb-10 md:mb-16">
-          <h2 className="text-4xl md:text-5xl font-playfair text-[#F2F0ED] mb-6 md:mb-8 text-center" data-testid="browse-title">
-            Discover Excellence
-          </h2>
+          <h2 className="text-4xl md:text-5xl text-[#F2F0ED] mb-6 md:mb-8 text-center" data-testid="browse-title">
+ Discover Excellence
+ </h2>
           
           {/* Gender Filter Buttons */}
           <div className="flex items-center justify-center flex-wrap gap-2 md:gap-4 mb-8">
@@ -311,17 +311,17 @@ export default function Browse() {
                       {/* Info overlay - always visible at bottom */}
                       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0A0A0C] to-transparent">
                         <div>
-                          <h3 className="text-lg font-playfair text-[#F2F0ED] mb-1 truncate flex items-center gap-1.5">
-                            <span className="truncate">{provider.display_name}</span>
-                            {provider.verified && (
-                              <CheckCircle
-                                size={16}
-                                weight="fill"
-                                className="text-[#22C55E] flex-shrink-0"
-                                data-testid={`verified-badge-${index}`}
-                              />
-                            )}
-                          </h3>
+                          <h3 className="text-lg text-[#F2F0ED] mb-1 truncate flex items-center gap-1.5">
+ <span className="truncate">{provider.display_name}</span>
+ {provider.verified && (
+ <CheckCircle
+ size={16}
+ weight="fill"
+ className="text-[#22C55E] flex-shrink-0"
+ data-testid={`verified-badge-${index}`}
+ />
+ )}
+ </h3>
                           <div className="flex items-center gap-2 text-[#A1A1AA] text-xs mb-1">
                             <span>{provider.age}</span>
                             <span>•</span>

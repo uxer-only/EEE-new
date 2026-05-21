@@ -119,7 +119,7 @@ export default function VerificationModal({ open, onClose, onSubmitted }) {
         <div className="p-6 md:p-8">
           <div className="flex items-center gap-3 mb-2">
             <ShieldCheck size={24} className="text-[#C6A87C]" weight="thin" />
-            <h2 className="text-2xl font-playfair text-[#F2F0ED]">Verify your identity</h2>
+            <h2 className="text-2xl text-[#F2F0ED]">Verify your identity</h2>
           </div>
           <p className="text-[#A1A1AA] text-sm leading-relaxed mb-6">
             Verification is our promise of trust. Only verified providers appear in search. We review submissions manually within 24 hours and never share your documents.

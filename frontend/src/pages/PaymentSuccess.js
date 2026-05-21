@@ -62,7 +62,7 @@ export default function PaymentSuccess() {
           {state.status === 'pending' && (
             <>
               <div className="w-12 h-12 border-2 border-[#C6A87C] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-              <h1 className="text-3xl font-playfair text-[#F2F0ED] mb-3">Confirming payment…</h1>
+              <h1 className="text-3xl text-[#F2F0ED] mb-3">Confirming payment…</h1>
               <p className="text-[#A1A1AA] text-sm">Please don't close this window.</p>
             </>
           )}
@@ -70,7 +70,7 @@ export default function PaymentSuccess() {
           {state.status === 'paid' && (
             <>
               <CheckCircle size={56} weight="fill" className="text-[#22C55E] mx-auto mb-6" />
-              <h1 className="text-3xl font-playfair text-[#F2F0ED] mb-3" data-testid="paid-title">Your profile is live</h1>
+              <h1 className="text-3xl text-[#F2F0ED] mb-3" data-testid="paid-title">Your profile is live</h1>
               <p className="text-[#A1A1AA] mb-8">
                 Thank you. Your Featured listing
                 {state.tx?.vip_plan ? ' and VIP Boost are' : ' is'} active.
@@ -89,7 +89,7 @@ export default function PaymentSuccess() {
           {(state.status === 'failed' || state.status === 'error') && (
             <>
               <X size={56} weight="bold" className="text-[#EF4444] mx-auto mb-6" />
-              <h1 className="text-3xl font-playfair text-[#F2F0ED] mb-3">Payment didn't complete</h1>
+              <h1 className="text-3xl text-[#F2F0ED] mb-3">Payment didn't complete</h1>
               <p className="text-[#A1A1AA] mb-8">No charge was made. You can try again any time.</p>
               <button
                 type="button"
@@ -104,7 +104,7 @@ export default function PaymentSuccess() {
 
           {state.status === 'timeout' && (
             <>
-              <h1 className="text-3xl font-playfair text-[#F2F0ED] mb-3">Still processing…</h1>
+              <h1 className="text-3xl text-[#F2F0ED] mb-3">Still processing…</h1>
               <p className="text-[#A1A1AA] mb-8">
                 Stripe is taking a bit longer than usual. Your dashboard will update automatically once payment is confirmed.
               </p>

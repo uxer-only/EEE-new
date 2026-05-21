@@ -129,7 +129,7 @@ export default function AdminProviderDetail() {
             <CaretLeft size={20} />
             <span className="uppercase tracking-wider text-sm">Back to Dashboard</span>
           </Link>
-          <h1 className="text-2xl font-playfair text-[#C6A87C]">Provider Management</h1>
+          <h1 className="text-2xl text-[#C6A87C]">Provider Management</h1>
           <div></div>
         </div>
       </header>
@@ -151,10 +151,10 @@ export default function AdminProviderDetail() {
               />
               <div className="flex-1">
                 <div className="flex items-center gap-4 mb-4">
-                  <h2 className="text-3xl font-playfair text-[#F2F0ED]">
-                    {provider.display_name}
-                    {provider.age && <span className="text-[#A1A1AA]">, {provider.age}</span>}
-                  </h2>
+                  <h2 className="text-3xl text-[#F2F0ED]">
+ {provider.display_name}
+ {provider.age && <span className="text-[#A1A1AA]">, {provider.age}</span>}
+ </h2>
                   {provider.verified && (
                     <span className="verified-badge">
                       <CheckCircle size={16} weight="fill" /> Verified
@@ -216,9 +216,9 @@ export default function AdminProviderDetail() {
             >
               <div className="flex items-center gap-3 mb-6">
                 <Warning size={24} className="text-amber-500" />
-                <h3 className="text-xl font-playfair text-[#F2F0ED]">
-                  Pending Approval ({pendingMedia.length})
-                </h3>
+                <h3 className="text-xl text-[#F2F0ED]">
+ Pending Approval ({pendingMedia.length})
+ </h3>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -286,9 +286,9 @@ export default function AdminProviderDetail() {
           >
             <div className="flex items-center gap-3 mb-6">
               <CheckCircle size={24} className="text-green-500" />
-              <h3 className="text-xl font-playfair text-[#F2F0ED]">
-                Approved Media ({approvedMedia.length})
-              </h3>
+              <h3 className="text-xl text-[#F2F0ED]">
+ Approved Media ({approvedMedia.length})
+ </h3>
             </div>
 
             {approvedMedia.length > 0 ? (
@@ -335,9 +335,9 @@ export default function AdminProviderDetail() {
             >
               <div className="flex items-center gap-3 mb-6">
                 <X size={24} className="text-red-500" />
-                <h3 className="text-xl font-playfair text-[#F2F0ED]">
-                  Rejected Media ({rejectedMedia.length})
-                </h3>
+                <h3 className="text-xl text-[#F2F0ED]">
+ Rejected Media ({rejectedMedia.length})
+ </h3>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -384,7 +384,7 @@ export default function AdminProviderDetail() {
       <Dialog open={!!selectedMedia} onOpenChange={() => setSelectedMedia(null)}>
         <DialogContent className="bg-[#141416] border-[#27272A] text-[#F2F0ED] max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl font-playfair">Reject Media</DialogTitle>
+            <DialogTitle className="text-xl">Reject Media</DialogTitle>
           </DialogHeader>
           <div className="mt-4">
             <label className="input-label">Rejection reason</label>

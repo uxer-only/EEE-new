@@ -84,9 +84,9 @@ export default function AdminPanel() {
           <div className="mb-10">
             <div className="flex items-center gap-3 mb-2">
               <ShieldCheck size={26} weight="thin" className="text-[#C6A87C]" />
-              <h2 className="text-3xl md:text-4xl font-playfair text-[#F2F0ED]">
-                Verification queue
-              </h2>
+              <h2 className="text-3xl md:text-4xl text-[#F2F0ED]">
+ Verification queue
+ </h2>
             </div>
             <p className="text-[#A1A1AA]">
               {verifications.length === 0
@@ -167,9 +167,9 @@ export default function AdminPanel() {
             </button>
 
             <div className="p-6 md:p-8">
-              <h3 className="text-2xl font-playfair text-[#F2F0ED] mb-1">
-                {selected.display_name || selected.user?.name}
-              </h3>
+              <h3 className="text-2xl text-[#F2F0ED] mb-1">
+ {selected.display_name || selected.user?.name}
+ </h3>
               <p className="text-[#A1A1AA] text-sm mb-6">
                 {selected.user?.email}
                 {selected.location?.city && ` · ${selected.location.city}`}

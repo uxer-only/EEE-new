@@ -95,9 +95,9 @@ export default function Subscribe() {
           className="text-center mb-12"
         >
           <p className="text-[10px] uppercase tracking-[0.3em] text-[#C6A87C] mb-3">Final step</p>
-          <h1 className="text-4xl md:text-5xl font-playfair text-[#F2F0ED] mb-4">
-            Activate your profile
-          </h1>
+          <h1 className="text-4xl md:text-5xl text-[#F2F0ED] mb-4">
+ Activate your profile
+ </h1>
           <p className="text-[#A1A1AA] max-w-xl mx-auto">
             A Featured listing makes your profile visible to clients on Browse. Add VIP Boost to
             appear at the top of every search.
@@ -123,7 +123,7 @@ export default function Subscribe() {
           <div className="flex items-start gap-3 mb-6">
             <Sparkle size={22} weight="fill" className="text-[#C6A87C] mt-1 flex-shrink-0" />
             <div>
-              <h2 className="text-2xl font-playfair text-[#F2F0ED]">Featured Listing</h2>
+              <h2 className="text-2xl text-[#F2F0ED]">Featured Listing</h2>
               <p className="text-[#A1A1AA] text-sm mt-1">
                 Required to be visible on Browse. Choose a duration.
               </p>
@@ -165,9 +165,9 @@ export default function Subscribe() {
             <div className="flex items-start gap-3">
               <Crown size={22} weight="fill" className="text-[#C6A87C] mt-1 flex-shrink-0" />
               <div>
-                <h2 className="text-2xl font-playfair text-[#F2F0ED]">
-                  VIP Boost <span className="text-sm uppercase tracking-[0.2em] text-[#71717A] ml-2">Optional</span>
-                </h2>
+                <h2 className="text-2xl text-[#F2F0ED]">
+ VIP Boost <span className="text-sm uppercase tracking-[0.2em] text-[#71717A] ml-2">Optional</span>
+ </h2>
                 <p className="text-[#A1A1AA] text-sm mt-1">
                   Be displayed at the very top of Browse, above all standard listings.
                 </p>

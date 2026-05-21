@@ -198,7 +198,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <ChartLine size={24} className="text-[#C6A87C]" />
-                <h2 className="text-xl font-playfair text-[#F2F0ED]">Website Traffic</h2>
+                <h2 className="text-xl text-[#F2F0ED]">Website Traffic</h2>
               </div>
               <select
                 value={trafficDays}
@@ -287,7 +287,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <Users size={24} className="text-[#C6A87C]" />
-                <h2 className="text-xl font-playfair text-[#F2F0ED]">Advertisers</h2>
+                <h2 className="text-xl text-[#F2F0ED]">Advertisers</h2>
               </div>
               <div className="relative">
                 <MagnifyingGlass size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#52525B]" />

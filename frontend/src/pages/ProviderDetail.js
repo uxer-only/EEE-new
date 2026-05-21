@@ -152,9 +152,9 @@ export default function ProviderDetail() {
             <div>
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div className="min-w-0 flex-1">
-                  <h1 className="text-4xl md:text-5xl font-playfair text-[#F2F0ED] mb-3" data-testid="provider-name">
-                    {provider.display_name}{provider.age && <span className="text-[#A1A1AA]">, {provider.age}</span>}
-                  </h1>
+                  <h1 className="text-4xl md:text-5xl text-[#F2F0ED] mb-3" data-testid="provider-name">
+ {provider.display_name}{provider.age && <span className="text-[#A1A1AA]">, {provider.age}</span>}
+ </h1>
                   <div className="flex items-start gap-4 text-[#A1A1AA]">
                     <div className="flex items-start gap-2">
                       <MapPin size={20} weight="thin" className="shrink-0 mt-0.5" />
@@ -184,7 +184,7 @@ export default function ProviderDetail() {
                 <div className="mb-8 card-premium p-6 md:p-8">
                   {(provider.bio || provider.essence) && (
                     <>
-                      <h3 className="text-xl font-playfair text-[#F2F0ED] mb-4">My essence...</h3>
+                      <h3 className="text-xl text-[#F2F0ED] mb-4">My essence...</h3>
                       <p className="text-[#A1A1AA] leading-relaxed" data-testid="provider-bio">
                         {provider.bio || provider.essence}
                       </p>
@@ -258,7 +258,7 @@ export default function ProviderDetail() {
                 const extras = serviceList.filter(s => s.type === 'extra');
                 return (
                   <div className="mb-8 card-premium p-6 md:p-8">
-                    <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">What we can share together...</h3>
+                    <h3 className="text-xl text-[#F2F0ED] mb-6">What we can share together...</h3>
                     {inclusive.length > 0 && (
                       <div className="mb-4">
                         {extras.length > 0 && (
@@ -305,7 +305,7 @@ export default function ProviderDetail() {
                 if (!schedule) return null;
                 return (
                   <div className="mb-8 card-premium p-6 md:p-8">
-                    <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">My schedule</h3>
+                    <h3 className="text-xl text-[#F2F0ED] mb-6">My schedule</h3>
                     <div className="space-y-3">
                       {dayOrder.filter(d => schedule[d]).map((day) => {
                         const s = schedule[day];
@@ -325,7 +325,7 @@ export default function ProviderDetail() {
 
               {/* Let's Connect */}
               <div className="mb-8 card-premium p-6 md:p-8" data-testid="contact-section">
-                <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Let's connect</h3>
+                <h3 className="text-xl text-[#F2F0ED] mb-6">Let's connect</h3>
                 <div className="space-y-4">
                   {/* Mobile */}
                   <a 
@@ -423,7 +423,7 @@ export default function ProviderDetail() {
 
                 return (
                   <div className="mb-8 card-premium p-6 md:p-8">
-                    <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Time & investment</h3>
+                    <h3 className="text-xl text-[#F2F0ED] mb-6">Time & investment</h3>
                     {isNested ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {renderColumn('incall', r.incall || {})}
@@ -445,7 +445,7 @@ export default function ProviderDetail() {
 
               {/* Extra Requests */}
               <div className="mb-8 card-premium p-6 md:p-8">
-                <h3 className="text-xl font-playfair text-[#F2F0ED] mb-6">Do you have extra requests?</h3>
+                <h3 className="text-xl text-[#F2F0ED] mb-6">Do you have extra requests?</h3>
                 <div className="space-y-4">
                   <textarea
                     value={extraRequest}
@@ -491,7 +491,7 @@ export default function ProviderDetail() {
           {/* Reviews */}
           {provider.reviews && provider.reviews.length > 0 && (
             <div className="mt-24">
-              <h3 className="text-3xl font-playfair text-[#F2F0ED] mb-12">Reviews</h3>
+              <h3 className="text-3xl text-[#F2F0ED] mb-12">Reviews</h3>
               <div className="space-y-8">
                 {provider.reviews.map((review, index) => (
                   <motion.div

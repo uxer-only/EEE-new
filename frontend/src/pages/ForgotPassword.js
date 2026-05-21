@@ -54,9 +54,9 @@ export default function ForgotPassword() {
           {!sent ? (
             <>
               <div className="mb-10">
-                <h2 className="text-4xl font-playfair text-[#F2F0ED] mb-3" data-testid="forgot-title">
-                  Forgot your password?
-                </h2>
+                <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="forgot-title">
+ Forgot your password?
+ </h2>
                 <p className="text-[#A1A1AA]">
                   Enter the email associated with your account and we'll send you a link to reset it.
                 </p>
@@ -99,9 +99,9 @@ export default function ForgotPassword() {
               <div className="w-14 h-14 rounded-full bg-[#C6A87C]/10 border border-[#C6A87C]/30 flex items-center justify-center mb-8">
                 <EnvelopeSimple size={26} className="text-[#C6A87C]" weight="thin" />
               </div>
-              <h2 className="text-4xl font-playfair text-[#F2F0ED] mb-4">
-                Check your email
-              </h2>
+              <h2 className="text-4xl text-[#F2F0ED] mb-4">
+ Check your email
+ </h2>
               <p className="text-[#A1A1AA] mb-3 leading-relaxed">
                 If an account exists for <span className="text-[#F2F0ED]">{email}</span>, we've sent a reset link.
               </p>

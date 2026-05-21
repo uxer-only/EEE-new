@@ -57,7 +57,7 @@ export default function Register() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="mb-12">
-            <h2 className="text-4xl font-playfair text-[#F2F0ED] mb-3" data-testid="register-title">
+            <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="register-title">
               Join High Class Companionship
             </h2>
             <p className="text-[#A1A1AA]">
