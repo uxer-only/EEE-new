@@ -50,6 +50,7 @@ export default function ProviderDashboard() {
       saturday: { available: true, start: '10:00', end: '23:00' },
       sunday: { available: true, start: '10:00', end: '22:00' }
     },
+    availability_type: 'both',  // 'incall' | 'outcall' | 'both'
     photos: [],
     characteristics: {
       nationality: '',
@@ -223,6 +224,7 @@ export default function ProviderDashboard() {
           rates: ratesNormalized,
           contact: p.contact || { phone: '', whatsapp: '', email: '' },
           schedule: p.schedule || defaultSchedule,
+          availability_type: p.availability_type || 'both',
           photos: p.photos || [],
           characteristics: {
             nationality: p.characteristics?.nationality || '',
@@ -297,6 +299,7 @@ export default function ProviderDashboard() {
         rates: profileData.rates,
         contact: profileData.contact,
         schedule: profileData.schedule,
+        availability_type: profileData.availability_type,
         photos: newPhotos,
         characteristics: profileData.characteristics
       };
@@ -334,6 +337,7 @@ export default function ProviderDashboard() {
         rates: profileData.rates,
         contact: profileData.contact,
         schedule: profileData.schedule,
+        availability_type: profileData.availability_type,
         photos: newPhotos,
         characteristics: profileData.characteristics
       };
@@ -1611,15 +1615,141 @@ export default function ProviderDashboard() {
             {/* Step 4: Rates & Availability */}
             {currentStep === 4 && (
               <div className="space-y-10">
+                {/* Availability */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-2xl font-playfair text-[#C6A87C] mb-1">Availability</h3>
+                    <p className="text-[#A1A1AA] text-sm">Set your availability for each day</p>
+                  </div>
+
+                  {/* Service type: Incall / Outcall / Both */}
+                  <div>
+                    <label className="input-label">I offer</label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        { value: 'incall',  label: 'Incall only' },
+                        { value: 'outcall', label: 'Outcall only' },
+                        { value: 'both',    label: 'Incall & outcall' }
+                      ].map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setProfileData({ ...profileData, availability_type: opt.value })}
+                          className={`py-3 px-4 border text-sm uppercase tracking-wider transition-all ${
+                            profileData.availability_type === opt.value
+                              ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
+                              : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
+                          }`}
+                          data-testid={`availability-type-${opt.value}`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 24/7 Option */}
+                  <label className="flex items-center gap-3 cursor-pointer py-3 border-b border-[#52525B]">
+                    <input
+                      type="checkbox"
+                      checked={profileData.available247 || false}
+                      onChange={(e) => {
+                        const is247 = e.target.checked;
+                        const updatedSchedule = {};
+                        Object.keys(profileData.schedule).forEach(day => {
+                          updatedSchedule[day] = {
+                            available: !is247,
+                            start: '10:00',
+                            end: '22:00'
+                          };
+                        });
+                        setProfileData({
+                          ...profileData,
+                          available247: is247,
+                          schedule: updatedSchedule
+                        });
+                      }}
+                      className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                    />
+                    <span className="text-[#F2F0ED]">Available 24/7</span>
+                  </label>
+
+                  <div className="space-y-4">
+                    {Object.entries(profileData.schedule).map(([day, schedule]) => (
+                      <div key={day} className="flex items-center gap-4 py-3 border-b border-[#27272A]">
+                        <label className="flex items-center gap-3 cursor-pointer w-32">
+                          <input
+                            type="checkbox"
+                            checked={schedule.available}
+                            onChange={(e) => setProfileData({
+                              ...profileData,
+                              schedule: {
+                                ...profileData.schedule,
+                                [day]: { ...schedule, available: e.target.checked }
+                              }
+                            })}
+                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                          />
+                          <span className="text-[#F2F0ED] capitalize">{day}</span>
+                        </label>
+                        {schedule.available && (
+                          <>
+                            <input
+                              type="time"
+                              value={schedule.start}
+                              onChange={(e) => setProfileData({
+                                ...profileData,
+                                schedule: {
+                                  ...profileData.schedule,
+                                  [day]: { ...schedule, start: e.target.value }
+                                }
+                              })}
+                              className="input-premium px-3 py-2"
+                            />
+                            <span className="text-[#A1A1AA]">to</span>
+                            <input
+                              type="time"
+                              value={schedule.end}
+                              onChange={(e) => setProfileData({
+                                ...profileData,
+                                schedule: {
+                                  ...profileData.schedule,
+                                  [day]: { ...schedule, end: e.target.value }
+                                }
+                              })}
+                              className="input-premium px-3 py-2"
+                            />
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-[#27272A]"></div>
+
                 {/* Rates */}
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-2xl font-playfair text-[#C6A87C] mb-1">Rates</h3>
-                    <p className="text-[#A1A1AA] text-sm">Set your pricing for different durations. Incall = client visits you. Outcall = you visit the client.</p>
+                    <p className="text-[#A1A1AA] text-sm">
+                      Set your pricing for different durations.{' '}
+                      {profileData.availability_type === 'incall'
+                        ? 'Fill out the Incall column only.'
+                        : profileData.availability_type === 'outcall'
+                          ? 'Fill out the Outcall column only.'
+                          : 'Incall = client visits you. Outcall = you visit the client.'}
+                    </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {['incall', 'outcall'].map((kind) => {
+                  <div className={`grid grid-cols-1 gap-8 ${profileData.availability_type === 'both' ? 'md:grid-cols-2' : ''}`}>
+                    {['incall', 'outcall']
+                      .filter((kind) =>
+                        profileData.availability_type === 'both' ||
+                        profileData.availability_type === kind
+                      )
+                      .map((kind) => {
                       const col = profileData.rates?.[kind] || { '1hour':'', '2hours':'', '3hours':'', 'overnight':'', extras: [] };
                       const setCol = (next) => setProfileData({
                         ...profileData,
@@ -1729,93 +1859,7 @@ export default function ProviderDashboard() {
                   </div>
                 </div>
 
-                {/* Divider */}
-                <div className="border-t border-[#27272A]"></div>
-
-                {/* Availability */}
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-2xl font-playfair text-[#C6A87C] mb-1">Availability</h3>
-                    <p className="text-[#A1A1AA] text-sm">Set your availability for each day</p>
-                  </div>
-
-                  {/* 24/7 Option */}
-                  <label className="flex items-center gap-3 cursor-pointer py-3 border-b border-[#52525B]">
-                    <input
-                      type="checkbox"
-                      checked={profileData.available247 || false}
-                      onChange={(e) => {
-                        const is247 = e.target.checked;
-                        const updatedSchedule = {};
-                        Object.keys(profileData.schedule).forEach(day => {
-                          updatedSchedule[day] = {
-                            available: !is247,
-                            start: '10:00',
-                            end: '22:00'
-                          };
-                        });
-                        setProfileData({
-                          ...profileData,
-                          available247: is247,
-                          schedule: updatedSchedule
-                        });
-                      }}
-                      className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
-                    />
-                    <span className="text-[#F2F0ED]">Available 24/7</span>
-                  </label>
-
-                  <div className="space-y-4">
-                    {Object.entries(profileData.schedule).map(([day, schedule]) => (
-                      <div key={day} className="flex items-center gap-4 py-3 border-b border-[#27272A]">
-                        <label className="flex items-center gap-3 cursor-pointer w-32">
-                          <input
-                            type="checkbox"
-                            checked={schedule.available}
-                            onChange={(e) => setProfileData({
-                              ...profileData,
-                              schedule: {
-                                ...profileData.schedule,
-                                [day]: { ...schedule, available: e.target.checked }
-                              }
-                            })}
-                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
-                          />
-                          <span className="text-[#F2F0ED] capitalize">{day}</span>
-                        </label>
-                        {schedule.available && (
-                          <>
-                            <input
-                              type="time"
-                              value={schedule.start}
-                              onChange={(e) => setProfileData({
-                                ...profileData,
-                                schedule: {
-                                  ...profileData.schedule,
-                                  [day]: { ...schedule, start: e.target.value }
-                                }
-                              })}
-                              className="input-premium px-3 py-2"
-                            />
-                            <span className="text-[#A1A1AA]">to</span>
-                            <input
-                              type="time"
-                              value={schedule.end}
-                              onChange={(e) => setProfileData({
-                                ...profileData,
-                                schedule: {
-                                  ...profileData.schedule,
-                                  [day]: { ...schedule, end: e.target.value }
-                                }
-                              })}
-                              className="input-premium px-3 py-2"
-                            />
-                          </>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                {/* Rates */}
               </div>
             )}
 

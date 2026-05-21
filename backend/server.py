@@ -64,6 +64,7 @@ class ProviderProfile(BaseModel):
     user_id: str
     display_name: str
     account_type: Optional[str] = "independent"  # independent | agency
+    availability_type: Optional[str] = "both"    # incall | outcall | both
     age: Optional[int] = None
     gender: Optional[str] = None  # female, male, trans
     location: Dict[str, Any]  # {city, country, lat, lng}
@@ -84,6 +85,7 @@ class ProviderProfile(BaseModel):
 class ProviderProfileCreate(BaseModel):
     display_name: str
     account_type: Optional[str] = "independent"
+    availability_type: Optional[str] = "both"
     age: Optional[int] = None
     gender: Optional[str] = None
     location: Dict[str, Any]
@@ -100,6 +102,7 @@ class ProviderProfileCreate(BaseModel):
 class ProviderProfileUpdate(BaseModel):
     display_name: Optional[str] = None
     account_type: Optional[str] = None
+    availability_type: Optional[str] = None
     age: Optional[int] = None
     gender: Optional[str] = None
     location: Optional[Dict[str, Any]] = None
