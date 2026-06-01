@@ -229,9 +229,16 @@ export default function Browse() {
               <ExtraFilters
                 filters={filters}
                 setFilters={setFilters}
-                onClear={handleClearExtraFilters}
               />
-              <div className="mt-8 flex justify-end">
+              <div className="mt-8 flex justify-end items-center gap-4">
+                <button
+                  type="button"
+                  onClick={handleClearExtraFilters}
+                  className="text-xs uppercase tracking-[0.2em] text-[#A1A1AA] hover:text-[#C6A87C] transition-colors"
+                  data-testid="extra-filters-clear"
+                >
+                  Clear all filters
+                </button>
                 <button
                   type="button"
                   onClick={fetchProviders}

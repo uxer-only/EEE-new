@@ -43,7 +43,7 @@ const Select = ({ label, value, options, onChange, testId }) => (
   </div>
 );
 
-export default function ExtraFilters({ filters, setFilters, onClear }) {
+export default function ExtraFilters({ filters, setFilters }) {
   const set = (key, value) => setFilters({ ...filters, [key]: value });
 
   return (
@@ -66,17 +66,6 @@ export default function ExtraFilters({ filters, setFilters, onClear }) {
         <Select label="Orientation" value={filters.orientation} options={ORIENTATIONS} onChange={(v) => set('orientation', v)} testId="extra-orientation" />
         <Select label="Breast size" value={filters.breast_size} options={BREAST_SIZES} onChange={(v) => set('breast_size', v)} testId="extra-breast_size" />
         <Select label="Breast type" value={filters.breast_type} options={BREAST_TYPES} onChange={(v) => set('breast_type', v)} testId="extra-breast_type" />
-      </div>
-
-      <div className="flex justify-end pt-2">
-        <button
-          type="button"
-          onClick={onClear}
-          className="text-xs uppercase tracking-[0.2em] text-[#A1A1AA] hover:text-[#C6A87C] transition-colors"
-          data-testid="extra-filters-clear"
-        >
-          Clear all filters
-        </button>
       </div>
     </div>
   );
