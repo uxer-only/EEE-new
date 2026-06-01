@@ -611,8 +611,8 @@ export default function ProviderDashboard() {
               );
             })()}
 
-            {/* 5 Management Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Management Cards — stacked in registration order */}
+            <div className="flex flex-col gap-6 max-w-3xl mx-auto">
               {/* 1. Basic Info */}
               <div className="card-premium p-8" data-testid="card-basic-info">
                 <div className="flex items-start justify-between mb-6">
@@ -814,7 +814,7 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 5. Availability */}
-              <div className="card-premium p-8 md:col-span-2" data-testid="card-availability">
+              <div className="card-premium p-8" data-testid="card-availability">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
