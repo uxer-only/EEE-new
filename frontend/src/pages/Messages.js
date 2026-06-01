@@ -49,8 +49,8 @@ export default function Messages() {
     try {
       const response = await getMessages(convId);
       setMessages(response.data);
-    } catch (error) {
-      console.error('Failed to load messages');
+    } catch (_err) {
+      toast.error('Failed to load messages');
     }
   };
 

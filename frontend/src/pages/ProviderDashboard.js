@@ -169,9 +169,8 @@ export default function ProviderDashboard() {
     try {
       const { data } = await getMySubscription();
       setSubscription(data);
-    } catch (subErr) {
-      // Subscription endpoint may 404 for brand-new providers — non-critical
-      console.warn('fetchSubscription failed:', subErr);
+    } catch (_subErr) {
+      // Subscription endpoint may 404 for brand-new providers — banner simply won't render.
     }
   };
 
@@ -670,7 +669,7 @@ export default function ProviderDashboard() {
                   <>
                     <div className="grid grid-cols-4 gap-2 mb-4">
                       {p.photos.slice(0, 8).map((photo, i) => (
-                        <div key={i} className="aspect-[3/4] overflow-hidden rounded">
+                        <div key={`${i}-${photo.slice(-40)}`} className="aspect-[3/4] overflow-hidden rounded">
                           <img src={photo} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
                         </div>
                       ))}

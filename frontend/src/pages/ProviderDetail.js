@@ -43,9 +43,8 @@ export default function ProviderDetail() {
         };
         const next = [slim, ...existing.filter((x) => x.provider_id !== slim.provider_id)].slice(0, 10);
         localStorage.setItem(KEY, JSON.stringify(next));
-      } catch (storageErr) {
-        // localStorage quota / private mode — non-critical
-        console.warn('Recent-viewed cache write failed:', storageErr);
+      } catch (_storageErr) {
+        // Best-effort cache write — quota / private mode failures are intentionally swallowed.
       }
     } catch (error) {
       toast.error('Provider not found');

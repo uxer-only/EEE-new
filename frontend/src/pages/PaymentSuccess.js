@@ -41,11 +41,9 @@ export default function PaymentSuccess() {
           return;
         }
         setTimeout(poll, POLL_INTERVAL_MS);
-      } catch (pollErr) {
-        if (!cancelled) {
-          console.warn('Payment polling failed:', pollErr);
-          setState({ status: 'error', tx: null });
-        }
+      } catch (_pollErr) {
+        // Network blip during polling — surface as generic error to user; no logging needed.
+        if (!cancelled) setState({ status: 'error', tx: null });
       }
     };
     poll();

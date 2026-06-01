@@ -82,7 +82,7 @@ export default function ProviderRegister() {
 
           <div className="space-y-6">
             {benefits.map((benefit, index) => (
-              <div key={index} className="flex items-start gap-4" data-testid={`benefit-${index}`}>
+              <div key={benefit} className="flex items-start gap-4" data-testid={`benefit-${index}`}>
                 <CheckCircle size={24} weight="fill" className="text-[#C6A87C] flex-shrink-0 mt-1" />
                 <p className="text-[#A1A1AA] text-lg">{benefit}</p>
               </div>

@@ -46,8 +46,7 @@ export default function AuthCallback() {
           replace: true,
           state: { user: response.data }
         });
-      } catch (error) {
-        console.error('Auth callback error:', error);
+      } catch (_err) {
         toast.error('Authentication failed');
         navigate('/login', { replace: true });
       }

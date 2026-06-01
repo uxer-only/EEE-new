@@ -34,8 +34,8 @@ export default function AdminDashboard() {
     try {
       const res = await getAdminTraffic(days);
       setTraffic(res.data);
-    } catch (error) {
-      console.error('Failed to fetch traffic:', error);
+    } catch (_err) {
+      // Traffic widget will simply show stale data on failure.
     }
   };
 
@@ -56,9 +56,8 @@ export default function AdminDashboard() {
       setProviders(providersRes.data);
       setStats(statsRes.data);
       setTraffic(trafficRes.data);
-    } catch (error) {
+    } catch (_err) {
       toast.error('Failed to load admin data');
-      console.error(error);
     } finally {
       setLoading(false);
     }

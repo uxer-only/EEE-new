@@ -27,8 +27,8 @@ export default function Landing() {
     try {
       const response = await getProviders({ limit: 18 });
       setProviders(response.data.slice(0, 18));
-    } catch (error) {
-      console.error('Failed to fetch providers:', error);
+    } catch (_err) {
+      // Landing page failure to load providers is non-blocking — UI shows empty grid.
     } finally {
       setLoadingProviders(false);
     }
