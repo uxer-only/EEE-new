@@ -1001,55 +1001,52 @@ export default function ProviderDashboard() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <label className="input-label">Age</label>
-                        <input
-                          type="number"
-                          value={profileData.age}
-                          onChange={(e) => setProfileData({ ...profileData, age: e.target.value })}
-                          className="input-premium w-full"
-                          placeholder="Your age"
-                          min="18"
-                          data-testid="age-input"
-                        />
-                      </div>
-                      <div>
-                        <label className="input-label">Gender</label>
-                        <select
-                          value={profileData.gender}
-                          onChange={(e) => setProfileData({ ...profileData, gender: e.target.value })}
-                          className="input-premium w-full"
-                          data-testid="gender-input"
-                        >
-                          <option value="">Select gender</option>
-                          <option value="female">Female</option>
-                          <option value="male">Male</option>
-                          <option value="trans">Trans</option>
-                        </select>
-                      </div>
+                    <div>
+                      <label className="input-label">Age</label>
+                      <input
+                        type="number"
+                        value={profileData.age}
+                        onChange={(e) => setProfileData({ ...profileData, age: e.target.value })}
+                        className="input-premium w-full"
+                        placeholder="Your age"
+                        min="18"
+                        data-testid="age-input"
+                      />
+                    </div>
+                    <div>
+                      <label className="input-label">Gender</label>
+                      <select
+                        value={profileData.gender}
+                        onChange={(e) => setProfileData({ ...profileData, gender: e.target.value })}
+                        className="input-premium w-full"
+                        data-testid="gender-input"
+                      >
+                        <option value="">Select gender</option>
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
+                        <option value="trans">Trans</option>
+                      </select>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <label className="input-label">City</label>
-                        <input
-                          type="text"
-                          value={profileData.location.city}
-                          onChange={(e) => setProfileData({ ...profileData, location: { ...profileData.location, city: e.target.value } })}
-                          className="input-premium w-full"
-                          placeholder="Your city"
-                          data-testid="city-input"
-                        />
-                      </div>
-                      <div>
-                        <label className="input-label">Country</label>
-                        <select
-                          value={profileData.location.country}
-                          onChange={(e) => setProfileData({ ...profileData, location: { ...profileData.location, country: e.target.value } })}
-                          className="input-premium w-full"
-                          data-testid="country-input"
-                        >
+                    <div>
+                      <label className="input-label">City</label>
+                      <input
+                        type="text"
+                        value={profileData.location.city}
+                        onChange={(e) => setProfileData({ ...profileData, location: { ...profileData.location, city: e.target.value } })}
+                        className="input-premium w-full"
+                        placeholder="Your city"
+                        data-testid="city-input"
+                      />
+                    </div>
+                    <div>
+                      <label className="input-label">Country</label>
+                      <select
+                        value={profileData.location.country}
+                        onChange={(e) => setProfileData({ ...profileData, location: { ...profileData.location, country: e.target.value } })}
+                        className="input-premium w-full"
+                        data-testid="country-input"
+                      >
                           <option value="">Select country</option>
                           <option value="Belgium">Belgium</option>
                           <option value="Netherlands">Netherlands</option>
@@ -1098,7 +1095,6 @@ export default function ProviderDashboard() {
                           <option value="Other">Other</option>
                         </select>
                       </div>
-                    </div>
                   </div>
 
                   {/* Describe yourself */}
