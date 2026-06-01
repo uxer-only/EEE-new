@@ -74,6 +74,7 @@ export default function ProviderDashboard() {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [draggedPhotoIdx, setDraggedPhotoIdx] = useState(null);
+  const [newLanguage, setNewLanguage] = useState('');
 
   // Reorder helpers for existing profile photos
   const movePhoto = (from, to) => {
@@ -1121,45 +1122,111 @@ export default function ProviderDashboard() {
                     <div className="flex items-end justify-between mb-3">
                       <label className="input-label !mb-0">Languages</label>
                       <span className="text-xs text-[#71717A]">
-                        {(profileData.characteristics?.languages || []).length}/4 selected
+                        {(profileData.characteristics?.languages || []).length} selected
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {['English', 'French', 'German', 'Russian'].map((lang) => {
-                        const current = profileData.characteristics?.languages || [];
-                        const selected = current.includes(lang);
-                        const disabled = !selected && current.length >= 4;
-                        return (
-                          <button
-                            key={lang}
-                            type="button"
-                            onClick={() => {
-                              const next = selected
-                                ? current.filter((l) => l !== lang)
-                                : current.length < 4 ? [...current, lang] : current;
-                              setProfileData({
-                                ...profileData,
-                                characteristics: {
-                                  ...(profileData.characteristics || {}),
-                                  languages: next
+                    {(() => {
+                      const PRESETS = ['English', 'French', 'German', 'Russian'];
+                      const current = profileData.characteristics?.languages || [];
+                      const customs = current.filter((l) => !PRESETS.includes(l));
+
+                      const toggle = (lang) => {
+                        const next = current.includes(lang)
+                          ? current.filter((l) => l !== lang)
+                          : [...current, lang];
+                        setProfileData({
+                          ...profileData,
+                          characteristics: { ...(profileData.characteristics || {}), languages: next }
+                        });
+                      };
+                      const addCustom = () => {
+                        const v = newLanguage.trim();
+                        if (!v) return;
+                        // case-insensitive duplicate guard
+                        if (current.some((l) => l.toLowerCase() === v.toLowerCase())) {
+                          setNewLanguage('');
+                          return;
+                        }
+                        setProfileData({
+                          ...profileData,
+                          characteristics: {
+                            ...(profileData.characteristics || {}),
+                            languages: [...current, v]
+                          }
+                        });
+                        setNewLanguage('');
+                      };
+
+                      return (
+                        <>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {PRESETS.map((lang) => {
+                              const selected = current.includes(lang);
+                              return (
+                                <button
+                                  key={lang}
+                                  type="button"
+                                  onClick={() => toggle(lang)}
+                                  className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
+                                    selected
+                                      ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
+                                      : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
+                                  }`}
+                                  data-testid={`basic-lang-${lang.toLowerCase()}`}
+                                >
+                                  {lang}
+                                </button>
+                              );
+                            })}
+                            {customs.map((lang) => (
+                              <div
+                                key={lang}
+                                className="relative py-2.5 pl-3 pr-8 border border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C] text-sm uppercase tracking-wider flex items-center"
+                                data-testid={`basic-lang-custom-${lang.toLowerCase()}`}
+                              >
+                                <span className="truncate">{lang}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => toggle(lang)}
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#C6A87C] hover:text-red-400 transition-colors"
+                                  aria-label={`Remove ${lang}`}
+                                  data-testid={`basic-lang-remove-${lang.toLowerCase()}`}
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Add language */}
+                          <div className="mt-4 flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={newLanguage}
+                              onChange={(e) => setNewLanguage(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  addCustom();
                                 }
-                              });
-                            }}
-                            disabled={disabled}
-                            className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
-                              selected
-                                ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                                : disabled
-                                  ? 'border-[#27272A] text-[#52525B] cursor-not-allowed'
-                                  : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
-                            }`}
-                            data-testid={`basic-lang-${lang.toLowerCase()}`}
-                          >
-                            {lang}
-                          </button>
-                        );
-                      })}
-                    </div>
+                              }}
+                              placeholder="e.g. Italian"
+                              className="input-premium flex-1"
+                              data-testid="add-language-input"
+                            />
+                            <button
+                              type="button"
+                              onClick={addCustom}
+                              disabled={!newLanguage.trim()}
+                              className="px-4 py-3 border border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C] hover:text-[#C6A87C] disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm uppercase tracking-wider flex items-center gap-2 whitespace-nowrap"
+                              data-testid="add-language-button"
+                            >
+                              <Plus size={16} /> Add language
+                            </button>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
 
