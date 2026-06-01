@@ -41,8 +41,11 @@ export default function PaymentSuccess() {
           return;
         }
         setTimeout(poll, POLL_INTERVAL_MS);
-      } catch {
-        if (!cancelled) setState({ status: 'error', tx: null });
+      } catch (pollErr) {
+        if (!cancelled) {
+          console.warn('Payment polling failed:', pollErr);
+          setState({ status: 'error', tx: null });
+        }
       }
     };
     poll();

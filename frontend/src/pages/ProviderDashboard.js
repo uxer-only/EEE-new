@@ -169,8 +169,9 @@ export default function ProviderDashboard() {
     try {
       const { data } = await getMySubscription();
       setSubscription(data);
-    } catch {
-      // ignore — banner just won't render
+    } catch (subErr) {
+      // Subscription endpoint may 404 for brand-new providers — non-critical
+      console.warn('fetchSubscription failed:', subErr);
     }
   };
 
@@ -894,26 +895,25 @@ export default function ProviderDashboard() {
           {/* Progress Steps - only for creation flow */}
           {mode !== 'edit' && (
           <div className="flex items-center justify-between mb-12 px-4">
-            {steps.map((step, index) => (
+            {steps.map((step, index) => {
+              const stepStateClass = (() => {
+                if (currentStep === step.id) return 'text-[#C6A87C]';
+                if (currentStep > step.id) return 'text-green-500';
+                return 'text-[#9CA3AF]';
+              })();
+              const stepBorderClass = (() => {
+                if (currentStep === step.id) return 'border-[#C6A87C] bg-[#C6A87C]/10';
+                if (currentStep > step.id) return 'border-green-500 bg-green-500/10';
+                return 'border-[#52525B]';
+              })();
+              return (
               <div key={step.id} className="flex items-center">
                 <button
                   onClick={() => setCurrentStep(step.id)}
-                  className={`flex flex-col items-center gap-2 transition-all ${
-                    currentStep === step.id 
-                      ? 'text-[#C6A87C]' 
-                      : currentStep > step.id 
-                        ? 'text-green-500' 
-                        : 'text-[#9CA3AF]'
-                  }`}
+                  className={`flex flex-col items-center gap-2 transition-all ${stepStateClass}`}
                   data-testid={`step-${step.id}`}
                 >
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
-                    currentStep === step.id 
-                      ? 'border-[#C6A87C] bg-[#C6A87C]/10' 
-                      : currentStep > step.id 
-                        ? 'border-green-500 bg-green-500/10' 
-                        : 'border-[#52525B]'
-                  }`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${stepBorderClass}`}>
                     {currentStep > step.id ? (
                       <CheckCircle size={24} weight="fill" />
                     ) : (
@@ -928,7 +928,8 @@ export default function ProviderDashboard() {
                   }`} />
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
           )}
 
@@ -1812,11 +1813,11 @@ export default function ProviderDashboard() {
                     <h3 className="text-2xl text-[#C6A87C] mb-1">Rates</h3>
                     <p className="text-[#A1A1AA] text-sm">
                       Set your pricing for different durations.{' '}
-                      {profileData.availability_type === 'incall'
-                        ? 'Fill out the Incall column only.'
-                        : profileData.availability_type === 'outcall'
-                          ? 'Fill out the Outcall column only.'
-                          : 'Incall = client visits you. Outcall = you visit the client.'}
+                      {(() => {
+                        if (profileData.availability_type === 'incall') return 'Fill out the Incall column only.';
+                        if (profileData.availability_type === 'outcall') return 'Fill out the Outcall column only.';
+                        return 'Incall = client visits you. Outcall = you visit the client.';
+                      })()}
                     </p>
                   </div>
 

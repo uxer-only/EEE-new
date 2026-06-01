@@ -43,8 +43,9 @@ export default function ProviderDetail() {
         };
         const next = [slim, ...existing.filter((x) => x.provider_id !== slim.provider_id)].slice(0, 10);
         localStorage.setItem(KEY, JSON.stringify(next));
-      } catch {
-        // ignore storage errors (quota, private mode)
+      } catch (storageErr) {
+        // localStorage quota / private mode — non-critical
+        console.warn('Recent-viewed cache write failed:', storageErr);
       }
     } catch (error) {
       toast.error('Provider not found');
@@ -183,6 +184,11 @@ export default function ProviderDetail() {
                     const langs = Array.isArray(c.languages)
                       ? c.languages.filter((l) => LANG_ORDER.includes(l))
                       : [];
+                    const yesNo = (v) => {
+                      if (v === 'yes') return 'Yes';
+                      if (v === 'no') return 'No';
+                      return '';
+                    };
                     const rows = [
                       ['Nationality', c.nationality],
                       ['Ethnicity', c.ethnicity],
@@ -196,9 +202,9 @@ export default function ProviderDetail() {
                       ['Breast type', c.breast_type],
                       ['Pubic hair', c.pubic_hair],
                       ['Languages', langs.length ? langs.join(', ') : ''],
-                      ['Tattoos', c.tattoos === 'yes' ? 'Yes' : c.tattoos === 'no' ? 'No' : ''],
-                      ['Piercings', c.piercings === 'yes' ? 'Yes' : c.piercings === 'no' ? 'No' : ''],
-                      ['Smoker', c.smoker === 'yes' ? 'Yes' : c.smoker === 'no' ? 'No' : '']
+                      ['Tattoos', yesNo(c.tattoos)],
+                      ['Piercings', yesNo(c.piercings)],
+                      ['Smoker', yesNo(c.smoker)]
                     ].filter(([, v]) => v !== '' && v !== null && v !== undefined);
                     if (rows.length === 0) return null;
                     return (
