@@ -10,31 +10,20 @@ import ExtraFilters from '@/components/ExtraFilters';
 
 const DEFAULT_FILTERS = {
   city: '',
-  service: '',
-  min_rate: '',
-  max_rate: '',
   gender: '',
-  // Extra (characteristic) filters
+  // Extra filters
+  service: '',
   nationality: '',
   ethnicity: '',
   orientation: '',
   breast_size: '',
-  breast_type: '',
-  pubic_hair: '',
-  languages: [],
-  smoker: '',
-  min_height: '',
-  max_height: '',
-  min_weight: '',
-  max_weight: ''
+  breast_type: ''
 };
 
 const EXTRA_FILTER_KEYS = [
-  'service', 'min_rate', 'max_rate',
+  'service',
   'nationality', 'ethnicity', 'orientation',
-  'breast_size', 'breast_type', 'pubic_hair',
-  'smoker',
-  'min_height', 'max_height', 'min_weight', 'max_weight'
+  'breast_size', 'breast_type'
 ];
 
 export default function Browse() {
@@ -45,14 +34,12 @@ export default function Browse() {
   const [offlineMode, setOfflineMode] = useState(false);
   const { user } = useAuth();
 
-  // Count of active "extra" filters (excludes city, gender — those are always visible).
-  // Each language pill counts as its own active filter.
+  // Count of active "extra" filters (excludes city + gender — those are always visible).
   const isActive = (key) => {
     const v = filters[key];
     return v !== undefined && v !== null && String(v).length > 0;
   };
-  const activeExtraCount =
-    EXTRA_FILTER_KEYS.filter(isActive).length + (filters.languages?.length || 0);
+  const activeExtraCount = EXTRA_FILTER_KEYS.filter(isActive).length;
 
   useEffect(() => {
     fetchProviders();
@@ -68,9 +55,6 @@ export default function Browse() {
       EXTRA_FILTER_KEYS.forEach((k) => {
         if (filters[k] && String(filters[k]).length > 0) params[k] = filters[k];
       });
-      if ((filters.languages || []).length > 0) {
-        params.languages = filters.languages.join(',');
-      }
 
       const response = await getProviders(params);
       setProviders(response.data);
