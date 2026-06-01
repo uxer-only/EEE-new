@@ -48,7 +48,7 @@ export default function ExtraFilters({ filters, setFilters, onClear }) {
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="space-y-6 max-w-md">
         {/* Service type */}
         <div>
           <label className="input-label">Service type</label>
