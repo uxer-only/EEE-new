@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getProviderById, createConversation } from '@/services/api';
+import { getProviderById } from '@/services/api';
 import { toast } from 'sonner';
 import {
-  MapPin, CheckCircle, Star, Calendar, Clock, ChatCircle, CaretLeft,
+  MapPin, CheckCircle, Star, Calendar, Clock, CaretLeft,
   Phone, WhatsappLogo, EnvelopeSimple
 } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
@@ -51,21 +51,6 @@ export default function ProviderDetail() {
       navigate('/browse');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleMessage = async () => {
-    if (!user) {
-      toast.error('Please login to message');
-      navigate('/login');
-      return;
-    }
-
-    try {
-      const response = await createConversation(id);
-      navigate('/messages');
-    } catch (error) {
-      toast.error('Failed to start conversation');
     }
   };
 
@@ -373,16 +358,6 @@ export default function ProviderDetail() {
                       <p className="text-[#F2F0ED]">{provider.contact?.email || provider.user?.email || 'contact@example.com'}</p>
                     </div>
                   </a>
-
-                  {/* Message CTA */}
-                  <button
-                    onClick={handleMessage}
-                    className="btn-primary w-full mt-4"
-                    data-testid="message-button"
-                  >
-                    <ChatCircle size={20} className="inline mr-2" />
-                    Send Message
-                  </button>
                 </div>
               </div>
 

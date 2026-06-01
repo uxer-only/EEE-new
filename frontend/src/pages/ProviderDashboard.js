@@ -440,7 +440,6 @@ export default function ProviderDashboard() {
       <div className="min-h-screen bg-[#0A0A0C]">
         <SiteHeader
           links={[
-            { to: '/messages', label: 'Messages', testId: 'messages-link' },
             { label: 'Logout', onClick: logout, testId: 'logout-btn' }
           ]}
         />
@@ -876,7 +875,6 @@ export default function ProviderDashboard() {
           ) : null
         }
         links={[
-          { to: '/messages', label: 'Messages', testId: 'messages-link' },
           { label: 'Logout', onClick: logout, testId: 'logout-btn' }
         ]}
       />
