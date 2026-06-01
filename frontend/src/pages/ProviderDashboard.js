@@ -1260,29 +1260,27 @@ export default function ProviderDashboard() {
                 <div className="border border-[#27272A] rounded-lg p-6">
                   <h3 className="text-2xl text-[#C6A87C] mb-6">Contact information</h3>
                   <div className="space-y-6">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <label className="input-label">Mobile phone</label>
-                        <input
-                          type="tel"
-                          value={profileData.contact.phone}
-                          onChange={(e) => setProfileData({ ...profileData, contact: { ...profileData.contact, phone: e.target.value } })}
-                          className="input-premium w-full"
-                          placeholder="+32 XXX XX XX XX"
-                          data-testid="phone-input"
-                        />
-                      </div>
-                      <div>
-                        <label className="input-label">E-mail</label>
-                        <input
-                          type="email"
-                          value={profileData.contact.email}
-                          onChange={(e) => setProfileData({ ...profileData, contact: { ...profileData.contact, email: e.target.value } })}
-                          className="input-premium w-full"
-                          placeholder="your@email.com"
-                          data-testid="email-input"
-                        />
-                      </div>
+                    <div>
+                      <label className="input-label">Mobile phone</label>
+                      <input
+                        type="tel"
+                        value={profileData.contact.phone}
+                        onChange={(e) => setProfileData({ ...profileData, contact: { ...profileData.contact, phone: e.target.value } })}
+                        className="input-premium w-full"
+                        placeholder="+32 XXX XX XX XX"
+                        data-testid="phone-input"
+                      />
+                    </div>
+                    <div>
+                      <label className="input-label">E-mail</label>
+                      <input
+                        type="email"
+                        value={profileData.contact.email}
+                        onChange={(e) => setProfileData({ ...profileData, contact: { ...profileData.contact, email: e.target.value } })}
+                        className="input-premium w-full"
+                        placeholder="your@email.com"
+                        data-testid="email-input"
+                      />
                     </div>
 
                     <div>

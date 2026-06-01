@@ -119,64 +119,64 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
         testId="char-orientation"
       />
 
-      {/* Height + Weight */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="input-label">Height (cm)</label>
-          <input
-            type="number"
-            value={characteristics.height || ''}
-            onChange={(e) => update('height', e.target.value)}
-            className="input-premium w-full"
-            placeholder="e.g. 170"
-            min="100"
-            max="230"
-            data-testid="char-height"
-          />
-        </div>
-        <div>
-          <label className="input-label">Weight (kg)</label>
-          <input
-            type="number"
-            value={characteristics.weight || ''}
-            onChange={(e) => update('weight', e.target.value)}
-            className="input-premium w-full"
-            placeholder="e.g. 58"
-            min="35"
-            max="200"
-            data-testid="char-weight"
-          />
-        </div>
+      {/* Height */}
+      <div>
+        <label className="input-label">Height (cm)</label>
+        <input
+          type="number"
+          value={characteristics.height || ''}
+          onChange={(e) => update('height', e.target.value)}
+          className="input-premium w-full"
+          placeholder="e.g. 170"
+          min="100"
+          max="230"
+          data-testid="char-height"
+        />
       </div>
 
-      {/* Breast size (free-text) + Breast type (implants checkbox) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="input-label">Breast size</label>
+      {/* Weight */}
+      <div>
+        <label className="input-label">Weight (kg)</label>
+        <input
+          type="number"
+          value={characteristics.weight || ''}
+          onChange={(e) => update('weight', e.target.value)}
+          className="input-premium w-full"
+          placeholder="e.g. 58"
+          min="35"
+          max="200"
+          data-testid="char-weight"
+        />
+      </div>
+
+      {/* Breast size */}
+      <div>
+        <label className="input-label">Breast size</label>
+        <input
+          type="text"
+          value={characteristics.breast_size || ''}
+          onChange={(e) => update('breast_size', e.target.value)}
+          className="input-premium w-full"
+          placeholder="e.g. C"
+          data-testid="char-breast_size"
+        />
+      </div>
+
+      {/* Breast type — Implants checkbox */}
+      <div>
+        <label className="input-label">Breast type</label>
+        <label className="flex items-center gap-3 cursor-pointer py-3 select-none">
           <input
-            type="text"
-            value={characteristics.breast_size || ''}
-            onChange={(e) => update('breast_size', e.target.value)}
-            className="input-premium w-full"
-            placeholder="e.g. C"
-            data-testid="char-breast_size"
+            type="checkbox"
+            checked={characteristics.breast_type === 'Implants'}
+            onChange={(e) =>
+              update('breast_type', e.target.checked ? 'Implants' : '')
+            }
+            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+            data-testid="char-breast_type-implants"
           />
-        </div>
-        <div>
-          <label className="input-label">Breast type</label>
-          <label className="flex items-center gap-3 cursor-pointer py-3 select-none">
-            <input
-              type="checkbox"
-              checked={characteristics.breast_type === 'Implants'}
-              onChange={(e) =>
-                update('breast_type', e.target.checked ? 'Implants' : '')
-              }
-              className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
-              data-testid="char-breast_type-implants"
-            />
-            <span className="text-[#A1A1AA]">Implants</span>
-          </label>
-        </div>
+          <span className="text-[#A1A1AA]">Implants</span>
+        </label>
       </div>
 
       {/* Tattoos */}
