@@ -990,13 +990,15 @@ export default function ProviderDashboard() {
                     </div>
 
                     <div>
-                      <label className="input-label">Display name</label>
+                      <label className="input-label">
+                        {profileData.account_type === 'agency' ? 'Agency name' : 'Display name'}
+                      </label>
                       <input
                         type="text"
                         value={profileData.display_name}
                         onChange={(e) => setProfileData({ ...profileData, display_name: e.target.value })}
                         className="input-premium w-full"
-                        placeholder="Your display name"
+                        placeholder={profileData.account_type === 'agency' ? 'Your agency name' : 'Your display name'}
                         data-testid="display-name-input"
                       />
                     </div>
