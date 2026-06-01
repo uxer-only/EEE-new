@@ -75,6 +75,7 @@ export default function ProviderDashboard() {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [draggedPhotoIdx, setDraggedPhotoIdx] = useState(null);
   const [newLanguage, setNewLanguage] = useState('');
+  const [showAddLanguage, setShowAddLanguage] = useState(false);
 
   // Reorder helpers for existing profile photos
   const movePhoto = (from, to) => {
@@ -1198,32 +1199,57 @@ export default function ProviderDashboard() {
                             ))}
                           </div>
 
-                          {/* Add language */}
-                          <div className="mt-4 flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={newLanguage}
-                              onChange={(e) => setNewLanguage(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  addCustom();
-                                }
-                              }}
-                              placeholder="e.g. Italian"
-                              className="input-premium flex-1"
-                              data-testid="add-language-input"
-                            />
+                          {/* Add language CTA → reveals input */}
+                          {showAddLanguage ? (
+                            <div className="mt-4 flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={newLanguage}
+                                onChange={(e) => setNewLanguage(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    addCustom();
+                                    setShowAddLanguage(false);
+                                  } else if (e.key === 'Escape') {
+                                    setNewLanguage('');
+                                    setShowAddLanguage(false);
+                                  }
+                                }}
+                                autoFocus
+                                placeholder="e.g. Italian"
+                                className="input-premium flex-1"
+                                data-testid="add-language-input"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => { addCustom(); setShowAddLanguage(false); }}
+                                disabled={!newLanguage.trim()}
+                                className="px-4 py-3 border border-[#C6A87C] text-[#C6A87C] hover:bg-[#C6A87C]/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm uppercase tracking-wider whitespace-nowrap"
+                                data-testid="add-language-confirm"
+                              >
+                                Add
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => { setNewLanguage(''); setShowAddLanguage(false); }}
+                                className="px-3 py-3 border border-[#3F3F46] text-[#A1A1AA] hover:border-red-400 hover:text-red-400 transition-colors"
+                                aria-label="Cancel"
+                                data-testid="add-language-cancel"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                          ) : (
                             <button
                               type="button"
-                              onClick={addCustom}
-                              disabled={!newLanguage.trim()}
-                              className="px-4 py-3 border border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C] hover:text-[#C6A87C] disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm uppercase tracking-wider flex items-center gap-2 whitespace-nowrap"
+                              onClick={() => setShowAddLanguage(true)}
+                              className="mt-4 inline-flex items-center gap-2 px-4 py-3 border border-dashed border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C] hover:text-[#C6A87C] transition-colors text-sm uppercase tracking-wider"
                               data-testid="add-language-button"
                             >
                               <Plus size={16} /> Add language
                             </button>
-                          </div>
+                          )}
                         </>
                       );
                     })()}
