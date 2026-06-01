@@ -612,7 +612,7 @@ export default function ProviderDashboard() {
             })()}
 
             {/* Management Cards — stacked in registration order */}
-            <div className="flex flex-col gap-6 max-w-3xl mx-auto">
+            <div className="flex flex-col gap-6">
               {/* 1. Basic Info */}
               <div className="card-premium p-8" data-testid="card-basic-info">
                 <div className="flex items-start justify-between mb-6">
