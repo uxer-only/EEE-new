@@ -615,23 +615,14 @@ export default function ProviderDashboard() {
             <div className="flex flex-col gap-6">
               {/* 1. Basic Info */}
               <div className="card-premium p-8" data-testid="card-basic-info">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
-                      <User size={18} className="text-[#C6A87C]" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 1</p>
-                      <h3 className="text-xl text-[#F2F0ED]">Basic Info</h3>
-                    </div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                    <User size={18} className="text-[#C6A87C]" />
                   </div>
-                  <button
-                    onClick={() => openEdit(1)}
-                    className="text-[#C6A87C] hover:text-[#D4B88C] uppercase tracking-wider text-xs"
-                    data-testid="edit-basic-info-btn"
-                  >
-                    Edit
-                  </button>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 1</p>
+                    <h3 className="text-xl text-[#F2F0ED]">Basic Info</h3>
+                  </div>
                 </div>
                 <dl className="space-y-3 text-sm">
                   <div className="flex justify-between gap-4">
@@ -655,27 +646,25 @@ export default function ProviderDashboard() {
                     <dd className="text-[#F2F0ED] line-clamp-3 leading-relaxed">{p.bio || <span className="text-[#6B7280] italic">Not set</span>}</dd>
                   </div>
                 </dl>
+                <button
+                  onClick={() => openEdit(1)}
+                  className="btn-secondary w-full mt-8"
+                  data-testid="edit-basic-info-btn"
+                >
+                  Edit Basic Info
+                </button>
               </div>
 
               {/* 2. Photos & Videos */}
               <div className="card-premium p-8" data-testid="card-photos">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
-                      <Camera size={18} className="text-[#C6A87C]" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 2</p>
-                      <h3 className="text-xl text-[#F2F0ED]">Photos & Video's</h3>
-                    </div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                    <Camera size={18} className="text-[#C6A87C]" />
                   </div>
-                  <button
-                    onClick={() => openEdit(2)}
-                    className="text-[#C6A87C] hover:text-[#D4B88C] uppercase tracking-wider text-xs"
-                    data-testid="edit-photos-btn"
-                  >
-                    Edit
-                  </button>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 2</p>
+                    <h3 className="text-xl text-[#F2F0ED]">Photos & Video's</h3>
+                  </div>
                 </div>
                 {p.photos && p.photos.length > 0 ? (
                   <>
@@ -693,27 +682,25 @@ export default function ProviderDashboard() {
                     <p className="text-[#6B7280] text-sm italic">No photos yet</p>
                   </div>
                 )}
+                <button
+                  onClick={() => openEdit(2)}
+                  className="btn-secondary w-full mt-8"
+                  data-testid="edit-photos-btn"
+                >
+                  Edit Photos & Video's
+                </button>
               </div>
 
               {/* 3. Services */}
               <div className="card-premium p-8" data-testid="card-services">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
-                      <FileText size={18} className="text-[#C6A87C]" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 3</p>
-                      <h3 className="text-xl text-[#F2F0ED]">Services</h3>
-                    </div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                    <FileText size={18} className="text-[#C6A87C]" />
                   </div>
-                  <button
-                    onClick={() => openEdit(3)}
-                    className="text-[#C6A87C] hover:text-[#D4B88C] uppercase tracking-wider text-xs"
-                    data-testid="edit-services-btn"
-                  >
-                    Edit
-                  </button>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 3</p>
+                    <h3 className="text-xl text-[#F2F0ED]">Services</h3>
+                  </div>
                 </div>
                 {legacyServices.length === 0 && inclusiveServices.length === 0 && extraServices.length === 0 ? (
                   <p className="text-[#6B7280] text-sm italic">No services set</p>
@@ -756,27 +743,25 @@ export default function ProviderDashboard() {
                     )}
                   </div>
                 )}
+                <button
+                  onClick={() => openEdit(3)}
+                  className="btn-secondary w-full mt-8"
+                  data-testid="edit-services-btn"
+                >
+                  Edit Services
+                </button>
               </div>
 
               {/* 4. Rates */}
               <div className="card-premium p-8" data-testid="card-rates">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
-                      <CurrencyDollar size={18} className="text-[#C6A87C]" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 4</p>
-                      <h3 className="text-xl text-[#F2F0ED]">Rates</h3>
-                    </div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                    <CurrencyDollar size={18} className="text-[#C6A87C]" />
                   </div>
-                  <button
-                    onClick={() => openEdit(4)}
-                    className="text-[#C6A87C] hover:text-[#D4B88C] uppercase tracking-wider text-xs"
-                    data-testid="edit-rates-btn"
-                  >
-                    Edit
-                  </button>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 4</p>
+                    <h3 className="text-xl text-[#F2F0ED]">Rates</h3>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {['incall', 'outcall'].map((kind) => (
@@ -811,28 +796,26 @@ export default function ProviderDashboard() {
                     </div>
                   ))}
                 </div>
+                <button
+                  onClick={() => openEdit(4)}
+                  className="btn-secondary w-full mt-8"
+                  data-testid="edit-rates-btn"
+                >
+                  Edit Rates
+                </button>
               </div>
 
               {/* 5. Availability */}
               <div className="card-premium p-8" data-testid="card-availability">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
-                      <Clock size={18} className="text-[#C6A87C]" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 4</p>
-                      <h3 className="text-xl text-[#F2F0ED]">Availability</h3>
-                      <p className="text-[#A1A1AA] text-xs mt-1">{availableDays} of 7 days available</p>
-                    </div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                    <Clock size={18} className="text-[#C6A87C]" />
                   </div>
-                  <button
-                    onClick={() => openEdit(4)}
-                    className="text-[#C6A87C] hover:text-[#D4B88C] uppercase tracking-wider text-xs"
-                    data-testid="edit-availability-btn"
-                  >
-                    Edit
-                  </button>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 4</p>
+                    <h3 className="text-xl text-[#F2F0ED]">Availability</h3>
+                    <p className="text-[#A1A1AA] text-xs mt-1">{availableDays} of 7 days available</p>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
                   {scheduleDays.map(([day, sched]) => (
@@ -855,6 +838,13 @@ export default function ProviderDashboard() {
                     </div>
                   ))}
                 </div>
+                <button
+                  onClick={() => openEdit(4)}
+                  className="btn-secondary w-full mt-8"
+                  data-testid="edit-availability-btn"
+                >
+                  Edit Availability
+                </button>
               </div>
             </div>
           </div>
