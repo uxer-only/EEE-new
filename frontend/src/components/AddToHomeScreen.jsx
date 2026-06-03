@@ -91,7 +91,7 @@ export default function AddToHomeScreen() {
       className="fixed inset-x-0 bottom-0 z-[60] pb-safe"
       data-testid="a2hs-sheet"
       role="dialog"
-      aria-label="Add High Class Companionship to home screen"
+      aria-label="Add Only Elite Escorts to home screen"
     >
       <div className="mx-auto max-w-md px-4 pb-4">
         <div className="relative rounded-2xl bg-[#141416] border border-[#27272A] shadow-2xl overflow-hidden animate-[slideUp_0.35s_ease-out]">
@@ -110,7 +110,7 @@ export default function AddToHomeScreen() {
                 <span className="text-[#0A0A0C] italic text-2xl">L</span>
               </div>
               <div>
-                <p className="text-[#F2F0ED] font-medium leading-tight">Install High Class Companionship</p>
+                <p className="text-[#F2F0ED] font-medium leading-tight">Install Only Elite Escorts</p>
                 <p className="text-[#A1A1AA] text-xs mt-0.5">Faster access. Discreet icon. Offline viewing.</p>
               </div>
             </div>

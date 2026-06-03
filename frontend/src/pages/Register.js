@@ -49,7 +49,7 @@ export default function Register() {
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0C]/80 to-transparent"></div>
         <Link to="/" className="absolute top-8 left-8 z-10">
-          <h1 className="text-2xl md:text-3xl font-playfair text-[#C6A87C]">High Class Companionship</h1>
+          <h1 className="text-2xl md:text-3xl font-playfair text-[#C6A87C]">Only Elite Escorts</h1>
         </Link>
       </div>
 
@@ -58,7 +58,7 @@ export default function Register() {
         <div className="w-full max-w-md">
           <div className="mb-12">
             <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="register-title">
-              Join High Class Companionship
+              Join Only Elite Escorts
             </h2>
             <p className="text-[#A1A1AA]">
               Create your account to get started
