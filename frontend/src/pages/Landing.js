@@ -201,10 +201,12 @@ export default function Landing() {
                         />
                         <div className="absolute bottom-0 left-0 right-0 p-3 bg-black/40 backdrop-blur-sm">
                           <p className="text-[#F2F0ED] font-medium text-sm truncate">
-                            {provider.display_name}{provider.age && <span className="text-[#A1A1AA]">, {provider.age}</span>}
+                            {provider.display_name}
                           </p>
                           <p className="text-[#A1A1AA] text-xs truncate">
-                            {provider.location?.city}
+                            {provider.age && <span>{provider.age}</span>}
+                            {provider.age && provider.location?.country && <span> · </span>}
+                            {provider.location?.country}
                           </p>
                         </div>
                         {provider.verified && (
