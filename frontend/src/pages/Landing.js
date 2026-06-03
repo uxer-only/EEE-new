@@ -150,9 +150,9 @@ export default function Landing() {
               className="text-5xl sm:text-6xl lg:text-7xl font-playfair text-[#F2F0ED] mb-6"
               data-testid="hero-title"
             >
- The Art of
+ Bringing your secret wish
  <br />
- Companionship
+ closer to you
  </h2>
             <p
               className="text-base md:text-xl text-[#A1A1AA] max-w-xl mx-auto"
