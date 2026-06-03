@@ -1730,7 +1730,7 @@ export default function ProviderDashboard() {
                   </div>
 
                   {/* 24/7 Option */}
-                  <label className="flex items-center gap-3 cursor-pointer py-3 border-b border-[#52525B]">
+                  <label className="flex items-center gap-3 cursor-pointer py-3">
                     <input
                       type="checkbox"
                       checked={profileData.available247 || false}
