@@ -1769,7 +1769,8 @@ export default function ProviderDashboard() {
                   </div>
 
                   {/* 24/7 Option */}
-                  <label className="flex items-center gap-3 cursor-pointer py-3">
+                  <div className="space-y-0">
+                  <label className="flex items-center gap-3 cursor-pointer py-1">
                     <input
                       type="checkbox"
                       checked={profileData.available247 || false}
@@ -1795,7 +1796,7 @@ export default function ProviderDashboard() {
                   </label>
 
                   {/* Booking in advance Option */}
-                  <label className="flex items-center gap-3 cursor-pointer py-3 border-b border-[#52525B]">
+                  <label className="flex items-center gap-3 cursor-pointer py-1 border-b border-[#52525B]">
                     <input
                       type="checkbox"
                       checked={profileData.booking_advance || false}
@@ -1808,6 +1809,7 @@ export default function ProviderDashboard() {
                     />
                     <span className="text-[#F2F0ED]">Booking in advance necessary</span>
                   </label>
+                  </div>
 
                   <div className="space-y-4">
                     {Object.entries(profileData.schedule).map(([day, schedule]) => (
