@@ -144,16 +144,15 @@ export default function Landing() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-3xl mx-auto text-center"
+            className="max-w-5xl mx-auto text-center"
           >
             <h2
-              className="text-5xl sm:text-6xl lg:text-7xl font-playfair text-[#F2F0ED] mb-6"
+              className="text-4xl sm:text-5xl lg:text-6xl font-playfair text-[#F2F0ED] mb-6"
               data-testid="hero-title"
             >
- Bringing your secret wish
- <br />
- closer to you
- </h2>
+              <span className="block whitespace-nowrap">Bringing your secret wish</span>
+              <span className="block whitespace-nowrap">closer to you</span>
+            </h2>
             <p
               className="text-base md:text-xl text-[#A1A1AA] max-w-xl mx-auto"
               data-testid="hero-subtitle"
