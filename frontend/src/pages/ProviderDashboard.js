@@ -942,7 +942,7 @@ export default function ProviderDashboard() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className={currentStep === 1 ? 'p-0' : 'card-premium p-8'}
+            className={currentStep === 1 ? 'p-0' : 'bg-[#141416] border border-[#C6A87C] rounded-lg p-8 transition-none'}
           >
             {/* Step 1: Basic Info */}
             {currentStep === 1 && (
