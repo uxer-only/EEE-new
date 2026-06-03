@@ -164,73 +164,67 @@ export default function ProviderDetail() {
                 </div>
               )}
 
-              {/* Bio + Physical characteristics */}
-              {(provider.bio || provider.essence || provider.characteristics) && (
-                <div className="mb-8 card-premium p-6 md:p-8">
-                  {(provider.bio || provider.essence) && (
-                    <>
-                      <h3 className="text-xl text-[#F2F0ED] mb-4">My essence...</h3>
-                      <p className="text-[#A1A1AA] leading-relaxed" data-testid="provider-bio">
-                        {provider.bio || provider.essence}
-                      </p>
-                    </>
-                  )}
-
-                  {/* Divider + Characteristics */}
-                  {(() => {
-                    const c = provider.characteristics || {};
-                    const LANG_ORDER = ['English', 'French', 'German', 'Russian'];
-                    const langs = Array.isArray(c.languages)
-                      ? c.languages.filter((l) => LANG_ORDER.includes(l))
-                      : [];
-                    const yesNo = (v) => {
-                      if (v === 'yes') return 'Yes';
-                      if (v === 'no') return 'No';
-                      return '';
-                    };
-                    const rows = [
-                      ['Nationality', c.nationality],
-                      ['Ethnicity', c.ethnicity],
-                      ['Orientation', c.orientation],
-                      ['Height', c.height ? `${c.height} cm` : ''],
-                      ['Weight', c.weight ? `${c.weight} kg` : ''],
-                      ['Eye color', c.eye_color],
-                      ['Hair color', c.hair_color],
-                      ['Hair length', c.hair_length],
-                      ['Breast size', c.breast_size],
-                      ['Breast type', c.breast_type],
-                      ['Pubic hair', c.pubic_hair],
-                      ['Languages', langs.length ? langs.join(', ') : ''],
-                      ['Tattoos', yesNo(c.tattoos)],
-                      ['Piercings', yesNo(c.piercings)],
-                      ['Smoker', yesNo(c.smoker)]
-                    ].filter(([, v]) => v !== '' && v !== null && v !== undefined);
-                    if (rows.length === 0) return null;
-                    return (
-                      <>
-                        {(provider.bio || provider.essence) && (
-                          <div className="my-6 border-t border-[#27272A]"></div>
-                        )}
-                        <dl
-                          className="grid grid-cols-2 gap-x-6 md:gap-x-10 gap-y-5"
-                          data-testid="provider-characteristics"
-                        >
-                          {rows.map(([label, value]) => (
-                            <div
-                              key={label}
-                              className="flex flex-col gap-1"
-                              data-testid={`char-row-${label.toLowerCase().replace(/ /g, '-')}`}
-                            >
-                              <dt className="text-[#F2F0ED] text-sm md:text-base">{label}</dt>
-                              <dd className="text-[#A1A1AA] text-sm md:text-base break-words">{value}</dd>
-                            </div>
-                          ))}
-                        </dl>
-                      </>
-                    );
-                  })()}
+              {/* My Essence */}
+              {(provider.bio || provider.essence) && (
+                <div className="mb-8 bg-[#141416] border border-[#C6A87C] rounded-lg p-6 md:p-8">
+                  <h3 className="text-xl text-[#F2F0ED] mb-4">My essence...</h3>
+                  <p className="text-[#A1A1AA] leading-relaxed" data-testid="provider-bio">
+                    {provider.bio || provider.essence}
+                  </p>
                 </div>
               )}
+
+              {/* My Appearance */}
+              {(() => {
+                const c = provider.characteristics || {};
+                const LANG_ORDER = ['English', 'French', 'German', 'Russian'];
+                const langs = Array.isArray(c.languages)
+                  ? c.languages.filter((l) => LANG_ORDER.includes(l))
+                  : [];
+                const yesNo = (v) => {
+                  if (v === 'yes') return 'Yes';
+                  if (v === 'no') return 'No';
+                  return '';
+                };
+                const rows = [
+                  ['Nationality', c.nationality],
+                  ['Ethnicity', c.ethnicity],
+                  ['Orientation', c.orientation],
+                  ['Height', c.height ? `${c.height} cm` : ''],
+                  ['Weight', c.weight ? `${c.weight} kg` : ''],
+                  ['Eye color', c.eye_color],
+                  ['Hair color', c.hair_color],
+                  ['Hair length', c.hair_length],
+                  ['Breast size', c.breast_size],
+                  ['Breast type', c.breast_type],
+                  ['Pubic hair', c.pubic_hair],
+                  ['Languages', langs.length ? langs.join(', ') : ''],
+                  ['Tattoos', yesNo(c.tattoos)],
+                  ['Piercings', yesNo(c.piercings)],
+                  ['Smoker', yesNo(c.smoker)]
+                ].filter(([, v]) => v !== '' && v !== null && v !== undefined);
+                if (rows.length === 0) return null;
+                return (
+                  <div className="mb-8 bg-[#141416] border border-[#C6A87C] rounded-lg p-6 md:p-8">
+                    <h3 className="text-xl text-[#F2F0ED] mb-6">My appearance</h3>
+                    <dl
+                      className="grid grid-cols-2 gap-x-6 md:gap-x-10 gap-y-5"
+                      data-testid="provider-characteristics"
+                    >
+                      {rows.map(([label, value]) => (
+                        <div
+                          key={label}
+                          className="flex flex-col gap-1"
+                          data-testid={`char-row-${label.toLowerCase().replace(/ /g, '-')}`}
+                        >
+                          <dt className="text-[#F2F0ED] text-sm md:text-base">{label}</dt>
+                          <dd className="text-[#A1A1AA] text-sm md:text-base break-words">{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                );
+              })()}
 
               {/* Services */}
               {(() => {
@@ -247,7 +241,7 @@ export default function ProviderDetail() {
                 const inclusive = serviceList.filter(s => s.type === 'inclusive');
                 const extras = serviceList.filter(s => s.type === 'extra');
                 return (
-                  <div className="mb-8 card-premium p-6 md:p-8">
+                  <div className="mb-8 bg-[#141416] border border-[#C6A87C] rounded-lg p-6 md:p-8">
                     <h3 className="text-xl text-[#F2F0ED] mb-6">What we can share together...</h3>
                     {inclusive.length > 0 && (
                       <div className="mb-4">
@@ -294,7 +288,7 @@ export default function ProviderDetail() {
                 const schedule = provider.schedule && typeof provider.schedule === 'object' ? provider.schedule : null;
                 if (!schedule) return null;
                 return (
-                  <div className="mb-8 card-premium p-6 md:p-8">
+                  <div className="mb-8 bg-[#141416] border border-[#C6A87C] rounded-lg p-6 md:p-8">
                     <h3 className="text-xl text-[#F2F0ED] mb-6">My schedule</h3>
                     <div className="space-y-3">
                       {dayOrder.filter(d => schedule[d]).map((day) => {
@@ -314,16 +308,16 @@ export default function ProviderDetail() {
               })()}
 
               {/* Let's Connect */}
-              <div className="mb-8 card-premium p-6 md:p-8" data-testid="contact-section">
+              <div className="mb-8 bg-[#141416] border border-[#C6A87C] rounded-lg p-6 md:p-8" data-testid="contact-section">
                 <h3 className="text-xl text-[#F2F0ED] mb-6">Let's connect</h3>
                 <div className="space-y-4">
                   {/* Mobile */}
                   <a 
                     href={`tel:${provider.contact?.phone || '+32 XXX XX XX XX'}`}
-                    className="flex items-center gap-4 p-4 border border-[#27272A] hover:border-[#C6A87C] transition-colors group"
+                    className="flex items-center gap-4 p-4 border border-[#27272A] group"
                     data-testid="contact-phone"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#C6A87C]/10 flex items-center justify-center group-hover:bg-[#C6A87C]/20 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-[#C6A87C]/10 flex items-center justify-center">
                       <Phone size={20} className="text-[#C6A87C]" />
                     </div>
                     <div>
@@ -337,10 +331,10 @@ export default function ProviderDetail() {
                     href={`https://wa.me/${(provider.contact?.whatsapp || '+32XXXXXXXXX').replace(/[^0-9]/g, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-4 p-4 border border-[#27272A] hover:border-[#25D366] transition-colors group"
+                    className="flex items-center gap-4 p-4 border border-[#27272A] group"
                     data-testid="contact-whatsapp"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#25D366]/10 flex items-center justify-center group-hover:bg-[#25D366]/20 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-[#25D366]/10 flex items-center justify-center">
                       <WhatsappLogo size={20} className="text-[#25D366]" />
                     </div>
                     <div>
@@ -352,10 +346,10 @@ export default function ProviderDetail() {
                   {/* Email */}
                   <a 
                     href={`mailto:${provider.contact?.email || provider.user?.email || 'contact@example.com'}`}
-                    className="flex items-center gap-4 p-4 border border-[#27272A] hover:border-[#C6A87C] transition-colors group"
+                    className="flex items-center gap-4 p-4 border border-[#27272A] group"
                     data-testid="contact-email"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#C6A87C]/10 flex items-center justify-center group-hover:bg-[#C6A87C]/20 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-[#C6A87C]/10 flex items-center justify-center">
                       <EnvelopeSimple size={20} className="text-[#C6A87C]" />
                     </div>
                     <div>
@@ -402,7 +396,7 @@ export default function ProviderDetail() {
                 };
 
                 return (
-                  <div className="mb-8 card-premium p-6 md:p-8">
+                  <div className="mb-8 bg-[#141416] border border-[#C6A87C] rounded-lg p-6 md:p-8">
                     <h3 className="text-xl text-[#F2F0ED] mb-6">Time & investment</h3>
                     {isNested ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -424,7 +418,7 @@ export default function ProviderDetail() {
               })()}
 
               {/* Extra Requests */}
-              <div className="mb-8 card-premium p-6 md:p-8">
+              <div className="mb-8 bg-[#141416] border border-[#C6A87C] rounded-lg p-6 md:p-8">
                 <h3 className="text-xl text-[#F2F0ED] mb-6">Do you have extra requests?</h3>
                 <div className="space-y-4">
                   <textarea
