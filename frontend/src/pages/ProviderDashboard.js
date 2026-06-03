@@ -51,6 +51,7 @@ export default function ProviderDashboard() {
       sunday: { available: true, start: '10:00', end: '22:00' }
     },
     availability_type: 'both',  // 'incall' | 'outcall' | 'both'
+    booking_advance: false,
     photos: [],
     characteristics: {
       nationality: '',
@@ -227,6 +228,7 @@ export default function ProviderDashboard() {
           contact: p.contact || { phone: '', whatsapp: '', email: '' },
           schedule: p.schedule || defaultSchedule,
           availability_type: p.availability_type || 'both',
+          booking_advance: p.booking_advance || false,
           photos: p.photos || [],
           characteristics: {
             nationality: p.characteristics?.nationality || '',
@@ -302,6 +304,7 @@ export default function ProviderDashboard() {
         contact: profileData.contact,
         schedule: profileData.schedule,
         availability_type: profileData.availability_type,
+        booking_advance: profileData.booking_advance,
         photos: newPhotos,
         characteristics: profileData.characteristics
       };
@@ -340,6 +343,7 @@ export default function ProviderDashboard() {
         contact: profileData.contact,
         schedule: profileData.schedule,
         availability_type: profileData.availability_type,
+        booking_advance: profileData.booking_advance,
         photos: newPhotos,
         characteristics: profileData.characteristics
       };
@@ -944,7 +948,7 @@ export default function ProviderDashboard() {
             {currentStep === 1 && (
               <div className="space-y-8">
                 {/* Box 1: Basic Information */}
-                <div className="border border-[#27272A] rounded-lg p-6">
+                <div className="border border-[#C6A87C] rounded-lg p-6">
                   <h3 className="text-2xl text-[#C6A87C] mb-6">Basic Information</h3>
                   
                   <div className="space-y-6">
@@ -1245,7 +1249,7 @@ export default function ProviderDashboard() {
                 </div>
 
                 {/* Box 2: Contact Information */}
-                <div className="border border-[#27272A] rounded-lg p-6">
+                <div className="border border-[#C6A87C] rounded-lg p-6">
                   <h3 className="text-2xl text-[#C6A87C] mb-6">Contact information</h3>
                   <div className="space-y-6">
                     <div>
@@ -1316,7 +1320,7 @@ export default function ProviderDashboard() {
                 </div>
 
                 {/* Box 2: Physical Characteristics (optional) */}
-                <div className="border border-[#27272A] rounded-lg p-6">
+                <div className="border border-[#C6A87C] rounded-lg p-6">
                   <h3 className="text-2xl text-[#C6A87C] mb-1">Physical Characteristics</h3>
                   <p className="text-[#71717A] text-sm mb-6">All fields are optional — fill what you want shown on your profile.</p>
 
@@ -1749,6 +1753,21 @@ export default function ProviderDashboard() {
                       className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
                     />
                     <span className="text-[#F2F0ED]">Available 24/7</span>
+                  </label>
+
+                  {/* Booking in advance Option */}
+                  <label className="flex items-center gap-3 cursor-pointer py-3 border-b border-[#52525B]">
+                    <input
+                      type="checkbox"
+                      checked={profileData.booking_advance || false}
+                      onChange={(e) => setProfileData({
+                        ...profileData,
+                        booking_advance: e.target.checked
+                      })}
+                      className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                      data-testid="booking-advance-checkbox"
+                    />
+                    <span className="text-[#F2F0ED]">Booking in advance necessary</span>
                   </label>
 
                   <div className="space-y-4">
