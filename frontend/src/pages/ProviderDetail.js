@@ -17,6 +17,8 @@ export default function ProviderDetail() {
   const [provider, setProvider] = useState(null);
   const [loading, setLoading] = useState(true);
   const [extraRequest, setExtraRequest] = useState('');
+  const [requestName, setRequestName] = useState('');
+  const [requestEmail, setRequestEmail] = useState('');
   const [sendingRequest, setSendingRequest] = useState(false);
 
   useEffect(() => {
@@ -372,14 +374,16 @@ export default function ProviderDetail() {
                   'overnight': 'Overnight'
                 };
                 const renderColumn = (kind, col) => {
-                  const standard = ['1hour', '2hours', '3hours', 'overnight']
-                    .filter((k) => col[k] !== undefined && col[k] !== '');
-                  const extras = Array.isArray(col.extras) ? col.extras : [];
-                  if (standard.length === 0 && extras.length === 0) return null;
+                  const baseKeys = ['1hour', '2hours', '3hours'].filter((k) => col[k] !== undefined && col[k] !== '');
+                  const extras = (Array.isArray(col.extras) ? col.extras : [])
+                    .slice()
+                    .sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0));
+                  const hasOvernight = col.overnight !== undefined && col.overnight !== '';
+                  if (baseKeys.length === 0 && extras.length === 0 && !hasOvernight) return null;
                   return (
                     <div key={kind} className="space-y-3">
                       <p className="text-lg uppercase tracking-[0.3em] text-[#C6A87C] mb-2">{kind}</p>
-                      {standard.map((k) => (
+                      {baseKeys.map((k) => (
                         <div key={k} className="flex justify-between items-center pb-3 border-b border-[#27272A]" data-testid={`rate-${kind}-${k}`}>
                           <span className="text-[#A1A1AA] text-base">{DURATION_LABELS[k]}</span>
                           <span className="text-[#C6A87C] text-base">€{col[k]}</span>
@@ -391,6 +395,12 @@ export default function ProviderDetail() {
                           <span className="text-[#C6A87C] text-base">€{extra.price}</span>
                         </div>
                       ))}
+                      {hasOvernight && (
+                        <div className="flex justify-between items-center pb-3 border-b border-[#27272A]" data-testid={`rate-${kind}-overnight`}>
+                          <span className="text-[#A1A1AA] text-base">Overnight</span>
+                          <span className="text-[#C6A87C] text-base">€{col.overnight}</span>
+                        </div>
+                      )}
                     </div>
                   );
                 };
@@ -421,21 +431,49 @@ export default function ProviderDetail() {
               <div className="mb-8 bg-[#141416] border border-[#C6A87C] rounded-lg p-6 md:p-8">
                 <h3 className="text-xl text-[#F2F0ED] mb-6">Do you have extra requests?</h3>
                 <div className="space-y-4">
-                  <textarea
-                    value={extraRequest}
-                    onChange={(e) => setExtraRequest(e.target.value.slice(0, 350))}
-                    placeholder="Share your special requests or preferences..."
-                    className="input-premium w-full h-32 resize-none"
-                    maxLength={350}
-                    data-testid="extra-request-input"
-                  />
+                  <div>
+                    <label className="input-label">Your name</label>
+                    <input
+                      type="text"
+                      value={requestName}
+                      onChange={(e) => setRequestName(e.target.value)}
+                      placeholder="Your name"
+                      className="input-premium w-full"
+                      data-testid="extra-request-name"
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">Your e-mail address</label>
+                    <input
+                      type="email"
+                      value={requestEmail}
+                      onChange={(e) => setRequestEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      className="input-premium w-full"
+                      data-testid="extra-request-email"
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">Your message</label>
+                    <textarea
+                      value={extraRequest}
+                      onChange={(e) => setExtraRequest(e.target.value.slice(0, 350))}
+                      placeholder="Share your special requests or preferences..."
+                      className="input-premium w-full h-32 resize-none"
+                      maxLength={350}
+                      data-testid="extra-request-input"
+                    />
+                  </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[#52525B] text-sm">{extraRequest.length}/350 characters</span>
                     <button
                       onClick={() => {
-                        if (!user) {
-                          toast.error('Please login to send requests');
-                          navigate('/login');
+                        if (!requestName.trim()) {
+                          toast.error('Please enter your name');
+                          return;
+                        }
+                        if (!requestEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(requestEmail)) {
+                          toast.error('Please enter a valid email address');
                           return;
                         }
                         if (!extraRequest.trim()) {
@@ -446,11 +484,13 @@ export default function ProviderDetail() {
                         // Simulate sending request
                         setTimeout(() => {
                           toast.success('Request sent successfully!');
+                          setRequestName('');
+                          setRequestEmail('');
                           setExtraRequest('');
                           setSendingRequest(false);
                         }, 1000);
                       }}
-                      disabled={sendingRequest || !extraRequest.trim()}
+                      disabled={sendingRequest || !extraRequest.trim() || !requestName.trim() || !requestEmail.trim()}
                       className="btn-primary px-8 disabled:opacity-50"
                       data-testid="send-request-button"
                     >
