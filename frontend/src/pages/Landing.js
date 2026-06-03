@@ -233,7 +233,7 @@ export default function Landing() {
                 className="btn-secondary"
                 data-testid="cta-register-button"
               >
-                Become a Provider
+                Advertise here
               </Link>
             </div>
           </div>
