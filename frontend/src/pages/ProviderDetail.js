@@ -145,7 +145,7 @@ export default function ProviderDetail() {
                   <div className="flex items-start gap-4 text-[#A1A1AA]">
                     <div className="flex items-start gap-2">
                       <MapPin size={20} weight="thin" className="shrink-0 mt-0.5" />
-                      <span className="text-sm md:text-base">Luxury companion based in {provider.location?.city || 'Brussels'}</span>
+                      <span className="text-sm md:text-base">Elite escort based in {provider.location?.city || 'Brussels'}, {provider.location?.country || 'Belgium'}</span>
                     </div>
                   </div>
                 </div>
