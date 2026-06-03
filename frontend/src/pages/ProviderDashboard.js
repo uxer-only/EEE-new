@@ -1314,6 +1314,45 @@ export default function ProviderDashboard() {
                           />
                           <span className="text-[#A1A1AA]">Signal</span>
                         </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={profileData.contact.hasSms || false}
+                            onChange={(e) => setProfileData({
+                              ...profileData,
+                              contact: { ...profileData.contact, hasSms: e.target.checked }
+                            })}
+                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                            data-testid="contact-sms"
+                          />
+                          <span className="text-[#A1A1AA]">SMS</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={profileData.contact.hasViber || false}
+                            onChange={(e) => setProfileData({
+                              ...profileData,
+                              contact: { ...profileData.contact, hasViber: e.target.checked }
+                            })}
+                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#7360F2] checked:border-[#7360F2]"
+                            data-testid="contact-viber"
+                          />
+                          <span className="text-[#A1A1AA]">Viber</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={profileData.contact.hasLine || false}
+                            onChange={(e) => setProfileData({
+                              ...profileData,
+                              contact: { ...profileData.contact, hasLine: e.target.checked }
+                            })}
+                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#00C300] checked:border-[#00C300]"
+                            data-testid="contact-line"
+                          />
+                          <span className="text-[#A1A1AA]">Line</span>
+                        </label>
                       </div>
                     </div>
                   </div>
