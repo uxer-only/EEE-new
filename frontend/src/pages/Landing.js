@@ -147,7 +147,7 @@ export default function Landing() {
             className="max-w-5xl mx-auto text-center"
           >
             <h2
-              className="text-4xl sm:text-5xl lg:text-6xl font-playfair text-[#F2F0ED] mb-6"
+              className="text-4xl sm:text-5xl lg:text-6xl font-playfair text-[#F2F0ED] mb-6 leading-[1.3]"
               data-testid="hero-title"
             >
               <span className="block whitespace-nowrap">Bringing your secret wish</span>
