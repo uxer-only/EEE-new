@@ -942,7 +942,7 @@ export default function ProviderDashboard() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="card-premium p-8"
+            className={currentStep === 1 ? 'p-0' : 'card-premium p-8'}
           >
             {/* Step 1: Basic Info */}
             {currentStep === 1 && (
@@ -2111,7 +2111,7 @@ export default function ProviderDashboard() {
                 </div>
               </div>
             )}
-            <div className="flex justify-between mt-8 pt-6 border-t border-[#27272A]">
+            <div className={`flex ${mode !== 'edit' && currentStep === 1 ? 'justify-end' : 'justify-between'} mt-8 pt-6 border-t border-[#27272A]`}>
               {mode === 'edit' ? (
                 <>
                   <button
@@ -2135,16 +2135,17 @@ export default function ProviderDashboard() {
                 </>
               ) : (
                 <>
-                  <button
-                    type="button"
-                    onClick={prevStep}
-                    disabled={currentStep === 1}
-                    className="btn-secondary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    data-testid="prev-button"
-                  >
-                    <CaretLeft size={20} />
-                    Previous
-                  </button>
+                  {currentStep > 1 && (
+                    <button
+                      type="button"
+                      onClick={prevStep}
+                      className="btn-secondary flex items-center gap-2"
+                      data-testid="prev-button"
+                    >
+                      <CaretLeft size={20} />
+                      Previous
+                    </button>
+                  )}
 
                   {currentStep < 4 ? (
                     <button
