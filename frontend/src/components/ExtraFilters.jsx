@@ -49,18 +49,6 @@ export default function ExtraFilters({ filters, setFilters }) {
   return (
     <div className="space-y-8">
       <div className="space-y-6 max-w-md">
-        {/* Service type */}
-        <div>
-          <label className="input-label">Service type</label>
-          <input
-            type="text"
-            value={filters.service || ''}
-            onChange={(e) => set('service', e.target.value)}
-            className="input-premium w-full"
-            placeholder="e.g., Dinner Date"
-            data-testid="service-filter-input"
-          />
-        </div>
         <Select label="Nationality" value={filters.nationality} options={NATIONALITIES} onChange={(v) => set('nationality', v)} testId="extra-nationality" />
         <Select label="Ethnicity" value={filters.ethnicity} options={ETHNICITIES} onChange={(v) => set('ethnicity', v)} testId="extra-ethnicity" />
         <Select label="Orientation" value={filters.orientation} options={ORIENTATIONS} onChange={(v) => set('orientation', v)} testId="extra-orientation" />
