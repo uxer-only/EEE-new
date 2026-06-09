@@ -14,6 +14,48 @@ function fileToDataUrl(file) {
   });
 }
 
+function Slot({ label, helper, k, required, doc, onRemove, onFile }) {
+  return (
+    <div className="border border-[#27272A] rounded-lg p-4" data-testid={`slot-${k}`}>
+      <div className="flex items-baseline justify-between mb-2">
+        <p className="text-[#F2F0ED] text-sm font-medium">
+          {label} {required && <span className="text-[#C6A87C]">*</span>}
+        </p>
+        {doc && (
+          <button
+            onClick={() => onRemove(k)}
+            className="text-[#A1A1AA] hover:text-red-400 text-xs uppercase tracking-wider"
+            data-testid={`remove-${k}`}
+          >
+            Remove
+          </button>
+        )}
+      </div>
+      <p className="text-[#71717A] text-xs mb-3 leading-relaxed">{helper}</p>
+      {doc ? (
+        <div className="relative aspect-[4/3] bg-[#0A0A0C] overflow-hidden rounded">
+          <img src={doc} alt="" className="w-full h-full object-contain" />
+        </div>
+      ) : (
+        <label
+          className="flex flex-col items-center justify-center aspect-[4/3] border border-dashed border-[#3F3F46] rounded cursor-pointer hover:border-[#C6A87C] transition-colors"
+          data-testid={`upload-${k}`}
+        >
+          <UploadSimple size={28} weight="thin" className="text-[#A1A1AA] mb-2" />
+          <span className="text-[#A1A1AA] text-xs uppercase tracking-wider">Upload photo</span>
+          <span className="text-[#52525B] text-xs mt-1">Max {MAX_MB} MB</span>
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => onFile(k, e.target.files?.[0])}
+          />
+        </label>
+      )}
+    </div>
+  );
+}
+
 export default function VerificationModal({ open, onClose, onSubmitted }) {
   const [docs, setDocs] = useState({ id_front: null, id_selfie: null, secondary_doc: null });
   const [submitting, setSubmitting] = useState(false);
@@ -57,46 +99,6 @@ export default function VerificationModal({ open, onClose, onSubmitted }) {
     }
   };
 
-  const Slot = ({ label, helper, k, required }) => (
-    <div className="border border-[#27272A] rounded-lg p-4" data-testid={`slot-${k}`}>
-      <div className="flex items-baseline justify-between mb-2">
-        <p className="text-[#F2F0ED] text-sm font-medium">
-          {label} {required && <span className="text-[#C6A87C]">*</span>}
-        </p>
-        {docs[k] && (
-          <button
-            onClick={() => removeDoc(k)}
-            className="text-[#A1A1AA] hover:text-red-400 text-xs uppercase tracking-wider"
-            data-testid={`remove-${k}`}
-          >
-            Remove
-          </button>
-        )}
-      </div>
-      <p className="text-[#71717A] text-xs mb-3 leading-relaxed">{helper}</p>
-      {docs[k] ? (
-        <div className="relative aspect-[4/3] bg-[#0A0A0C] overflow-hidden rounded">
-          <img src={docs[k]} alt="" className="w-full h-full object-contain" />
-        </div>
-      ) : (
-        <label
-          className="flex flex-col items-center justify-center aspect-[4/3] border border-dashed border-[#3F3F46] rounded cursor-pointer hover:border-[#C6A87C] transition-colors"
-          data-testid={`upload-${k}`}
-        >
-          <UploadSimple size={28} weight="thin" className="text-[#A1A1AA] mb-2" />
-          <span className="text-[#A1A1AA] text-xs uppercase tracking-wider">Upload photo</span>
-          <span className="text-[#52525B] text-xs mt-1">Max {MAX_MB} MB</span>
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => handleFile(k, e.target.files?.[0])}
-          />
-        </label>
-      )}
-    </div>
-  );
-
   return (
     <div
       className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
@@ -131,18 +133,27 @@ export default function VerificationModal({ open, onClose, onSubmitted }) {
               helper="Passport, national ID card, or driver's license. Make sure all four corners are visible and text is readable."
               k="id_front"
               required
+              doc={docs.id_front}
+              onRemove={removeDoc}
+              onFile={handleFile}
             />
             <Slot
               label="Selfie with your ID"
               helper="Hold your ID next to your face. This confirms the ID belongs to you."
               k="id_selfie"
               required
+              doc={docs.id_selfie}
+              onRemove={removeDoc}
+              onFile={handleFile}
             />
             <Slot
               label="Secondary document (optional)"
               helper="Helps us verify faster — a second ID, utility bill, or anything with your name on it."
               k="secondary_doc"
               required={false}
+              doc={docs.secondary_doc}
+              onRemove={removeDoc}
+              onFile={handleFile}
             />
           </div>
 

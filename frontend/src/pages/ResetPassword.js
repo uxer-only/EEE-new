@@ -91,7 +91,7 @@ export default function ResetPassword() {
  Create a new password
  </h2>
                 <p className="text-[#A1A1AA]">
-                  Choose something only you'll remember. At least 8 characters.
+                  Choose something only you&apos;ll remember. At least 8 characters.
                 </p>
               </div>
 

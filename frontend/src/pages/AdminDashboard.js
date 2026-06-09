@@ -27,7 +27,6 @@ export default function AdminDashboard() {
       return;
     }
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, navigate]);
 
   const fetchTraffic = async (days) => {

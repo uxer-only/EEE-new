@@ -128,7 +128,7 @@ export default function AddToHomeScreen() {
                     <span className="w-5 text-[#C6A87C] font-medium">2.</span>
                     <span>Choose</span>
                     <Plus size={16} weight="bold" className="text-[#C6A87C]" />
-                    <span>"Add to Home Screen"</span>
+                    <span>&quot;Add to Home Screen&quot;</span>
                   </div>
                 </div>
                 <button
@@ -136,7 +136,7 @@ export default function AddToHomeScreen() {
                   className="w-full text-center text-[#71717A] hover:text-[#A1A1AA] text-xs uppercase tracking-wider py-2 transition-colors"
                   data-testid="a2hs-hide-forever"
                 >
-                  Don't show again
+                  Don&apos;t show again
                 </button>
               </>
             ) : (

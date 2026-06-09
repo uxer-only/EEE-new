@@ -95,7 +95,7 @@ export default function ProviderDetail() {
                   <Carousel className="w-full mb-6">
                     <CarouselContent>
                       {provider.photos.map((photo, index) => (
-                        <CarouselItem key={index}>
+                        <CarouselItem key={`${index}-${photo.slice(-40)}`}>
                           <div className="aspect-[3/4] w-full">
                             <img
                               src={photo}
@@ -114,7 +114,7 @@ export default function ProviderDetail() {
                   {/* Thumbnail Gallery */}
                   <div className="grid grid-cols-4 gap-3">
                     {provider.photos.map((photo, index) => (
-                      <div key={index} className="aspect-[3/4] overflow-hidden border border-[#27272A] hover:border-[#C6A87C] transition-all cursor-pointer group" data-testid={`thumbnail-${index}`}>
+                      <div key={`${index}-${photo.slice(-40)}`} className="aspect-[3/4] overflow-hidden border border-[#27272A] hover:border-[#C6A87C] transition-all cursor-pointer group" data-testid={`thumbnail-${index}`}>
                         <img
                           src={photo}
                           alt={`${provider.display_name} thumbnail ${index + 1}`}
@@ -311,7 +311,7 @@ export default function ProviderDetail() {
 
               {/* Let's Connect */}
               <div className="mb-8 bg-[#141416] border border-[#C6A87C] rounded-lg p-6 md:p-8" data-testid="contact-section">
-                <h3 className="text-xl text-[#F2F0ED] mb-6">Let's connect</h3>
+                <h3 className="text-xl text-[#F2F0ED] mb-6">Let&apos;s connect</h3>
                 <div className="space-y-4">
                   {/* Mobile */}
                   <a 
