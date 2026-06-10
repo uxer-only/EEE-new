@@ -279,9 +279,18 @@ export default function ProviderDashboard() {
     }
   };
 
-  const openEdit = (step) => {
+  const openEdit = (step, anchor) => {
     setCurrentStep(step);
     setMode('edit');
+    if (anchor) {
+      // Scroll to the named section after the step content paints
+      setTimeout(() => {
+        const el = document.getElementById(anchor);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 250);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const filesToBase64 = (files) => {
@@ -850,7 +859,7 @@ export default function ProviderDashboard() {
                   })}
                 </div>
                 <button
-                  onClick={() => openEdit(4)}
+                  onClick={() => openEdit(4, 'rates-section')}
                   className="btn-secondary w-full mt-8"
                   data-testid="edit-rates-btn"
                 >
@@ -892,7 +901,7 @@ export default function ProviderDashboard() {
                   ))}
                 </div>
                 <button
-                  onClick={() => openEdit(4)}
+                  onClick={() => openEdit(4, 'availability-section')}
                   className="btn-secondary w-full mt-8"
                   data-testid="edit-availability-btn"
                 >
@@ -1836,7 +1845,7 @@ export default function ProviderDashboard() {
             {currentStep === 4 && (
               <div className="space-y-10">
                 {/* Availability */}
-                <div className="space-y-6">
+                <div id="availability-section" className="space-y-6 scroll-mt-24">
                   <div>
                     <h3 className="text-2xl text-[#C6A87C] mb-1">Availability</h3>
                     <p className="text-[#A1A1AA] text-sm">Set your availability for each day</p>
@@ -1967,7 +1976,7 @@ export default function ProviderDashboard() {
                 <div className="border-t border-[#27272A]"></div>
 
                 {/* Rates */}
-                <div className="space-y-6">
+                <div id="rates-section" className="space-y-6 scroll-mt-24">
                   <div>
                     <h3 className="text-2xl text-[#C6A87C] mb-1">Rates</h3>
                     <p className="text-[#A1A1AA] text-sm">
