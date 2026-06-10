@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { getProviderById } from '@/services/api';
 import { toast } from 'sonner';
 import {
-  MapPin, CheckCircle, Star, Calendar, Clock, CaretLeft,
-  Phone, WhatsappLogo, EnvelopeSimple
+  MapPin, CheckCircle, Star, Calendar, Clock, CaretLeft, CaretRight,
+  Phone, WhatsappLogo, EnvelopeSimple, X
 } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -16,6 +16,9 @@ export default function ProviderDetail() {
   const { user } = useAuth();
   const [provider, setProvider] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [carouselApi, setCarouselApi] = useState(null);
+  const [activePhotoIdx, setActivePhotoIdx] = useState(0);
+  const [lightboxIdx, setLightboxIdx] = useState(null);
   const [extraRequest, setExtraRequest] = useState('');
   const [requestName, setRequestName] = useState('');
   const [requestEmail, setRequestEmail] = useState('');
@@ -24,6 +27,30 @@ export default function ProviderDetail() {
   useEffect(() => {
     fetchProvider();
   }, [id]);
+
+  useEffect(() => {
+    if (!carouselApi) return;
+    const onSelect = () => setActivePhotoIdx(carouselApi.selectedScrollSnap());
+    carouselApi.on('select', onSelect);
+    onSelect();
+    return () => { carouselApi.off('select', onSelect); };
+  }, [carouselApi]);
+
+  // ESC key closes lightbox; arrow keys navigate
+  useEffect(() => {
+    if (lightboxIdx === null) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setLightboxIdx(null);
+      else if (e.key === 'ArrowRight') setLightboxIdx((i) => (i + 1) % provider.photos.length);
+      else if (e.key === 'ArrowLeft') setLightboxIdx((i) => (i - 1 + provider.photos.length) % provider.photos.length);
+    };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [lightboxIdx, provider]);
 
   const fetchProvider = async () => {
     try {
@@ -92,18 +119,24 @@ export default function ProviderDetail() {
             <div className="lg:sticky lg:top-24 lg:self-start">
               {provider.photos && provider.photos.length > 0 ? (
                 <>
-                  <Carousel className="w-full mb-6">
+                  <Carousel className="w-full mb-6" setApi={setCarouselApi}>
                     <CarouselContent>
                       {provider.photos.map((photo, index) => (
                         <CarouselItem key={`${index}-${photo.slice(-40)}`}>
-                          <div className="aspect-[3/4] w-full">
+                          <button
+                            type="button"
+                            onClick={() => setLightboxIdx(index)}
+                            className="block w-full aspect-[3/4] overflow-hidden cursor-zoom-in"
+                            data-testid={`open-lightbox-${index}`}
+                            aria-label="Open full-size photo"
+                          >
                             <img
                               src={photo}
                               alt={`${provider.display_name} ${index + 1}`}
                               className="w-full h-full object-cover"
                               data-testid={`provider-photo-${index}`}
                             />
-                          </div>
+                          </button>
                         </CarouselItem>
                       ))}
                     </CarouselContent>
@@ -114,13 +147,22 @@ export default function ProviderDetail() {
                   {/* Thumbnail Gallery */}
                   <div className="grid grid-cols-4 gap-3">
                     {provider.photos.map((photo, index) => (
-                      <div key={`${index}-${photo.slice(-40)}`} className="aspect-[3/4] overflow-hidden border border-[#27272A] hover:border-[#C6A87C] transition-all cursor-pointer group" data-testid={`thumbnail-${index}`}>
+                      <button
+                        type="button"
+                        key={`${index}-${photo.slice(-40)}`}
+                        onClick={() => carouselApi && carouselApi.scrollTo(index)}
+                        className={`aspect-[3/4] overflow-hidden border transition-all cursor-pointer group ${
+                          activePhotoIdx === index ? 'border-[#C6A87C]' : 'border-[#27272A] hover:border-[#C6A87C]'
+                        }`}
+                        data-testid={`thumbnail-${index}`}
+                        aria-label={`Show photo ${index + 1}`}
+                      >
                         <img
                           src={photo}
                           alt={`${provider.display_name} thumbnail ${index + 1}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </>
@@ -561,6 +603,72 @@ export default function ProviderDetail() {
           )}
         </div>
       </div>
+
+      {/* Lightbox / full-size photo viewer */}
+      {lightboxIdx !== null && provider.photos && provider.photos[lightboxIdx] && (
+        <div
+          className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center"
+          onClick={() => setLightboxIdx(null)}
+          data-testid="lightbox-overlay"
+        >
+          {/* Close */}
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setLightboxIdx(null); }}
+            className="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 rounded-full bg-black/60 text-white hover:bg-black/80 flex items-center justify-center"
+            data-testid="lightbox-close"
+            aria-label="Close"
+          >
+            <X size={24} />
+          </button>
+
+          {/* Counter */}
+          <div className="absolute top-4 left-4 md:top-6 md:left-6 text-[#C6A87C] text-sm tracking-wider" data-testid="lightbox-counter">
+            {lightboxIdx + 1} / {provider.photos.length}
+          </div>
+
+          {/* Prev */}
+          {provider.photos.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIdx((i) => (i - 1 + provider.photos.length) % provider.photos.length);
+              }}
+              className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/60 text-white hover:bg-black/80 flex items-center justify-center"
+              data-testid="lightbox-prev"
+              aria-label="Previous photo"
+            >
+              <CaretLeft size={24} />
+            </button>
+          )}
+
+          {/* Image */}
+          <img
+            src={provider.photos[lightboxIdx]}
+            alt={`${provider.display_name} full size`}
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-[92vw] max-h-[92vh] object-contain"
+            data-testid="lightbox-image"
+          />
+
+          {/* Next */}
+          {provider.photos.length > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIdx((i) => (i + 1) % provider.photos.length);
+              }}
+              className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/60 text-white hover:bg-black/80 flex items-center justify-center"
+              data-testid="lightbox-next"
+              aria-label="Next photo"
+            >
+              <CaretRight size={24} />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
