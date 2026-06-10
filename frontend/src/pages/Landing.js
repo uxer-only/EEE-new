@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Lock, CheckCircle, ChatCircle, Star, Calendar, Warning } from 'phosphor-react';
+import { CheckCircle, Warning } from 'phosphor-react';
 import { getProviders } from '@/services/api';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import SiteHeader from '@/components/SiteHeader';
@@ -42,24 +42,6 @@ export default function Landing() {
   const handleLeaveWebsite = () => {
     window.location.href = 'https://google.com';
   };
-
-  const features = [
-    {
-      icon: <Shield size={32} weight="thin" />,
-      title: 'Verified Profiles',
-      description: 'Every provider undergoes rigorous verification for your peace of mind'
-    },
-    {
-      icon: <Lock size={32} weight="thin" />,
-      title: 'Complete Discretion',
-      description: 'Your privacy is paramount. All interactions are encrypted and secure'
-    },
-    {
-      icon: <ChatCircle size={32} weight="thin" />,
-      title: 'Secure Messaging',
-      description: 'Private, encrypted conversations from first contact to last'
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-[#0A0A0C]">
@@ -130,7 +112,7 @@ export default function Landing() {
             <img
               src="/hero-bg.jpg"
               alt=""
-              fetchpriority="high"
+              fetchPriority="high"
               className="w-full h-full object-cover"
               data-testid="hero-bg-image"
             />
@@ -238,44 +220,6 @@ export default function Landing() {
                 Advertise here
               </Link>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="section-padding py-32" data-testid="features-section">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <span className="label-premium">Why Choose Us</span>
-            <h3 className="text-4xl lg:text-5xl text-[#F2F0ED] mt-4">
- Trust. Privacy. Excellence.
- </h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{
-                  duration: 0.6,
-                  delay: index * 0.1,
-                  ease: [0.22, 1, 0.36, 1]
-                }}
-                className="card-premium p-8"
-                data-testid={`feature-card-${index}`}
-              >
-                <div className="text-[#C6A87C] mb-6">{feature.icon}</div>
-                <h4 className="text-xl text-[#F2F0ED] mb-3">
- {feature.title}
- </h4>
-                <p className="text-[#A1A1AA] text-sm leading-relaxed">
-                  {feature.description}
-                </p>
-              </motion.div>
-            ))}
           </div>
         </div>
       </section>
