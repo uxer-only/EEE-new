@@ -87,9 +87,9 @@ export default function ProviderDetail() {
 
       <div className="pt-24 md:pt-32 pb-12 md:pb-20 section-padding">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-            {/* Left - Images */}
-            <div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16">
+            {/* Left - Images (1/3 of width on desktop, sticky) */}
+            <div className="lg:sticky lg:top-24 lg:self-start">
               {provider.photos && provider.photos.length > 0 ? (
                 <>
                   <Carousel className="w-full mb-6">
@@ -135,8 +135,8 @@ export default function ProviderDetail() {
               )}
             </div>
 
-            {/* Right - Details */}
-            <div>
+            {/* Right - Details (2/3 of width on desktop) */}
+            <div className="lg:col-span-2">
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div className="min-w-0 flex-1">
                   <h1 className="text-4xl md:text-5xl text-[#F2F0ED] mb-3" data-testid="provider-name">
