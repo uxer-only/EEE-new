@@ -4,7 +4,7 @@
  * - Stale-while-revalidate for API GETs on /api/providers and provider images
  *   so recently viewed profiles remain browsable offline.
  */
-const SW_VERSION = 'lumiere-v20';
+const SW_VERSION = 'lumiere-v21';
 const RUNTIME = `lumiere-runtime-${SW_VERSION}`;
 const SHELL = `lumiere-shell-${SW_VERSION}`;
 

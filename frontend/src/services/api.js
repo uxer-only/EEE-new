@@ -20,6 +20,7 @@ export const getProviders = (params) => api.get('/providers', { params });
 export const getProviderById = (id) => api.get(`/providers/${id}`);
 export const createProviderProfile = (data) => api.post('/providers/profile', data);
 export const updateProviderProfile = (data) => api.put('/providers/profile', data);
+export const deleteProviderProfile = () => api.delete('/providers/profile');
 export const getProviderDashboard = () => api.get('/providers/dashboard/stats');
 
 // Messages

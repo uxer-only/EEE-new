@@ -288,23 +288,38 @@ export default function ProviderDetail() {
                 const dayOrder = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
                 const labels = { monday:'Monday', tuesday:'Tuesday', wednesday:'Wednesday', thursday:'Thursday', friday:'Friday', saturday:'Saturday', sunday:'Sunday' };
                 const schedule = provider.schedule && typeof provider.schedule === 'object' ? provider.schedule : null;
-                if (!schedule) return null;
+                const is247 = !!provider.available247;
+                if (!is247 && !schedule) return null;
+                const availableDays = is247
+                  ? []
+                  : dayOrder.filter(d => schedule[d] && schedule[d].available);
+                if (!is247 && availableDays.length === 0) return null;
                 return (
                   <div className="mb-8 bg-[#141416] border border-[#C6A87C] rounded-lg p-6 md:p-8">
                     <h3 className="text-xl text-[#F2F0ED] mb-6">My schedule</h3>
-                    <div className="space-y-3">
-                      {dayOrder.filter(d => schedule[d]).map((day) => {
-                        const s = schedule[day];
-                        return (
-                          <div key={day} className="flex justify-between items-center py-2" data-testid={`schedule-${day}`}>
-                            <span className="text-[#F2F0ED] font-medium">{labels[day]}</span>
-                            <span className="text-[#A1A1AA]">
-                              {s.available ? `${s.start} - ${s.end}` : 'Closed'}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    {is247 ? (
+                      <div className="flex items-center justify-between py-2" data-testid="schedule-247">
+                        <span className="text-[#F2F0ED] font-medium">All week</span>
+                        <span className="text-[#C6A87C]">Available 24/7</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {availableDays.map((day) => {
+                          const s = schedule[day];
+                          return (
+                            <div key={day} className="flex justify-between items-center py-2" data-testid={`schedule-${day}`}>
+                              <span className="text-[#F2F0ED] font-medium">{labels[day]}</span>
+                              <span className="text-[#A1A1AA]">{s.start} - {s.end}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {provider.booking_advance && (
+                      <p className="mt-6 pt-4 border-t border-[#27272A] text-[#C6A87C] text-sm" data-testid="schedule-advance">
+                        Booking in advance necessary
+                      </p>
+                    )}
                   </div>
                 );
               })()}

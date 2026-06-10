@@ -66,6 +66,7 @@ class ProviderProfile(BaseModel):
     account_type: Optional[str] = "independent"  # independent | agency
     availability_type: Optional[str] = "both"    # incall | outcall | both
     booking_advance: Optional[bool] = False
+    available247: Optional[bool] = False
     age: Optional[int] = None
     gender: Optional[str] = None  # female, male, trans
     location: Dict[str, Any]  # {city, country, lat, lng}
@@ -88,6 +89,7 @@ class ProviderProfileCreate(BaseModel):
     account_type: Optional[str] = "independent"
     availability_type: Optional[str] = "both"
     booking_advance: Optional[bool] = False
+    available247: Optional[bool] = False
     age: Optional[int] = None
     gender: Optional[str] = None
     location: Dict[str, Any]
@@ -106,6 +108,7 @@ class ProviderProfileUpdate(BaseModel):
     account_type: Optional[str] = None
     availability_type: Optional[str] = None
     booking_advance: Optional[bool] = None
+    available247: Optional[bool] = None
     age: Optional[int] = None
     gender: Optional[str] = None
     location: Optional[Dict[str, Any]] = None
@@ -1031,6 +1034,28 @@ async def update_provider_profile(
         )
     
     return {"message": "Profile updated successfully"}
+
+
+@api_router.delete("/providers/profile")
+async def delete_provider_profile(current_user: User = Depends(get_current_user)):
+    """Permanently delete the authenticated provider's profile and related data"""
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Only providers can delete profiles")
+
+    profile = await db.provider_profiles.find_one({"user_id": current_user.user_id})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    provider_id = profile.get("provider_id")
+    # Remove related records
+    await db.provider_profiles.delete_one({"user_id": current_user.user_id})
+    if provider_id:
+        await db.subscriptions.delete_many({"provider_id": provider_id})
+        await db.payment_transactions.delete_many({"provider_id": provider_id})
+        await db.verifications.delete_many({"provider_id": provider_id})
+        await db.conversations.delete_many({"provider_id": provider_id})
+
+    return {"message": "Profile deleted successfully"}
 
 @api_router.get("/providers/dashboard/stats")
 async def get_provider_dashboard(current_user: User = Depends(get_current_user)):

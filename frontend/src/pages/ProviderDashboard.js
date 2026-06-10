@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getProviderDashboard, createProviderProfile, updateProviderProfile, getMySubscription, createSubscriptionCheckout } from '@/services/api';
+import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { 
   ChatCircle, CheckCircle, User, MapPin, Camera, Clock, 
@@ -13,6 +13,24 @@ import CharacteristicsForm from '@/components/CharacteristicsForm';
 import VerificationModal from '@/components/VerificationModal';
 import SiteHeader from '@/components/SiteHeader';
 
+// Map country → international dial code prefix
+const COUNTRY_DIAL_CODES = {
+  Belgium: '+32', Netherlands: '+31', Luxembourg: '+352', France: '+33',
+  Germany: '+49', 'United Kingdom': '+44', Spain: '+34', Italy: '+39',
+  Portugal: '+351', Switzerland: '+41', Austria: '+43', Ireland: '+353',
+  Denmark: '+45', Sweden: '+46', Norway: '+47', Finland: '+358',
+  Poland: '+48', 'Czech Republic': '+420', Greece: '+30', Croatia: '+385',
+  Hungary: '+36', Romania: '+40', Bulgaria: '+359', Slovenia: '+386',
+  Slovakia: '+421', Estonia: '+372', Latvia: '+371', Lithuania: '+370',
+  Cyprus: '+357', Malta: '+356', Iceland: '+354', Monaco: '+377',
+  USA: '+1', Canada: '+1', Mexico: '+52', Brazil: '+55', Argentina: '+54',
+  Australia: '+61', 'New Zealand': '+64', Japan: '+81', 'South Korea': '+82',
+  China: '+86', India: '+91', Singapore: '+65', 'Hong Kong': '+852',
+  Thailand: '+66', UAE: '+971', 'Saudi Arabia': '+966', Turkey: '+90',
+  Russia: '+7', Ukraine: '+380', 'South Africa': '+27', Egypt: '+20',
+  Israel: '+972', Lebanon: '+961', Morocco: '+212'
+};
+
 export default function ProviderDashboard() {
   const { user, logout } = useAuth();
   const [dashboard, setDashboard] = useState(null);
@@ -20,6 +38,7 @@ export default function ProviderDashboard() {
   const [currentStep, setCurrentStep] = useState(1);
   const [mode, setMode] = useState('overview'); // 'overview' | 'edit' | 'create'
   const [saving, setSaving] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [subscription, setSubscription] = useState(null);
   const [profileData, setProfileData] = useState({
@@ -229,6 +248,7 @@ export default function ProviderDashboard() {
           schedule: p.schedule || defaultSchedule,
           availability_type: p.availability_type || 'both',
           booking_advance: p.booking_advance || false,
+          available247: p.available247 || false,
           photos: p.photos || [],
           characteristics: {
             nationality: p.characteristics?.nationality || '',
@@ -280,6 +300,22 @@ export default function ProviderDashboard() {
     fetchDashboard();
   };
 
+  const handleRemoveProfile = async () => {
+    const confirmed = window.confirm(
+      'Permanently delete your profile?\n\nThis cannot be undone. Your photos, services, subscription history and verification documents will all be removed.'
+    );
+    if (!confirmed) return;
+    setRemoving(true);
+    try {
+      await deleteProviderProfile();
+      toast.success('Profile removed');
+      logout();
+    } catch (error) {
+      toast.error(error?.response?.data?.detail || 'Failed to remove profile');
+      setRemoving(false);
+    }
+  };
+
   const saveStep = async () => {
     setSaving(true);
     try {
@@ -305,6 +341,7 @@ export default function ProviderDashboard() {
         schedule: profileData.schedule,
         availability_type: profileData.availability_type,
         booking_advance: profileData.booking_advance,
+        available247: profileData.available247,
         photos: newPhotos,
         characteristics: profileData.characteristics
       };
@@ -344,6 +381,7 @@ export default function ProviderDashboard() {
         schedule: profileData.schedule,
         availability_type: profileData.availability_type,
         booking_advance: profileData.booking_advance,
+        available247: profileData.available247,
         photos: newPhotos,
         characteristics: profileData.characteristics
       };
@@ -556,7 +594,7 @@ export default function ProviderDashboard() {
                     <ShieldCheck size={22} weight="thin" className="text-[#C6A87C] mt-0.5 shrink-0" />
                     <div>
                       <p className="text-[#F2F0ED] font-medium mb-1">Verification under review</p>
-                      <p className="text-[#A1A1AA] text-sm">We're reviewing your documents — you'll receive an email within 24 hours. Your profile becomes visible to clients once approved.</p>
+                      <p className="text-[#A1A1AA] text-sm">We&apos;re reviewing your documents — you&apos;ll receive an email within 24 hours. Your profile becomes visible to clients once approved.</p>
                     </div>
                   </div>
                 );
@@ -617,7 +655,7 @@ export default function ProviderDashboard() {
             {/* Management Cards — stacked in registration order */}
             <div className="flex flex-col gap-6">
               {/* 1. Basic Info */}
-              <div className="card-premium p-8" data-testid="card-basic-info">
+              <div className="bg-[#141416] border border-[#C6A87C] rounded-lg p-8" data-testid="card-basic-info">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
                     <User size={18} className="text-[#C6A87C]" />
@@ -659,14 +697,14 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 2. Photos & Videos */}
-              <div className="card-premium p-8" data-testid="card-photos">
+              <div className="bg-[#141416] border border-[#C6A87C] rounded-lg p-8" data-testid="card-photos">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
                     <Camera size={18} className="text-[#C6A87C]" />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 2</p>
-                    <h3 className="text-xl text-[#F2F0ED]">Photos & Video's</h3>
+                    <h3 className="text-xl text-[#F2F0ED]">Photos & Video&apos;s</h3>
                   </div>
                 </div>
                 {p.photos && p.photos.length > 0 ? (
@@ -690,12 +728,12 @@ export default function ProviderDashboard() {
                   className="btn-secondary w-full mt-8"
                   data-testid="edit-photos-btn"
                 >
-                  Edit Photos & Video's
+                  Edit Photos & Video&apos;s
                 </button>
               </div>
 
               {/* 3. Services */}
-              <div className="card-premium p-8" data-testid="card-services">
+              <div className="bg-[#141416] border border-[#C6A87C] rounded-lg p-8" data-testid="card-services">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
                     <FileText size={18} className="text-[#C6A87C]" />
@@ -756,7 +794,7 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 4. Rates */}
-              <div className="card-premium p-8" data-testid="card-rates">
+              <div className="bg-[#141416] border border-[#C6A87C] rounded-lg p-8" data-testid="card-rates">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
                     <CurrencyDollar size={18} className="text-[#C6A87C]" />
@@ -767,37 +805,49 @@ export default function ProviderDashboard() {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {['incall', 'outcall'].map((kind) => (
-                    <div key={kind}>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#C6A87C] mb-3">{kind}</p>
-                      <div className="space-y-2">
-                        {[
-                          { key: '1hour', label: '1 hour' },
-                          { key: '2hours', label: '2 hours' },
-                          { key: '3hours', label: '3 hours' },
-                          { key: 'overnight', label: 'Overnight' }
-                        ].map(({ key, label }) => {
-                          const v = profileData.rates?.[kind]?.[key];
-                          return (
-                            <div key={key} className="flex items-center justify-between border-b border-[#27272A] pb-2">
-                              <span className="text-[#A1A1AA] text-sm">{label}</span>
+                  {['incall', 'outcall'].map((kind) => {
+                    const col = profileData.rates?.[kind] || {};
+                    const base = ['1hour', '2hours', '3hours'];
+                    const extras = (Array.isArray(col.extras) ? col.extras : [])
+                      .slice()
+                      .sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0));
+                    return (
+                      <div key={kind}>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#C6A87C] mb-3">{kind}</p>
+                        <div className="space-y-2">
+                          {[
+                            { key: '1hour', label: '1 hour' },
+                            { key: '2hours', label: '2 hours' },
+                            { key: '3hours', label: '3 hours' }
+                          ].map(({ key, label }) => {
+                            const v = col[key];
+                            return (
+                              <div key={key} className="flex items-center justify-between border-b border-[#27272A] pb-2">
+                                <span className="text-[#A1A1AA] text-sm">{label}</span>
+                                <span className="text-[#C6A87C]">
+                                  {v ? `€${v}` : <span className="text-[#6B7280] text-sm italic">Not set</span>}
+                                </span>
+                              </div>
+                            );
+                          })}
+                          {extras.map((extra, i) => (
+                            <div key={`extra-${i}`} className="flex items-center justify-between border-b border-[#27272A] pb-2">
+                              <span className="text-[#A1A1AA] text-sm">{extra.hours} hours</span>
                               <span className="text-[#C6A87C]">
-                                {v ? `€${v}` : <span className="text-[#6B7280] text-sm italic">Not set</span>}
+                                {extra.price ? `€${extra.price}` : <span className="text-[#6B7280] text-sm italic">Not set</span>}
                               </span>
                             </div>
-                          );
-                        })}
-                        {(profileData.rates?.[kind]?.extras || []).map((extra, i) => (
-                          <div key={`extra-${i}`} className="flex items-center justify-between border-b border-[#27272A] pb-2">
-                            <span className="text-[#A1A1AA] text-sm">{extra.hours} hours</span>
-                            <span className="text-[#C6A87C]">
-                              {extra.price ? `€${extra.price}` : <span className="text-[#6B7280] text-sm italic">Not set</span>}
-                            </span>
-                          </div>
-                        ))}
+                          ))}
+                          {col.overnight !== undefined && col.overnight !== '' && (
+                            <div className="flex items-center justify-between border-b border-[#27272A] pb-2">
+                              <span className="text-[#A1A1AA] text-sm">Overnight</span>
+                              <span className="text-[#C6A87C]">€{col.overnight}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 <button
                   onClick={() => openEdit(4)}
@@ -809,7 +859,7 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 5. Availability */}
-              <div className="card-premium p-8" data-testid="card-availability">
+              <div className="bg-[#141416] border border-[#C6A87C] rounded-lg p-8" data-testid="card-availability">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
                     <Clock size={18} className="text-[#C6A87C]" />
@@ -847,6 +897,30 @@ export default function ProviderDashboard() {
                   data-testid="edit-availability-btn"
                 >
                   Edit Availability
+                </button>
+              </div>
+
+              {/* Danger zone — Remove profile */}
+              <div className="bg-[#141416] border border-red-500/30 rounded-lg p-6 mt-12" data-testid="card-danger-zone">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full border border-red-500/40 flex items-center justify-center">
+                    <Trash size={18} className="text-red-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-red-400/80">Danger zone</p>
+                    <h3 className="text-xl text-[#F2F0ED]">Remove my profile</h3>
+                  </div>
+                </div>
+                <p className="text-[#A1A1AA] text-sm mb-6">
+                  This permanently deletes your profile, photos, subscriptions and verification documents. This action cannot be undone.
+                </p>
+                <button
+                  onClick={handleRemoveProfile}
+                  disabled={removing}
+                  className="w-full px-4 py-3 border border-red-500/50 text-red-400 hover:bg-red-500/10 transition-colors text-sm uppercase tracking-wider disabled:opacity-50"
+                  data-testid="remove-profile-btn"
+                >
+                  {removing ? 'Removing…' : 'Remove profile permanently'}
                 </button>
               </div>
             </div>
@@ -1105,7 +1179,7 @@ export default function ProviderDashboard() {
                       data-testid="essence-input"
                     />
                     <div className="flex justify-between mt-2">
-                      <p className="input-helper">This will be displayed in "My Essence" on your profile</p>
+                      <p className="input-helper">This will be displayed in &quot;My Essence&quot; on your profile</p>
                       <span className="text-xs text-[#9CA3AF]">{(profileData.bio || '').length}/500</span>
                     </div>
                   </div>
@@ -1254,14 +1328,40 @@ export default function ProviderDashboard() {
                   <div className="space-y-6">
                     <div>
                       <label className="input-label">Mobile phone</label>
-                      <input
-                        type="tel"
-                        value={profileData.contact.phone}
-                        onChange={(e) => setProfileData({ ...profileData, contact: { ...profileData.contact, phone: e.target.value } })}
-                        className="input-premium w-full"
-                        placeholder="+32 XXX XX XX XX"
-                        data-testid="phone-input"
-                      />
+                      {(() => {
+                        const dial = COUNTRY_DIAL_CODES[profileData.location.country] || '';
+                        const raw = profileData.contact.phone || '';
+                        // Strip leading dial code from displayed value so the prefix doesn't double
+                        const localValue = dial && raw.startsWith(dial)
+                          ? raw.slice(dial.length).replace(/^\s+/, '')
+                          : raw;
+                        return (
+                          <div className="flex items-stretch border border-[#52525B] focus-within:border-[#C6A87C] transition-colors">
+                            {dial && (
+                              <span className="px-3 py-3 bg-[#1F1F23] text-[#C6A87C] text-[13px] border-r border-[#52525B] select-none whitespace-nowrap" data-testid="phone-dial-code">
+                                {dial}
+                              </span>
+                            )}
+                            <input
+                              type="tel"
+                              value={localValue}
+                              onChange={(e) => {
+                                const next = e.target.value.replace(/^\+\d+\s?/, '');
+                                setProfileData({
+                                  ...profileData,
+                                  contact: {
+                                    ...profileData.contact,
+                                    phone: dial ? `${dial} ${next}`.trim() : next
+                                  }
+                                });
+                              }}
+                              className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-3 text-[13px] text-[#A1A1AA] placeholder:text-[#9CA3AF] placeholder:italic"
+                              placeholder={dial ? 'XXX XX XX XX' : 'Select country first or enter full number'}
+                              data-testid="phone-input"
+                            />
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div>
                       <label className="input-label">E-mail</label>
@@ -1374,7 +1474,7 @@ export default function ProviderDashboard() {
             {/* Step 2: Photos & Video's */}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <h3 className="text-2xl text-[#C6A87C] mb-6">Photos & Video's</h3>
+                <h3 className="text-2xl text-[#C6A87C] mb-6">Photos & Video&apos;s</h3>
                 <p className="text-[#A1A1AA] text-sm mb-6">Add photos and videos to your profile. Media will be reviewed before being published.</p>
 
                 {/* Upload Zone */}
