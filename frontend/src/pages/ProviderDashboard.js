@@ -471,7 +471,7 @@ export default function ProviderDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0C] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F0EFF4] dashboard-light flex items-center justify-center">
         <div className="shimmer w-16 h-16 rounded-full"></div>
       </div>
     );
@@ -488,7 +488,7 @@ export default function ProviderDashboard() {
     const dayLabels = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' };
 
     return (
-      <div className="min-h-screen bg-[#0A0A0C]">
+      <div className="min-h-screen bg-[#F0EFF4] dashboard-light">
         <SiteHeader
           links={[
             { label: 'Logout', onClick: logout, testId: 'logout-btn' }
@@ -500,16 +500,16 @@ export default function ProviderDashboard() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12" data-testid="manage-header">
               <div>
-                <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-3">Manage Profile</p>
-                <h2 className="text-4xl md:text-5xl text-[#F2F0ED] mb-3">Welcome, {p.display_name}</h2>
+                <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-3">Manage Profile</p>
+                <h2 className="text-4xl md:text-5xl text-[#000000] mb-3">Welcome, {p.display_name}</h2>
                 <div className="flex items-center gap-4">
                   {p.verified ? (
                     <div className="verified-badge" data-testid="verified-badge"><CheckCircle size={16} weight="fill" />Verified Provider</div>
                   ) : (
                     <div className="status-badge status-pending">Verification {p.verification_status}</div>
                   )}
-                  <span className="text-[#71717A] text-sm">·</span>
-                  <span className="text-[#A1A1AA] text-sm">{p.location?.city}, {p.location?.country}</span>
+                  <span className="text-[#000000] text-sm">·</span>
+                  <span className="text-[#000000] text-sm">{p.location?.city}, {p.location?.country}</span>
                 </div>
               </div>
               <Link
@@ -530,8 +530,8 @@ export default function ProviderDashboard() {
                     <div className="flex items-start gap-3">
                       <Crown size={22} weight="fill" className="text-[#C6A87C] mt-0.5 shrink-0" />
                       <div>
-                        <p className="text-[#F2F0ED] font-medium mb-1">Activate your profile</p>
-                        <p className="text-[#A1A1AA] text-sm">
+                        <p className="text-[#000000] font-medium mb-1">Activate your profile</p>
+                        <p className="text-[#000000] text-sm">
                           Choose a Featured plan to appear on Browse. Add VIP Boost to be displayed at the top of every search.
                         </p>
                       </div>
@@ -541,7 +541,7 @@ export default function ProviderDashboard() {
                     </Link>
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-[#27272A] bg-[#141416] p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-start gap-3">
                       {subscription.vip_active ? (
                         <Crown size={22} weight="fill" className="text-[#C6A87C] mt-0.5 shrink-0" />
@@ -549,11 +549,11 @@ export default function ProviderDashboard() {
                         <CheckCircle size={22} weight="fill" className="text-[#22C55E] mt-0.5 shrink-0" />
                       )}
                       <div>
-                        <p className="text-[#F2F0ED] font-medium mb-1">
+                        <p className="text-[#000000] font-medium mb-1">
                           {subscription.vip_active ? 'VIP Featured · live' : 'Featured · live'}
                         </p>
-                        <p className="text-[#A1A1AA] text-sm">
-                          Your profile expires in <span className="text-[#F2F0ED] font-medium">{Math.ceil(subscription.featured_days_left)} day{Math.ceil(subscription.featured_days_left) === 1 ? '' : 's'}</span>
+                        <p className="text-[#000000] text-sm">
+                          Your profile expires in <span className="text-[#000000] font-medium">{Math.ceil(subscription.featured_days_left)} day{Math.ceil(subscription.featured_days_left) === 1 ? '' : 's'}</span>
                           {subscription.vip_active && subscription.vip_days_left ? (
                             <> · VIP Boost: {Math.ceil(subscription.vip_days_left)} day{Math.ceil(subscription.vip_days_left) === 1 ? '' : 's'} remaining</>
                           ) : null}
@@ -588,8 +588,8 @@ export default function ProviderDashboard() {
                   >
                     <CheckCircle size={22} weight="fill" className="text-green-500 mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-[#F2F0ED] font-medium mb-1">Profile verified</p>
-                      <p className="text-[#A1A1AA] text-sm">Your profile is live and appears in client search results with the Verified badge.</p>
+                      <p className="text-[#000000] font-medium mb-1">Profile verified</p>
+                      <p className="text-[#000000] text-sm">Your profile is live and appears in client search results with the Verified badge.</p>
                     </div>
                   </div>
                 );
@@ -602,8 +602,8 @@ export default function ProviderDashboard() {
                   >
                     <ShieldCheck size={22} weight="thin" className="text-[#C6A87C] mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-[#F2F0ED] font-medium mb-1">Verification under review</p>
-                      <p className="text-[#A1A1AA] text-sm">We&apos;re reviewing your documents — you&apos;ll receive an email within 24 hours. Your profile becomes visible to clients once approved.</p>
+                      <p className="text-[#000000] font-medium mb-1">Verification under review</p>
+                      <p className="text-[#000000] text-sm">We&apos;re reviewing your documents — you&apos;ll receive an email within 24 hours. Your profile becomes visible to clients once approved.</p>
                     </div>
                   </div>
                 );
@@ -619,9 +619,9 @@ export default function ProviderDashboard() {
                         <span className="text-red-400 text-lg">!</span>
                       </div>
                       <div className="flex-1">
-                        <p className="text-[#F2F0ED] font-medium mb-1">Verification needs attention</p>
+                        <p className="text-[#000000] font-medium mb-1">Verification needs attention</p>
                         {p.rejection_reason && (
-                          <p className="text-[#A1A1AA] text-sm mb-3"><span className="text-[#F2F0ED]">Reason:</span> {p.rejection_reason}</p>
+                          <p className="text-[#000000] text-sm mb-3"><span className="text-[#000000]">Reason:</span> {p.rejection_reason}</p>
                         )}
                         <button
                           onClick={() => setShowVerificationModal(true)}
@@ -644,8 +644,8 @@ export default function ProviderDashboard() {
                   <div className="flex items-start gap-4">
                     <ShieldCheck size={24} weight="thin" className="text-[#C6A87C] mt-1 shrink-0" />
                     <div className="flex-1">
-                      <p className="text-[#F2F0ED] font-medium mb-1">Unlock the Verified badge</p>
-                      <p className="text-[#A1A1AA] text-sm mb-4 leading-relaxed">
+                      <p className="text-[#000000] font-medium mb-1">Unlock the Verified badge</p>
+                      <p className="text-[#000000] text-sm mb-4 leading-relaxed">
                         Your profile is created — verify your identity to appear in client search and build trust. Takes about 2 minutes. We review within 24 hours.
                       </p>
                       <button
@@ -664,36 +664,36 @@ export default function ProviderDashboard() {
             {/* Management Cards — stacked in registration order */}
             <div className="flex flex-col gap-6">
               {/* 1. Basic Info */}
-              <div className="bg-[#141416] border border-[#C6A87C] rounded-lg p-8" data-testid="card-basic-info">
+              <div className="bg-white border border-[#C6A87C] rounded-lg p-8" data-testid="card-basic-info">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
                     <User size={18} className="text-[#C6A87C]" />
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 1</p>
-                    <h3 className="text-xl text-[#F2F0ED]">Basic Info</h3>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 1</p>
+                    <h3 className="text-xl text-[#000000]">Basic Info</h3>
                   </div>
                 </div>
                 <dl className="space-y-3 text-sm">
                   <div className="flex justify-between gap-4">
-                    <dt className="text-[#A1A1AA]">Display name</dt>
-                    <dd className="text-[#F2F0ED] text-right">{p.display_name || '—'}</dd>
+                    <dt className="text-[#000000]">Display name</dt>
+                    <dd className="text-[#000000] text-right">{p.display_name || '—'}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-[#A1A1AA]">Age</dt>
-                    <dd className="text-[#F2F0ED]">{p.age || '—'}</dd>
+                    <dt className="text-[#000000]">Age</dt>
+                    <dd className="text-[#000000]">{p.age || '—'}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-[#A1A1AA]">Gender</dt>
-                    <dd className="text-[#F2F0ED] capitalize">{p.gender || '—'}</dd>
+                    <dt className="text-[#000000]">Gender</dt>
+                    <dd className="text-[#000000] capitalize">{p.gender || '—'}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-[#A1A1AA]">Location</dt>
-                    <dd className="text-[#F2F0ED] text-right">{p.location?.city ? `${p.location.city}, ${p.location.country}` : '—'}</dd>
+                    <dt className="text-[#000000]">Location</dt>
+                    <dd className="text-[#000000] text-right">{p.location?.city ? `${p.location.city}, ${p.location.country}` : '—'}</dd>
                   </div>
-                  <div className="pt-2 border-t border-[#27272A]">
-                    <dt className="text-[#A1A1AA] mb-2">Bio</dt>
-                    <dd className="text-[#F2F0ED] line-clamp-3 leading-relaxed">{p.bio || <span className="text-[#6B7280] italic">Not set</span>}</dd>
+                  <div className="pt-2 border-t border-[#dbdadd]">
+                    <dt className="text-[#000000] mb-2">Bio</dt>
+                    <dd className="text-[#000000] line-clamp-3 leading-relaxed">{p.bio || <span className="text-[#000000] italic">Not set</span>}</dd>
                   </div>
                 </dl>
                 <button
@@ -706,14 +706,14 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 2. Photos & Videos */}
-              <div className="bg-[#141416] border border-[#C6A87C] rounded-lg p-8" data-testid="card-photos">
+              <div className="bg-white border border-[#C6A87C] rounded-lg p-8" data-testid="card-photos">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
                     <Camera size={18} className="text-[#C6A87C]" />
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 2</p>
-                    <h3 className="text-xl text-[#F2F0ED]">Photos & Video&apos;s</h3>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 2</p>
+                    <h3 className="text-xl text-[#000000]">Photos & Video&apos;s</h3>
                   </div>
                 </div>
                 {p.photos && p.photos.length > 0 ? (
@@ -725,11 +725,11 @@ export default function ProviderDashboard() {
                         </div>
                       ))}
                     </div>
-                    <p className="text-[#A1A1AA] text-sm">{p.photos.length} media uploaded</p>
+                    <p className="text-[#000000] text-sm">{p.photos.length} media uploaded</p>
                   </>
                 ) : (
-                  <div className="h-32 flex items-center justify-center border border-dashed border-[#52525B] rounded">
-                    <p className="text-[#6B7280] text-sm italic">No photos yet</p>
+                  <div className="h-32 flex items-center justify-center border border-dashed border-[#dbdadd] rounded">
+                    <p className="text-[#000000] text-sm italic">No photos yet</p>
                   </div>
                 )}
                 <button
@@ -742,52 +742,52 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 3. Services */}
-              <div className="bg-[#141416] border border-[#C6A87C] rounded-lg p-8" data-testid="card-services">
+              <div className="bg-white border border-[#C6A87C] rounded-lg p-8" data-testid="card-services">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
                     <FileText size={18} className="text-[#C6A87C]" />
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 3</p>
-                    <h3 className="text-xl text-[#F2F0ED]">Services</h3>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 3</p>
+                    <h3 className="text-xl text-[#000000]">Services</h3>
                   </div>
                 </div>
                 {legacyServices.length === 0 && inclusiveServices.length === 0 && extraServices.length === 0 ? (
-                  <p className="text-[#6B7280] text-sm italic">No services set</p>
+                  <p className="text-[#000000] text-sm italic">No services set</p>
                 ) : (
                   <div className="space-y-4">
                     {/* Prefer new-schema (dict) rendering; fall back to legacy list only if dict is empty */}
                     {inclusiveServices.length === 0 && extraServices.length === 0 && legacyServices.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] mb-2">Offered</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">Offered</p>
                         <div className="flex flex-wrap gap-2">
                           {legacyServices.map((s) => (
-                            <span key={s} className="px-3 py-1 text-xs border border-[#52525B] text-[#F2F0ED] rounded-full">{s}</span>
+                            <span key={s} className="px-3 py-1 text-xs border border-[#dbdadd] text-[#000000] rounded-full">{s}</span>
                           ))}
                         </div>
                       </div>
                     )}
                     {inclusiveServices.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] mb-2">Inclusive ({inclusiveServices.length})</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">Inclusive ({inclusiveServices.length})</p>
                         <div className="flex flex-wrap gap-2">
                           {inclusiveServices.slice(0, 8).map(([name]) => (
-                            <span key={name} className="px-3 py-1 text-xs border border-[#52525B] text-[#F2F0ED] rounded-full">{name}</span>
+                            <span key={name} className="px-3 py-1 text-xs border border-[#dbdadd] text-[#000000] rounded-full">{name}</span>
                           ))}
-                          {inclusiveServices.length > 8 && <span className="px-3 py-1 text-xs text-[#A1A1AA]">+{inclusiveServices.length - 8} more</span>}
+                          {inclusiveServices.length > 8 && <span className="px-3 py-1 text-xs text-[#000000]">+{inclusiveServices.length - 8} more</span>}
                         </div>
                       </div>
                     )}
                     {extraServices.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] mb-2">Extra ({extraServices.length})</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">Extra ({extraServices.length})</p>
                         <div className="flex flex-wrap gap-2">
                           {extraServices.slice(0, 6).map(([name, v]) => (
                             <span key={name} className="px-3 py-1 text-xs border border-[#C6A87C]/40 bg-[#C6A87C]/10 text-[#C6A87C] rounded-full">
                               {name} {v.price && `· €${v.price}`}
                             </span>
                           ))}
-                          {extraServices.length > 6 && <span className="px-3 py-1 text-xs text-[#A1A1AA]">+{extraServices.length - 6} more</span>}
+                          {extraServices.length > 6 && <span className="px-3 py-1 text-xs text-[#000000]">+{extraServices.length - 6} more</span>}
                         </div>
                       </div>
                     )}
@@ -803,14 +803,14 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 4. Rates */}
-              <div className="bg-[#141416] border border-[#C6A87C] rounded-lg p-8" data-testid="card-rates">
+              <div className="bg-white border border-[#C6A87C] rounded-lg p-8" data-testid="card-rates">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
                     <CurrencyDollar size={18} className="text-[#C6A87C]" />
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 4</p>
-                    <h3 className="text-xl text-[#F2F0ED]">Rates</h3>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 4</p>
+                    <h3 className="text-xl text-[#000000]">Rates</h3>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -831,25 +831,25 @@ export default function ProviderDashboard() {
                           ].map(({ key, label }) => {
                             const v = col[key];
                             return (
-                              <div key={key} className="flex items-center justify-between border-b border-[#27272A] pb-2">
-                                <span className="text-[#A1A1AA] text-sm">{label}</span>
+                              <div key={key} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
+                                <span className="text-[#000000] text-sm">{label}</span>
                                 <span className="text-[#C6A87C]">
-                                  {v ? `€${v}` : <span className="text-[#6B7280] text-sm italic">Not set</span>}
+                                  {v ? `€${v}` : <span className="text-[#000000] text-sm italic">Not set</span>}
                                 </span>
                               </div>
                             );
                           })}
                           {extras.map((extra, i) => (
-                            <div key={`extra-${i}`} className="flex items-center justify-between border-b border-[#27272A] pb-2">
-                              <span className="text-[#A1A1AA] text-sm">{extra.hours} hours</span>
+                            <div key={`extra-${i}`} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
+                              <span className="text-[#000000] text-sm">{extra.hours} hours</span>
                               <span className="text-[#C6A87C]">
-                                {extra.price ? `€${extra.price}` : <span className="text-[#6B7280] text-sm italic">Not set</span>}
+                                {extra.price ? `€${extra.price}` : <span className="text-[#000000] text-sm italic">Not set</span>}
                               </span>
                             </div>
                           ))}
                           {col.overnight !== undefined && col.overnight !== '' && (
-                            <div className="flex items-center justify-between border-b border-[#27272A] pb-2">
-                              <span className="text-[#A1A1AA] text-sm">Overnight</span>
+                            <div className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
+                              <span className="text-[#000000] text-sm">Overnight</span>
                               <span className="text-[#C6A87C]">€{col.overnight}</span>
                             </div>
                           )}
@@ -868,15 +868,15 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 5. Availability */}
-              <div className="bg-[#141416] border border-[#C6A87C] rounded-lg p-8" data-testid="card-availability">
+              <div className="bg-white border border-[#C6A87C] rounded-lg p-8" data-testid="card-availability">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
                     <Clock size={18} className="text-[#C6A87C]" />
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA]">Step 4</p>
-                    <h3 className="text-xl text-[#F2F0ED]">Availability</h3>
-                    <p className="text-[#A1A1AA] text-xs mt-1">{availableDays} of 7 days available</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 4</p>
+                    <h3 className="text-xl text-[#000000]">Availability</h3>
+                    <p className="text-[#000000] text-xs mt-1">{availableDays} of 7 days available</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
@@ -884,18 +884,18 @@ export default function ProviderDashboard() {
                     <div
                       key={day}
                       className={`border p-3 text-center transition-colors ${
-                        sched?.available ? 'border-[#C6A87C]/40 bg-[#C6A87C]/5' : 'border-[#27272A] opacity-50'
+                        sched?.available ? 'border-[#C6A87C]/40 bg-[#C6A87C]/5' : 'border-[#dbdadd] opacity-50'
                       }`}
                     >
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#A1A1AA] mb-2">{dayLabels[day] || day.slice(0, 3)}</p>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">{dayLabels[day] || day.slice(0, 3)}</p>
                       {sched?.available ? (
                         <>
-                          <p className="text-[#F2F0ED] text-sm">{sched.start}</p>
-                          <p className="text-[#A1A1AA] text-xs">to</p>
-                          <p className="text-[#F2F0ED] text-sm">{sched.end}</p>
+                          <p className="text-[#000000] text-sm">{sched.start}</p>
+                          <p className="text-[#000000] text-xs">to</p>
+                          <p className="text-[#000000] text-sm">{sched.end}</p>
                         </>
                       ) : (
-                        <p className="text-[#6B7280] text-xs italic">Closed</p>
+                        <p className="text-[#000000] text-xs italic">Closed</p>
                       )}
                     </div>
                   ))}
@@ -910,17 +910,17 @@ export default function ProviderDashboard() {
               </div>
 
               {/* Danger zone — Remove profile */}
-              <div className="bg-[#141416] border border-red-500/30 rounded-lg p-6 mt-12" data-testid="card-danger-zone">
+              <div className="bg-white border border-red-500/30 rounded-lg p-6 mt-12" data-testid="card-danger-zone">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded-full border border-red-500/40 flex items-center justify-center">
                     <Trash size={18} className="text-red-400" />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-red-400/80">Danger zone</p>
-                    <h3 className="text-xl text-[#F2F0ED]">Remove my profile</h3>
+                    <h3 className="text-xl text-[#000000]">Remove my profile</h3>
                   </div>
                 </div>
-                <p className="text-[#A1A1AA] text-sm mb-6">
+                <p className="text-[#000000] text-sm mb-6">
                   This permanently deletes your profile, photos, subscriptions and verification documents. This action cannot be undone.
                 </p>
                 <button
@@ -946,14 +946,14 @@ export default function ProviderDashboard() {
 
   // Profile setup flow - full page experience
   return (
-    <div className="min-h-screen bg-[#0A0A0C]">
+    <div className="min-h-screen bg-[#F0EFF4] dashboard-light">
       {/* Header */}
       <SiteHeader
         leftSlot={
           mode === 'edit' ? (
             <button
               onClick={cancelEdit}
-              className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#C6A87C] transition-colors"
+              className="flex items-center gap-2 text-[#000000] hover:text-[#C6A87C] transition-colors"
               data-testid="back-to-overview-btn"
             >
               <CaretLeft size={18} />
@@ -970,10 +970,10 @@ export default function ProviderDashboard() {
         <div className="max-w-4xl mx-auto">
           {/* Page Title */}
           <div className="text-center mb-12">
-            <h2 className="text-4xl text-[#F2F0ED] mb-4">
+            <h2 className="text-4xl text-[#000000] mb-4">
  {mode === 'edit' ? `Edit ${steps[currentStep - 1]?.title}` : 'Complete Your Profile'}
  </h2>
-            <p className="text-[#A1A1AA]">
+            <p className="text-[#000000]">
               {mode === 'edit' ? 'Update this section of your profile' : 'Set up your provider profile to start receiving enquiries'}
             </p>
           </div>
@@ -985,12 +985,12 @@ export default function ProviderDashboard() {
               const stepStateClass = (() => {
                 if (currentStep === step.id) return 'text-[#C6A87C]';
                 if (currentStep > step.id) return 'text-green-500';
-                return 'text-[#9CA3AF]';
+                return 'text-[#000000]';
               })();
               const stepBorderClass = (() => {
                 if (currentStep === step.id) return 'border-[#C6A87C] bg-[#C6A87C]/10';
                 if (currentStep > step.id) return 'border-green-500 bg-green-500/10';
-                return 'border-[#52525B]';
+                return 'border-[#dbdadd]';
               })();
               return (
               <div key={step.id} className="flex items-center">
@@ -1025,14 +1025,14 @@ export default function ProviderDashboard() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className={currentStep === 1 ? 'p-0' : 'bg-[#141416] border border-[#C6A87C] rounded-lg p-8 transition-none'}
+            className={currentStep === 1 ? 'p-0' : 'bg-white border border-[#C6A87C] rounded-lg p-8 transition-none'}
           >
             {/* Step 1: Basic Info */}
             {currentStep === 1 && (
               <div className="space-y-8">
                 {/* Box 1: Basic Information */}
                 <div className="border border-[#C6A87C] rounded-lg p-6">
-                  <h3 className="text-2xl text-[#C6A87C] mb-6">Basic Information</h3>
+                  <h3 className="text-2xl font-bold text-[#832161] mb-6">Basic Information</h3>
                   
                   <div className="space-y-6">
                     {/* Account Type */}
@@ -1045,7 +1045,7 @@ export default function ProviderDashboard() {
                           className={`py-3 px-6 border transition-all ${
                             profileData.account_type === 'independent'
                               ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                              : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
+                              : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
                           }`}
                           data-testid="account-type-independent"
                         >
@@ -1057,7 +1057,7 @@ export default function ProviderDashboard() {
                           className={`py-3 px-6 border transition-all ${
                             profileData.account_type === 'agency'
                               ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                              : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
+                              : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
                           }`}
                           data-testid="account-type-agency"
                         >
@@ -1177,7 +1177,7 @@ export default function ProviderDashboard() {
                   </div>
 
                   {/* Describe yourself */}
-                  <div className="mt-8 pt-8 border-t border-[#27272A]">
+                  <div className="mt-8 pt-8 border-t border-[#dbdadd]">
                     <label className="input-label">Describe yourself</label>
                     <textarea
                       value={profileData.bio}
@@ -1189,15 +1189,15 @@ export default function ProviderDashboard() {
                     />
                     <div className="flex justify-between mt-2">
                       <p className="input-helper">This will be displayed in &quot;My Essence&quot; on your profile</p>
-                      <span className="text-xs text-[#9CA3AF]">{(profileData.bio || '').length}/500</span>
+                      <span className="text-xs text-[#000000]">{(profileData.bio || '').length}/500</span>
                     </div>
                   </div>
 
                   {/* Languages */}
-                  <div className="mt-8 pt-8 border-t border-[#27272A]">
+                  <div className="mt-8 pt-8 border-t border-[#dbdadd]">
                     <div className="flex items-end justify-between mb-3">
                       <label className="input-label !mb-0">Languages</label>
-                      <span className="text-xs text-[#71717A]">
+                      <span className="text-xs text-[#000000]">
                         {(profileData.characteristics?.languages || []).length} selected
                       </span>
                     </div>
@@ -1246,7 +1246,7 @@ export default function ProviderDashboard() {
                                   className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
                                     selected
                                       ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                                      : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
+                                      : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
                                   }`}
                                   data-testid={`basic-lang-${lang.toLowerCase()}`}
                                 >
@@ -1308,7 +1308,7 @@ export default function ProviderDashboard() {
                               <button
                                 type="button"
                                 onClick={() => { setNewLanguage(''); setShowAddLanguage(false); }}
-                                className="px-3 py-3 border border-[#3F3F46] text-[#A1A1AA] hover:border-red-400 hover:text-red-400 transition-colors"
+                                className="px-3 py-3 border border-[#dbdadd] text-[#000000] hover:border-red-400 hover:text-red-400 transition-colors"
                                 aria-label="Cancel"
                                 data-testid="add-language-cancel"
                               >
@@ -1319,7 +1319,7 @@ export default function ProviderDashboard() {
                             <button
                               type="button"
                               onClick={() => setShowAddLanguage(true)}
-                              className="mt-4 inline-flex items-center gap-2 px-4 py-3 border border-dashed border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C] hover:text-[#C6A87C] transition-colors text-sm uppercase tracking-wider"
+                              className="mt-4 inline-flex items-center gap-2 px-4 py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#C6A87C] hover:text-[#C6A87C] transition-colors text-sm uppercase tracking-wider"
                               data-testid="add-language-button"
                             >
                               <Plus size={16} /> Add language
@@ -1333,7 +1333,7 @@ export default function ProviderDashboard() {
 
                 {/* Box 2: Contact Information */}
                 <div className="border border-[#C6A87C] rounded-lg p-6">
-                  <h3 className="text-2xl text-[#C6A87C] mb-6">Contact information</h3>
+                  <h3 className="text-2xl font-bold text-[#832161] mb-6">Contact information</h3>
                   <div className="space-y-6">
                     <div>
                       <label className="input-label">Mobile phone</label>
@@ -1345,9 +1345,9 @@ export default function ProviderDashboard() {
                           ? raw.slice(dial.length).replace(/^\s+/, '')
                           : raw;
                         return (
-                          <div className="flex items-stretch border border-[#52525B] focus-within:border-[#C6A87C] transition-colors">
+                          <div className="flex items-stretch border border-[#dbdadd] focus-within:border-[#C6A87C] transition-colors">
                             {dial && (
-                              <span className="px-3 py-3 bg-[#1F1F23] text-[#C6A87C] text-[13px] border-r border-[#52525B] select-none whitespace-nowrap" data-testid="phone-dial-code">
+                              <span className="px-3 py-3 bg-white text-[#C6A87C] text-[13px] border-r border-[#dbdadd] select-none whitespace-nowrap" data-testid="phone-dial-code">
                                 {dial}
                               </span>
                             )}
@@ -1364,7 +1364,7 @@ export default function ProviderDashboard() {
                                   }
                                 });
                               }}
-                              className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-3 text-[13px] text-[#A1A1AA] placeholder:text-[#9CA3AF] placeholder:italic"
+                              className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-3 text-[13px] text-[#000000] placeholder:text-[#000000] placeholder:italic"
                               placeholder={dial ? 'XXX XX XX XX' : 'Select country first or enter full number'}
                               data-testid="phone-input"
                             />
@@ -1395,9 +1395,9 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasWhatsapp: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#25D366] checked:border-[#25D366]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#25D366] checked:border-[#25D366]"
                           />
-                          <span className="text-[#A1A1AA]">WhatsApp</span>
+                          <span className="text-[#000000]">WhatsApp</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
@@ -1407,9 +1407,9 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasTelegram: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#0088cc] checked:border-[#0088cc]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#0088cc] checked:border-[#0088cc]"
                           />
-                          <span className="text-[#A1A1AA]">Telegram</span>
+                          <span className="text-[#000000]">Telegram</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
@@ -1419,9 +1419,9 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasSignal: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#3A76F0] checked:border-[#3A76F0]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#3A76F0] checked:border-[#3A76F0]"
                           />
-                          <span className="text-[#A1A1AA]">Signal</span>
+                          <span className="text-[#000000]">Signal</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
@@ -1431,10 +1431,10 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasSms: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
                             data-testid="contact-sms"
                           />
-                          <span className="text-[#A1A1AA]">SMS</span>
+                          <span className="text-[#000000]">SMS</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
@@ -1444,10 +1444,10 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasViber: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#7360F2] checked:border-[#7360F2]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#7360F2] checked:border-[#7360F2]"
                             data-testid="contact-viber"
                           />
-                          <span className="text-[#A1A1AA]">Viber</span>
+                          <span className="text-[#000000]">Viber</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
@@ -1457,10 +1457,10 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasLine: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#00C300] checked:border-[#00C300]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#00C300] checked:border-[#00C300]"
                             data-testid="contact-line"
                           />
-                          <span className="text-[#A1A1AA]">Line</span>
+                          <span className="text-[#000000]">Line</span>
                         </label>
                       </div>
                     </div>
@@ -1469,8 +1469,8 @@ export default function ProviderDashboard() {
 
                 {/* Box 2: Physical Characteristics (optional) */}
                 <div className="border border-[#C6A87C] rounded-lg p-6">
-                  <h3 className="text-2xl text-[#C6A87C] mb-1">Physical Characteristics</h3>
-                  <p className="text-[#71717A] text-sm mb-6">All fields are optional — fill what you want shown on your profile.</p>
+                  <h3 className="text-2xl font-bold text-[#832161] mb-1">Physical Characteristics</h3>
+                  <p className="text-[#000000] text-sm mb-6">All fields are optional — fill what you want shown on your profile.</p>
 
                   <CharacteristicsForm
                     characteristics={profileData.characteristics}
@@ -1483,8 +1483,8 @@ export default function ProviderDashboard() {
             {/* Step 2: Photos & Video's */}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <h3 className="text-2xl text-[#C6A87C] mb-6">Photos & Video&apos;s</h3>
-                <p className="text-[#A1A1AA] text-sm mb-6">Add photos and videos to your profile. Media will be reviewed before being published.</p>
+                <h3 className="text-2xl font-bold text-[#832161] mb-6">Photos & Video&apos;s</h3>
+                <p className="text-[#000000] text-sm mb-6">Add photos and videos to your profile. Media will be reviewed before being published.</p>
 
                 {/* Upload Zone */}
                 <div
@@ -1494,7 +1494,7 @@ export default function ProviderDashboard() {
                   className={`border-2 border-dashed rounded-lg p-12 text-center transition-all cursor-pointer ${
                     isDragging 
                       ? 'border-[#C6A87C] bg-[#C6A87C]/5' 
-                      : 'border-[#52525B] hover:border-[#C6A87C]'
+                      : 'border-[#dbdadd] hover:border-[#C6A87C]'
                   }`}
                   onClick={() => document.getElementById('file-upload').click()}
                   data-testid="upload-zone"
@@ -1507,12 +1507,12 @@ export default function ProviderDashboard() {
                     onChange={handleFileInput}
                     className="hidden"
                   />
-                  <UploadSimple size={48} className={`mx-auto mb-4 transition-colors ${isDragging ? 'text-[#C6A87C]' : 'text-[#9CA3AF]'}`} />
-                  <p className="text-[#F2F0ED] text-lg mb-2">
+                  <UploadSimple size={48} className={`mx-auto mb-4 transition-colors ${isDragging ? 'text-[#C6A87C]' : 'text-[#000000]'}`} />
+                  <p className="text-[#000000] text-lg mb-2">
                     {isDragging ? 'Drop files here' : 'Drag & drop your files here'}
                   </p>
-                  <p className="text-[#9CA3AF] text-sm mb-4">or click to browse</p>
-                  <p className="text-[#6B7280] text-xs">
+                  <p className="text-[#000000] text-sm mb-4">or click to browse</p>
+                  <p className="text-[#000000] text-xs">
                     Supported formats: JPG, PNG, WebP, MP4 • Max 10MB per file
                   </p>
                 </div>
@@ -1521,8 +1521,8 @@ export default function ProviderDashboard() {
                 {profileData.photos && profileData.photos.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-[#F2F0ED] font-medium">Current media ({profileData.photos.length})</h4>
-                      <p className="text-[#71717A] text-xs">Drag to reorder · the first photo is your cover</p>
+                      <h4 className="text-[#000000] font-medium">Current media ({profileData.photos.length})</h4>
+                      <p className="text-[#000000] text-xs">Drag to reorder · the first photo is your cover</p>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {profileData.photos.map((photoUrl, idx) => (
@@ -1552,7 +1552,7 @@ export default function ProviderDashboard() {
                           )}
 
                           {/* Drag handle indicator (top center) */}
-                          <div className="absolute top-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/60 backdrop-blur-sm rounded text-[#F2F0ED] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                          <div className="absolute top-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/60 backdrop-blur-sm rounded text-[#000000] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                             <DotsSixVertical size={14} />
                           </div>
 
@@ -1606,11 +1606,11 @@ export default function ProviderDashboard() {
                 {uploadedFiles.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-[#F2F0ED] font-medium">{uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} selected</h4>
+                      <h4 className="text-[#000000] font-medium">{uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} selected</h4>
                       <button
                         type="button"
                         onClick={() => setUploadedFiles([])}
-                        className="text-[#9CA3AF] hover:text-red-500 text-sm transition-colors"
+                        className="text-[#000000] hover:text-red-500 text-sm transition-colors"
                       >
                         Remove all
                       </button>
@@ -1619,8 +1619,8 @@ export default function ProviderDashboard() {
                       {uploadedFiles.map((file) => (
                         <div key={file.id} className="relative group aspect-[3/4]">
                           {file.type === 'video' ? (
-                            <div className="w-full h-full bg-[#1F1F23] rounded flex items-center justify-center">
-                              <VideoCamera size={32} className="text-[#9CA3AF]" />
+                            <div className="w-full h-full bg-white rounded flex items-center justify-center">
+                              <VideoCamera size={32} className="text-[#000000]" />
                             </div>
                           ) : (
                             <img
@@ -1651,7 +1651,7 @@ export default function ProviderDashboard() {
                   </div>
                 )}
 
-                <p className="text-[#9CA3AF] text-sm">
+                <p className="text-[#000000] text-sm">
                   Tip: Use high-quality photos that show your personality. Avoid filters and ensure good lighting.
                 </p>
               </div>
@@ -1660,7 +1660,7 @@ export default function ProviderDashboard() {
             {/* Step 3: Services */}
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h3 className="text-2xl text-[#C6A87C] mb-6">Services</h3>
+                <h3 className="text-2xl font-bold text-[#832161] mb-6">Services</h3>
                 
                 {/* Type of Companionship */}
                 <div className="mb-8">
@@ -1672,7 +1672,7 @@ export default function ProviderDashboard() {
                       className={`px-6 py-3 border text-sm transition-all ${
                         profileData.companionshipType === 'escort'
                           ? 'border-[#C6A87C] bg-[#C6A87C]/20 text-[#C6A87C]'
-                          : 'border-[#52525B] text-[#9CA3AF] hover:border-[#C6A87C]'
+                          : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
                       }`}
                     >
                       Escort
@@ -1683,7 +1683,7 @@ export default function ProviderDashboard() {
                       className={`px-6 py-3 border text-sm transition-all ${
                         profileData.companionshipType === 'erotic-massage'
                           ? 'border-[#C6A87C] bg-[#C6A87C]/20 text-[#C6A87C]'
-                          : 'border-[#52525B] text-[#9CA3AF] hover:border-[#C6A87C]'
+                          : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
                       }`}
                     >
                       Erotic Massage
@@ -1692,17 +1692,17 @@ export default function ProviderDashboard() {
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-[#52525B] my-4"></div>
+                <div className="border-t border-[#dbdadd] my-4"></div>
                 
-                <p className="text-[#A1A1AA] text-sm mb-4">Select the services you offer and specify if they are inclusive or at an extra cost</p>
+                <p className="text-[#000000] text-sm mb-4">Select the services you offer and specify if they are inclusive or at an extra cost</p>
                 
                 {/* Services Table */}
-                <div className="border border-[#27272A] rounded-lg overflow-hidden">
+                <div className="border border-[#dbdadd] rounded-lg overflow-hidden">
                   {/* Table Header */}
-                  <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-[#1F1F23] border-b border-[#27272A]">
-                    <div className="col-span-5 text-[#A1A1AA] text-sm font-medium">Service</div>
-                    <div className="col-span-3 text-[#A1A1AA] text-sm font-medium">Type</div>
-                    <div className="col-span-4 text-[#A1A1AA] text-sm font-medium text-right">Price</div>
+                  <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-white border-b border-[#dbdadd]">
+                    <div className="col-span-5 text-[#000000] text-sm font-medium">Service</div>
+                    <div className="col-span-3 text-[#000000] text-sm font-medium">Type</div>
+                    <div className="col-span-4 text-[#000000] text-sm font-medium text-right">Price</div>
                   </div>
                   
                   {/* Table Body */}
@@ -1713,11 +1713,11 @@ export default function ProviderDashboard() {
                         <div 
                           key={service} 
                           className={`grid grid-cols-12 gap-4 px-4 py-3 items-center ${
-                            index !== serviceOptions.length - 1 ? 'border-b border-[#27272A]' : ''
+                            index !== serviceOptions.length - 1 ? 'border-b border-[#dbdadd]' : ''
                           } ${serviceData.type ? 'bg-[#C6A87C]/5' : ''}`}
                         >
                           {/* Service Name */}
-                          <div className="col-span-5 text-[#F2F0ED] text-sm">{service}</div>
+                          <div className="col-span-5 text-[#000000] text-sm">{service}</div>
                           
                           {/* Type Selectors */}
                           <div className="col-span-3 flex gap-2">
@@ -1736,7 +1736,7 @@ export default function ProviderDashboard() {
                               className={`px-3 h-9 text-xs border transition-all ${
                                 serviceData.type === 'inclusive'
                                   ? 'border-[#C6A87C] bg-[#C6A87C]/20 text-[#C6A87C]'
-                                  : 'border-[#52525B] text-[#9CA3AF] hover:border-[#C6A87C]'
+                                  : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
                               }`}
                             >
                               Inclusive
@@ -1756,7 +1756,7 @@ export default function ProviderDashboard() {
                               className={`px-3 h-9 text-xs border transition-all ${
                                 serviceData.type === 'extra'
                                   ? 'border-[#C6A87C] bg-[#C6A87C]/20 text-[#C6A87C]'
-                                  : 'border-[#52525B] text-[#9CA3AF] hover:border-[#C6A87C]'
+                                  : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
                               }`}
                             >
                               Extra
@@ -1767,7 +1767,7 @@ export default function ProviderDashboard() {
                           <div className="col-span-4 flex justify-end">
                             {serviceData.type === 'extra' ? (
                               <div className="relative w-24">
-                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[#9CA3AF] text-sm">€</span>
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[#000000] text-sm">€</span>
                                 <input
                                   type="text"
                                   inputMode="numeric"
@@ -1787,7 +1787,7 @@ export default function ProviderDashboard() {
                                 />
                               </div>
                             ) : (
-                              <span className="text-[#52525B] text-sm">-</span>
+                              <span className="text-[#000000] text-sm">-</span>
                             )}
                           </div>
                         </div>
@@ -1797,7 +1797,7 @@ export default function ProviderDashboard() {
                 </div>
 
                 {/* Add Custom Service */}
-                <div className="mt-6 p-4 border border-[#27272A] rounded-lg">
+                <div className="mt-6 p-4 border border-[#dbdadd] rounded-lg">
                   <label className="input-label mb-3">Add another service</label>
                   <div className="flex gap-3 items-center">
                     <input
@@ -1832,8 +1832,8 @@ export default function ProviderDashboard() {
 
                 {/* Summary */}
                 {Object.keys(profileData.services).filter(s => profileData.services[s]?.type).length > 0 && (
-                  <div className="mt-4 p-4 border border-[#27272A] rounded">
-                    <p className="text-[#A1A1AA] text-sm mb-2">
+                  <div className="mt-4 p-4 border border-[#dbdadd] rounded">
+                    <p className="text-[#000000] text-sm mb-2">
                       Selected: {Object.keys(profileData.services).filter(s => profileData.services[s]?.type === 'inclusive').length} inclusive, {Object.keys(profileData.services).filter(s => profileData.services[s]?.type === 'extra').length} extra
                     </p>
                   </div>
@@ -1847,8 +1847,8 @@ export default function ProviderDashboard() {
                 {/* Availability */}
                 <div id="availability-section" className="space-y-6 scroll-mt-24">
                   <div>
-                    <h3 className="text-2xl text-[#C6A87C] mb-1">Availability</h3>
-                    <p className="text-[#A1A1AA] text-sm">Set your availability for each day</p>
+                    <h3 className="text-2xl font-bold text-[#832161] mb-1">Availability</h3>
+                    <p className="text-[#000000] text-sm">Set your availability for each day</p>
                   </div>
 
                   {/* Service type: Incall / Outcall / Both */}
@@ -1867,7 +1867,7 @@ export default function ProviderDashboard() {
                           className={`py-3 px-4 border text-sm uppercase tracking-wider transition-all ${
                             profileData.availability_type === opt.value
                               ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                              : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C]'
+                              : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
                           }`}
                           data-testid={`availability-type-${opt.value}`}
                         >
@@ -1899,13 +1899,13 @@ export default function ProviderDashboard() {
                           schedule: updatedSchedule
                         });
                       }}
-                      className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                      className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
                     />
-                    <span className="text-[#F2F0ED]">Available 24/7</span>
+                    <span className="text-[#000000]">Available 24/7</span>
                   </label>
 
                   {/* Booking in advance Option */}
-                  <label className="flex items-center gap-3 cursor-pointer py-1 border-b border-[#52525B]">
+                  <label className="flex items-center gap-3 cursor-pointer py-1 border-b border-[#dbdadd]">
                     <input
                       type="checkbox"
                       checked={profileData.booking_advance || false}
@@ -1913,16 +1913,16 @@ export default function ProviderDashboard() {
                         ...profileData,
                         booking_advance: e.target.checked
                       })}
-                      className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                      className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
                       data-testid="booking-advance-checkbox"
                     />
-                    <span className="text-[#F2F0ED]">Booking in advance necessary</span>
+                    <span className="text-[#000000]">Booking in advance necessary</span>
                   </label>
                   </div>
 
                   <div className="space-y-4">
                     {Object.entries(profileData.schedule).map(([day, schedule]) => (
-                      <div key={day} className="flex items-center gap-4 py-3 border-b border-[#27272A]">
+                      <div key={day} className="flex items-center gap-4 py-3 border-b border-[#dbdadd]">
                         <label className="flex items-center gap-3 cursor-pointer w-32">
                           <input
                             type="checkbox"
@@ -1934,9 +1934,9 @@ export default function ProviderDashboard() {
                                 [day]: { ...schedule, available: e.target.checked }
                               }
                             })}
-                            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
                           />
-                          <span className="text-[#F2F0ED] capitalize">{day}</span>
+                          <span className="text-[#000000] capitalize">{day}</span>
                         </label>
                         {schedule.available && (
                           <>
@@ -1952,7 +1952,7 @@ export default function ProviderDashboard() {
                               })}
                               className="input-premium px-3 py-2"
                             />
-                            <span className="text-[#A1A1AA]">to</span>
+                            <span className="text-[#000000]">to</span>
                             <input
                               type="time"
                               value={schedule.end}
@@ -1973,13 +1973,13 @@ export default function ProviderDashboard() {
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-[#27272A]"></div>
+                <div className="border-t border-[#dbdadd]"></div>
 
                 {/* Rates */}
                 <div id="rates-section" className="space-y-6 scroll-mt-24">
                   <div>
-                    <h3 className="text-2xl text-[#C6A87C] mb-1">Rates</h3>
-                    <p className="text-[#A1A1AA] text-sm">
+                    <h3 className="text-2xl font-bold text-[#832161] mb-1">Rates</h3>
+                    <p className="text-[#000000] text-sm">
                       Set your pricing for different durations.{' '}
                       {(() => {
                         if (profileData.availability_type === 'incall') return 'Fill out the Incall column only.';
@@ -2020,7 +2020,7 @@ export default function ProviderDashboard() {
 
                       return (
                         <div key={kind} className="space-y-8">
-                          <h4 className="text-lg text-[#C6A87C] uppercase tracking-[0.2em] text-sm border-b border-[#27272A] pb-3">
+                          <h4 className="text-lg text-[#C6A87C] uppercase tracking-[0.2em] text-sm border-b border-[#dbdadd] pb-3">
  {kind === 'incall' ? 'Incall' : 'Outcall'}
  </h4>
 
@@ -2033,7 +2033,7 @@ export default function ProviderDashboard() {
                             <div key={key}>
                               <label className="input-label">{label}</label>
                               <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000]">€</span>
                                 <input
                                   type="text"
                                   inputMode="numeric"
@@ -2065,7 +2065,7 @@ export default function ProviderDashboard() {
                               <div className="flex-1">
                                 <label className="input-label">Price</label>
                                 <div className="relative">
-                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">€</span>
+                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000]">€</span>
                                   <input
                                     type="text"
                                     inputMode="numeric"
@@ -2080,7 +2080,7 @@ export default function ProviderDashboard() {
                               <button
                                 type="button"
                                 onClick={() => removeExtra(idx)}
-                                className="h-[50px] px-3 border border-[#3F3F46] text-[#A1A1AA] hover:border-red-500 hover:text-red-500 transition-colors"
+                                className="h-[50px] px-3 border border-[#dbdadd] text-[#000000] hover:border-red-500 hover:text-red-500 transition-colors"
                                 data-testid={`rate-${kind}-extra-remove-${idx}`}
                                 aria-label="Remove duration"
                               >
@@ -2093,7 +2093,7 @@ export default function ProviderDashboard() {
                           <button
                             type="button"
                             onClick={addExtra}
-                            className="w-full py-3 border border-dashed border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C] hover:text-[#C6A87C] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
+                            className="w-full py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#C6A87C] hover:text-[#C6A87C] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
                             data-testid={`rate-${kind}-add-hour`}
                           >
                             <Plus size={16} />
@@ -2115,7 +2115,7 @@ export default function ProviderDashboard() {
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.3em] text-[#C6A87C] mb-3">Final step</p>
                   <h3 className="text-2xl text-[#C6A87C] mb-2">Activate your profile</h3>
-                  <p className="text-[#A1A1AA] text-sm max-w-xl">
+                  <p className="text-[#000000] text-sm max-w-xl">
                     Your profile is saved. A Featured listing makes you visible to clients on Browse. Add VIP Boost to appear at the top of every search.
                   </p>
                 </div>
@@ -2125,8 +2125,8 @@ export default function ProviderDashboard() {
                   <div className="flex items-start gap-3 mb-5">
                     <Sparkle size={20} weight="fill" className="text-[#C6A87C] mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="text-xl text-[#F2F0ED]">Featured listing</h4>
-                      <p className="text-[#A1A1AA] text-sm">Required to be visible on Browse.</p>
+                      <h4 className="text-xl text-[#000000]">Featured listing</h4>
+                      <p className="text-[#000000] text-sm">Required to be visible on Browse.</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2138,7 +2138,7 @@ export default function ProviderDashboard() {
                         className={`relative text-left p-5 border-2 transition-all ${
                           planFeatured === opt.id
                             ? 'border-[#C6A87C] bg-[#C6A87C]/5'
-                            : 'border-[#27272A] hover:border-[#3F3F46]'
+                            : 'border-[#dbdadd] hover:border-[#dbdadd]'
                         }`}
                         data-testid={`featured-option-${opt.id}`}
                       >
@@ -2147,9 +2147,9 @@ export default function ProviderDashboard() {
                             {opt.badge}
                           </span>
                         )}
-                        <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
-                        <p className="text-3xl text-[#F2F0ED] mb-1">€{opt.price}</p>
-                        <p className="text-[#71717A] text-xs">{opt.perDay}</p>
+                        <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
+                        <p className="text-3xl text-[#000000] mb-1">€{opt.price}</p>
+                        <p className="text-[#000000] text-xs">{opt.perDay}</p>
                         {planFeatured === opt.id && (
                           <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#C6A87C]" />
                         )}
@@ -2164,10 +2164,10 @@ export default function ProviderDashboard() {
                     <div className="flex items-start gap-3">
                       <Crown size={20} weight="fill" className="text-[#C6A87C] mt-1 flex-shrink-0" />
                       <div>
-                        <h4 className="text-xl text-[#F2F0ED]">
- VIP Boost <span className="text-xs uppercase tracking-[0.2em] text-[#71717A] ml-2">Optional</span>
+                        <h4 className="text-xl text-[#000000]">
+ VIP Boost <span className="text-xs uppercase tracking-[0.2em] text-[#000000] ml-2">Optional</span>
  </h4>
-                        <p className="text-[#A1A1AA] text-sm">Be displayed at the very top of Browse.</p>
+                        <p className="text-[#000000] text-sm">Be displayed at the very top of Browse.</p>
                       </div>
                     </div>
                     <button
@@ -2201,7 +2201,7 @@ export default function ProviderDashboard() {
                         className={`relative text-left p-4 border-2 transition-all ${
                           planVipOn && planVip === opt.id
                             ? 'border-[#C6A87C] bg-[#C6A87C]/5'
-                            : 'border-[#27272A] hover:border-[#3F3F46]'
+                            : 'border-[#dbdadd] hover:border-[#dbdadd]'
                         }`}
                         data-testid={`vip-option-${opt.id}`}
                       >
@@ -2210,8 +2210,8 @@ export default function ProviderDashboard() {
                             {opt.badge}
                           </span>
                         )}
-                        <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
-                        <p className="text-2xl text-[#F2F0ED]">€{opt.price}</p>
+                        <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
+                        <p className="text-2xl text-[#000000]">€{opt.price}</p>
                         {planVipOn && planVip === opt.id && (
                           <CheckCircle size={16} weight="fill" className="absolute bottom-3 right-3 text-[#C6A87C]" />
                         )}
@@ -2223,8 +2223,8 @@ export default function ProviderDashboard() {
                 {/* Auto-renew */}
                 <div className="card-premium p-6 flex items-center justify-between gap-4 flex-wrap">
                   <div>
-                    <h4 className="text-lg text-[#F2F0ED] mb-1">Auto-renew</h4>
-                    <p className="text-[#A1A1AA] text-sm">
+                    <h4 className="text-lg text-[#000000] mb-1">Auto-renew</h4>
+                    <p className="text-[#000000] text-sm">
                       Automatically renew your plan when it expires. Cancel any time from your dashboard.
                     </p>
                   </div>
@@ -2249,19 +2249,19 @@ export default function ProviderDashboard() {
                 {/* Total */}
                 <div className="card-premium p-6 flex items-end justify-between flex-wrap gap-4">
                   <div>
-                    <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-1">Total today</p>
-                    <p className="text-4xl text-[#F2F0ED]" data-testid="total-amount">€{planTotal}</p>
+                    <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-1">Total today</p>
+                    <p className="text-4xl text-[#000000]" data-testid="total-amount">€{planTotal}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[#71717A] text-xs">
+                    <p className="text-[#000000] text-xs">
                       {autoRenew ? `Then €${planTotal} per period until cancelled` : 'One-time payment'}
                     </p>
-                    <p className="text-[#71717A] text-xs">Visa, Mastercard, Apple Pay, PayPal & more</p>
+                    <p className="text-[#000000] text-xs">Visa, Mastercard, Apple Pay, PayPal & more</p>
                   </div>
                 </div>
               </div>
             )}
-            <div className={`flex ${mode !== 'edit' && currentStep === 1 ? 'justify-end' : 'justify-between'} mt-8 pt-6 border-t border-[#27272A]`}>
+            <div className={`flex ${mode !== 'edit' && currentStep === 1 ? 'justify-end' : 'justify-between'} mt-8 pt-6 border-t border-[#dbdadd]`}>
               {mode === 'edit' ? (
                 <>
                   <button
