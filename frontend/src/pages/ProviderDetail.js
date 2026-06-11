@@ -249,6 +249,14 @@ export default function ProviderDetail() {
                       <span className="text-sm md:text-base">Elite escort based in {provider.location?.city || 'Brussels'}, {provider.location?.country || 'Belgium'}</span>
                     </div>
                   </div>
+                  {(provider.bio || provider.essence) && (
+                    <>
+                      <div className="my-6 border-t border-[#dbdadd]"></div>
+                      <p className="text-[#000000] leading-relaxed" data-testid="provider-bio">
+                        {provider.bio || provider.essence}
+                      </p>
+                    </>
+                  )}
                 </div>
                 {provider.verified && (
                   <div className="verified-badge shrink-0" data-testid="verified-badge">
@@ -264,16 +272,6 @@ export default function ProviderDetail() {
                   <Star size={20} weight="fill" className="text-[#C6A87C]" />
                   <span className="text-[#3D2645] font-medium">{provider.avg_rating}</span>
                   <span className="text-[#3D2645]">({provider.review_count} reviews)</span>
-                </div>
-              )}
-
-              {/* My Essence */}
-              {(provider.bio || provider.essence) && (
-                <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
-                  <h3 className="text-xl font-bold text-[#832161] mb-4">My essence...</h3>
-                  <p className="text-[#000000] leading-relaxed" data-testid="provider-bio">
-                    {provider.bio || provider.essence}
-                  </p>
                 </div>
               )}
 
