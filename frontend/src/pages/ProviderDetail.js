@@ -530,11 +530,11 @@ export default function ProviderDetail() {
                   if (rows.length === 0) return null;
                   return (
                     <div key={kind} className="space-y-3">
-                      <p className="text-lg tracking-[0.3em] text-[#832161] mb-2">{kind}</p>
+                      <p className="text-lg tracking-[0.3em] text-[#832161] mb-2 capitalize">{kind}</p>
                       {padded.map((row, i) => (
                         row ? (
                           <div key={i} className="flex justify-between items-center pb-3 border-b border-[#dbdadd]" data-testid={`rate-${kind}-${i}`}>
-                            <span className="text-[#832161] text-base">{row.label}</span>
+                            <span className="text-[#000000] text-base">{row.label}</span>
                             <span className="text-[#832161] text-base">€{row.price}</span>
                           </div>
                         ) : (
@@ -559,7 +559,7 @@ export default function ProviderDetail() {
                       <div className="space-y-4">
                         {Object.entries(r).map(([type, rate]) => (
                           <div key={type} className="flex justify-between items-center pb-4 border-b border-[#dbdadd] last:border-b-0 last:pb-0" data-testid={`rate-${type}`}>
-                            <span className="text-[#832161] capitalize text-base">{DURATION_LABELS[type] || type}</span>
+                            <span className="text-[#000000] capitalize text-base">{DURATION_LABELS[type] || type}</span>
                             <span className="text-[#832161] text-base">€{rate}</span>
                           </div>
                         ))}
