@@ -10,11 +10,11 @@
 
 /* Button styles */
 .btn-primary {
-  @apply bg-[#C6A87C] text-[#0A0A0C] hover:bg-[#D4B88C] px-8 py-4 uppercase tracking-widest text-sm font-semibold transition-all duration-300 ease-out;
+  @apply bg-[#832161] text-white hover:bg-[#6e1b51] px-8 py-4 uppercase tracking-widest text-sm font-semibold transition-all duration-300 ease-out;
 }
 
 .btn-secondary {
-  @apply bg-transparent border border-[#3F3F46] text-[#F2F0ED] hover:border-[#C6A87C] hover:text-[#C6A87C] px-8 py-4 uppercase tracking-widest text-sm transition-all;
+  @apply bg-transparent border border-[#DA4167] text-[#DA4167] hover:bg-[#DA4167]/10 px-8 py-4 uppercase tracking-widest text-sm transition-all;
 }
 
 .btn-ghost {

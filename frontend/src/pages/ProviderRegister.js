@@ -69,7 +69,7 @@ export default function ProviderRegister() {
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-[#0A0A0C] to-[#141416] items-center justify-center p-16">
         <div className="max-w-lg">
           <Link to="/" className="mb-12 inline-block">
-            <h1 className="text-3xl md:text-4xl font-playfair text-[#C6A87C]">Only Elite Escorts</h1>
+            <h1 className="text-3xl md:text-4xl font-playfair font-bold text-[#DA4167]">Only Elite Escorts</h1>
           </Link>
           
           <h2 className="text-5xl text-[#F2F0ED] mb-6 leading-tight">
@@ -102,7 +102,7 @@ export default function ProviderRegister() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <Link to="/" className="lg:hidden mb-8 inline-block">
-            <h1 className="text-2xl md:text-3xl font-playfair text-[#C6A87C]">Only Elite Escorts</h1>
+            <h1 className="text-2xl md:text-3xl font-playfair font-bold text-[#DA4167]">Only Elite Escorts</h1>
           </Link>
 
           <div className="mb-12">

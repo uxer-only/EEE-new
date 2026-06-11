@@ -35,7 +35,7 @@ export default function ForgotPassword() {
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0C]/80 to-transparent"></div>
         <Link to="/" className="absolute top-8 left-8 z-10">
-          <h1 className="text-2xl md:text-3xl font-playfair text-[#C6A87C]">Only Elite Escorts</h1>
+          <h1 className="text-2xl md:text-3xl font-playfair font-bold text-[#DA4167]">Only Elite Escorts</h1>
         </Link>
       </div>
 
