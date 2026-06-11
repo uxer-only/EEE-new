@@ -286,6 +286,12 @@ export default function ProviderDetail() {
                   if (v === 'no') return 'No';
                   return '';
                 };
+                const availLabel = (() => {
+                  if (provider.availability_type === 'incall') return 'Incall';
+                  if (provider.availability_type === 'outcall') return 'Outcall';
+                  if (provider.availability_type === 'both') return 'Incall and outcall';
+                  return '';
+                })();
                 const rows = [
                   ['Nationality', c.nationality],
                   ['Ethnicity', c.ethnicity],
@@ -301,7 +307,8 @@ export default function ProviderDetail() {
                   ['Languages', langs.length ? langs.join(', ') : ''],
                   ['Tattoos', yesNo(c.tattoos)],
                   ['Piercings', yesNo(c.piercings)],
-                  ['Smoker', yesNo(c.smoker)]
+                  ['Smoker', yesNo(c.smoker)],
+                  ['Available for', availLabel]
                 ].filter(([, v]) => v !== '' && v !== null && v !== undefined);
                 if (rows.length === 0) return null;
                 return (

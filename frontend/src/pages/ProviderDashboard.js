@@ -1853,11 +1853,11 @@ export default function ProviderDashboard() {
 
                   {/* Service type: Incall / Outcall / Both */}
                   <div>
-                    <label className="input-label">I offer</label>
+                    <label className="input-label">Available for</label>
                     <div className="grid grid-cols-3 gap-3">
                       {[
-                        { value: 'incall',  label: 'Incall only' },
-                        { value: 'outcall', label: 'Outcall only' },
+                        { value: 'incall',  label: 'Incall' },
+                        { value: 'outcall', label: 'Outcall' },
                         { value: 'both',    label: 'Incall & outcall' }
                       ].map((opt) => (
                         <button
@@ -2100,22 +2100,24 @@ export default function ProviderDashboard() {
                             Add hour
                           </button>
 
-                          {/* Taxi not included */}
-                          <div>
-                            <label className="input-label">Taxi not included</label>
-                            <div className="relative">
-                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000]">€</span>
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                value={col.taxi ?? ''}
-                                onChange={(e) => setKey('taxi', e.target.value.replace(/[^0-9]/g, ''))}
-                                className="input-premium w-full !pl-10"
-                                placeholder="0"
-                                data-testid={`rate-${kind}-taxi`}
-                              />
+                          {/* Taxi not included — outcall only */}
+                          {kind === 'outcall' && (
+                            <div>
+                              <label className="input-label">Taxi not included</label>
+                              <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000]">€</span>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={col.taxi ?? ''}
+                                  onChange={(e) => setKey('taxi', e.target.value.replace(/[^0-9]/g, ''))}
+                                  className="input-premium w-full !pl-10"
+                                  placeholder="0"
+                                  data-testid={`rate-${kind}-taxi`}
+                                />
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       );
                     })}
