@@ -31,6 +31,20 @@ const COUNTRY_DIAL_CODES = {
   Israel: '+972', Lebanon: '+961', Morocco: '+212'
 };
 
+const CURRENCY_OPTIONS = [
+  { code: 'EUR', symbol: '€',   label: 'Euro (EUR)' },
+  { code: 'USD', symbol: '$',   label: 'US Dollar (USD)' },
+  { code: 'GBP', symbol: '£',   label: 'British Pound (GBP)' },
+  { code: 'CHF', symbol: 'CHF', label: 'Swiss Franc (CHF)' },
+  { code: 'AUD', symbol: 'A$',  label: 'Australian Dollar (AUD)' },
+  { code: 'CAD', symbol: 'C$',  label: 'Canadian Dollar (CAD)' },
+  { code: 'JPY', symbol: '¥',   label: 'Japanese Yen (JPY)' },
+  { code: 'AED', symbol: 'AED', label: 'UAE Dirham (AED)' },
+  { code: 'SGD', symbol: 'S$',  label: 'Singapore Dollar (SGD)' },
+  { code: 'HKD', symbol: 'HK$', label: 'Hong Kong Dollar (HKD)' }
+];
+const currencySymbol = (code) => CURRENCY_OPTIONS.find((c) => c.code === code)?.symbol || '€';
+
 export default function ProviderDashboard() {
   const { user, logout } = useAuth();
   const [dashboard, setDashboard] = useState(null);
@@ -52,6 +66,7 @@ export default function ProviderDashboard() {
     bio: '',
     services: {}, // Changed to object: { serviceName: { type: 'inclusive' | 'extra' | null, price: '' } }
     rates: {
+      currency: 'EUR',
       incall: { '1hour': '', '2hours': '', '3hours': '', 'overnight': '', extras: [] },
       outcall: { '1hour': '', '2hours': '', '3hours': '', 'overnight': '', extras: [] }
     },
@@ -816,6 +831,7 @@ export default function ProviderDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {['incall', 'outcall'].map((kind) => {
                     const col = profileData.rates?.[kind] || {};
+                    const sym = currencySymbol(profileData.rates?.currency);
                     const base = ['1hour', '2hours', '3hours'];
                     const extras = (Array.isArray(col.extras) ? col.extras : [])
                       .slice()
@@ -834,7 +850,7 @@ export default function ProviderDashboard() {
                               <div key={key} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
                                 <span className="text-[#000000] text-sm">{label}</span>
                                 <span className="text-[#C6A87C]">
-                                  {v ? `€${v}` : <span className="text-[#000000] text-sm italic">Not set</span>}
+                                  {v ? `${sym}${v}` : <span className="text-[#000000] text-sm italic">Not set</span>}
                                 </span>
                               </div>
                             );
@@ -843,14 +859,14 @@ export default function ProviderDashboard() {
                             <div key={`extra-${i}`} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
                               <span className="text-[#000000] text-sm">{extra.hours} hours</span>
                               <span className="text-[#C6A87C]">
-                                {extra.price ? `€${extra.price}` : <span className="text-[#000000] text-sm italic">Not set</span>}
+                                {extra.price ? `${sym}${extra.price}` : <span className="text-[#000000] text-sm italic">Not set</span>}
                               </span>
                             </div>
                           ))}
                           {col.overnight !== undefined && col.overnight !== '' && (
                             <div className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
                               <span className="text-[#000000] text-sm">Overnight</span>
-                              <span className="text-[#C6A87C]">€{col.overnight}</span>
+                              <span className="text-[#C6A87C]">{sym}{col.overnight}</span>
                             </div>
                           )}
                         </div>
@@ -1979,14 +1995,25 @@ export default function ProviderDashboard() {
                 <div id="rates-section" className="flex flex-col gap-4 scroll-mt-24">
                   <div>
                     <h3 className="text-2xl font-bold text-[#832161] mb-1">Rates</h3>
-                    <p className="text-[#000000] text-sm">
-                      Set your pricing for different durations.{' '}
-                      {(() => {
-                        if (profileData.availability_type === 'incall') return 'Fill out the Incall column only.';
-                        if (profileData.availability_type === 'outcall') return 'Fill out the Outcall column only.';
-                        return 'Incall = client visits you. Outcall = you visit the client.';
-                      })()}
-                    </p>
+                  </div>
+
+                  {/* Currency selector */}
+                  <div>
+                    <label className="input-label" htmlFor="rates-currency-select">Select currency</label>
+                    <select
+                      id="rates-currency-select"
+                      value={profileData.rates?.currency || 'EUR'}
+                      onChange={(e) => setProfileData({
+                        ...profileData,
+                        rates: { ...(profileData.rates || {}), currency: e.target.value }
+                      })}
+                      className="input-premium w-full md:w-72"
+                      data-testid="rates-currency-select"
+                    >
+                      {CURRENCY_OPTIONS.map((opt) => (
+                        <option key={opt.code} value={opt.code}>{opt.label}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className={`grid grid-cols-1 gap-8 ${profileData.availability_type === 'both' ? 'md:grid-cols-2' : ''}`}>
@@ -2033,13 +2060,13 @@ export default function ProviderDashboard() {
                             <div key={key}>
                               <label className="input-label">{label}</label>
                               <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000]">€</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000] text-sm">{currencySymbol(profileData.rates?.currency)}</span>
                                 <input
                                   type="text"
                                   inputMode="numeric"
                                   value={col[key]}
                                   onChange={(e) => setKey(key, e.target.value.replace(/[^0-9]/g, ''))}
-                                  className="input-premium w-full !pl-10"
+                                  className="input-premium w-full !pl-14"
                                   placeholder="0"
                                   data-testid={`rate-${kind}-${key}`}
                                 />
@@ -2065,13 +2092,13 @@ export default function ProviderDashboard() {
                               <div className="flex-1">
                                 <label className="input-label">Price</label>
                                 <div className="relative">
-                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000]">€</span>
+                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000] text-sm">{currencySymbol(profileData.rates?.currency)}</span>
                                   <input
                                     type="text"
                                     inputMode="numeric"
                                     value={extra.price || ''}
                                     onChange={(e) => setExtra(idx, { price: e.target.value.replace(/[^0-9]/g, '') })}
-                                    className="input-premium w-full !pl-10"
+                                    className="input-premium w-full !pl-14"
                                     placeholder="0"
                                     data-testid={`rate-${kind}-extra-price-${idx}`}
                                   />
@@ -2105,13 +2132,13 @@ export default function ProviderDashboard() {
                             <div>
                               <label className="input-label">Taxi not included</label>
                               <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000]">€</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000] text-sm">{currencySymbol(profileData.rates?.currency)}</span>
                                 <input
                                   type="text"
                                   inputMode="numeric"
                                   value={col.taxi ?? ''}
                                   onChange={(e) => setKey('taxi', e.target.value.replace(/[^0-9]/g, ''))}
-                                  className="input-premium w-full !pl-10"
+                                  className="input-premium w-full !pl-14"
                                   placeholder="0"
                                   data-testid={`rate-${kind}-taxi`}
                                 />

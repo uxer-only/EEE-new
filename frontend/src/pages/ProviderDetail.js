@@ -554,6 +554,8 @@ export default function ProviderDetail() {
               {provider.rates && Object.keys(provider.rates).length > 0 && (() => {
                 const r = provider.rates;
                 const isNested = r.incall || r.outcall;
+                const CURRENCY_SYMBOLS = { EUR:'€', USD:'$', GBP:'£', CHF:'CHF', AUD:'A$', CAD:'C$', JPY:'¥', AED:'AED', SGD:'S$', HKD:'HK$' };
+                const sym = CURRENCY_SYMBOLS[r.currency] || '€';
 
                 const DURATION_LABELS = {
                   '1hour':     '1 hour',
@@ -611,7 +613,7 @@ export default function ProviderDetail() {
                       <div key={row.key} className="flex justify-between items-center py-3 border-b border-[#dbdadd] last:border-b-0" data-testid={`rate-${kind}-${row.key}`}>
                         <span className="text-[#000000] text-base">{row.label}</span>
                         <span className={`text-base ${row[kind] !== null ? 'text-[#832161]' : 'text-[#9CA3AF]'}`}>
-                          {row[kind] !== null ? `€${row[kind]}` : '—'}
+                          {row[kind] !== null ? `${sym}${row[kind]}` : '—'}
                         </span>
                       </div>
                     ))}
@@ -631,7 +633,7 @@ export default function ProviderDetail() {
                         {Object.entries(r).map(([type, rate]) => (
                           <div key={type} className="flex justify-between items-center pb-4 border-b border-[#dbdadd] last:border-b-0 last:pb-0" data-testid={`rate-${type}`}>
                             <span className="text-[#000000] capitalize text-base">{DURATION_LABELS[type] || type}</span>
-                            <span className="text-[#832161] text-base">€{rate}</span>
+                            <span className="text-[#832161] text-base">{sym}{rate}</span>
                           </div>
                         ))}
                       </div>
