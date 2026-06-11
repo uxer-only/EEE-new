@@ -53,7 +53,7 @@ select.input-premium option {
 }
 
 .input-helper {
-  @apply text-xs text-[#9CA3AF] mt-2 block;
+  @apply text-xs text-[#9CA3AF] mt-1 block;
 }
 
 /* Card styles */
