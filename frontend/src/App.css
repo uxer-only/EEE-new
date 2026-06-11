@@ -128,7 +128,7 @@ select.input-premium option {
 
 /* Verified badge */
 .verified-badge {
-  @apply inline-flex items-center gap-2 px-3 py-1 text-xs font-medium uppercase tracking-wider bg-[#C6A87C]/20 text-[#C6A87C] border border-[#C6A87C];
+  @apply inline-flex items-center gap-2 px-3 py-1 text-xs font-medium uppercase tracking-wider bg-white text-[#22C55E] border border-[#22C55E];
 }
 
 

@@ -211,8 +211,8 @@ export default function ProviderDetail() {
               {/* My Essence */}
               {(provider.bio || provider.essence) && (
                 <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8">
-                  <h3 className="text-xl text-[#3D2645] mb-4">My essence...</h3>
-                  <p className="text-[#3D2645] leading-relaxed" data-testid="provider-bio">
+                  <h3 className="text-xl font-bold text-[#832161] mb-4">My essence...</h3>
+                  <p className="text-[#832161] leading-relaxed" data-testid="provider-bio">
                     {provider.bio || provider.essence}
                   </p>
                 </div>
@@ -250,7 +250,7 @@ export default function ProviderDetail() {
                 if (rows.length === 0) return null;
                 return (
                   <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8">
-                    <h3 className="text-xl text-[#3D2645] mb-6">My appearance</h3>
+                    <h3 className="text-xl font-bold text-[#832161] mb-6">My appearance</h3>
                     <dl
                       className="grid grid-cols-2 gap-x-6 md:gap-x-10 gap-y-5"
                       data-testid="provider-characteristics"
@@ -261,8 +261,8 @@ export default function ProviderDetail() {
                           className="flex flex-col gap-1"
                           data-testid={`char-row-${label.toLowerCase().replace(/ /g, '-')}`}
                         >
-                          <dt className="text-[#3D2645] text-sm md:text-base">{label}</dt>
-                          <dd className="text-[#3D2645] text-sm md:text-base break-words">{value}</dd>
+                          <dt className="text-[#832161] text-sm md:text-base">{label}</dt>
+                          <dd className="text-[#832161] text-sm md:text-base break-words">{value}</dd>
                         </div>
                       ))}
                     </dl>
@@ -286,17 +286,17 @@ export default function ProviderDetail() {
                 const extras = serviceList.filter(s => s.type === 'extra');
                 return (
                   <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8">
-                    <h3 className="text-xl text-[#3D2645] mb-6">What we can share together...</h3>
+                    <h3 className="text-xl font-bold text-[#832161] mb-6">What we can share together...</h3>
                     {inclusive.length > 0 && (
                       <div className="mb-4">
                         {extras.length > 0 && (
-                          <p className="text-[10px] uppercase tracking-[0.2em] text-[#3D2645] mb-3">Inclusive</p>
+                          <p className="text-[10px] uppercase tracking-[0.2em] text-[#832161] mb-3">Inclusive</p>
                         )}
                         <div className="flex flex-wrap gap-3">
                           {inclusive.map((s, i) => (
                             <span
                               key={`inc-${i}`}
-                              className="px-4 py-2 border border-[#3F3F46] text-[#3D2645] text-sm uppercase tracking-wider hover:border-[#C6A87C] hover:text-[#C6A87C] transition-colors"
+                              className="px-4 py-2 border border-[#3F3F46] text-[#832161] text-sm uppercase tracking-wider hover:border-[#C6A87C] hover:text-[#C6A87C] transition-colors"
                               data-testid={`service-${i}`}
                             >
                               {s.name}
@@ -307,7 +307,7 @@ export default function ProviderDetail() {
                     )}
                     {extras.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#3D2645] mb-3">Extra</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#832161] mb-3">Extra</p>
                         <div className="flex flex-wrap gap-3">
                           {extras.map((s, i) => (
                             <span
@@ -338,10 +338,10 @@ export default function ProviderDetail() {
                 if (!is247 && availableDays.length === 0) return null;
                 return (
                   <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8">
-                    <h3 className="text-xl text-[#3D2645] mb-6">My schedule</h3>
+                    <h3 className="text-xl font-bold text-[#832161] mb-6">My schedule</h3>
                     {is247 ? (
                       <div className="flex items-center justify-between py-2" data-testid="schedule-247">
-                        <span className="text-[#3D2645] font-medium">All week</span>
+                        <span className="text-[#832161] font-medium">All week</span>
                         <span className="text-[#C6A87C]">Available 24/7</span>
                       </div>
                     ) : (
@@ -350,8 +350,8 @@ export default function ProviderDetail() {
                           const s = schedule[day];
                           return (
                             <div key={day} className="flex justify-between items-center py-2" data-testid={`schedule-${day}`}>
-                              <span className="text-[#3D2645] font-medium">{labels[day]}</span>
-                              <span className="text-[#3D2645]">{s.start} - {s.end}</span>
+                              <span className="text-[#832161] font-medium">{labels[day]}</span>
+                              <span className="text-[#832161]">{s.start} - {s.end}</span>
                             </div>
                           );
                         })}
@@ -368,7 +368,7 @@ export default function ProviderDetail() {
 
               {/* Let's Connect */}
               <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8" data-testid="contact-section">
-                <h3 className="text-xl text-[#3D2645] mb-6">Let&apos;s connect</h3>
+                <h3 className="text-xl font-bold text-[#832161] mb-6">Let&apos;s connect</h3>
                 <div className="space-y-4">
                   {/* Mobile */}
                   <a 
@@ -380,8 +380,8 @@ export default function ProviderDetail() {
                       <Phone size={20} className="text-[#C6A87C]" />
                     </div>
                     <div>
-                      <p className="text-[#3D2645] text-sm">Mobile</p>
-                      <p className="text-[#3D2645]">{provider.contact?.phone || '+32 XXX XX XX XX'}</p>
+                      <p className="text-[#832161] text-sm">Mobile</p>
+                      <p className="text-[#832161]">{provider.contact?.phone || '+32 XXX XX XX XX'}</p>
                     </div>
                   </a>
 
@@ -397,8 +397,8 @@ export default function ProviderDetail() {
                       <WhatsappLogo size={20} className="text-[#25D366]" />
                     </div>
                     <div>
-                      <p className="text-[#3D2645] text-sm">WhatsApp</p>
-                      <p className="text-[#3D2645]">{provider.contact?.whatsapp || '+32 XXX XX XX XX'}</p>
+                      <p className="text-[#832161] text-sm">WhatsApp</p>
+                      <p className="text-[#832161]">{provider.contact?.whatsapp || '+32 XXX XX XX XX'}</p>
                     </div>
                   </a>
 
@@ -412,8 +412,8 @@ export default function ProviderDetail() {
                       <EnvelopeSimple size={20} className="text-[#C6A87C]" />
                     </div>
                     <div>
-                      <p className="text-[#3D2645] text-sm">E-mail</p>
-                      <p className="text-[#3D2645]">{provider.contact?.email || provider.user?.email || 'contact@example.com'}</p>
+                      <p className="text-[#832161] text-sm">E-mail</p>
+                      <p className="text-[#832161]">{provider.contact?.email || provider.user?.email || 'contact@example.com'}</p>
                     </div>
                   </a>
                 </div>
@@ -442,19 +442,19 @@ export default function ProviderDetail() {
                       <p className="text-lg uppercase tracking-[0.3em] text-[#C6A87C] mb-2">{kind}</p>
                       {baseKeys.map((k) => (
                         <div key={k} className="flex justify-between items-center pb-3 border-b border-[#27272A]" data-testid={`rate-${kind}-${k}`}>
-                          <span className="text-[#3D2645] text-base">{DURATION_LABELS[k]}</span>
+                          <span className="text-[#832161] text-base">{DURATION_LABELS[k]}</span>
                           <span className="text-[#C6A87C] text-base">€{col[k]}</span>
                         </div>
                       ))}
                       {extras.map((extra, i) => (
                         <div key={`x-${i}`} className="flex justify-between items-center pb-3 border-b border-[#27272A]" data-testid={`rate-${kind}-extra-${i}`}>
-                          <span className="text-[#3D2645] text-base">{extra.hours} hours</span>
+                          <span className="text-[#832161] text-base">{extra.hours} hours</span>
                           <span className="text-[#C6A87C] text-base">€{extra.price}</span>
                         </div>
                       ))}
                       {hasOvernight && (
                         <div className="flex justify-between items-center pb-3 border-b border-[#27272A]" data-testid={`rate-${kind}-overnight`}>
-                          <span className="text-[#3D2645] text-base">Overnight</span>
+                          <span className="text-[#832161] text-base">Overnight</span>
                           <span className="text-[#C6A87C] text-base">€{col.overnight}</span>
                         </div>
                       )}
@@ -464,7 +464,7 @@ export default function ProviderDetail() {
 
                 return (
                   <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8">
-                    <h3 className="text-xl text-[#3D2645] mb-6">Time & investment</h3>
+                    <h3 className="text-xl font-bold text-[#832161] mb-6">Time & investment</h3>
                     {isNested ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {renderColumn('incall', r.incall || {})}
@@ -474,7 +474,7 @@ export default function ProviderDetail() {
                       <div className="space-y-4">
                         {Object.entries(r).map(([type, rate]) => (
                           <div key={type} className="flex justify-between items-center pb-4 border-b border-[#27272A] last:border-b-0 last:pb-0" data-testid={`rate-${type}`}>
-                            <span className="text-[#3D2645] capitalize text-base">{DURATION_LABELS[type] || type}</span>
+                            <span className="text-[#832161] capitalize text-base">{DURATION_LABELS[type] || type}</span>
                             <span className="text-[#C6A87C] text-base">€{rate}</span>
                           </div>
                         ))}
@@ -486,37 +486,37 @@ export default function ProviderDetail() {
 
               {/* Extra Requests */}
               <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8">
-                <h3 className="text-xl text-[#3D2645] mb-6">Do you have extra requests?</h3>
+                <h3 className="text-xl font-bold text-[#832161] mb-6">Do you have extra requests?</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="input-label">Your name</label>
+                    <label className="input-label !text-[#832161]">Your name</label>
                     <input
                       type="text"
                       value={requestName}
                       onChange={(e) => setRequestName(e.target.value)}
                       placeholder="Your name"
-                      className="input-premium w-full"
+                      className="input-premium w-full !text-[#3D2645] !border-[#dbdadd]"
                       data-testid="extra-request-name"
                     />
                   </div>
                   <div>
-                    <label className="input-label">Your e-mail address</label>
+                    <label className="input-label !text-[#832161]">Your e-mail address</label>
                     <input
                       type="email"
                       value={requestEmail}
                       onChange={(e) => setRequestEmail(e.target.value)}
                       placeholder="your@email.com"
-                      className="input-premium w-full"
+                      className="input-premium w-full !text-[#3D2645] !border-[#dbdadd]"
                       data-testid="extra-request-email"
                     />
                   </div>
                   <div>
-                    <label className="input-label">Your message</label>
+                    <label className="input-label !text-[#832161]">Your message</label>
                     <textarea
                       value={extraRequest}
                       onChange={(e) => setExtraRequest(e.target.value.slice(0, 350))}
                       placeholder="Share your special requests or preferences..."
-                      className="input-premium w-full h-32 resize-none"
+                      className="input-premium w-full h-32 resize-none !text-[#3D2645] !border-[#dbdadd]"
                       maxLength={350}
                       data-testid="extra-request-input"
                     />
@@ -562,7 +562,7 @@ export default function ProviderDetail() {
           {/* Reviews */}
           {provider.reviews && provider.reviews.length > 0 && (
             <div className="mt-24">
-              <h3 className="text-3xl text-[#3D2645] mb-12">Reviews</h3>
+              <h3 className="text-3xl text-[#832161] mb-12">Reviews</h3>
               <div className="space-y-8">
                 {provider.reviews.map((review, index) => (
                   <motion.div
@@ -580,7 +580,7 @@ export default function ProviderDetail() {
                         className="w-12 h-12 rounded-full object-cover"
                       />
                       <div>
-                        <p className="text-[#3D2645] font-medium">{review.reviewer?.name}</p>
+                        <p className="text-[#832161] font-medium">{review.reviewer?.name}</p>
                         <div className="flex items-center gap-1">
                           {[...Array(5)].map((_, i) => (
                             <Star
@@ -594,7 +594,7 @@ export default function ProviderDetail() {
                       </div>
                     </div>
                     {review.comment && (
-                      <p className="text-[#3D2645] leading-relaxed">{review.comment}</p>
+                      <p className="text-[#832161] leading-relaxed">{review.comment}</p>
                     )}
                   </motion.div>
                 ))}
