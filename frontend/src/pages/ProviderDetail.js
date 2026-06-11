@@ -327,102 +327,6 @@ export default function ProviderDetail() {
                 );
               })()}
 
-              {/* Services */}
-              {(() => {
-                const services = provider.services;
-                let serviceList = [];
-                if (Array.isArray(services)) {
-                  serviceList = services.map(s => ({ name: s, type: 'inclusive', price: '' }));
-                } else if (services && typeof services === 'object') {
-                  serviceList = Object.entries(services)
-                    .filter(([_, v]) => v && v.type)
-                    .map(([name, v]) => ({ name, type: v.type, price: v.price }));
-                }
-                if (serviceList.length === 0) return null;
-                const inclusive = serviceList.filter(s => s.type === 'inclusive');
-                const extras = serviceList.filter(s => s.type === 'extra');
-                return (
-                  <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
-                    <h3 className="text-xl font-bold text-[#832161] mb-6">What we can share together...</h3>
-                    {inclusive.length > 0 && (
-                      <div className="mb-4">
-                        {extras.length > 0 && (
-                          <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-3">Inclusive</p>
-                        )}
-                        <div className="flex flex-wrap gap-3">
-                          {inclusive.map((s, i) => (
-                            <span
-                              key={`inc-${i}`}
-                              className="px-4 py-2 border border-[#dbdadd] text-[#000000] text-sm uppercase tracking-wider"
-                              data-testid={`service-${i}`}
-                            >
-                              {s.name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {extras.length > 0 && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-3">Extra</p>
-                        <div className="flex flex-wrap gap-3">
-                          {extras.map((s, i) => (
-                            <span
-                              key={`ext-${i}`}
-                              className="px-4 py-2 border border-[#C6A87C]/40 bg-[#C6A87C]/10 text-[#C6A87C] text-sm uppercase tracking-wider"
-                              data-testid={`service-extra-${i}`}
-                            >
-                              {s.name}{s.price && ` · €${s.price}`}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
-
-              {/* Schedule */}
-              {(() => {
-                const dayOrder = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-                const labels = { monday:'Monday', tuesday:'Tuesday', wednesday:'Wednesday', thursday:'Thursday', friday:'Friday', saturday:'Saturday', sunday:'Sunday' };
-                const schedule = provider.schedule && typeof provider.schedule === 'object' ? provider.schedule : null;
-                const is247 = !!provider.available247;
-                if (!is247 && !schedule) return null;
-                const availableDays = is247
-                  ? []
-                  : dayOrder.filter(d => schedule[d] && schedule[d].available);
-                if (!is247 && availableDays.length === 0) return null;
-                return (
-                  <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
-                    <h3 className="text-xl font-bold text-[#832161] mb-6">My schedule</h3>
-                    {is247 ? (
-                      <div className="flex items-center justify-between py-2" data-testid="schedule-247">
-                        <span className="text-[#000000] font-medium">All week</span>
-                        <span className="text-[#C6A87C]">Available 24/7</span>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {availableDays.map((day) => {
-                          const s = schedule[day];
-                          return (
-                            <div key={day} className="flex justify-between items-center py-2" data-testid={`schedule-${day}`}>
-                              <span className="text-[#000000] font-medium">{labels[day]}</span>
-                              <span className="text-[#000000]">{s.start} - {s.end}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                    {provider.booking_advance && (
-                      <p className="mt-6 pt-4 border-t border-[#27272A] text-[#C6A87C] text-sm" data-testid="schedule-advance">
-                        Booking in advance necessary
-                      </p>
-                    )}
-                  </div>
-                );
-              })()}
-
               {/* Let's Connect */}
               <div className="mb-8 bg-white rounded-lg p-6 md:p-8" data-testid="contact-section">
                 <h3 className="text-xl font-bold text-[#832161] mb-6">Let&apos;s connect</h3>
@@ -542,6 +446,103 @@ export default function ProviderDetail() {
                   );
                 })()}
               </div>
+
+              {/* Services */}
+              {(() => {
+                const services = provider.services;
+                let serviceList = [];
+                if (Array.isArray(services)) {
+                  serviceList = services.map(s => ({ name: s, type: 'inclusive', price: '' }));
+                } else if (services && typeof services === 'object') {
+                  serviceList = Object.entries(services)
+                    .filter(([_, v]) => v && v.type)
+                    .map(([name, v]) => ({ name, type: v.type, price: v.price }));
+                }
+                if (serviceList.length === 0) return null;
+                const inclusive = serviceList.filter(s => s.type === 'inclusive');
+                const extras = serviceList.filter(s => s.type === 'extra');
+                return (
+                  <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
+                    <h3 className="text-xl font-bold text-[#832161] mb-6">What we can share together...</h3>
+                    {inclusive.length > 0 && (
+                      <div className="mb-4">
+                        {extras.length > 0 && (
+                          <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-3">Inclusive</p>
+                        )}
+                        <div className="flex flex-wrap gap-3">
+                          {inclusive.map((s, i) => (
+                            <span
+                              key={`inc-${i}`}
+                              className="px-4 py-2 border border-[#dbdadd] text-[#000000] text-sm uppercase tracking-wider"
+                              data-testid={`service-${i}`}
+                            >
+                              {s.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {extras.length > 0 && (
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-3">Extra</p>
+                        <div className="flex flex-wrap gap-3">
+                          {extras.map((s, i) => (
+                            <span
+                              key={`ext-${i}`}
+                              className="px-4 py-2 border border-[#C6A87C]/40 bg-[#C6A87C]/10 text-[#C6A87C] text-sm uppercase tracking-wider"
+                              data-testid={`service-extra-${i}`}
+                            >
+                              {s.name}{s.price && ` · €${s.price}`}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Schedule */}
+              {(() => {
+                const dayOrder = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+                const labels = { monday:'Monday', tuesday:'Tuesday', wednesday:'Wednesday', thursday:'Thursday', friday:'Friday', saturday:'Saturday', sunday:'Sunday' };
+                const schedule = provider.schedule && typeof provider.schedule === 'object' ? provider.schedule : null;
+                const is247 = !!provider.available247;
+                if (!is247 && !schedule) return null;
+                const availableDays = is247
+                  ? []
+                  : dayOrder.filter(d => schedule[d] && schedule[d].available);
+                if (!is247 && availableDays.length === 0) return null;
+                return (
+                  <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
+                    <h3 className="text-xl font-bold text-[#832161] mb-6">My schedule</h3>
+                    {is247 ? (
+                      <div className="flex items-center justify-between py-2" data-testid="schedule-247">
+                        <span className="text-[#000000] font-medium">All week</span>
+                        <span className="text-[#C6A87C]">Available 24/7</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {availableDays.map((day) => {
+                          const s = schedule[day];
+                          return (
+                            <div key={day} className="flex justify-between items-center py-2" data-testid={`schedule-${day}`}>
+                              <span className="text-[#000000] font-medium">{labels[day]}</span>
+                              <span className="text-[#000000]">{s.start} - {s.end}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {provider.booking_advance && (
+                      <p className="mt-6 pt-4 border-t border-[#27272A] text-[#C6A87C] text-sm" data-testid="schedule-advance">
+                        Booking in advance necessary
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
+
 
               {/* Rates */}
               {provider.rates && Object.keys(provider.rates).length > 0 && (() => {
