@@ -131,7 +131,7 @@ export default function Browse() {
               className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
                 filters.gender === ''
                   ? 'border-[#832161] bg-[#832161] text-white'
-                  : 'border-[#832161] text-[#321161] font-bold hover:bg-[#832161]/10'
+                  : 'border-[#832161] text-[#832161] font-bold hover:bg-[#832161]/10'
               }`}
               data-testid="filter-all"
             >
@@ -142,7 +142,7 @@ export default function Browse() {
               className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
                 filters.gender === 'female'
                   ? 'border-[#832161] bg-[#832161] text-white'
-                  : 'border-[#832161] text-[#321161] font-bold hover:bg-[#832161]/10'
+                  : 'border-[#832161] text-[#832161] font-bold hover:bg-[#832161]/10'
               }`}
               data-testid="filter-female"
             >
@@ -153,7 +153,7 @@ export default function Browse() {
               className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
                 filters.gender === 'male'
                   ? 'border-[#832161] bg-[#832161] text-white'
-                  : 'border-[#832161] text-[#321161] font-bold hover:bg-[#832161]/10'
+                  : 'border-[#832161] text-[#832161] font-bold hover:bg-[#832161]/10'
               }`}
               data-testid="filter-male"
             >
@@ -164,7 +164,7 @@ export default function Browse() {
               className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
                 filters.gender === 'trans'
                   ? 'border-[#832161] bg-[#832161] text-white'
-                  : 'border-[#832161] text-[#321161] font-bold hover:bg-[#832161]/10'
+                  : 'border-[#832161] text-[#832161] font-bold hover:bg-[#832161]/10'
               }`}
               data-testid="filter-trans"
             >
@@ -176,7 +176,7 @@ export default function Browse() {
               className={`relative px-4 md:px-6 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all flex items-center gap-2 ${
                 showFilters || activeExtraCount > 0
                   ? 'border-[#832161] bg-[#832161] text-white'
-                  : 'border-[#832161] text-[#321161] font-bold hover:bg-[#832161]/10'
+                  : 'border-[#832161] text-[#832161] font-bold hover:bg-[#832161]/10'
               }`}
               data-testid="filters-button"
               aria-label="Extra filters"
