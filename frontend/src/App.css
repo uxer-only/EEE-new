@@ -40,7 +40,7 @@ select.input-premium option {
 
 /* Light-theme scoped overrides for the provider dashboard wizard */
 .dashboard-light .input-label {
-  @apply text-[#000000];
+  @apply text-[#a4a4a4];
 }
 .dashboard-light .input-premium {
   @apply bg-white text-[#000000] border-[#dbdadd] placeholder:text-gray-400;
