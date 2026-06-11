@@ -499,61 +499,69 @@ export default function ProviderDetail() {
                   'overnight': 'Overnight'
                 };
 
-                // Build unified row arrays per column so both sides have the same count → separators align
-                const buildRows = (col) => {
-                  const rows = [];
-                  ['1hour', '2hours', '3hours'].forEach((k) => {
+                // Build per-column items with a sort key
+                const itemsFor = (col) => {
+                  const items = [];
+                  const map = { '1hour': 1, '2hours': 2, '3hours': 3 };
+                  Object.keys(map).forEach((k) => {
                     if (col[k] !== undefined && col[k] !== '') {
-                      rows.push({ label: DURATION_LABELS[k], price: col[k] });
+                      items.push({ key: `h-${map[k]}`, label: DURATION_LABELS[k], price: col[k], sort: map[k] });
                     }
                   });
-                  (Array.isArray(col.extras) ? col.extras : [])
-                    .slice()
-                    .sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0))
-                    .forEach((ex) => rows.push({ label: `${ex.hours} hours`, price: ex.price }));
+                  (Array.isArray(col.extras) ? col.extras : []).forEach((ex) => {
+                    const h = Number(ex.hours) || 0;
+                    if (h > 0 && ex.price !== '' && ex.price !== undefined) {
+                      items.push({ key: `h-${h}`, label: `${h} hours`, price: ex.price, sort: h });
+                    }
+                  });
                   if (col.overnight !== undefined && col.overnight !== '') {
-                    rows.push({ label: 'Overnight', price: col.overnight });
+                    items.push({ key: 'overnight', label: 'Overnight', price: col.overnight, sort: 9000 });
                   }
                   if (col.taxi !== undefined && col.taxi !== '' && col.taxi !== null) {
-                    rows.push({ label: 'Taxi not included', price: col.taxi });
+                    items.push({ key: 'taxi', label: 'Taxi not included', price: col.taxi, sort: 9999 });
                   }
-                  return rows;
+                  return items;
                 };
 
-                const incallRows = buildRows(r.incall || {});
-                const outcallRows = buildRows(r.outcall || {});
-                const maxLen = Math.max(incallRows.length, outcallRows.length);
+                const inItems = itemsFor(r.incall || {});
+                const outItems = itemsFor(r.outcall || {});
 
-                const renderColumn = (kind, rows) => {
-                  // Pad with empty placeholder rows so both columns finish at the same Y position
-                  const padded = [...rows, ...Array(maxLen - rows.length).fill(null)];
-                  if (rows.length === 0) return null;
-                  return (
-                    <div key={kind} className="space-y-3">
-                      <p className="text-lg tracking-[0.3em] text-[#832161] mb-2 capitalize">{kind}</p>
-                      {padded.map((row, i) => (
-                        row ? (
-                          <div key={i} className="flex justify-between items-center pb-3 border-b border-[#dbdadd]" data-testid={`rate-${kind}-${i}`}>
-                            <span className="text-[#000000] text-base">{row.label}</span>
-                            <span className="text-[#832161] text-base">€{row.price}</span>
-                          </div>
-                        ) : (
-                          <div key={`pad-${i}`} className="pb-3 border-b border-transparent" aria-hidden="true">
-                            <span className="invisible">·</span>
-                          </div>
-                        )
-                      ))}
-                    </div>
-                  );
-                };
+                // Union of row keys across both columns → identical row layout per column
+                const byKey = new Map();
+                [...inItems, ...outItems].forEach((it) => {
+                  if (!byKey.has(it.key)) byKey.set(it.key, { key: it.key, label: it.label, sort: it.sort });
+                });
+                const unifiedKeys = Array.from(byKey.values()).sort((a, b) => a.sort - b.sort);
+                const inMap = Object.fromEntries(inItems.map((it) => [it.key, it.price]));
+                const outMap = Object.fromEntries(outItems.map((it) => [it.key, it.price]));
+                const unifiedRows = unifiedKeys.map(({ key, label }) => ({
+                  key,
+                  label,
+                  incall:  inMap[key]  !== undefined ? inMap[key]  : null,
+                  outcall: outMap[key] !== undefined ? outMap[key] : null
+                }));
+
+                const renderColumn = (kind) => (
+                  <div key={kind} className="space-y-3">
+                    <p className="text-lg tracking-[0.3em] text-[#832161] mb-2 capitalize">{kind}</p>
+                    {unifiedRows.map((row) => (
+                      <div key={row.key} className="flex justify-between items-center pb-3 border-b border-[#dbdadd]" data-testid={`rate-${kind}-${row.key}`}>
+                        <span className="text-[#000000] text-base">{row.label}</span>
+                        <span className={`text-base ${row[kind] !== null ? 'text-[#832161]' : 'text-[#9CA3AF]'}`}>
+                          {row[kind] !== null ? `€${row[kind]}` : '—'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                );
 
                 return (
                   <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
                     <h3 className="text-xl font-bold text-[#832161] mb-6">Time & investment</h3>
                     {isNested ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {renderColumn('incall', incallRows)}
-                        {renderColumn('outcall', outcallRows)}
+                        {renderColumn('incall')}
+                        {renderColumn('outcall')}
                       </div>
                     ) : (
                       <div className="space-y-4">
