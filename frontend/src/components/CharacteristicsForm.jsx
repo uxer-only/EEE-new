@@ -76,7 +76,7 @@ const YesNoField = ({ label, value, onChange, testIdBase }) => (
           className={`py-2 border text-sm uppercase tracking-wider transition-all ${
             value === opt.value
               ? 'border-[#832161] text-[#832161]'
-              : 'border-[#a4a4a4] text-[#a4a4a4] hover:border-[#832161]'
+              : 'border-[#898989] text-[#898989] hover:border-[#832161]'
           }`}
           data-testid={`${testIdBase}-${opt.value}`}
         >

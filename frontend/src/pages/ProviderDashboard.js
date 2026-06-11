@@ -1061,7 +1061,7 @@ export default function ProviderDashboard() {
                           className={`py-3 px-6 border transition-all ${
                             profileData.account_type === 'independent'
                               ? 'border-[#832161] text-[#832161]'
-                              : 'border-[#a4a4a4] text-[#a4a4a4] hover:border-[#832161]'
+                              : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                           }`}
                           data-testid="account-type-independent"
                         >
@@ -1073,7 +1073,7 @@ export default function ProviderDashboard() {
                           className={`py-3 px-6 border transition-all ${
                             profileData.account_type === 'agency'
                               ? 'border-[#832161] text-[#832161]'
-                              : 'border-[#a4a4a4] text-[#a4a4a4] hover:border-[#832161]'
+                              : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                           }`}
                           data-testid="account-type-agency"
                         >
@@ -1262,7 +1262,7 @@ export default function ProviderDashboard() {
                                   className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
                                     selected
                                       ? 'border-[#832161] text-[#832161]'
-                                      : 'border-[#a4a4a4] text-[#a4a4a4] hover:border-[#832161]'
+                                      : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                                   }`}
                                   data-testid={`basic-lang-${lang.toLowerCase()}`}
                                 >
@@ -1688,7 +1688,7 @@ export default function ProviderDashboard() {
                       className={`px-6 py-3 border text-sm transition-all ${
                         profileData.companionshipType === 'escort'
                           ? 'border-[#832161] text-[#832161]'
-                          : 'border-[#a4a4a4] text-[#a4a4a4] hover:border-[#832161]'
+                          : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                       }`}
                     >
                       Escort
@@ -1699,7 +1699,7 @@ export default function ProviderDashboard() {
                       className={`px-6 py-3 border text-sm transition-all ${
                         profileData.companionshipType === 'erotic-massage'
                           ? 'border-[#832161] text-[#832161]'
-                          : 'border-[#a4a4a4] text-[#a4a4a4] hover:border-[#832161]'
+                          : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                       }`}
                     >
                       Erotic Massage
@@ -1752,7 +1752,7 @@ export default function ProviderDashboard() {
                               className={`px-3 h-9 text-xs border transition-all ${
                                 serviceData.type === 'inclusive'
                                   ? 'border-[#832161] text-[#832161]'
-                                  : 'border-[#a4a4a4] text-[#a4a4a4] hover:border-[#832161]'
+                                  : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                               }`}
                             >
                               Inclusive
@@ -1772,7 +1772,7 @@ export default function ProviderDashboard() {
                               className={`px-3 h-9 text-xs border transition-all ${
                                 serviceData.type === 'extra'
                                   ? 'border-[#832161] text-[#832161]'
-                                  : 'border-[#a4a4a4] text-[#a4a4a4] hover:border-[#832161]'
+                                  : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                               }`}
                             >
                               Extra
@@ -1883,7 +1883,7 @@ export default function ProviderDashboard() {
                           className={`py-3 px-4 border text-sm uppercase tracking-wider transition-all ${
                             profileData.availability_type === opt.value
                               ? 'border-[#832161] text-[#832161]'
-                              : 'border-[#a4a4a4] text-[#a4a4a4] hover:border-[#832161]'
+                              : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                           }`}
                           data-testid={`availability-type-${opt.value}`}
                         >

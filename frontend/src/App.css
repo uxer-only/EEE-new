@@ -40,10 +40,10 @@ select.input-premium option {
 
 /* Light-theme scoped overrides for the provider dashboard wizard */
 .dashboard-light .input-label {
-  @apply text-[#a4a4a4];
+  @apply text-[#898989];
 }
 .dashboard-light .input-premium {
-  @apply bg-white text-[#000000] border-[#dbdadd] placeholder:text-gray-400;
+  @apply bg-white text-[#000000] border-[#898989] placeholder:text-gray-400;
 }
 .dashboard-light .input-premium:focus {
   @apply border-[#832161];
@@ -53,7 +53,7 @@ select.input-premium option {
 }
 
 .input-helper {
-  @apply text-xs text-[#9CA3AF] mt-1 block;
+  @apply text-xs text-[#DA4167] mt-1 block;
 }
 
 /* Card styles */
