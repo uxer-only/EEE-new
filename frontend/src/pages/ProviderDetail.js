@@ -296,7 +296,7 @@ export default function ProviderDetail() {
                           {inclusive.map((s, i) => (
                             <span
                               key={`inc-${i}`}
-                              className="px-4 py-2 border border-[#3F3F46] text-[#000000] text-sm uppercase tracking-wider hover:border-[#C6A87C] hover:text-[#C6A87C] transition-colors"
+                              className="px-4 py-2 border border-[#dbdadd] text-[#000000] text-sm uppercase tracking-wider"
                               data-testid={`service-${i}`}
                             >
                               {s.name}
