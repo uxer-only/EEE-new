@@ -91,7 +91,7 @@ export default function Browse() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0C]">
+    <div className="min-h-screen bg-[#F0EFF4]">
       {/* Header */}
       <SiteHeader
         links={
@@ -120,7 +120,7 @@ export default function Browse() {
         )}
         {/* Search Bar */}
         <div className="max-w-4xl mx-auto mb-10 md:mb-16">
-          <h2 className="text-4xl md:text-5xl text-[#F2F0ED] mb-6 md:mb-8 text-center" data-testid="browse-title">
+          <h2 className="text-4xl md:text-5xl text-[#141416] mb-6 md:mb-8 text-center" data-testid="browse-title">
  Discover Excellence
  </h2>
           
