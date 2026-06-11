@@ -5,7 +5,7 @@ import { getProviderById } from '@/services/api';
 import { toast } from 'sonner';
 import {
   MapPin, CheckCircle, Star, Calendar, Clock, CaretLeft, CaretRight,
-  Phone, WhatsappLogo, EnvelopeSimple, X
+  Phone, WhatsappLogo, TelegramLogo, ChatCircle, EnvelopeSimple, X
 } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -19,6 +19,7 @@ export default function ProviderDetail() {
   const [carouselApi, setCarouselApi] = useState(null);
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState(null);
+  const [showPhone, setShowPhone] = useState(false);
   const [extraRequest, setExtraRequest] = useState('');
   const [requestName, setRequestName] = useState('');
   const [requestEmail, setRequestEmail] = useState('');
@@ -369,54 +370,121 @@ export default function ProviderDetail() {
               {/* Let's Connect */}
               <div className="mb-8 bg-white rounded-lg p-6 md:p-8" data-testid="contact-section">
                 <h3 className="text-xl font-bold text-[#832161] mb-6">Let&apos;s connect</h3>
-                <div className="space-y-4">
-                  {/* Mobile */}
-                  <a 
-                    href={`tel:${provider.contact?.phone || '+32 XXX XX XX XX'}`}
-                    className="flex items-center gap-4 p-4 border border-[#27272A] group"
-                    data-testid="contact-phone"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-[#C6A87C]/10 flex items-center justify-center">
-                      <Phone size={20} className="text-[#C6A87C]" />
-                    </div>
-                    <div>
-                      <p className="text-[#000000] text-sm">Mobile</p>
-                      <p className="text-[#000000]">{provider.contact?.phone || '+32 XXX XX XX XX'}</p>
-                    </div>
-                  </a>
+                {(() => {
+                  const phone = provider.contact?.phone || '+32 XXX XX XX XX';
+                  const maskPhone = (raw) => {
+                    if (!raw) return '+32 XXX XX XX XX';
+                    // Preserve country code (+xx or +xxx), mask the rest with X (keep separators)
+                    const m = raw.match(/^(\+\d{1,4})\s?(.*)$/);
+                    if (!m) return raw.replace(/\d/g, 'X');
+                    return `${m[1]} ${m[2].replace(/\d/g, 'X')}`;
+                  };
+                  const c = provider.contact || {};
+                  const stripDigits = (s) => (s || '').replace(/[^0-9]/g, '');
+                  const channelLinks = [
+                    {
+                      key: 'sms', enabled: c.hasSms,
+                      href: `sms:${phone}`, label: 'SMS',
+                      bg: '#dbdadd', fg: '#832161',
+                      icon: <ChatCircle size={20} weight="fill" />
+                    },
+                    {
+                      key: 'whatsapp', enabled: c.hasWhatsapp,
+                      href: `https://wa.me/${stripDigits(c.whatsapp || phone)}`, label: 'WhatsApp',
+                      bg: '#25D366', fg: '#ffffff',
+                      icon: <WhatsappLogo size={20} weight="fill" />
+                    },
+                    {
+                      key: 'telegram', enabled: c.hasTelegram,
+                      href: `https://t.me/${stripDigits(c.telegram || phone)}`, label: 'Telegram',
+                      bg: '#0088cc', fg: '#ffffff',
+                      icon: <TelegramLogo size={20} weight="fill" />
+                    },
+                    {
+                      key: 'signal', enabled: c.hasSignal,
+                      href: `https://signal.me/#p/${stripDigits(c.signal || phone)}`, label: 'Signal',
+                      bg: '#3A76F0', fg: '#ffffff',
+                      // Inline Signal logo
+                      icon: (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9.84 1.123a.704.704 0 0 1 .31 1.371 9.591 9.591 0 0 0-1.275.376.704.704 0 1 1-.493-1.318 11 11 0 0 1 1.458-.43Zm4.32 0a11 11 0 0 1 1.458.43.704.704 0 1 1-.493 1.318 9.591 9.591 0 0 0-1.275-.376.704.704 0 0 1 .31-1.371Zm-9.275 3.27a.704.704 0 0 1 .128.987 9.6 9.6 0 0 0-.749 1.082.704.704 0 1 1-1.205-.728 11 11 0 0 1 .839-1.213.704.704 0 0 1 .987-.128Zm14.23 0a.704.704 0 0 1 .987.128c.302.402.59.806.84 1.213a.704.704 0 1 1-1.206.728 9.59 9.59 0 0 0-.748-1.082.704.704 0 0 1 .127-.987Zm-17.39 6.43a.704.704 0 0 1 .677.73 9.65 9.65 0 0 0 .051 1.32.704.704 0 1 1-1.4.14 11 11 0 0 1-.057-1.513.704.704 0 0 1 .729-.677Zm20.55 0a.704.704 0 0 1 .729.677 11 11 0 0 1-.057 1.513.704.704 0 1 1-1.4-.14 9.6 9.6 0 0 0 .051-1.32.704.704 0 0 1 .677-.73ZM12 4.704A7.296 7.296 0 0 0 5.685 15.66l-.66 2.21a.524.524 0 0 0 .65.651l2.21-.66A7.296 7.296 0 1 0 12 4.704Z"/>
+                        </svg>
+                      )
+                    },
+                    {
+                      key: 'viber', enabled: c.hasViber,
+                      href: `viber://chat?number=${encodeURIComponent(stripDigits(c.viber || phone))}`, label: 'Viber',
+                      bg: '#7360F2', fg: '#ffffff',
+                      icon: (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11.4.005a16.74 16.74 0 0 0-3.31.34C5.71.83 4.255 2.13 3.49 4.475c-.94 2.88-1.04 6.485-.585 9.31.34 2.105 1.04 4.04 2.4 5.16 1.13.91 2.34 1.255 4.18 1.255l-.005.07v2.36s.01 1.165 1.075 1.165c.49 0 .81-.165 1.205-.49.39-.32 1.61-1.43 2.41-2.07.55 0 1.1.025 1.65.025 2.165 0 3.9-.585 5.235-1.745 1.345-1.16 2.115-2.78 2.34-4.78.245-2.13.205-4.155-.115-6.135C22.66 4.305 21.04 2.36 18.46 1.27 16.51.435 13.985.005 11.4.005Zm.875 4.395c1.94 0 3.45 1.71 3.45 1.71s.585.65.585 1.51c0 .85-.5 1.43-.5 1.43s-1.04 1.16-2.045 2.155c-.5.495-1.04 1.05-1.34 1.36-.31.31-.62.5-1.04.5-.42 0-1.04-.5-1.55-1.04-.71-.71-1.27-1.61-1.66-2.45-.495-1.04-.5-1.91-.04-2.45.46-.5 1.05-.75 1.55-.81.5-.05.92-.05.92-.05s.71.02.715.025c.05.05.95.85.95 1.06 0 .27-.55.71-.55.71s-.5.4-.5.8c0 .4.27.71.66 1.21.39.5.92.99 1.43 1.27.5.27.81.4 1.21.4.4 0 .8-.5.8-.5s.4-.6.66-.6c.21 0 1.115.92 1.115.97 0 .05-.27.45-.5.66z"/>
+                        </svg>
+                      )
+                    },
+                  ];
+                  return (
+                    <div className="space-y-6">
+                      {/* Mobile + channel icons */}
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4" data-testid="contact-phone">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-[#832161]/10 flex items-center justify-center">
+                            <Phone size={20} className="text-[#832161]" />
+                          </div>
+                          <div>
+                            <p className="text-[#000000] text-sm">Mobile</p>
+                            {showPhone ? (
+                              <a href={`tel:${phone}`} className="text-[#000000] font-medium" data-testid="phone-number">{phone}</a>
+                            ) : (
+                              <button
+                                onClick={() => setShowPhone(true)}
+                                className="flex items-center gap-3"
+                                data-testid="show-phone-btn"
+                              >
+                                <span className="text-[#000000]">{maskPhone(phone)}</span>
+                                <span className="text-xs uppercase tracking-wider text-[#DA4167] border border-[#DA4167] rounded px-2 py-0.5 hover:bg-[#DA4167]/10 transition-colors">
+                                  Show number
+                                </span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        {/* Access channel icons */}
+                        <div className="flex items-center gap-2 flex-wrap" data-testid="contact-channels">
+                          {channelLinks.filter(ch => ch.enabled).map(ch => (
+                            <a
+                              key={ch.key}
+                              href={ch.href}
+                              target={ch.key === 'sms' ? undefined : '_blank'}
+                              rel="noopener noreferrer"
+                              title={ch.label}
+                              aria-label={ch.label}
+                              data-testid={`channel-${ch.key}`}
+                              className="w-9 h-9 rounded-full flex items-center justify-center transition-opacity hover:opacity-80"
+                              style={{ backgroundColor: ch.bg, color: ch.fg }}
+                            >
+                              {ch.icon}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
 
-                  {/* WhatsApp */}
-                  <a 
-                    href={`https://wa.me/${(provider.contact?.whatsapp || '+32XXXXXXXXX').replace(/[^0-9]/g, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-4 p-4 border border-[#27272A] group"
-                    data-testid="contact-whatsapp"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-[#25D366]/10 flex items-center justify-center">
-                      <WhatsappLogo size={20} className="text-[#25D366]" />
+                      {/* Email */}
+                      <a
+                        href={`mailto:${provider.contact?.email || provider.user?.email || 'contact@example.com'}`}
+                        className="flex items-center gap-4"
+                        data-testid="contact-email"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-[#832161]/10 flex items-center justify-center">
+                          <EnvelopeSimple size={20} className="text-[#832161]" />
+                        </div>
+                        <div>
+                          <p className="text-[#000000] text-sm">E-mail</p>
+                          <p className="text-[#000000]">{provider.contact?.email || provider.user?.email || 'contact@example.com'}</p>
+                        </div>
+                      </a>
                     </div>
-                    <div>
-                      <p className="text-[#000000] text-sm">WhatsApp</p>
-                      <p className="text-[#000000]">{provider.contact?.whatsapp || '+32 XXX XX XX XX'}</p>
-                    </div>
-                  </a>
-
-                  {/* Email */}
-                  <a 
-                    href={`mailto:${provider.contact?.email || provider.user?.email || 'contact@example.com'}`}
-                    className="flex items-center gap-4 p-4 border border-[#27272A] group"
-                    data-testid="contact-email"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-[#C6A87C]/10 flex items-center justify-center">
-                      <EnvelopeSimple size={20} className="text-[#C6A87C]" />
-                    </div>
-                    <div>
-                      <p className="text-[#000000] text-sm">E-mail</p>
-                      <p className="text-[#000000]">{provider.contact?.email || provider.user?.email || 'contact@example.com'}</p>
-                    </div>
-                  </a>
-                </div>
+                  );
+                })()}
               </div>
 
               {/* Rates */}
