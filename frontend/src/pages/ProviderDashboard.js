@@ -1203,8 +1203,7 @@ export default function ProviderDashboard() {
                       maxLength={1500}
                       data-testid="essence-input"
                     />
-                    <div className="flex justify-between mt-2">
-                      <p className="input-helper">This will be displayed in &quot;My Essence&quot; on your profile</p>
+                    <div className="flex justify-end mt-2">
                       <span className="text-xs text-[#000000]">{(profileData.bio || '').length}/1500</span>
                     </div>
                   </div>
