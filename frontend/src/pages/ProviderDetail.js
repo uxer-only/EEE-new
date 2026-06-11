@@ -251,7 +251,7 @@ export default function ProviderDetail() {
                   </div>
                   {(provider.bio || provider.essence) && (
                     <>
-                      <div className="my-6 border-t border-[#dbdadd]"></div>
+                      <div className="mt-6 mb-3 border-t border-[#dbdadd]"></div>
                       <p className="text-[#000000] leading-relaxed" data-testid="provider-bio">
                         {provider.bio || provider.essence}
                       </p>
