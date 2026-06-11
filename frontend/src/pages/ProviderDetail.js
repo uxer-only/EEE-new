@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getProviderById } from '@/services/api';
+import { getProviderById, getProviders } from '@/services/api';
 import { toast } from 'sonner';
 import {
   MapPin, CheckCircle, Star, Calendar, Clock, CaretLeft, CaretRight,
@@ -20,6 +20,7 @@ export default function ProviderDetail() {
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState(null);
   const [showPhone, setShowPhone] = useState(false);
+  const [neighbors, setNeighbors] = useState({ prev: null, next: null });
   const [extraRequest, setExtraRequest] = useState('');
   const [requestName, setRequestName] = useState('');
   const [requestEmail, setRequestEmail] = useState('');
@@ -27,7 +28,25 @@ export default function ProviderDetail() {
 
   useEffect(() => {
     fetchProvider();
+    fetchNeighbors();
   }, [id]);
+
+  const fetchNeighbors = async () => {
+    try {
+      const res = await getProviders({ limit: 200 });
+      const list = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+      const idx = list.findIndex((p) => p.provider_id === id);
+      if (idx === -1) {
+        setNeighbors({ prev: null, next: null });
+        return;
+      }
+      const prev = idx > 0 ? list[idx - 1].provider_id : null;
+      const next = idx < list.length - 1 ? list[idx + 1].provider_id : null;
+      setNeighbors({ prev, next });
+    } catch (_err) {
+      setNeighbors({ prev: null, next: null });
+    }
+  };
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -36,6 +55,19 @@ export default function ProviderDetail() {
     onSelect();
     return () => { carouselApi.off('select', onSelect); };
   }, [carouselApi]);
+
+  // Keyboard shortcuts for profile navigation (disabled while lightbox is open)
+  useEffect(() => {
+    if (lightboxIdx !== null) return;
+    const onKey = (e) => {
+      const tag = (e.target?.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return; // don't hijack while typing
+      if (e.key === 'ArrowRight' && neighbors.next) navigate(`/providers/${neighbors.next}`);
+      else if (e.key === 'ArrowLeft' && neighbors.prev) navigate(`/providers/${neighbors.prev}`);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [neighbors, lightboxIdx, navigate]);
 
   // ESC key closes lightbox; arrow keys navigate
   useEffect(() => {
@@ -103,6 +135,32 @@ export default function ProviderDetail() {
             <CaretLeft size={20} />
             <span className="uppercase tracking-wider text-sm">Back to Browse</span>
           </Link>
+          {/* Prev / Next profile nav */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={!neighbors.prev}
+              onClick={() => neighbors.prev && navigate(`/providers/${neighbors.prev}`)}
+              className="w-10 h-10 rounded-full flex items-center justify-center border border-[#DA4167] text-[#DA4167] hover:bg-[#DA4167]/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              data-testid="prev-profile-btn"
+              aria-label="Previous profile"
+              title="Previous profile"
+            >
+              <CaretLeft size={20} />
+            </button>
+            <button
+              type="button"
+              disabled={!neighbors.next}
+              onClick={() => neighbors.next && navigate(`/providers/${neighbors.next}`)}
+              className="px-4 h-10 rounded-full flex items-center gap-2 bg-[#832161] text-white hover:bg-[#6e1b51] disabled:opacity-30 disabled:cursor-not-allowed transition-colors uppercase tracking-wider text-xs"
+              data-testid="next-profile-btn"
+              aria-label="Next profile"
+              title="Next profile"
+            >
+              Next profile
+              <CaretRight size={20} />
+            </button>
+          </div>
           <nav className="flex items-center gap-8">
             {user && (
               <Link to="/dashboard" className="btn-ghost" data-testid="dashboard-link">
