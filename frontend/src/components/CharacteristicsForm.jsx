@@ -91,7 +91,7 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
   const update = (key, value) => onChange({ ...characteristics, [key]: value });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Nationality */}
       <SelectField
         label="Nationality"

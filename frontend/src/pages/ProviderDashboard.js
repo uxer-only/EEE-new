@@ -1034,7 +1034,7 @@ export default function ProviderDashboard() {
                 <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
                   <h3 className="text-2xl font-bold text-[#832161] mb-6">Basic Information</h3>
                   
-                  <div className="space-y-6">
+                  <div className="space-y-8">
                     {/* Account Type */}
                     <div>
                       <label className="input-label">I am</label>
@@ -1334,7 +1334,7 @@ export default function ProviderDashboard() {
                 {/* Box 2: Contact Information */}
                 <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
                   <h3 className="text-2xl font-bold text-[#832161] mb-6">Contact information</h3>
-                  <div className="space-y-6">
+                  <div className="space-y-8">
                     <div>
                       <label className="input-label">Mobile phone</label>
                       {(() => {
