@@ -542,10 +542,10 @@ export default function ProviderDetail() {
                 }));
 
                 const renderColumn = (kind) => (
-                  <div key={kind} className="space-y-3">
-                    <p className="text-lg tracking-[0.3em] text-[#832161] mb-2 capitalize">{kind}</p>
+                  <div key={kind}>
+                    <p className="text-lg tracking-[0.3em] text-[#832161] mb-4 capitalize">{kind}</p>
                     {unifiedRows.map((row) => (
-                      <div key={row.key} className="flex justify-between items-center pb-3 border-b border-[#dbdadd]" data-testid={`rate-${kind}-${row.key}`}>
+                      <div key={row.key} className="flex justify-between items-center py-3 border-b border-[#dbdadd] last:border-b-0" data-testid={`rate-${kind}-${row.key}`}>
                         <span className="text-[#000000] text-base">{row.label}</span>
                         <span className={`text-base ${row[kind] !== null ? 'text-[#832161]' : 'text-[#9CA3AF]'}`}>
                           {row[kind] !== null ? `€${row[kind]}` : '—'}
