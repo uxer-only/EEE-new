@@ -664,9 +664,9 @@ export default function ProviderDashboard() {
             {/* Management Cards — stacked in registration order */}
             <div className="flex flex-col gap-6">
               {/* 1. Basic Info */}
-              <div className="bg-white border border-[#C6A87C] rounded-lg p-8" data-testid="card-basic-info">
+              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-basic-info">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
                     <User size={18} className="text-[#C6A87C]" />
                   </div>
                   <div>
@@ -706,9 +706,9 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 2. Photos & Videos */}
-              <div className="bg-white border border-[#C6A87C] rounded-lg p-8" data-testid="card-photos">
+              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-photos">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
                     <Camera size={18} className="text-[#C6A87C]" />
                   </div>
                   <div>
@@ -742,9 +742,9 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 3. Services */}
-              <div className="bg-white border border-[#C6A87C] rounded-lg p-8" data-testid="card-services">
+              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-services">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
                     <FileText size={18} className="text-[#C6A87C]" />
                   </div>
                   <div>
@@ -803,9 +803,9 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 4. Rates */}
-              <div className="bg-white border border-[#C6A87C] rounded-lg p-8" data-testid="card-rates">
+              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-rates">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
                     <CurrencyDollar size={18} className="text-[#C6A87C]" />
                   </div>
                   <div>
@@ -868,9 +868,9 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 5. Availability */}
-              <div className="bg-white border border-[#C6A87C] rounded-lg p-8" data-testid="card-availability">
+              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-availability">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#C6A87C] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
                     <Clock size={18} className="text-[#C6A87C]" />
                   </div>
                   <div>
@@ -983,14 +983,14 @@ export default function ProviderDashboard() {
           <div className="flex items-center justify-between mb-12 px-4">
             {steps.map((step, index) => {
               const stepStateClass = (() => {
-                if (currentStep === step.id) return 'text-[#C6A87C]';
-                if (currentStep > step.id) return 'text-green-500';
+                if (currentStep === step.id) return 'text-[#832161]';
+                if (currentStep > step.id) return 'text-green-600';
                 return 'text-[#000000]';
               })();
               const stepBorderClass = (() => {
-                if (currentStep === step.id) return 'border-[#C6A87C] bg-[#C6A87C]/10';
-                if (currentStep > step.id) return 'border-green-500 bg-green-500/10';
-                return 'border-[#dbdadd]';
+                if (currentStep === step.id) return 'border-[#832161] bg-white';
+                if (currentStep > step.id) return 'border-green-600 bg-white';
+                return 'border-[#dbdadd] bg-white';
               })();
               return (
               <div key={step.id} className="flex items-center">
@@ -1010,7 +1010,7 @@ export default function ProviderDashboard() {
                 </button>
                 {index < steps.length - 1 && (
                   <div className={`w-8 md:w-16 h-0.5 mx-2 ${
-                    currentStep > step.id ? 'bg-green-500' : 'bg-[#52525B]'
+                    currentStep > step.id ? 'bg-green-600' : 'bg-[#dbdadd]'
                   }`} />
                 )}
               </div>
@@ -1025,13 +1025,13 @@ export default function ProviderDashboard() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className={currentStep === 1 ? 'p-0' : 'bg-white border border-[#C6A87C] rounded-lg p-8 transition-none'}
+            className={currentStep === 1 ? 'p-0' : 'bg-white border border-[#dbdadd] rounded-lg p-8 transition-none'}
           >
             {/* Step 1: Basic Info */}
             {currentStep === 1 && (
               <div className="space-y-8">
                 {/* Box 1: Basic Information */}
-                <div className="border border-[#C6A87C] rounded-lg p-6">
+                <div className="border border-[#dbdadd] rounded-lg p-6">
                   <h3 className="text-2xl font-bold text-[#832161] mb-6">Basic Information</h3>
                   
                   <div className="space-y-6">
@@ -1332,7 +1332,7 @@ export default function ProviderDashboard() {
                 </div>
 
                 {/* Box 2: Contact Information */}
-                <div className="border border-[#C6A87C] rounded-lg p-6">
+                <div className="border border-[#dbdadd] rounded-lg p-6">
                   <h3 className="text-2xl font-bold text-[#832161] mb-6">Contact information</h3>
                   <div className="space-y-6">
                     <div>
@@ -1468,7 +1468,7 @@ export default function ProviderDashboard() {
                 </div>
 
                 {/* Box 2: Physical Characteristics (optional) */}
-                <div className="border border-[#C6A87C] rounded-lg p-6">
+                <div className="border border-[#dbdadd] rounded-lg p-6">
                   <h3 className="text-2xl font-bold text-[#832161] mb-1">Physical Characteristics</h3>
                   <p className="text-[#000000] text-sm mb-6">All fields are optional — fill what you want shown on your profile.</p>
 
