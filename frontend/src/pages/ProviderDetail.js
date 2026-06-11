@@ -128,6 +128,31 @@ export default function ProviderDetail() {
 
   return (
     <div className="min-h-screen bg-[#F0EFF4] text-[#3D2645]">
+      {/* Floating side navigation — vertically centered prev/next profile arrows */}
+      {neighbors.prev && (
+        <button
+          type="button"
+          onClick={() => navigate(`/providers/${neighbors.prev}`)}
+          className="hidden md:flex fixed left-4 lg:left-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full items-center justify-center bg-white/90 backdrop-blur-sm shadow-md border border-[#DA4167] text-[#DA4167] hover:bg-[#DA4167] hover:text-white transition-colors"
+          data-testid="prev-profile-btn"
+          aria-label="Previous profile"
+          title="Previous profile (←)"
+        >
+          <CaretLeft size={24} />
+        </button>
+      )}
+      {neighbors.next && (
+        <button
+          type="button"
+          onClick={() => navigate(`/providers/${neighbors.next}`)}
+          className="hidden md:flex fixed right-4 lg:right-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full items-center justify-center bg-white/90 backdrop-blur-sm shadow-md border border-[#DA4167] text-[#DA4167] hover:bg-[#DA4167] hover:text-white transition-colors"
+          data-testid="next-profile-btn"
+          aria-label="Next profile"
+          title="Next profile (→)"
+        >
+          <CaretRight size={24} />
+        </button>
+      )}
       {/* Header */}
       <header className="floating-header" data-testid="header">
         <div className="section-padding py-6 flex items-center justify-between">
@@ -135,32 +160,6 @@ export default function ProviderDetail() {
             <CaretLeft size={20} />
             <span className="uppercase tracking-wider text-sm">Back to Browse</span>
           </Link>
-          {/* Prev / Next profile nav */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              disabled={!neighbors.prev}
-              onClick={() => neighbors.prev && navigate(`/providers/${neighbors.prev}`)}
-              className="w-10 h-10 rounded-full flex items-center justify-center border border-[#DA4167] text-[#DA4167] hover:bg-[#DA4167]/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              data-testid="prev-profile-btn"
-              aria-label="Previous profile"
-              title="Previous profile"
-            >
-              <CaretLeft size={20} />
-            </button>
-            <button
-              type="button"
-              disabled={!neighbors.next}
-              onClick={() => neighbors.next && navigate(`/providers/${neighbors.next}`)}
-              className="px-4 h-10 rounded-full flex items-center gap-2 bg-[#832161] text-white hover:bg-[#6e1b51] disabled:opacity-30 disabled:cursor-not-allowed transition-colors uppercase tracking-wider text-xs"
-              data-testid="next-profile-btn"
-              aria-label="Next profile"
-              title="Next profile"
-            >
-              Next profile
-              <CaretRight size={20} />
-            </button>
-          </div>
           <nav className="flex items-center gap-8">
             {user && (
               <Link to="/dashboard" className="btn-ghost" data-testid="dashboard-link">
