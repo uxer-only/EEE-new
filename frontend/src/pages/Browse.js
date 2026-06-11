@@ -130,8 +130,8 @@ export default function Browse() {
               onClick={() => setFilters({ ...filters, gender: '' })}
               className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
                 filters.gender === ''
-                  ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                  : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C] hover:text-[#F2F0ED]'
+                  ? 'border-[#832161] bg-[#832161] text-white'
+                  : 'border-[#832161] text-[#321161] font-bold hover:bg-[#832161]/10'
               }`}
               data-testid="filter-all"
             >
@@ -141,8 +141,8 @@ export default function Browse() {
               onClick={() => setFilters({ ...filters, gender: 'female' })}
               className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
                 filters.gender === 'female'
-                  ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                  : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C] hover:text-[#F2F0ED]'
+                  ? 'border-[#832161] bg-[#832161] text-white'
+                  : 'border-[#832161] text-[#321161] font-bold hover:bg-[#832161]/10'
               }`}
               data-testid="filter-female"
             >
@@ -152,8 +152,8 @@ export default function Browse() {
               onClick={() => setFilters({ ...filters, gender: 'male' })}
               className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
                 filters.gender === 'male'
-                  ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                  : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C] hover:text-[#F2F0ED]'
+                  ? 'border-[#832161] bg-[#832161] text-white'
+                  : 'border-[#832161] text-[#321161] font-bold hover:bg-[#832161]/10'
               }`}
               data-testid="filter-male"
             >
@@ -163,8 +163,8 @@ export default function Browse() {
               onClick={() => setFilters({ ...filters, gender: 'trans' })}
               className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
                 filters.gender === 'trans'
-                  ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                  : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C] hover:text-[#F2F0ED]'
+                  ? 'border-[#832161] bg-[#832161] text-white'
+                  : 'border-[#832161] text-[#321161] font-bold hover:bg-[#832161]/10'
               }`}
               data-testid="filter-trans"
             >
@@ -175,8 +175,8 @@ export default function Browse() {
               onClick={() => setShowFilters(!showFilters)}
               className={`relative px-4 md:px-6 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all flex items-center gap-2 ${
                 showFilters || activeExtraCount > 0
-                  ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                  : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#C6A87C] hover:text-[#F2F0ED]'
+                  ? 'border-[#832161] bg-[#832161] text-white'
+                  : 'border-[#832161] text-[#321161] font-bold hover:bg-[#832161]/10'
               }`}
               data-testid="filters-button"
               aria-label="Extra filters"
@@ -185,7 +185,7 @@ export default function Browse() {
               <span className="hidden sm:inline">Extra Filters</span>
               {activeExtraCount > 0 && (
                 <span
-                  className="ml-1 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-[#C6A87C] text-[#0A0A0C] text-[10px] font-semibold leading-none"
+                  className="ml-1 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-white text-[#832161] text-[10px] font-semibold leading-none"
                   data-testid="extra-filters-count"
                 >
                   {activeExtraCount}
