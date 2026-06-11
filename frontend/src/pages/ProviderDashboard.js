@@ -1031,7 +1031,7 @@ export default function ProviderDashboard() {
             {currentStep === 1 && (
               <div className="space-y-8">
                 {/* Box 1: Basic Information */}
-                <div className="border border-[#dbdadd] rounded-lg p-6">
+                <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
                   <h3 className="text-2xl font-bold text-[#832161] mb-6">Basic Information</h3>
                   
                   <div className="space-y-6">
@@ -1044,8 +1044,8 @@ export default function ProviderDashboard() {
                           onClick={() => setProfileData({ ...profileData, account_type: 'independent' })}
                           className={`py-3 px-6 border transition-all ${
                             profileData.account_type === 'independent'
-                              ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                              : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
+                              ? 'border-[#832161] text-[#832161]'
+                              : 'border-[#dbdadd] text-[#dbdadd] hover:border-[#832161]'
                           }`}
                           data-testid="account-type-independent"
                         >
@@ -1056,8 +1056,8 @@ export default function ProviderDashboard() {
                           onClick={() => setProfileData({ ...profileData, account_type: 'agency' })}
                           className={`py-3 px-6 border transition-all ${
                             profileData.account_type === 'agency'
-                              ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                              : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
+                              ? 'border-[#832161] text-[#832161]'
+                              : 'border-[#dbdadd] text-[#dbdadd] hover:border-[#832161]'
                           }`}
                           data-testid="account-type-agency"
                         >
@@ -1245,8 +1245,8 @@ export default function ProviderDashboard() {
                                   onClick={() => toggle(lang)}
                                   className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
                                     selected
-                                      ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                                      : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
+                                      ? 'border-[#832161] text-[#832161]'
+                                      : 'border-[#dbdadd] text-[#dbdadd] hover:border-[#832161]'
                                   }`}
                                   data-testid={`basic-lang-${lang.toLowerCase()}`}
                                 >
@@ -1257,14 +1257,14 @@ export default function ProviderDashboard() {
                             {customs.map((lang) => (
                               <div
                                 key={lang}
-                                className="relative py-2.5 pl-3 pr-8 border border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C] text-sm uppercase tracking-wider flex items-center"
+                                className="relative py-2.5 pl-3 pr-8 border border-[#832161] text-[#832161] text-sm uppercase tracking-wider flex items-center"
                                 data-testid={`basic-lang-custom-${lang.toLowerCase()}`}
                               >
                                 <span className="truncate">{lang}</span>
                                 <button
                                   type="button"
                                   onClick={() => toggle(lang)}
-                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#C6A87C] hover:text-red-400 transition-colors"
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#832161] hover:text-red-400 transition-colors"
                                   aria-label={`Remove ${lang}`}
                                   data-testid={`basic-lang-remove-${lang.toLowerCase()}`}
                                 >
@@ -1332,7 +1332,7 @@ export default function ProviderDashboard() {
                 </div>
 
                 {/* Box 2: Contact Information */}
-                <div className="border border-[#dbdadd] rounded-lg p-6">
+                <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
                   <h3 className="text-2xl font-bold text-[#832161] mb-6">Contact information</h3>
                   <div className="space-y-6">
                     <div>
@@ -1395,7 +1395,7 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasWhatsapp: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#25D366] checked:border-[#25D366]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#25D366] checked:border-[#25D366]"
                           />
                           <span className="text-[#000000]">WhatsApp</span>
                         </label>
@@ -1407,7 +1407,7 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasTelegram: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#0088cc] checked:border-[#0088cc]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#0088cc] checked:border-[#0088cc]"
                           />
                           <span className="text-[#000000]">Telegram</span>
                         </label>
@@ -1419,7 +1419,7 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasSignal: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#3A76F0] checked:border-[#3A76F0]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#3A76F0] checked:border-[#3A76F0]"
                           />
                           <span className="text-[#000000]">Signal</span>
                         </label>
@@ -1431,7 +1431,7 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasSms: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#C6A87C] checked:border-[#C6A87C]"
                             data-testid="contact-sms"
                           />
                           <span className="text-[#000000]">SMS</span>
@@ -1444,7 +1444,7 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasViber: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#7360F2] checked:border-[#7360F2]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7360F2] checked:border-[#7360F2]"
                             data-testid="contact-viber"
                           />
                           <span className="text-[#000000]">Viber</span>
@@ -1457,7 +1457,7 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasLine: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#00C300] checked:border-[#00C300]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#00C300] checked:border-[#00C300]"
                             data-testid="contact-line"
                           />
                           <span className="text-[#000000]">Line</span>
@@ -1468,7 +1468,7 @@ export default function ProviderDashboard() {
                 </div>
 
                 {/* Box 2: Physical Characteristics (optional) */}
-                <div className="border border-[#dbdadd] rounded-lg p-6">
+                <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
                   <h3 className="text-2xl font-bold text-[#832161] mb-1">Physical Characteristics</h3>
                   <p className="text-[#000000] text-sm mb-6">All fields are optional — fill what you want shown on your profile.</p>
 
@@ -1671,8 +1671,8 @@ export default function ProviderDashboard() {
                       onClick={() => setProfileData({ ...profileData, companionshipType: 'escort' })}
                       className={`px-6 py-3 border text-sm transition-all ${
                         profileData.companionshipType === 'escort'
-                          ? 'border-[#C6A87C] bg-[#C6A87C]/20 text-[#C6A87C]'
-                          : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
+                          ? 'border-[#832161] text-[#832161]'
+                          : 'border-[#dbdadd] text-[#dbdadd] hover:border-[#832161]'
                       }`}
                     >
                       Escort
@@ -1682,8 +1682,8 @@ export default function ProviderDashboard() {
                       onClick={() => setProfileData({ ...profileData, companionshipType: 'erotic-massage' })}
                       className={`px-6 py-3 border text-sm transition-all ${
                         profileData.companionshipType === 'erotic-massage'
-                          ? 'border-[#C6A87C] bg-[#C6A87C]/20 text-[#C6A87C]'
-                          : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
+                          ? 'border-[#832161] text-[#832161]'
+                          : 'border-[#dbdadd] text-[#dbdadd] hover:border-[#832161]'
                       }`}
                     >
                       Erotic Massage
@@ -1735,8 +1735,8 @@ export default function ProviderDashboard() {
                               })}
                               className={`px-3 h-9 text-xs border transition-all ${
                                 serviceData.type === 'inclusive'
-                                  ? 'border-[#C6A87C] bg-[#C6A87C]/20 text-[#C6A87C]'
-                                  : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
+                                  ? 'border-[#832161] text-[#832161]'
+                                  : 'border-[#dbdadd] text-[#dbdadd] hover:border-[#832161]'
                               }`}
                             >
                               Inclusive
@@ -1755,8 +1755,8 @@ export default function ProviderDashboard() {
                               })}
                               className={`px-3 h-9 text-xs border transition-all ${
                                 serviceData.type === 'extra'
-                                  ? 'border-[#C6A87C] bg-[#C6A87C]/20 text-[#C6A87C]'
-                                  : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
+                                  ? 'border-[#832161] text-[#832161]'
+                                  : 'border-[#dbdadd] text-[#dbdadd] hover:border-[#832161]'
                               }`}
                             >
                               Extra
@@ -1866,8 +1866,8 @@ export default function ProviderDashboard() {
                           onClick={() => setProfileData({ ...profileData, availability_type: opt.value })}
                           className={`py-3 px-4 border text-sm uppercase tracking-wider transition-all ${
                             profileData.availability_type === opt.value
-                              ? 'border-[#C6A87C] bg-[#C6A87C]/10 text-[#C6A87C]'
-                              : 'border-[#dbdadd] text-[#000000] hover:border-[#C6A87C]'
+                              ? 'border-[#832161] text-[#832161]'
+                              : 'border-[#dbdadd] text-[#dbdadd] hover:border-[#832161]'
                           }`}
                           data-testid={`availability-type-${opt.value}`}
                         >
@@ -1899,7 +1899,7 @@ export default function ProviderDashboard() {
                           schedule: updatedSchedule
                         });
                       }}
-                      className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                      className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#C6A87C] checked:border-[#C6A87C]"
                     />
                     <span className="text-[#000000]">Available 24/7</span>
                   </label>
@@ -1913,7 +1913,7 @@ export default function ProviderDashboard() {
                         ...profileData,
                         booking_advance: e.target.checked
                       })}
-                      className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                      className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#C6A87C] checked:border-[#C6A87C]"
                       data-testid="booking-advance-checkbox"
                     />
                     <span className="text-[#000000]">Booking in advance necessary</span>
@@ -1934,7 +1934,7 @@ export default function ProviderDashboard() {
                                 [day]: { ...schedule, available: e.target.checked }
                               }
                             })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#C6A87C] checked:border-[#C6A87C]"
                           />
                           <span className="text-[#000000] capitalize">{day}</span>
                         </label>
