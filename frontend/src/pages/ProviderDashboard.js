@@ -1034,7 +1034,7 @@ export default function ProviderDashboard() {
                 <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
                   <h3 className="text-2xl font-bold text-[#832161] mb-6">Basic Information</h3>
                   
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     {/* Account Type */}
                     <div>
                       <label className="input-label">I am</label>
@@ -1334,7 +1334,7 @@ export default function ProviderDashboard() {
                 {/* Box 2: Contact Information */}
                 <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
                   <h3 className="text-2xl font-bold text-[#832161] mb-6">Contact information</h3>
-                  <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     <div>
                       <label className="input-label">Mobile phone</label>
                       {(() => {
@@ -1845,7 +1845,7 @@ export default function ProviderDashboard() {
             {currentStep === 4 && (
               <div className="space-y-10">
                 {/* Availability */}
-                <div id="availability-section" className="space-y-4 scroll-mt-24">
+                <div id="availability-section" className="flex flex-col gap-4 scroll-mt-24">
                   <div>
                     <h3 className="text-2xl font-bold text-[#832161] mb-1">Availability</h3>
                     <p className="text-[#000000] text-sm">Set your availability for each day</p>
@@ -1976,7 +1976,7 @@ export default function ProviderDashboard() {
                 <div className="border-t border-[#dbdadd]"></div>
 
                 {/* Rates */}
-                <div id="rates-section" className="space-y-4 scroll-mt-24">
+                <div id="rates-section" className="flex flex-col gap-4 scroll-mt-24">
                   <div>
                     <h3 className="text-2xl font-bold text-[#832161] mb-1">Rates</h3>
                     <p className="text-[#000000] text-sm">
@@ -2019,7 +2019,7 @@ export default function ProviderDashboard() {
                       };
 
                       return (
-                        <div key={kind} className="space-y-4">
+                        <div key={kind} className="flex flex-col gap-4">
                           <h4 className="text-[#832161] uppercase tracking-[0.2em] text-sm">
  {kind === 'incall' ? 'Incall' : 'Outcall'}
  </h4>
