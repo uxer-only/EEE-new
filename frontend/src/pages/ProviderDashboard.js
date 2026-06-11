@@ -1197,15 +1197,15 @@ export default function ProviderDashboard() {
                     <label className="input-label">Describe yourself</label>
                     <textarea
                       value={profileData.bio}
-                      onChange={(e) => setProfileData({ ...profileData, bio: e.target.value.slice(0, 500) })}
+                      onChange={(e) => setProfileData({ ...profileData, bio: e.target.value.slice(0, 1500) })}
                       className="input-premium w-full h-32 resize-none"
                       placeholder="Share what makes you unique. This will be displayed in 'My Essence' on your profile..."
-                      maxLength={500}
+                      maxLength={1500}
                       data-testid="essence-input"
                     />
                     <div className="flex justify-between mt-2">
                       <p className="input-helper">This will be displayed in &quot;My Essence&quot; on your profile</p>
-                      <span className="text-xs text-[#000000]">{(profileData.bio || '').length}/500</span>
+                      <span className="text-xs text-[#000000]">{(profileData.bio || '').length}/1500</span>
                     </div>
                   </div>
 
