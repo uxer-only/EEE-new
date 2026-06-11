@@ -278,7 +278,7 @@ export default function Browse() {
                     to={`/providers/${provider.provider_id}`}
                     className="block group"
                   >
-                    <div className="relative w-full aspect-[3/4] overflow-hidden bg-[#141416] border border-[#27272A] hover:border-[#C6A87C] transition-all duration-300">
+                    <div className="relative w-full aspect-[3/4] overflow-hidden bg-[#141416] border border-[#dbdadd] hover:border-[#832161] transition-all duration-300">
                       <img
                         src={provider.photos?.[0] || 'https://images.unsplash.com/photo-1768609957045-591c79431f48?crop=entropy&cs=srgb&fm=jpg&q=85'}
                         alt={provider.display_name}
