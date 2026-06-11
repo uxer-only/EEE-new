@@ -110,7 +110,7 @@ export default function ForgotPassword() {
               </p>
               <button
                 onClick={() => { setSent(false); setEmail(''); }}
-                className="btn-secondary w-full"
+                className="btn-secondary !border-[#DA4167] !text-[#DA4167] hover:!bg-[#DA4167]/10 w-full"
                 data-testid="forgot-try-again-button"
               >
                 Use a different email
