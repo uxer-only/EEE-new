@@ -2099,6 +2099,23 @@ export default function ProviderDashboard() {
                             <Plus size={16} />
                             Add hour
                           </button>
+
+                          {/* Taxi not included */}
+                          <div>
+                            <label className="input-label">Taxi not included</label>
+                            <div className="relative">
+                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000]">€</span>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                value={col.taxi ?? ''}
+                                onChange={(e) => setKey('taxi', e.target.value.replace(/[^0-9]/g, ''))}
+                                className="input-premium w-full !pl-10"
+                                placeholder="0"
+                                data-testid={`rate-${kind}-taxi`}
+                              />
+                            </div>
+                          </div>
                         </div>
                       );
                     })}

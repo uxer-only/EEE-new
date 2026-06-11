@@ -498,34 +498,51 @@ export default function ProviderDetail() {
                   '3hours':    '3 hours',
                   'overnight': 'Overnight'
                 };
-                const renderColumn = (kind, col) => {
-                  const baseKeys = ['1hour', '2hours', '3hours'].filter((k) => col[k] !== undefined && col[k] !== '');
-                  const extras = (Array.isArray(col.extras) ? col.extras : [])
+
+                // Build unified row arrays per column so both sides have the same count → separators align
+                const buildRows = (col) => {
+                  const rows = [];
+                  ['1hour', '2hours', '3hours'].forEach((k) => {
+                    if (col[k] !== undefined && col[k] !== '') {
+                      rows.push({ label: DURATION_LABELS[k], price: col[k] });
+                    }
+                  });
+                  (Array.isArray(col.extras) ? col.extras : [])
                     .slice()
-                    .sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0));
-                  const hasOvernight = col.overnight !== undefined && col.overnight !== '';
-                  if (baseKeys.length === 0 && extras.length === 0 && !hasOvernight) return null;
+                    .sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0))
+                    .forEach((ex) => rows.push({ label: `${ex.hours} hours`, price: ex.price }));
+                  if (col.overnight !== undefined && col.overnight !== '') {
+                    rows.push({ label: 'Overnight', price: col.overnight });
+                  }
+                  if (col.taxi !== undefined && col.taxi !== '' && col.taxi !== null) {
+                    rows.push({ label: 'Taxi not included', price: col.taxi });
+                  }
+                  return rows;
+                };
+
+                const incallRows = buildRows(r.incall || {});
+                const outcallRows = buildRows(r.outcall || {});
+                const maxLen = Math.max(incallRows.length, outcallRows.length);
+
+                const renderColumn = (kind, rows) => {
+                  // Pad with empty placeholder rows so both columns finish at the same Y position
+                  const padded = [...rows, ...Array(maxLen - rows.length).fill(null)];
+                  if (rows.length === 0) return null;
                   return (
                     <div key={kind} className="space-y-3">
-                      <p className="text-lg uppercase tracking-[0.3em] text-[#C6A87C] mb-2">{kind}</p>
-                      {baseKeys.map((k) => (
-                        <div key={k} className="flex justify-between items-center pb-3 border-b border-[#27272A]" data-testid={`rate-${kind}-${k}`}>
-                          <span className="text-[#000000] text-base">{DURATION_LABELS[k]}</span>
-                          <span className="text-[#C6A87C] text-base">€{col[k]}</span>
-                        </div>
+                      <p className="text-lg tracking-[0.3em] text-[#832161] mb-2">{kind}</p>
+                      {padded.map((row, i) => (
+                        row ? (
+                          <div key={i} className="flex justify-between items-center pb-3 border-b border-[#dbdadd]" data-testid={`rate-${kind}-${i}`}>
+                            <span className="text-[#832161] text-base">{row.label}</span>
+                            <span className="text-[#832161] text-base">€{row.price}</span>
+                          </div>
+                        ) : (
+                          <div key={`pad-${i}`} className="pb-3 border-b border-transparent" aria-hidden="true">
+                            <span className="invisible">·</span>
+                          </div>
+                        )
                       ))}
-                      {extras.map((extra, i) => (
-                        <div key={`x-${i}`} className="flex justify-between items-center pb-3 border-b border-[#27272A]" data-testid={`rate-${kind}-extra-${i}`}>
-                          <span className="text-[#000000] text-base">{extra.hours} hours</span>
-                          <span className="text-[#C6A87C] text-base">€{extra.price}</span>
-                        </div>
-                      ))}
-                      {hasOvernight && (
-                        <div className="flex justify-between items-center pb-3 border-b border-[#27272A]" data-testid={`rate-${kind}-overnight`}>
-                          <span className="text-[#000000] text-base">Overnight</span>
-                          <span className="text-[#C6A87C] text-base">€{col.overnight}</span>
-                        </div>
-                      )}
                     </div>
                   );
                 };
@@ -535,15 +552,15 @@ export default function ProviderDetail() {
                     <h3 className="text-xl font-bold text-[#832161] mb-6">Time & investment</h3>
                     {isNested ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {renderColumn('incall', r.incall || {})}
-                        {renderColumn('outcall', r.outcall || {})}
+                        {renderColumn('incall', incallRows)}
+                        {renderColumn('outcall', outcallRows)}
                       </div>
                     ) : (
                       <div className="space-y-4">
                         {Object.entries(r).map(([type, rate]) => (
-                          <div key={type} className="flex justify-between items-center pb-4 border-b border-[#27272A] last:border-b-0 last:pb-0" data-testid={`rate-${type}`}>
-                            <span className="text-[#000000] capitalize text-base">{DURATION_LABELS[type] || type}</span>
-                            <span className="text-[#C6A87C] text-base">€{rate}</span>
+                          <div key={type} className="flex justify-between items-center pb-4 border-b border-[#dbdadd] last:border-b-0 last:pb-0" data-testid={`rate-${type}`}>
+                            <span className="text-[#832161] capitalize text-base">{DURATION_LABELS[type] || type}</span>
+                            <span className="text-[#832161] text-base">€{rate}</span>
                           </div>
                         ))}
                       </div>
