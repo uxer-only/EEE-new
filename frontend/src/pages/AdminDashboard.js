@@ -80,7 +80,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <SiteHeader
         leftSlot={
-          <Link to="/" className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#C6A87C] transition-colors" data-testid="back-to-site-link">
+          <Link to="/" className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors" data-testid="back-to-site-link">
             <CaretLeft size={18} />
             <span className="uppercase tracking-wider text-xs md:text-sm">Back to Site</span>
           </Link>

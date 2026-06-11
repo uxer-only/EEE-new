@@ -115,7 +115,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#C6A87C] transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
                   data-testid="toggle-password-button"
                 >
                   {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
@@ -124,7 +124,7 @@ export default function Login() {
               <div className="mt-2 text-right">
                 <Link
                   to="/forgot-password"
-                  className="text-sm text-[#A1A1AA] hover:text-[#C6A87C] transition-colors"
+                  className="text-sm text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
                   data-testid="forgot-password-link"
                 >
                   Forgot password?
@@ -146,7 +146,7 @@ export default function Login() {
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="text-[#C6A87C] hover:text-[#D4B88C] transition-colors"
+              className="text-[#DA4167] hover:opacity-80 transition-opacity"
               data-testid="register-link"
             >
               Register here

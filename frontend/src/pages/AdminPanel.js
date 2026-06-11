@@ -69,7 +69,7 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-[#0A0A0C]">
       <SiteHeader
         leftSlot={
-          <Link to="/admin" className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#C6A87C] transition-colors" data-testid="back-to-admin-link">
+          <Link to="/admin" className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors" data-testid="back-to-admin-link">
             <CaretLeft size={18} />
             <span className="uppercase tracking-wider text-xs md:text-sm">Admin Dashboard</span>
           </Link>

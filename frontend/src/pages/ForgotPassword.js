@@ -44,7 +44,7 @@ export default function ForgotPassword() {
         <div className="w-full max-w-md">
           <Link
             to="/login"
-            className="inline-flex items-center gap-2 text-[#A1A1AA] hover:text-[#C6A87C] transition-colors mb-10"
+            className="inline-flex items-center gap-2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors mb-10"
             data-testid="back-to-login-link"
           >
             <CaretLeft size={18} />
@@ -89,7 +89,7 @@ export default function ForgotPassword() {
 
               <p className="text-center text-[#A1A1AA] text-sm mt-8">
                 Remembered it?{' '}
-                <Link to="/login" className="text-[#C6A87C] hover:text-[#D4B88C]">
+                <Link to="/login" className="text-[#DA4167] hover:opacity-80">
                   Sign in
                 </Link>
               </p>

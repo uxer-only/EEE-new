@@ -158,7 +158,7 @@ export default function ProviderRegister() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#C6A87C] transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
                   data-testid="toggle-password-button"
                 >
                   {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
@@ -182,7 +182,7 @@ export default function ProviderRegister() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#C6A87C] transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
                   data-testid="toggle-confirm-password-button"
                 >
                   {showConfirmPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
@@ -201,11 +201,11 @@ export default function ProviderRegister() {
               />
               <label htmlFor="agreeTerms" className="text-[#A1A1AA] text-sm leading-relaxed">
                 I agree to the{' '}
-                <a href="#" className="text-[#C6A87C] hover:text-[#D4B88C] transition-colors">
+                <a href="#" className="text-[#DA4167] hover:opacity-80 transition-opacity">
                   Terms & Conditions
                 </a>
                 {' '}and{' '}
-                <a href="#" className="text-[#C6A87C] hover:text-[#D4B88C] transition-colors">
+                <a href="#" className="text-[#DA4167] hover:opacity-80 transition-opacity">
                   Privacy Policy
                 </a>
               </label>
@@ -247,7 +247,7 @@ export default function ProviderRegister() {
             Already have an account?{' '}
             <Link
               to="/login"
-              className="text-[#C6A87C] hover:text-[#D4B88C] transition-colors"
+              className="text-[#DA4167] hover:opacity-80 transition-opacity"
               data-testid="login-link"
             >
               Sign in here
@@ -258,7 +258,7 @@ export default function ProviderRegister() {
             Looking to book instead?{' '}
             <Link
               to="/register"
-              className="text-[#C6A87C] hover:text-[#D4B88C] transition-colors"
+              className="text-[#DA4167] hover:opacity-80 transition-opacity"
             >
               Register as a client
             </Link>

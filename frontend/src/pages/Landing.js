@@ -75,10 +75,10 @@ export default function Landing() {
               </button>
             </div>
             <div className="mt-6 pt-6 border-t border-[#27272A] flex justify-center gap-6 text-xs text-[#52525B]">
-              <Link to="/privacy" className="hover:text-[#C6A87C] transition-colors">
+              <Link to="/privacy" className="hover:text-[#DA4167] transition-colors">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="hover:text-[#C6A87C] transition-colors">
+              <Link to="/terms" className="hover:text-[#DA4167] transition-colors">
                 Terms & Conditions
               </Link>
             </div>
@@ -231,9 +231,9 @@ export default function Landing() {
             © 2026 Only Elite Escorts. All rights reserved.
           </p>
           <div className="flex gap-6 sm:gap-8 text-[#52525B] text-sm">
-            <button className="hover:text-[#C6A87C] transition-colors">Privacy</button>
-            <button className="hover:text-[#C6A87C] transition-colors">Terms</button>
-            <button className="hover:text-[#C6A87C] transition-colors">Contact</button>
+            <button className="hover:text-[#DA4167] transition-colors">Privacy</button>
+            <button className="hover:text-[#DA4167] transition-colors">Terms</button>
+            <button className="hover:text-[#DA4167] transition-colors">Contact</button>
           </div>
         </div>
       </footer>

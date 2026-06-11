@@ -953,7 +953,7 @@ export default function ProviderDashboard() {
           mode === 'edit' ? (
             <button
               onClick={cancelEdit}
-              className="flex items-center gap-2 text-[#000000] hover:text-[#C6A87C] transition-colors"
+              className="flex items-center gap-2 text-[#000000] hover:text-[#DA4167] transition-colors"
               data-testid="back-to-overview-btn"
             >
               <CaretLeft size={18} />
@@ -1319,7 +1319,7 @@ export default function ProviderDashboard() {
                             <button
                               type="button"
                               onClick={() => setShowAddLanguage(true)}
-                              className="mt-4 inline-flex items-center gap-2 px-4 py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#C6A87C] hover:text-[#C6A87C] transition-colors text-sm uppercase tracking-wider"
+                              className="mt-4 inline-flex items-center gap-2 px-4 py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#C6A87C] hover:text-[#DA4167] transition-colors text-sm uppercase tracking-wider"
                               data-testid="add-language-button"
                             >
                               <Plus size={16} /> Add language
@@ -2093,7 +2093,7 @@ export default function ProviderDashboard() {
                           <button
                             type="button"
                             onClick={addExtra}
-                            className="w-full py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#C6A87C] hover:text-[#C6A87C] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
+                            className="w-full py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#C6A87C] hover:text-[#DA4167] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
                             data-testid={`rate-${kind}-add-hour`}
                           >
                             <Plus size={16} />

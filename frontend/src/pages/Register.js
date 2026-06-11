@@ -137,7 +137,7 @@ export default function Register() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#C6A87C] transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
                   data-testid="toggle-password-button"
                 >
                   {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
@@ -162,7 +162,7 @@ export default function Register() {
             Already have an account?{' '}
             <Link
               to="/login"
-              className="text-[#C6A87C] hover:text-[#D4B88C] transition-colors"
+              className="text-[#DA4167] hover:opacity-80 transition-opacity"
               data-testid="login-link"
             >
               Sign in here

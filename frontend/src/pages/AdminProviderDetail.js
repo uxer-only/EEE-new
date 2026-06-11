@@ -124,7 +124,7 @@ export default function AdminProviderDetail() {
         <div className="section-padding py-6 flex items-center justify-between">
           <Link 
             to="/admin" 
-            className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#C6A87C] transition-colors"
+            className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
           >
             <CaretLeft size={20} />
             <span className="uppercase tracking-wider text-sm">Back to Dashboard</span>
