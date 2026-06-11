@@ -210,7 +210,7 @@ export default function ProviderDetail() {
 
               {/* My Essence */}
               {(provider.bio || provider.essence) && (
-                <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8">
+                <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
                   <h3 className="text-xl font-bold text-[#832161] mb-4">My essence...</h3>
                   <p className="text-[#000000] leading-relaxed" data-testid="provider-bio">
                     {provider.bio || provider.essence}
@@ -249,7 +249,7 @@ export default function ProviderDetail() {
                 ].filter(([, v]) => v !== '' && v !== null && v !== undefined);
                 if (rows.length === 0) return null;
                 return (
-                  <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8">
+                  <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
                     <h3 className="text-xl font-bold text-[#832161] mb-6">My appearance</h3>
                     <dl
                       className="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-10 gap-y-3"
@@ -285,7 +285,7 @@ export default function ProviderDetail() {
                 const inclusive = serviceList.filter(s => s.type === 'inclusive');
                 const extras = serviceList.filter(s => s.type === 'extra');
                 return (
-                  <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8">
+                  <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
                     <h3 className="text-xl font-bold text-[#832161] mb-6">What we can share together...</h3>
                     {inclusive.length > 0 && (
                       <div className="mb-4">
@@ -337,7 +337,7 @@ export default function ProviderDetail() {
                   : dayOrder.filter(d => schedule[d] && schedule[d].available);
                 if (!is247 && availableDays.length === 0) return null;
                 return (
-                  <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8">
+                  <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
                     <h3 className="text-xl font-bold text-[#832161] mb-6">My schedule</h3>
                     {is247 ? (
                       <div className="flex items-center justify-between py-2" data-testid="schedule-247">
@@ -367,7 +367,7 @@ export default function ProviderDetail() {
               })()}
 
               {/* Let's Connect */}
-              <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8" data-testid="contact-section">
+              <div className="mb-8 bg-white rounded-lg p-6 md:p-8" data-testid="contact-section">
                 <h3 className="text-xl font-bold text-[#832161] mb-6">Let&apos;s connect</h3>
                 <div className="space-y-4">
                   {/* Mobile */}
@@ -463,7 +463,7 @@ export default function ProviderDetail() {
                 };
 
                 return (
-                  <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8">
+                  <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
                     <h3 className="text-xl font-bold text-[#832161] mb-6">Time & investment</h3>
                     {isNested ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -485,7 +485,7 @@ export default function ProviderDetail() {
               })()}
 
               {/* Extra Requests */}
-              <div className="mb-8 bg-white border border-[#C6A87C] rounded-lg p-6 md:p-8">
+              <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
                 <h3 className="text-xl font-bold text-[#832161] mb-6">Do you have extra requests?</h3>
                 <div className="space-y-4">
                   <div>

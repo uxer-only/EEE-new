@@ -175,7 +175,7 @@ export default function Landing() {
                       className="block group"
                       data-testid={`profile-card-${index}`}
                     >
-                      <div className="relative aspect-[3/4] overflow-hidden bg-[#141416] border border-[#27272A] hover:border-[#C6A87C] transition-all duration-300">
+                      <div className="relative aspect-[3/4] overflow-hidden bg-[#141416] border border-[#27272A] transition-all duration-300">
                         <img
                           src={provider.photos?.[0] || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400'}
                           alt={provider.display_name}
@@ -214,7 +214,7 @@ export default function Landing() {
               </Link>
               <Link
                 to="/register/provider"
-                className="btn-secondary"
+                className="btn-secondary !border-white !text-white hover:!bg-white/10"
                 data-testid="cta-register-button"
               >
                 Advertise here
