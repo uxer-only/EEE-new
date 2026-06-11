@@ -2020,7 +2020,7 @@ export default function ProviderDashboard() {
 
                       return (
                         <div key={kind} className="space-y-4">
-                          <h4 className="text-lg text-[#C6A87C] uppercase tracking-[0.2em] text-sm border-b border-[#dbdadd] pb-3">
+                          <h4 className="text-[#832161] uppercase tracking-[0.2em] text-sm">
  {kind === 'incall' ? 'Incall' : 'Outcall'}
  </h4>
 
