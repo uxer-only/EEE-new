@@ -14,7 +14,7 @@
 }
 
 .btn-secondary {
-  @apply bg-transparent border border-[#832161] text-[#321161] font-bold hover:bg-[#832161]/10 px-8 py-4 uppercase tracking-widest text-sm transition-all;
+  @apply bg-transparent border border-[#832161] text-[#832161] font-bold hover:bg-[#832161]/10 px-8 py-4 uppercase tracking-widest text-sm transition-all;
 }
 
 .btn-ghost {
