@@ -156,7 +156,7 @@ export default function ProviderDetail() {
       {/* Header */}
       <header className="floating-header" data-testid="header">
         <div className="section-padding py-6 flex items-center justify-between">
-          <Link to="/browse" className="flex items-center gap-2 text-[#DA4167] hover:opacity-80 transition-opacity">
+          <Link to="/browse" className="flex items-center gap-2 text-[#FFFFFF] hover:opacity-80 transition-opacity">
             <CaretLeft size={20} />
             <span className="uppercase tracking-wider text-sm">Back to Browse</span>
           </Link>
