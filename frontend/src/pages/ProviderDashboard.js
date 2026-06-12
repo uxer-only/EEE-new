@@ -1784,10 +1784,10 @@ export default function ProviderDashboard() {
                 {/* Services Table */}
                 <div className="border border-[#dbdadd] rounded-lg overflow-hidden">
                   {/* Table Header */}
-                  <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-white border-b border-[#dbdadd]">
-                    <div className="col-span-5 text-[#000000] text-sm font-medium">Service</div>
-                    <div className="col-span-3 text-[#000000] text-sm font-medium">Type</div>
-                    <div className="col-span-4 text-[#000000] text-sm font-medium text-right">Price</div>
+                  <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-[#4B4B4B] border-b border-[#4B4B4B]">
+                    <div className="col-span-5 text-[#FFFFFF] text-sm font-medium">Service</div>
+                    <div className="col-span-3 text-[#FFFFFF] text-sm font-medium">Type</div>
+                    <div className="col-span-4 text-[#FFFFFF] text-sm font-medium text-right">Price</div>
                   </div>
                   
                   {/* Table Body */}
