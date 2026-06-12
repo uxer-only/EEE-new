@@ -14,7 +14,11 @@
 }
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center h-[50px] bg-transparent border border-[#832161] text-[#832161] font-bold hover:bg-[#832161]/10 px-8 uppercase tracking-widest text-sm transition-all;
+  @apply inline-flex items-center justify-center h-[50px] bg-transparent border border-[#FFFFFF] text-[#FFFFFF] font-bold hover:bg-white/10 px-8 uppercase tracking-widest text-sm transition-all;
+}
+
+.dashboard-light .btn-secondary {
+  @apply border-[#832161] text-[#832161] hover:bg-[#832161]/10;
 }
 
 .btn-ghost {
