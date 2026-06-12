@@ -235,7 +235,7 @@ export default function ProviderRegister() {
 
             <button
               onClick={handleGoogleRegister}
-              className="btn-secondary !border-[#DA4167] !text-[#DA4167] hover:!bg-[#DA4167]/10 w-full mt-8 flex items-center justify-center gap-3"
+              className="btn-secondary w-full mt-8 flex items-center justify-center gap-3"
               data-testid="google-register-button"
             >
               <img src="/google-logo.png" alt="Google" className="w-5 h-5" />

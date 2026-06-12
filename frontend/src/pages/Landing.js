@@ -214,7 +214,7 @@ export default function Landing() {
               </Link>
               <Link
                 to="/register/provider"
-                className="btn-secondary !border-[#DA4167] !text-[#DA4167] hover:!bg-[#DA4167]/10"
+                className="btn-secondary w-full"
                 data-testid="cta-register-button"
               >
                 Advertise here
