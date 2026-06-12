@@ -2158,8 +2158,8 @@ export default function ProviderDashboard() {
             {currentStep === 5 && (
               <div className="space-y-8">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#C6A87C] mb-3">Final step</p>
-                  <h3 className="text-2xl text-[#C6A87C] mb-2">Activate your profile</h3>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#832161] mb-3">Final step</p>
+                  <h3 className="text-2xl text-[#832161] mb-2">Activate your profile</h3>
                   <p className="text-[#000000] text-sm max-w-xl">
                     Your profile is saved. A Featured listing makes you visible to clients on Browse. Add VIP Boost to appear at the top of every search.
                   </p>
@@ -2168,7 +2168,7 @@ export default function ProviderDashboard() {
                 {/* Featured */}
                 <div className="card-premium p-6">
                   <div className="flex items-start gap-3 mb-5">
-                    <Sparkle size={20} weight="fill" className="text-[#C6A87C] mt-1 flex-shrink-0" />
+                    <Sparkle size={20} weight="fill" className="text-[#832161] mt-1 flex-shrink-0" />
                     <div>
                       <h4 className="text-xl text-[#000000]">Featured listing</h4>
                       <p className="text-[#000000] text-sm">Required to be visible on Browse.</p>
@@ -2182,13 +2182,13 @@ export default function ProviderDashboard() {
                         onClick={() => setPlanFeatured(opt.id)}
                         className={`relative text-left p-5 border-2 transition-all ${
                           planFeatured === opt.id
-                            ? 'border-[#C6A87C] bg-[#C6A87C]/5'
-                            : 'border-[#dbdadd] hover:border-[#dbdadd]'
+                            ? 'border-[#832161] bg-[#832161]/5'
+                            : 'border-[#dbdadd] hover:border-[#832161]'
                         }`}
                         data-testid={`featured-option-${opt.id}`}
                       >
                         {opt.badge && (
-                          <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#C6A87C] text-[#0A0A0C] font-medium">
+                          <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#832161] text-[#FFFFFF] font-medium">
                             {opt.badge}
                           </span>
                         )}
@@ -2196,7 +2196,7 @@ export default function ProviderDashboard() {
                         <p className="text-3xl text-[#000000] mb-1">€{opt.price}</p>
                         <p className="text-[#000000] text-xs">{opt.perDay}</p>
                         {planFeatured === opt.id && (
-                          <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#C6A87C]" />
+                          <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#832161]" />
                         )}
                       </button>
                     ))}
@@ -2207,7 +2207,7 @@ export default function ProviderDashboard() {
                 <div className="card-premium p-6">
                   <div className="flex items-start justify-between mb-5 gap-4">
                     <div className="flex items-start gap-3">
-                      <Crown size={20} weight="fill" className="text-[#C6A87C] mt-1 flex-shrink-0" />
+                      <Crown size={20} weight="fill" className="text-[#832161] mt-1 flex-shrink-0" />
                       <div>
                         <h4 className="text-xl text-[#000000]">
  VIP Boost <span className="text-xs uppercase tracking-[0.2em] text-[#000000] ml-2">Optional</span>
@@ -2221,12 +2221,12 @@ export default function ProviderDashboard() {
                       aria-checked={planVipOn}
                       onClick={() => setPlanVipOn(!planVipOn)}
                       className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
-                        planVipOn ? 'bg-[#C6A87C]' : 'bg-[#27272A]'
+                        planVipOn ? 'bg-[#832161]' : 'bg-[#dbdadd]'
                       }`}
                       data-testid="vip-toggle"
                     >
                       <span
-                        className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-[#F2F0ED] transition-transform ${
+                        className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-[#FFFFFF] transition-transform ${
                           planVipOn ? 'translate-x-5' : ''
                         }`}
                       />
@@ -2245,20 +2245,20 @@ export default function ProviderDashboard() {
                         }}
                         className={`relative text-left p-4 border-2 transition-all ${
                           planVipOn && planVip === opt.id
-                            ? 'border-[#C6A87C] bg-[#C6A87C]/5'
-                            : 'border-[#dbdadd] hover:border-[#dbdadd]'
+                            ? 'border-[#832161] bg-[#832161]/5'
+                            : 'border-[#dbdadd] hover:border-[#832161]'
                         }`}
                         data-testid={`vip-option-${opt.id}`}
                       >
                         {opt.badge && (
-                          <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#C6A87C] text-[#0A0A0C] font-medium">
+                          <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#832161] text-[#FFFFFF] font-medium">
                             {opt.badge}
                           </span>
                         )}
                         <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
                         <p className="text-2xl text-[#000000]">€{opt.price}</p>
                         {planVipOn && planVip === opt.id && (
-                          <CheckCircle size={16} weight="fill" className="absolute bottom-3 right-3 text-[#C6A87C]" />
+                          <CheckCircle size={16} weight="fill" className="absolute bottom-3 right-3 text-[#832161]" />
                         )}
                       </button>
                     ))}
@@ -2279,12 +2279,12 @@ export default function ProviderDashboard() {
                     aria-checked={autoRenew}
                     onClick={() => setAutoRenew(!autoRenew)}
                     className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
-                      autoRenew ? 'bg-[#C6A87C]' : 'bg-[#27272A]'
+                      autoRenew ? 'bg-[#832161]' : 'bg-[#dbdadd]'
                     }`}
                     data-testid="auto-renew-toggle"
                   >
                     <span
-                      className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-[#F2F0ED] transition-transform ${
+                      className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-[#FFFFFF] transition-transform ${
                         autoRenew ? 'translate-x-5' : ''
                       }`}
                     />

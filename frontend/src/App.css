@@ -65,6 +65,10 @@ select.input-premium option {
   @apply bg-[#141416] border border-[#27272A] hover:border-[#C6A87C] transition-all duration-300;
 }
 
+.dashboard-light .card-premium {
+  @apply bg-[#FFFFFF] border-[#dbdadd] hover:border-[#832161];
+}
+
 /* Provider card hover effect */
 .provider-card {
   @apply relative overflow-hidden cursor-pointer;
