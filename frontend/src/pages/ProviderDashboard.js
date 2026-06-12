@@ -1477,7 +1477,77 @@ export default function ProviderDashboard() {
                           />
                           <span className="text-[#000000]">Line</span>
                         </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={profileData.contact.hasWechat || false}
+                            onChange={(e) => setProfileData({
+                              ...profileData,
+                              contact: { ...profileData.contact, hasWechat: e.target.checked }
+                            })}
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#09B83E] checked:border-[#09B83E]"
+                            data-testid="contact-wechat"
+                          />
+                          <span className="text-[#000000]">WeChat</span>
+                        </label>
                       </div>
+
+                      {/* ID inputs for username-based platforms */}
+                      {(profileData.contact.hasTelegram || profileData.contact.hasLine || profileData.contact.hasWechat) && (
+                        <div className="mt-4 flex flex-col gap-4">
+                          {profileData.contact.hasTelegram && (
+                            <div>
+                              <label className="input-label" htmlFor="telegram-id">Telegram ID</label>
+                              <input
+                                id="telegram-id"
+                                type="text"
+                                value={profileData.contact.telegramId || ''}
+                                onChange={(e) => setProfileData({
+                                  ...profileData,
+                                  contact: { ...profileData.contact, telegramId: e.target.value }
+                                })}
+                                className="input-premium w-full"
+                                placeholder="@username"
+                                data-testid="telegram-id-input"
+                              />
+                            </div>
+                          )}
+                          {profileData.contact.hasLine && (
+                            <div>
+                              <label className="input-label" htmlFor="line-id">Line ID</label>
+                              <input
+                                id="line-id"
+                                type="text"
+                                value={profileData.contact.lineId || ''}
+                                onChange={(e) => setProfileData({
+                                  ...profileData,
+                                  contact: { ...profileData.contact, lineId: e.target.value }
+                                })}
+                                className="input-premium w-full"
+                                placeholder="your-line-id"
+                                data-testid="line-id-input"
+                              />
+                            </div>
+                          )}
+                          {profileData.contact.hasWechat && (
+                            <div>
+                              <label className="input-label" htmlFor="wechat-id">WeChat ID</label>
+                              <input
+                                id="wechat-id"
+                                type="text"
+                                value={profileData.contact.wechatId || ''}
+                                onChange={(e) => setProfileData({
+                                  ...profileData,
+                                  contact: { ...profileData.contact, wechatId: e.target.value }
+                                })}
+                                className="input-premium w-full"
+                                placeholder="your-wechat-id"
+                                data-testid="wechat-id-input"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
