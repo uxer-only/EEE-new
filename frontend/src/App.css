@@ -10,7 +10,7 @@
 
 /* Button styles */
 .btn-primary {
-  @apply inline-flex items-center justify-center h-[50px] bg-[#832161] text-white hover:bg-[#6e1b51] px-8 uppercase tracking-widest text-sm font-semibold transition-all duration-300 ease-out;
+  @apply inline-flex items-center justify-center h-[50px] bg-[#DA4167] text-[#FFFFFF] hover:bg-[#c33658] px-8 uppercase tracking-widest text-sm font-semibold transition-all duration-300 ease-out;
 }
 
 .btn-secondary {
