@@ -223,7 +223,7 @@ export default function Browse() {
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
-              className="mt-8 card-premium p-6 md:p-8"
+              className="mt-8 border border-[#3F3F46] p-6 md:p-8"
               data-testid="filters-panel"
             >
               <ExtraFilters
