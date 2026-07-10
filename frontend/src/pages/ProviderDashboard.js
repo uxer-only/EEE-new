@@ -2196,22 +2196,40 @@ export default function ProviderDashboard() {
                             Add hour
                           </button>
 
-                          {/* Taxi not included — outcall only */}
+                          {/* Taxi not included — outcall only, checkbox reveals price input */}
                           {kind === 'outcall' && (
                             <div>
-                              <label className="input-label">Taxi not included</label>
-                              <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000] text-sm">{currencySymbol(profileData.rates?.currency)}</span>
+                              <label className="flex items-center gap-2 cursor-pointer">
                                 <input
-                                  type="text"
-                                  inputMode="numeric"
-                                  value={col.taxi ?? ''}
-                                  onChange={(e) => setKey('taxi', e.target.value.replace(/[^0-9]/g, ''))}
-                                  className="input-premium w-full !pl-14"
-                                  placeholder="0"
-                                  data-testid={`rate-${kind}-taxi`}
+                                  type="checkbox"
+                                  checked={col.taxiEnabled ?? (col.taxi !== '' && col.taxi !== undefined && col.taxi !== null)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setKey('taxiEnabled', true);
+                                    } else {
+                                      setKey('taxiEnabled', false);
+                                      setKey('taxi', '');
+                                    }
+                                  }}
+                                  className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#DA4167] checked:border-[#DA4167]"
+                                  data-testid={`rate-${kind}-taxi-toggle`}
                                 />
-                              </div>
+                                <span className="text-[#000000] text-sm">Taxi not included</span>
+                              </label>
+                              {(col.taxiEnabled ?? (col.taxi !== '' && col.taxi !== undefined && col.taxi !== null)) && (
+                                <div className="relative mt-1">
+                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#000000] text-sm">{currencySymbol(profileData.rates?.currency)}</span>
+                                  <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={col.taxi ?? ''}
+                                    onChange={(e) => setKey('taxi', e.target.value.replace(/[^0-9]/g, ''))}
+                                    className="input-premium w-full !pl-14"
+                                    placeholder="0"
+                                    data-testid={`rate-${kind}-taxi`}
+                                  />
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
