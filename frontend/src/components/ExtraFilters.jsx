@@ -28,7 +28,7 @@ const NATIONALITIES = [
 
 const Select = ({ label, value, options, onChange, testId }) => (
   <div>
-    <label className="input-label">{label}</label>
+    <label className="input-label !text-[#898989]">{label}</label>
     <select
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
