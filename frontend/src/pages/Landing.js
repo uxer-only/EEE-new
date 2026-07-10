@@ -132,7 +132,7 @@ export default function Landing() {
               className="text-4xl sm:text-5xl lg:text-6xl font-playfair text-[#F2F0ED] mb-6 leading-[1.3]"
               data-testid="hero-title"
             >
-              <span className="block whitespace-nowrap">Bringing your secret wish</span>
+              <span className="block whitespace-nowrap">Bringing your secret desire</span>
               <span className="block whitespace-nowrap">closer to you</span>
             </h2>
             <p
