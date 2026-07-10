@@ -84,9 +84,6 @@ export default function ProviderRegister() {
             <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="register-title">
  Create Your Account
  </h2>
-            <p className="text-[#A1A1AA]">
-              Begin your journey as a verified provider
-            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -169,7 +166,7 @@ export default function ProviderRegister() {
               className="btn-primary w-full disabled:opacity-50"
               data-testid="register-button"
             >
-              {loading ? 'Creating Account...' : 'Create Provider Account'}
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
           </form>
 
