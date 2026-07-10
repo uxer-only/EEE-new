@@ -102,7 +102,7 @@ export default function Browse() {
               ]
             : [
                 { to: '/login', label: 'Login', testId: 'login-link' },
-                { to: '/register', label: 'Join', variant: 'primary', testId: 'register-link' }
+                { to: '/register/provider', label: 'Advertise', variant: 'primary', testId: 'advertise-link' }
               ]
         }
       />
