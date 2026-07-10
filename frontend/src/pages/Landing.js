@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, Warning } from 'phosphor-react';
+import { CheckCircle, Warning, ArrowRight, Star } from 'phosphor-react';
 import { getProviders } from '@/services/api';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import SiteHeader from '@/components/SiteHeader';
@@ -204,20 +204,31 @@ export default function Landing() {
             )}
 
             {/* CTAs moved below profiles */}
-            <div className="flex gap-6 justify-center mt-16">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-16">
               <Link
                 to="/browse"
-                className="btn-primary"
+                className="group relative inline-flex items-center justify-center gap-3 h-[56px] min-w-[240px] px-8 bg-[#DA4167] text-[#FFFFFF] uppercase tracking-[0.2em] text-sm font-semibold overflow-hidden transition-all duration-300 hover:bg-[#c33658] hover:shadow-[0_10px_30px_-8px_rgba(218,65,103,0.55)]"
                 data-testid="cta-browse-button"
               >
-                Explore Profiles
+                <span className="relative z-10">Explore Profiles</span>
+                <ArrowRight
+                  size={18}
+                  weight="bold"
+                  className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
+                />
               </Link>
+
               <Link
                 to="/register/provider"
-                className="btn-secondary w-full"
+                className="group inline-flex items-center justify-center gap-3 h-[56px] min-w-[240px] px-8 bg-transparent border border-[#FFFFFF]/70 text-[#FFFFFF] uppercase tracking-[0.2em] text-sm font-semibold backdrop-blur-sm transition-all duration-300 hover:border-[#FFFFFF] hover:bg-[#FFFFFF]/10"
                 data-testid="cta-register-button"
               >
-                Advertise here
+                <Star
+                  size={18}
+                  weight="fill"
+                  className="text-[#DA4167] transition-transform duration-300 group-hover:rotate-90"
+                />
+                <span>Advertise here</span>
               </Link>
             </div>
           </div>
