@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, Warning, ArrowRight, Star } from 'phosphor-react';
+import { CheckCircle, Warning, ArrowRight } from 'phosphor-react';
 import { getProviders } from '@/services/api';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import SiteHeader from '@/components/SiteHeader';
@@ -90,7 +90,7 @@ export default function Landing() {
         links={[
           { to: '/browse', label: 'Browse', testId: 'browse-link' },
           { to: '/login', label: 'Login', testId: 'login-link' },
-          { to: '/register', label: 'Join', variant: 'primary', testId: 'join-button' }
+          { to: '/register/provider', label: 'Advertise', variant: 'primary', testId: 'advertise-button' }
         ]}
       />
 
@@ -203,32 +203,19 @@ export default function Landing() {
               </div>
             )}
 
-            {/* CTAs moved below profiles */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-16">
+            {/* Single CTA below profiles */}
+            <div className="flex items-center justify-center mt-16">
               <Link
                 to="/browse"
-                className="group relative inline-flex items-center justify-center gap-3 h-[56px] min-w-[240px] px-8 bg-[#DA4167] text-[#FFFFFF] uppercase tracking-[0.2em] text-sm font-semibold overflow-hidden transition-all duration-300 hover:bg-[#c33658] hover:shadow-[0_10px_30px_-8px_rgba(218,65,103,0.55)]"
+                className="group inline-flex items-center justify-center gap-3 h-[56px] min-w-[240px] px-8 bg-transparent border border-[#FFFFFF]/70 text-[#FFFFFF] uppercase tracking-[0.2em] text-sm font-semibold backdrop-blur-sm transition-all duration-300 hover:border-[#FFFFFF] hover:bg-[#FFFFFF]/10"
                 data-testid="cta-browse-button"
               >
-                <span className="relative z-10">Explore Profiles</span>
+                <span>All profiles</span>
                 <ArrowRight
                   size={18}
                   weight="bold"
-                  className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
+                  className="transition-transform duration-300 group-hover:translate-x-1"
                 />
-              </Link>
-
-              <Link
-                to="/register/provider"
-                className="group inline-flex items-center justify-center gap-3 h-[56px] min-w-[240px] px-8 bg-transparent border border-[#FFFFFF]/70 text-[#FFFFFF] uppercase tracking-[0.2em] text-sm font-semibold backdrop-blur-sm transition-all duration-300 hover:border-[#FFFFFF] hover:bg-[#FFFFFF]/10"
-                data-testid="cta-register-button"
-              >
-                <Star
-                  size={18}
-                  weight="fill"
-                  className="text-[#DA4167] transition-transform duration-300 group-hover:rotate-90"
-                />
-                <span>Advertise here</span>
               </Link>
             </div>
           </div>
