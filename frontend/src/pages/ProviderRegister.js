@@ -2,18 +2,16 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
-import { Eye, EyeSlash, CheckCircle } from 'phosphor-react';
+import { Eye, EyeSlash } from 'phosphor-react';
 
 export default function ProviderRegister() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
     agreeTerms: false
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -23,11 +21,6 @@ export default function ProviderRegister() {
     
     if (!formData.agreeTerms) {
       toast.error('Please agree to the terms and conditions');
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
       return;
     }
 
@@ -54,15 +47,6 @@ export default function ProviderRegister() {
     window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
 
-  const benefits = [
-    'Reach verified, high-end clientele',
-    'Secure payment processing',
-    'Professional profile showcase',
-    'Verified provider badge',
-    'Private messaging system',
-    'Flexible scheduling tools'
-  ];
-
   return (
     <div className="min-h-screen bg-[#0A0A0C] flex">
       {/* Left side - Benefits */}
@@ -76,18 +60,9 @@ export default function ProviderRegister() {
  Join Our Exclusive Network
  </h2>
           
-          <p className="text-xl text-[#A1A1AA] mb-12 leading-relaxed">
+          <p className="text-xl text-[#A1A1AA] leading-relaxed">
             Connect with discerning clients in a premium, secure environment designed for independent professionals.
           </p>
-
-          <div className="space-y-6">
-            {benefits.map((benefit, index) => (
-              <div key={benefit} className="flex items-start gap-4" data-testid={`benefit-${index}`}>
-                <CheckCircle size={24} weight="fill" className="text-[#C6A87C] flex-shrink-0 mt-1" />
-                <p className="text-[#A1A1AA] text-lg">{benefit}</p>
-              </div>
-            ))}
-          </div>
 
           <div className="mt-16 pt-8 border-t border-[#27272A]">
             <p className="text-[#52525B] text-sm">
@@ -165,29 +140,6 @@ export default function ProviderRegister() {
                 </button>
               </div>
               <p className="input-helper">Minimum 8 characters</p>
-            </div>
-
-            <div>
-              <label className="input-label">Confirm password</label>
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="input-premium w-full pr-12"
-                  placeholder="Re-enter your password"
-                  required
-                  data-testid="confirm-password-input"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
-                  data-testid="toggle-confirm-password-button"
-                >
-                  {showConfirmPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
             </div>
 
             <div className="flex items-start gap-3">
