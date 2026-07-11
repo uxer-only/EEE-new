@@ -241,3 +241,17 @@ Build a modern, premium, and discreet escort marketplace platform focused on tru
 - "Extra Requests" Send button (simulates success)
 - Booking modal (UI only, no backend integration)
 - Messages page (placeholder)
+
+---
+
+## Changelog
+
+### Feb 11, 2026 — Website Copy Extraction
+- Executed `/app/scripts/extract_website_copy.py` to produce a full audit of user-facing text.
+- Output files (459 distinct strings, grouped by source file):
+  - `/app/frontend/public/only-elite-escorts-copy.docx`
+  - `/app/frontend/public/only-elite-escorts-copy.xlsx`
+- Publicly downloadable at:
+  - `${REACT_APP_BACKEND_URL}/only-elite-escorts-copy.docx`
+  - `${REACT_APP_BACKEND_URL}/only-elite-escorts-copy.xlsx`
+
