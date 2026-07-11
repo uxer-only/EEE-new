@@ -26,13 +26,13 @@ export default function ClientDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-            <Link to="/browse" className="card-premium p-8 hover:border-[#C6A87C] transition-all group" data-testid="quick-action-browse">
-              <MapPin size={32} weight="thin" className="text-[#C6A87C] mb-4 group-hover:scale-110 transition-transform" />
+            <Link to="/browse" className="card-premium p-8 hover:border-[#832161] transition-all group" data-testid="quick-action-browse">
+              <MapPin size={32} weight="thin" className="text-[#832161] mb-4 group-hover:scale-110 transition-transform" />
               <h3 className="text-xl text-[#F2F0ED] mb-2">Discover</h3>
               <p className="text-[#A1A1AA] text-sm">Browse verified providers</p>
             </Link>
-            <Link to="/messages" className="card-premium p-8 hover:border-[#C6A87C] transition-all group" data-testid="quick-action-messages">
-              <ChatCircle size={32} weight="thin" className="text-[#C6A87C] mb-4 group-hover:scale-110 transition-transform" />
+            <Link to="/messages" className="card-premium p-8 hover:border-[#832161] transition-all group" data-testid="quick-action-messages">
+              <ChatCircle size={32} weight="thin" className="text-[#832161] mb-4 group-hover:scale-110 transition-transform" />
               <h3 className="text-xl text-[#F2F0ED] mb-2">Messages</h3>
               <p className="text-[#A1A1AA] text-sm">Your conversations</p>
             </Link>

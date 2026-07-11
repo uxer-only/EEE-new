@@ -210,7 +210,7 @@ export default function ProviderDetail() {
                         key={`${index}-${photo.slice(-40)}`}
                         onClick={() => carouselApi && carouselApi.scrollTo(index)}
                         className={`aspect-[3/4] overflow-hidden border transition-all cursor-pointer group ${
-                          activePhotoIdx === index ? 'border-[#C6A87C]' : 'border-[#27272A] hover:border-[#C6A87C]'
+                          activePhotoIdx === index ? 'border-[#832161]' : 'border-[#27272A] hover:border-[#832161]'
                         }`}
                         data-testid={`thumbnail-${index}`}
                         aria-label={`Show photo ${index + 1}`}
@@ -268,7 +268,7 @@ export default function ProviderDetail() {
               {/* Rating */}
               {provider.avg_rating > 0 && (
                 <div className="flex items-center gap-2 mb-8" data-testid="rating">
-                  <Star size={20} weight="fill" className="text-[#C6A87C]" />
+                  <Star size={20} weight="fill" className="text-[#832161]" />
                   <span className="text-[#3D2645] font-medium">{provider.avg_rating}</span>
                   <span className="text-[#3D2645]">({provider.review_count} reviews)</span>
                 </div>
@@ -495,7 +495,7 @@ export default function ProviderDetail() {
                           {extras.map((s, i) => (
                             <span
                               key={`ext-${i}`}
-                              className="px-4 py-2 border border-[#C6A87C]/40 bg-[#C6A87C]/10 text-[#C6A87C] text-sm uppercase tracking-wider"
+                              className="px-4 py-2 border border-[#832161]/40 bg-[#832161]/10 text-[#832161] text-sm uppercase tracking-wider"
                               data-testid={`service-extra-${i}`}
                             >
                               {s.name}{s.price && ` · €${s.price}`}
@@ -525,7 +525,7 @@ export default function ProviderDetail() {
                     {is247 ? (
                       <div className="flex items-center justify-between py-2" data-testid="schedule-247">
                         <span className="text-[#000000] font-medium">All week</span>
-                        <span className="text-[#C6A87C]">Available 24/7</span>
+                        <span className="text-[#832161]">Available 24/7</span>
                       </div>
                     ) : (
                       <div className="space-y-3">
@@ -541,7 +541,7 @@ export default function ProviderDetail() {
                       </div>
                     )}
                     {provider.booking_advance && (
-                      <p className="mt-6 pt-4 border-t border-[#27272A] text-[#C6A87C] text-sm" data-testid="schedule-advance">
+                      <p className="mt-6 pt-4 border-t border-[#27272A] text-[#832161] text-sm" data-testid="schedule-advance">
                         Booking in advance necessary
                       </p>
                     )}
@@ -745,7 +745,7 @@ export default function ProviderDetail() {
                               key={i}
                               size={16}
                               weight={i < review.rating ? 'fill' : 'regular'}
-                              className={i < review.rating ? 'text-[#C6A87C]' : 'text-[#52525B]'}
+                              className={i < review.rating ? 'text-[#832161]' : 'text-[#52525B]'}
                             />
                           ))}
                         </div>
@@ -781,7 +781,7 @@ export default function ProviderDetail() {
           </button>
 
           {/* Counter */}
-          <div className="absolute top-4 left-4 md:top-6 md:left-6 text-[#C6A87C] text-sm tracking-wider" data-testid="lightbox-counter">
+          <div className="absolute top-4 left-4 md:top-6 md:left-6 text-[#832161] text-sm tracking-wider" data-testid="lightbox-counter">
             {lightboxIdx + 1} / {provider.photos.length}
           </div>
 

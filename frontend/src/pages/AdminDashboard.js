@@ -102,8 +102,8 @@ export default function AdminDashboard() {
               data-testid="stat-providers"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#C6A87C]/10 flex items-center justify-center">
-                  <Users size={24} className="text-[#C6A87C]" />
+                <div className="w-12 h-12 rounded-full bg-[#832161]/10 flex items-center justify-center">
+                  <Users size={24} className="text-[#832161]" />
                 </div>
                 <div>
                   <p className="text-[#A1A1AA] text-sm">Total Providers</p>
@@ -120,8 +120,8 @@ export default function AdminDashboard() {
               data-testid="stat-clients"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#C6A87C]/10 flex items-center justify-center">
-                  <Users size={24} className="text-[#C6A87C]" />
+                <div className="w-12 h-12 rounded-full bg-[#832161]/10 flex items-center justify-center">
+                  <Users size={24} className="text-[#832161]" />
                 </div>
                 <div>
                   <p className="text-[#A1A1AA] text-sm">Total Clients</p>
@@ -174,8 +174,8 @@ export default function AdminDashboard() {
               data-testid="stat-pending-media"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#C6A87C]/10 flex items-center justify-center">
-                  <CheckCircle size={24} className="text-[#C6A87C]" />
+                <div className="w-12 h-12 rounded-full bg-[#832161]/10 flex items-center justify-center">
+                  <CheckCircle size={24} className="text-[#832161]" />
                 </div>
                 <div>
                   <p className="text-[#A1A1AA] text-sm">Pending Media</p>
@@ -195,7 +195,7 @@ export default function AdminDashboard() {
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <ChartLine size={24} className="text-[#C6A87C]" />
+                <ChartLine size={24} className="text-[#832161]" />
                 <h2 className="text-xl text-[#F2F0ED]">Website Traffic</h2>
               </div>
               <select
@@ -212,15 +212,15 @@ export default function AdminDashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="text-center p-4 border border-[#27272A] rounded">
-                <p className="text-3xl text-[#C6A87C]">{traffic?.total_views || 0}</p>
+                <p className="text-3xl text-[#832161]">{traffic?.total_views || 0}</p>
                 <p className="text-[#A1A1AA] text-sm mt-1">Total Page Views</p>
               </div>
               <div className="text-center p-4 border border-[#27272A] rounded">
-                <p className="text-3xl text-[#C6A87C]">{traffic?.total_unique_visitors || 0}</p>
+                <p className="text-3xl text-[#832161]">{traffic?.total_unique_visitors || 0}</p>
                 <p className="text-[#A1A1AA] text-sm mt-1">Unique Visitors</p>
               </div>
               <div className="text-center p-4 border border-[#27272A] rounded">
-                <p className="text-3xl text-[#C6A87C]">
+                <p className="text-3xl text-[#832161]">
                   {traffic?.daily_stats?.length > 0 
                     ? Math.round(traffic.total_views / traffic.daily_stats.length) 
                     : 0}
@@ -244,7 +244,7 @@ export default function AdminDashboard() {
                         data-testid={`traffic-bar-${index}`}
                       >
                         <div 
-                          className="w-full bg-[#C6A87C]/80 rounded-t transition-all hover:bg-[#C6A87C]"
+                          className="w-full bg-[#832161]/80 rounded-t transition-all hover:bg-[#832161]"
                           style={{ height: `${Math.max(height, 5)}%` }}
                           title={`${day.views} views`}
                         ></div>
@@ -266,7 +266,7 @@ export default function AdminDashboard() {
                   {Object.entries(traffic.page_stats).slice(0, 5).map(([page, views]) => (
                     <div key={page} className="flex justify-between items-center py-2 border-b border-[#27272A]">
                       <span className="text-[#F2F0ED] text-sm truncate max-w-md">{page}</span>
-                      <span className="text-[#C6A87C] font-medium">{views} views</span>
+                      <span className="text-[#832161] font-medium">{views} views</span>
                     </div>
                   ))}
                 </div>
@@ -284,7 +284,7 @@ export default function AdminDashboard() {
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <Users size={24} className="text-[#C6A87C]" />
+                <Users size={24} className="text-[#832161]" />
                 <h2 className="text-xl text-[#F2F0ED]">Advertisers</h2>
               </div>
               <div className="relative">

@@ -106,7 +106,7 @@ export default function AddToHomeScreen() {
 
           <div className="p-5">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-11 h-11 rounded-xl bg-[#C6A87C] flex items-center justify-center shadow-lg shadow-[#C6A87C]/20">
+              <div className="w-11 h-11 rounded-xl bg-[#832161] flex items-center justify-center shadow-lg shadow-[#832161]/20">
                 <span className="text-[#0A0A0C] italic text-2xl">L</span>
               </div>
               <div>
@@ -119,15 +119,15 @@ export default function AddToHomeScreen() {
               <>
                 <div className="space-y-2 mb-4 text-sm text-[#A1A1AA]">
                   <div className="flex items-center gap-2">
-                    <span className="w-5 text-[#C6A87C] font-medium">1.</span>
+                    <span className="w-5 text-[#832161] font-medium">1.</span>
                     <span>Tap the</span>
-                    <Share size={16} weight="regular" className="text-[#C6A87C]" />
+                    <Share size={16} weight="regular" className="text-[#832161]" />
                     <span>Share icon below</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-5 text-[#C6A87C] font-medium">2.</span>
+                    <span className="w-5 text-[#832161] font-medium">2.</span>
                     <span>Choose</span>
-                    <Plus size={16} weight="bold" className="text-[#C6A87C]" />
+                    <Plus size={16} weight="bold" className="text-[#832161]" />
                     <span>&quot;Add to Home Screen&quot;</span>
                   </div>
                 </div>

@@ -172,7 +172,7 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
             onChange={(e) =>
               update('breast_type', e.target.checked ? 'Implants' : '')
             }
-            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#832161] checked:border-[#832161]"
             data-testid="char-breast_type-implants"
           />
           <span className="text-[#A1A1AA]">Implants</span>

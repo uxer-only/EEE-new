@@ -49,8 +49,8 @@ export default function Landing() {
       <Dialog open={showAgeModal} onOpenChange={() => {}}>
         <DialogContent className="bg-[#141416] border-[#27272A] text-[#F2F0ED] max-w-md p-0 overflow-hidden" hideClose>
           <div className="p-6 md:p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#C6A87C]/10 flex items-center justify-center">
-              <Warning size={32} className="text-[#C6A87C]" weight="fill" />
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#832161]/10 flex items-center justify-center">
+              <Warning size={32} className="text-[#832161]" weight="fill" />
             </div>
             <h2 className="text-2xl text-[#F2F0ED] mb-4">
  Age Verification Required

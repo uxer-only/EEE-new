@@ -110,10 +110,10 @@ export default function Browse() {
       <div className="pt-24 md:pt-32 pb-20 section-padding">
         {offlineMode && (
           <div
-            className="max-w-4xl mx-auto mb-6 px-4 py-3 rounded border border-[#C6A87C]/30 bg-[#C6A87C]/5 text-center"
+            className="max-w-4xl mx-auto mb-6 px-4 py-3 rounded border border-[#832161]/30 bg-[#832161]/5 text-center"
             data-testid="offline-banner"
           >
-            <p className="text-[#C6A87C] text-sm">
+            <p className="text-[#832161] text-sm">
               You're offline — showing profiles you've recently viewed
             </p>
           </div>
@@ -291,7 +291,7 @@ export default function Browse() {
                       {/* VIP pill - top left */}
                       {provider.vip_active && (
                         <div
-                          className="absolute top-2 left-2 px-2 py-1 bg-[#C6A87C] text-[#0A0A0C] text-[10px] font-semibold uppercase tracking-wider rounded-sm flex items-center gap-1 shadow-lg"
+                          className="absolute top-2 left-2 px-2 py-1 bg-[#832161] text-[#0A0A0C] text-[10px] font-semibold uppercase tracking-wider rounded-sm flex items-center gap-1 shadow-lg"
                           data-testid={`vip-pill-${index}`}
                         >
                           <Crown size={11} weight="fill" />

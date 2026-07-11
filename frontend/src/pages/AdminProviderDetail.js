@@ -129,7 +129,7 @@ export default function AdminProviderDetail() {
             <CaretLeft size={20} />
             <span className="uppercase tracking-wider text-sm">Back to Dashboard</span>
           </Link>
-          <h1 className="text-2xl text-[#C6A87C]">Provider Management</h1>
+          <h1 className="text-2xl text-[#832161]">Provider Management</h1>
           <div></div>
         </div>
       </header>

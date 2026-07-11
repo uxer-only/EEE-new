@@ -541,9 +541,9 @@ export default function ProviderDashboard() {
             {subscription && (
               <div className="mb-8" data-testid="subscription-banner">
                 {!subscription.featured_active ? (
-                  <div className="rounded-lg border border-[#C6A87C]/40 bg-gradient-to-r from-[#C6A87C]/10 to-transparent p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="rounded-lg border border-[#832161]/40 bg-gradient-to-r from-[#832161]/10 to-transparent p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-start gap-3">
-                      <Crown size={22} weight="fill" className="text-[#C6A87C] mt-0.5 shrink-0" />
+                      <Crown size={22} weight="fill" className="text-[#832161] mt-0.5 shrink-0" />
                       <div>
                         <p className="text-[#000000] font-medium mb-1">Activate your profile</p>
                         <p className="text-[#000000] text-sm">
@@ -559,7 +559,7 @@ export default function ProviderDashboard() {
                   <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-start gap-3">
                       {subscription.vip_active ? (
-                        <Crown size={22} weight="fill" className="text-[#C6A87C] mt-0.5 shrink-0" />
+                        <Crown size={22} weight="fill" className="text-[#832161] mt-0.5 shrink-0" />
                       ) : (
                         <CheckCircle size={22} weight="fill" className="text-[#22C55E] mt-0.5 shrink-0" />
                       )}
@@ -612,10 +612,10 @@ export default function ProviderDashboard() {
               if (s === 'submitted') {
                 return (
                   <div
-                    className="mb-8 rounded-lg border border-[#C6A87C]/30 bg-[#C6A87C]/5 p-5 flex items-start gap-4"
+                    className="mb-8 rounded-lg border border-[#832161]/30 bg-[#832161]/5 p-5 flex items-start gap-4"
                     data-testid="verification-banner-submitted"
                   >
-                    <ShieldCheck size={22} weight="thin" className="text-[#C6A87C] mt-0.5 shrink-0" />
+                    <ShieldCheck size={22} weight="thin" className="text-[#832161] mt-0.5 shrink-0" />
                     <div>
                       <p className="text-[#000000] font-medium mb-1">Verification under review</p>
                       <p className="text-[#000000] text-sm">We&apos;re reviewing your documents — you&apos;ll receive an email within 24 hours. Your profile becomes visible to clients once approved.</p>
@@ -653,11 +653,11 @@ export default function ProviderDashboard() {
               // pending (not submitted)
               return (
                 <div
-                  className="mb-8 rounded-lg border border-[#C6A87C]/40 bg-gradient-to-br from-[#C6A87C]/10 to-transparent p-6"
+                  className="mb-8 rounded-lg border border-[#832161]/40 bg-gradient-to-br from-[#832161]/10 to-transparent p-6"
                   data-testid="verification-banner-pending"
                 >
                   <div className="flex items-start gap-4">
-                    <ShieldCheck size={24} weight="thin" className="text-[#C6A87C] mt-1 shrink-0" />
+                    <ShieldCheck size={24} weight="thin" className="text-[#832161] mt-1 shrink-0" />
                     <div className="flex-1">
                       <p className="text-[#000000] font-medium mb-1">Unlock the Verified badge</p>
                       <p className="text-[#000000] text-sm mb-4 leading-relaxed">
@@ -682,7 +682,7 @@ export default function ProviderDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-basic-info">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <User size={18} className="text-[#C6A87C]" />
+                    <User size={18} className="text-[#832161]" />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 1</p>
@@ -724,7 +724,7 @@ export default function ProviderDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-photos">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <Camera size={18} className="text-[#C6A87C]" />
+                    <Camera size={18} className="text-[#832161]" />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 2</p>
@@ -760,7 +760,7 @@ export default function ProviderDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-services">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <FileText size={18} className="text-[#C6A87C]" />
+                    <FileText size={18} className="text-[#832161]" />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 3</p>
@@ -798,7 +798,7 @@ export default function ProviderDashboard() {
                         <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">Extra ({extraServices.length})</p>
                         <div className="flex flex-wrap gap-2">
                           {extraServices.slice(0, 6).map(([name, v]) => (
-                            <span key={name} className="px-3 py-1 text-xs border border-[#C6A87C]/40 bg-[#C6A87C]/10 text-[#C6A87C] rounded-full">
+                            <span key={name} className="px-3 py-1 text-xs border border-[#832161]/40 bg-[#832161]/10 text-[#832161] rounded-full">
                               {name} {v.price && `· €${v.price}`}
                             </span>
                           ))}
@@ -821,7 +821,7 @@ export default function ProviderDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-rates">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <CurrencyDollar size={18} className="text-[#C6A87C]" />
+                    <CurrencyDollar size={18} className="text-[#832161]" />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 4</p>
@@ -838,7 +838,7 @@ export default function ProviderDashboard() {
                       .sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0));
                     return (
                       <div key={kind}>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#C6A87C] mb-3">{kind}</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#832161] mb-3">{kind}</p>
                         <div className="space-y-2">
                           {[
                             { key: '1hour', label: '1 hour' },
@@ -849,7 +849,7 @@ export default function ProviderDashboard() {
                             return (
                               <div key={key} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
                                 <span className="text-[#000000] text-sm">{label}</span>
-                                <span className="text-[#C6A87C]">
+                                <span className="text-[#832161]">
                                   {v ? `${sym}${v}` : <span className="text-[#000000] text-sm italic">Not set</span>}
                                 </span>
                               </div>
@@ -858,7 +858,7 @@ export default function ProviderDashboard() {
                           {extras.map((extra, i) => (
                             <div key={`extra-${i}`} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
                               <span className="text-[#000000] text-sm">{extra.hours} hours</span>
-                              <span className="text-[#C6A87C]">
+                              <span className="text-[#832161]">
                                 {extra.price ? `${sym}${extra.price}` : <span className="text-[#000000] text-sm italic">Not set</span>}
                               </span>
                             </div>
@@ -866,7 +866,7 @@ export default function ProviderDashboard() {
                           {col.overnight !== undefined && col.overnight !== '' && (
                             <div className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
                               <span className="text-[#000000] text-sm">Overnight</span>
-                              <span className="text-[#C6A87C]">{sym}{col.overnight}</span>
+                              <span className="text-[#832161]">{sym}{col.overnight}</span>
                             </div>
                           )}
                         </div>
@@ -887,7 +887,7 @@ export default function ProviderDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-availability">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <Clock size={18} className="text-[#C6A87C]" />
+                    <Clock size={18} className="text-[#832161]" />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 4</p>
@@ -900,7 +900,7 @@ export default function ProviderDashboard() {
                     <div
                       key={day}
                       className={`border p-3 text-center transition-colors ${
-                        sched?.available ? 'border-[#C6A87C]/40 bg-[#C6A87C]/5' : 'border-[#dbdadd] opacity-50'
+                        sched?.available ? 'border-[#832161]/40 bg-[#832161]/5' : 'border-[#dbdadd] opacity-50'
                       }`}
                     >
                       <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">{dayLabels[day] || day.slice(0, 3)}</p>
@@ -1315,7 +1315,7 @@ export default function ProviderDashboard() {
                                 type="button"
                                 onClick={() => { addCustom(); setShowAddLanguage(false); }}
                                 disabled={!newLanguage.trim()}
-                                className="px-4 py-3 border border-[#C6A87C] text-[#C6A87C] hover:bg-[#C6A87C]/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm uppercase tracking-wider whitespace-nowrap"
+                                className="px-4 py-3 border border-[#832161] text-[#832161] hover:bg-[#832161]/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm uppercase tracking-wider whitespace-nowrap"
                                 data-testid="add-language-confirm"
                               >
                                 Add
@@ -1334,7 +1334,7 @@ export default function ProviderDashboard() {
                             <button
                               type="button"
                               onClick={() => setShowAddLanguage(true)}
-                              className="mt-4 inline-flex items-center gap-2 px-4 py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#C6A87C] hover:text-[#DA4167] transition-colors text-sm uppercase tracking-wider"
+                              className="mt-4 inline-flex items-center gap-2 px-4 py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#DA4167] transition-colors text-sm uppercase tracking-wider"
                               data-testid="add-language-button"
                             >
                               <Plus size={16} /> Add language
@@ -1360,9 +1360,9 @@ export default function ProviderDashboard() {
                           ? raw.slice(dial.length).replace(/^\s+/, '')
                           : raw;
                         return (
-                          <div className="flex items-stretch border border-[#dbdadd] focus-within:border-[#C6A87C] transition-colors">
+                          <div className="flex items-stretch border border-[#dbdadd] focus-within:border-[#832161] transition-colors">
                             {dial && (
-                              <span className="px-3 py-3 bg-white text-[#C6A87C] text-[13px] border-r border-[#dbdadd] select-none whitespace-nowrap" data-testid="phone-dial-code">
+                              <span className="px-3 py-3 bg-white text-[#832161] text-[13px] border-r border-[#dbdadd] select-none whitespace-nowrap" data-testid="phone-dial-code">
                                 {dial}
                               </span>
                             )}
@@ -1446,7 +1446,7 @@ export default function ProviderDashboard() {
                               ...profileData,
                               contact: { ...profileData.contact, hasSms: e.target.checked }
                             })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
                             data-testid="contact-sms"
                           />
                           <span className="text-[#000000]">SMS</span>
@@ -1578,8 +1578,8 @@ export default function ProviderDashboard() {
                   onDrop={handleDrop}
                   className={`border-2 border-dashed rounded-lg p-12 text-center transition-all cursor-pointer ${
                     isDragging 
-                      ? 'border-[#C6A87C] bg-[#C6A87C]/5' 
-                      : 'border-[#dbdadd] hover:border-[#C6A87C]'
+                      ? 'border-[#832161] bg-[#832161]/5' 
+                      : 'border-[#dbdadd] hover:border-[#832161]'
                   }`}
                   onClick={() => document.getElementById('file-upload').click()}
                   data-testid="upload-zone"
@@ -1592,7 +1592,7 @@ export default function ProviderDashboard() {
                     onChange={handleFileInput}
                     className="hidden"
                   />
-                  <UploadSimple size={48} className={`mx-auto mb-4 transition-colors ${isDragging ? 'text-[#C6A87C]' : 'text-[#000000]'}`} />
+                  <UploadSimple size={48} className={`mx-auto mb-4 transition-colors ${isDragging ? 'text-[#832161]' : 'text-[#000000]'}`} />
                   <p className="text-[#000000] text-lg mb-2">
                     {isDragging ? 'Drop files here' : 'Drag & drop your files here'}
                   </p>
@@ -1631,7 +1631,7 @@ export default function ProviderDashboard() {
 
                           {/* Cover badge */}
                           {idx === 0 && (
-                            <span className="absolute top-2 left-2 px-2 py-1 bg-[#C6A87C] text-[#0A0A0C] text-[10px] uppercase tracking-wider font-medium rounded-sm">
+                            <span className="absolute top-2 left-2 px-2 py-1 bg-[#832161] text-[#0A0A0C] text-[10px] uppercase tracking-wider font-medium rounded-sm">
                               Cover
                             </span>
                           )}
@@ -1664,7 +1664,7 @@ export default function ProviderDashboard() {
                               type="button"
                               onClick={(e) => { e.stopPropagation(); movePhoto(idx, idx - 1); }}
                               disabled={idx === 0}
-                              className="w-7 h-7 bg-black/70 hover:bg-[#C6A87C] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
+                              className="w-7 h-7 bg-black/70 hover:bg-[#832161] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
                               data-testid={`photo-move-left-${idx}`}
                               aria-label="Move left"
                             >
@@ -1674,7 +1674,7 @@ export default function ProviderDashboard() {
                               type="button"
                               onClick={(e) => { e.stopPropagation(); movePhoto(idx, idx + 1); }}
                               disabled={idx === profileData.photos.length - 1}
-                              className="w-7 h-7 bg-black/70 hover:bg-[#C6A87C] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
+                              className="w-7 h-7 bg-black/70 hover:bg-[#832161] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
                               data-testid={`photo-move-right-${idx}`}
                               aria-label="Move right"
                             >
@@ -1799,7 +1799,7 @@ export default function ProviderDashboard() {
                           key={service} 
                           className={`grid grid-cols-12 gap-4 px-4 py-3 items-center ${
                             index !== serviceOptions.length - 1 ? 'border-b border-[#dbdadd]' : ''
-                          } ${serviceData.type ? 'bg-[#C6A87C]/5' : ''}`}
+                          } ${serviceData.type ? 'bg-[#832161]/5' : ''}`}
                         >
                           {/* Service Name */}
                           <div className="col-span-5 text-[#000000] text-sm">{service}</div>
@@ -1984,7 +1984,7 @@ export default function ProviderDashboard() {
                           schedule: updatedSchedule
                         });
                       }}
-                      className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                      className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
                     />
                     <span className="text-[#000000]">Available 24/7</span>
                   </label>
@@ -1998,7 +1998,7 @@ export default function ProviderDashboard() {
                         ...profileData,
                         booking_advance: e.target.checked
                       })}
-                      className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                      className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
                       data-testid="booking-advance-checkbox"
                     />
                     <span className="text-[#000000]">Booking in advance necessary</span>
@@ -2019,7 +2019,7 @@ export default function ProviderDashboard() {
                                 [day]: { ...schedule, available: e.target.checked }
                               }
                             })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#C6A87C] checked:border-[#C6A87C]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
                           />
                           <span className="text-[#000000] capitalize">{day}</span>
                         </label>
@@ -2189,7 +2189,7 @@ export default function ProviderDashboard() {
                           <button
                             type="button"
                             onClick={addExtra}
-                            className="w-full py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#C6A87C] hover:text-[#DA4167] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
+                            className="w-full py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#DA4167] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
                             data-testid={`rate-${kind}-add-hour`}
                           >
                             <Plus size={16} />

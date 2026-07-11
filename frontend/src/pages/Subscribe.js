@@ -94,7 +94,7 @@ export default function Subscribe() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <p className="text-[10px] uppercase tracking-[0.3em] text-[#C6A87C] mb-3">Final step</p>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[#832161] mb-3">Final step</p>
           <h1 className="text-4xl md:text-5xl text-[#F2F0ED] mb-4">
  Activate your profile
  </h1>
@@ -121,7 +121,7 @@ export default function Subscribe() {
         {/* Featured Listing */}
         <section className="card-premium p-6 md:p-8 mb-6" data-testid="featured-section">
           <div className="flex items-start gap-3 mb-6">
-            <Sparkle size={22} weight="fill" className="text-[#C6A87C] mt-1 flex-shrink-0" />
+            <Sparkle size={22} weight="fill" className="text-[#832161] mt-1 flex-shrink-0" />
             <div>
               <h2 className="text-2xl text-[#F2F0ED]">Featured Listing</h2>
               <p className="text-[#A1A1AA] text-sm mt-1">
@@ -138,13 +138,13 @@ export default function Subscribe() {
                 onClick={() => setFeaturedPlan(opt.id)}
                 className={`relative text-left p-6 border-2 transition-all ${
                   featuredPlan === opt.id
-                    ? 'border-[#C6A87C] bg-[#C6A87C]/5'
+                    ? 'border-[#832161] bg-[#832161]/5'
                     : 'border-[#27272A] hover:border-[#3F3F46]'
                 }`}
                 data-testid={`featured-option-${opt.id}`}
               >
                 {opt.badge && (
-                  <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#C6A87C] text-[#0A0A0C] font-medium">
+                  <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#832161] text-[#0A0A0C] font-medium">
                     {opt.badge}
                   </span>
                 )}
@@ -152,7 +152,7 @@ export default function Subscribe() {
                 <p className="text-4xl text-[#F2F0ED] mb-1">€{opt.price}</p>
                 <p className="text-[#71717A] text-xs">{opt.perDay}</p>
                 {featuredPlan === opt.id && (
-                  <CheckCircle size={20} weight="fill" className="absolute bottom-4 right-4 text-[#C6A87C]" />
+                  <CheckCircle size={20} weight="fill" className="absolute bottom-4 right-4 text-[#832161]" />
                 )}
               </button>
             ))}
@@ -163,7 +163,7 @@ export default function Subscribe() {
         <section className="card-premium p-6 md:p-8 mb-6" data-testid="vip-section">
           <div className="flex items-start justify-between mb-6 gap-4">
             <div className="flex items-start gap-3">
-              <Crown size={22} weight="fill" className="text-[#C6A87C] mt-1 flex-shrink-0" />
+              <Crown size={22} weight="fill" className="text-[#832161] mt-1 flex-shrink-0" />
               <div>
                 <h2 className="text-2xl text-[#F2F0ED]">
  VIP Boost <span className="text-sm uppercase tracking-[0.2em] text-[#71717A] ml-2">Optional</span>
@@ -179,7 +179,7 @@ export default function Subscribe() {
               aria-checked={vipEnabled}
               onClick={() => setVipEnabled(!vipEnabled)}
               className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
-                vipEnabled ? 'bg-[#C6A87C]' : 'bg-[#27272A]'
+                vipEnabled ? 'bg-[#832161]' : 'bg-[#27272A]'
               }`}
               data-testid="vip-toggle"
             >
@@ -200,20 +200,20 @@ export default function Subscribe() {
                   onClick={() => setVipPlan(opt.id)}
                   className={`relative text-left p-5 border-2 transition-all ${
                     vipPlan === opt.id
-                      ? 'border-[#C6A87C] bg-[#C6A87C]/5'
+                      ? 'border-[#832161] bg-[#832161]/5'
                       : 'border-[#27272A] hover:border-[#3F3F46]'
                   }`}
                   data-testid={`vip-option-${opt.id}`}
                 >
                   {opt.badge && (
-                    <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#C6A87C] text-[#0A0A0C] font-medium">
+                    <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#832161] text-[#0A0A0C] font-medium">
                       {opt.badge}
                     </span>
                   )}
                   <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
                   <p className="text-3xl text-[#F2F0ED]">€{opt.price}</p>
                   {vipPlan === opt.id && (
-                    <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#C6A87C]" />
+                    <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#832161]" />
                   )}
                 </button>
               ))}

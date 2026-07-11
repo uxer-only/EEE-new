@@ -83,7 +83,7 @@ export default function AdminPanel() {
         <div className="max-w-6xl mx-auto">
           <div className="mb-10">
             <div className="flex items-center gap-3 mb-2">
-              <ShieldCheck size={26} weight="thin" className="text-[#C6A87C]" />
+              <ShieldCheck size={26} weight="thin" className="text-[#832161]" />
               <h2 className="text-3xl md:text-4xl text-[#F2F0ED]">
  Verification queue
  </h2>
@@ -97,7 +97,7 @@ export default function AdminPanel() {
 
           {verifications.length === 0 ? (
             <div className="card-premium p-12 text-center" data-testid="empty-state">
-              <CheckCircle size={48} weight="thin" className="text-[#C6A87C] mx-auto mb-4" />
+              <CheckCircle size={48} weight="thin" className="text-[#832161] mx-auto mb-4" />
               <p className="text-[#F2F0ED] text-lg mb-1">All clear</p>
               <p className="text-[#A1A1AA] text-sm">
                 New submissions will appear here for review.

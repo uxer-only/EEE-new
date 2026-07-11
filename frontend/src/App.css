@@ -107,7 +107,7 @@ input[type="checkbox"]:focus {
 
 /* Card styles */
 .card-premium {
-  @apply bg-[#141416] border border-[#27272A] hover:border-[#C6A87C] transition-all duration-300;
+  @apply bg-[#141416] border border-[#27272A] hover:border-[#832161] transition-all duration-300;
 }
 
 .dashboard-light .card-premium {
@@ -165,7 +165,7 @@ input[type="checkbox"]:focus {
 }
 
 .message-bubble.sent {
-  @apply bg-[#C6A87C] text-[#0A0A0C] ml-auto;
+  @apply bg-[#832161] text-[#0A0A0C] ml-auto;
 }
 
 .message-bubble.received {
@@ -186,7 +186,7 @@ input[type="checkbox"]:focus {
 }
 
 .status-completed {
-  @apply bg-[#C6A87C] text-[#0A0A0C];
+  @apply bg-[#832161] text-[#0A0A0C];
 }
 
 .status-cancelled {
