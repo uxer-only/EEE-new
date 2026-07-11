@@ -808,6 +808,14 @@ async def my_subscription(current_user: User = Depends(get_current_user)):
 
     featured_until = profile.get("featured_until")
     vip_until = profile.get("vip_until")
+
+    # Latest completed subscription (for auto_renew flag)
+    latest_sub = await db.subscriptions.find_one(
+        {"provider_id": profile["provider_id"]},
+        sort=[("created_at", -1)],
+    )
+    auto_renew_pref = bool(latest_sub.get("auto_renew", True)) if latest_sub else True
+
     return {
         "has_profile": True,
         "featured_active": bool(featured_until and featured_until > now),
@@ -816,8 +824,40 @@ async def my_subscription(current_user: User = Depends(get_current_user)):
         "vip_active": bool(vip_until and vip_until > now),
         "vip_until": vip_until.isoformat() if vip_until else None,
         "vip_days_left": _days_left(vip_until),
+        "auto_renew": auto_renew_pref,
         "plans": PLANS,
     }
+
+
+class AutoRenewUpdate(BaseModel):
+    auto_renew: bool
+
+
+@api_router.put("/subscriptions/auto-renew")
+async def update_auto_renew(
+    body: AutoRenewUpdate,
+    current_user: User = Depends(get_current_user),
+):
+    """Toggle auto_renew on the provider's latest subscription."""
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    profile = await db.provider_profiles.find_one(
+        {"user_id": current_user.user_id},
+        {"_id": 0, "provider_id": 1},
+    )
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    latest_sub = await db.subscriptions.find_one(
+        {"provider_id": profile["provider_id"]},
+        sort=[("created_at", -1)],
+    )
+    if not latest_sub:
+        raise HTTPException(status_code=404, detail="No subscription found")
+    await db.subscriptions.update_one(
+        {"_id": latest_sub["_id"]},
+        {"$set": {"auto_renew": body.auto_renew}},
+    )
+    return {"auto_renew": body.auto_renew}
 
 
 @api_router.post("/webhook/stripe")

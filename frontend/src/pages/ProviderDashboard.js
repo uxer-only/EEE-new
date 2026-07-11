@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout } from '@/services/api';
+import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout, updateAutoRenew } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { 
   ChatCircle, CheckCircle, User, MapPin, Camera, Clock, 
@@ -565,15 +565,46 @@ export default function ProviderDashboard() {
                       )}
                       <div>
                         <p className="text-[#000000] font-medium mb-1">
-                          {subscription.vip_active ? 'VIP Featured · live' : 'Featured · live'}
+                          {subscription.vip_active ? 'Profile status: online (VIP)' : 'Profile status: online'}
                         </p>
-                        <p className="text-[#000000] text-sm">
+                        <p className="text-[#000000] text-sm mb-3">
                           Your profile expires in <span className="text-[#000000] font-medium">{Math.ceil(subscription.featured_days_left)} day{Math.ceil(subscription.featured_days_left) === 1 ? '' : 's'}</span>
                           {subscription.vip_active && subscription.vip_days_left ? (
                             <> · VIP Boost: {Math.ceil(subscription.vip_days_left)} day{Math.ceil(subscription.vip_days_left) === 1 ? '' : 's'} remaining</>
                           ) : null}
                           .
                         </p>
+                        {/* Auto-renew toggle */}
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={subscription.auto_renew !== false}
+                            onClick={async () => {
+                              const next = !(subscription.auto_renew !== false);
+                              try {
+                                await updateAutoRenew(next);
+                                fetchDashboard();
+                                toast.success(next ? 'Auto-renew enabled' : 'Auto-renew disabled');
+                              } catch (err) {
+                                toast.error('Could not update auto-renew');
+                              }
+                            }}
+                            className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${
+                              subscription.auto_renew !== false ? 'bg-[#DA4167]' : 'bg-[#dbdadd]'
+                            }`}
+                            data-testid="auto-renew-summary-toggle"
+                          >
+                            <span
+                              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-[#FFFFFF] transition-transform ${
+                                subscription.auto_renew !== false ? 'translate-x-5' : ''
+                              }`}
+                            />
+                          </button>
+                          <span className="text-sm text-[#000000]">
+                            Auto-renew {subscription.auto_renew !== false ? 'on' : 'off'}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <div className="flex gap-3">
@@ -582,9 +613,6 @@ export default function ProviderDashboard() {
                           Upgrade to VIP
                         </Link>
                       )}
-                      <Link to="/subscribe" className="btn-primary whitespace-nowrap" data-testid="renew-cta">
-                        Renew / extend
-                      </Link>
                     </div>
                   </div>
                 )}

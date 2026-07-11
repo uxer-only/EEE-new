@@ -59,5 +59,7 @@ export const createSubscriptionCheckout = (data) =>
   api.post('/subscriptions/checkout', data);
 export const getSubscriptionStatus = (sessionId) =>
   api.get(`/subscriptions/status/${sessionId}`);
+export const updateAutoRenew = (autoRenew) =>
+  api.put('/subscriptions/auto-renew', { auto_renew: autoRenew });
 
 export default api;
