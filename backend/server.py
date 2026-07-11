@@ -874,9 +874,19 @@ async def create_enquiry(body: EnquiryCreate):
     """Public: save a message sent from the 'Do you have extra requests?' form."""
     if not body.message.strip():
         raise HTTPException(status_code=400, detail="Message is required")
-    provider = await db.provider_profiles.find_one({"provider_id": body.provider_id}, {"_id": 0, "user_id": 1})
+    provider = await db.provider_profiles.find_one(
+        {"provider_id": body.provider_id},
+        {"_id": 0, "user_id": 1, "display_name": 1},
+    )
     if not provider:
         raise HTTPException(status_code=404, detail="Provider not found")
+
+    # Load the provider's account to get their email
+    provider_user = await db.users.find_one(
+        {"user_id": provider["user_id"]},
+        {"_id": 0, "email": 1, "name": 1},
+    )
+
     doc = {
         "enquiry_id": f"enq_{uuid.uuid4().hex[:12]}",
         "provider_id": body.provider_id,
@@ -888,6 +898,57 @@ async def create_enquiry(body: EnquiryCreate):
         "created_at": datetime.now(timezone.utc),
     }
     await db.enquiries.insert_one(doc)
+
+    # Notify the provider via email (reply-to set to the client so they can reply directly)
+    if RESEND_API_KEY and provider_user and provider_user.get("email"):
+        provider_email = provider_user["email"]
+        provider_name = provider_user.get("name") or provider.get("display_name") or "there"
+        subject = f"New enquiry from {doc['name'] or 'a visitor'}"
+        html = f"""
+        <div style="font-family: Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color:#000000;">
+          <h2 style="color:#832161; margin:0 0 12px;">Only Elite Escorts</h2>
+          <p style="color:#DA4167; font-size:12px; letter-spacing:2px; text-transform:uppercase; margin:0 0 24px;">New enquiry</p>
+          <p>Hi {provider_name},</p>
+          <p>You have received a new message via your public profile.</p>
+          <table style="width:100%; border-collapse:collapse; margin:16px 0;">
+            <tr>
+              <td style="padding:8px 0; color:#898989; width:120px;">From</td>
+              <td style="padding:8px 0;"><strong>{doc['name'] or 'Anonymous'}</strong></td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0; color:#898989;">Reply to</td>
+              <td style="padding:8px 0;"><a href="mailto:{doc['email']}" style="color:#DA4167; text-decoration:none;">{doc['email']}</a></td>
+            </tr>
+          </table>
+          <div style="background:#F0EFF4; border-left:3px solid #DA4167; padding:16px; margin:16px 0; white-space:pre-wrap;">
+            {doc['message']}
+          </div>
+          <p style="margin:24px 0 12px;">
+            <a href="mailto:{doc['email']}?subject=Re: your enquiry on Only Elite Escorts"
+               style="display:inline-block; background:#DA4167; color:#FFFFFF; padding:12px 20px; text-decoration:none; font-weight:bold; letter-spacing:1px; text-transform:uppercase; font-size:13px;">
+              Reply to {doc['name'] or 'sender'}
+            </a>
+          </p>
+          <p style="color:#898989; font-size:12px; margin-top:32px;">
+            Tip: just hit <em>Reply</em> on this email — your reply will go straight to the sender.<br/>
+            You can also see this message on your <a href="#" style="color:#832161;">Only Elite Escorts dashboard</a>.
+          </p>
+        </div>
+        """
+        try:
+            payload = {
+                "from": f"Only Elite Escorts <{SENDER_EMAIL}>",
+                "to": [provider_email],
+                "subject": subject,
+                "html": html,
+            }
+            # Set reply-to so provider can respond directly from their inbox
+            if doc["email"]:
+                payload["reply_to"] = [doc["email"]]
+            await asyncio.to_thread(resend.Emails.send, payload)
+        except Exception as e:
+            logger.error(f"Enquiry notification email failed for {provider_email}: {e}")
+
     return {"ok": True, "enquiry_id": doc["enquiry_id"]}
 
 
