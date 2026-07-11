@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout, updateAutoRenew } from '@/services/api';
+import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout, updateAutoRenew, listMyEnquiries, markEnquiryRead, listMyInvoices, invoicePdfUrl } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { 
   ChatCircle, CheckCircle, User, MapPin, Camera, Clock, 
@@ -618,6 +618,12 @@ export default function ProviderDashboard() {
                 )}
               </div>
             )}
+
+            {/* Messages + Invoices boxes */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8" data-testid="messages-invoices-grid">
+              <MessagesBox />
+              <InvoicesBox />
+            </div>
 
             {/* Verification banner / status */}
             {(() => {
@@ -2507,3 +2513,151 @@ export default function ProviderDashboard() {
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ *
+ * Received messages box
+ * ------------------------------------------------------------------ */
+function MessagesBox() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [unread, setUnread] = useState(0);
+  const [expandedId, setExpandedId] = useState(null);
+
+  const load = async () => {
+    try {
+      const res = await listMyEnquiries();
+      setItems(res.data.enquiries || []);
+      setUnread(res.data.unread || 0);
+    } catch (e) { /* silent */ } finally { setLoading(false); }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const toggleExpand = async (enq) => {
+    const nextId = expandedId === enq.enquiry_id ? null : enq.enquiry_id;
+    setExpandedId(nextId);
+    if (nextId && !enq.read) {
+      try {
+        await markEnquiryRead(enq.enquiry_id, true);
+        setItems((prev) => prev.map((e) => e.enquiry_id === enq.enquiry_id ? { ...e, read: true } : e));
+        setUnread((u) => Math.max(0, u - 1));
+      } catch (e) { /* noop */ }
+    }
+  };
+
+  return (
+    <div className="rounded-lg border border-[#dbdadd] bg-white p-5" data-testid="messages-box">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-[#832161]">Received messages</h3>
+        {unread > 0 && (
+          <span className="text-xs font-medium px-2 py-1 bg-[#DA4167] text-white rounded-full" data-testid="messages-unread-count">
+            {unread} new
+          </span>
+        )}
+      </div>
+      {loading ? (
+        <p className="text-sm text-[#898989]">Loading…</p>
+      ) : items.length === 0 ? (
+        <p className="text-sm text-[#898989]">No messages yet. Enquiries from your public profile will appear here.</p>
+      ) : (
+        <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+          {items.map((enq) => (
+            <button
+              key={enq.enquiry_id}
+              type="button"
+              onClick={() => toggleExpand(enq)}
+              className={`text-left border rounded-lg p-3 transition-colors ${enq.read ? 'border-[#dbdadd] bg-white' : 'border-[#DA4167]/40 bg-[#DA4167]/5'}`}
+              data-testid={`message-item-${enq.enquiry_id}`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className={`text-sm truncate ${enq.read ? 'text-[#000000]' : 'text-[#000000] font-semibold'}`}>
+                  {enq.name || 'Anonymous'}
+                </span>
+                <span className="text-xs text-[#898989] shrink-0">
+                  {new Date(enq.created_at).toLocaleDateString()}
+                </span>
+              </div>
+              <p className={`text-xs mt-1 ${expandedId === enq.enquiry_id ? 'text-[#000000] whitespace-pre-wrap' : 'text-[#898989] truncate'}`}>
+                {enq.message}
+              </p>
+              {expandedId === enq.enquiry_id && enq.email && (
+                <p className="text-xs text-[#832161] mt-2">Reply to: {enq.email}</p>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Invoices box
+ * ------------------------------------------------------------------ */
+function InvoicesBox() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    listMyInvoices()
+      .then((r) => setItems(r.data.invoices || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const formatMoney = (amt, currency) => {
+    if (amt === null || amt === undefined) return '—';
+    const sym = { EUR: '€', USD: '$', GBP: '£' }[currency] || (currency + ' ');
+    return `${sym}${Number(amt).toFixed(2)}`;
+  };
+
+  const describe = (inv) => {
+    const parts = [];
+    if (inv.featured_id) parts.push(`Featured ${inv.featured_id}`);
+    if (inv.vip_id) parts.push(`VIP ${inv.vip_id}`);
+    return parts.length ? parts.join(' + ') : (inv.plan || 'Subscription');
+  };
+
+  return (
+    <div className="rounded-lg border border-[#dbdadd] bg-white p-5" data-testid="invoices-box">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-[#832161]">Invoices</h3>
+        {items.length > 0 && (
+          <span className="text-xs text-[#898989]">{items.length} total</span>
+        )}
+      </div>
+      {loading ? (
+        <p className="text-sm text-[#898989]">Loading…</p>
+      ) : items.length === 0 ? (
+        <p className="text-sm text-[#898989]">No invoices yet. Each subscription purchase will appear here.</p>
+      ) : (
+        <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+          {items.map((inv) => (
+            <div
+              key={inv.invoice_id}
+              className="flex items-center justify-between gap-3 border border-[#dbdadd] rounded-lg p-3"
+              data-testid={`invoice-item-${inv.invoice_id}`}
+            >
+              <div className="min-w-0">
+                <p className="text-sm text-[#000000] font-medium truncate">{describe(inv)}</p>
+                <p className="text-xs text-[#898989]">
+                  {inv.created_at ? new Date(inv.created_at).toLocaleDateString() : '—'} · {formatMoney(inv.amount, inv.currency)}
+                </p>
+              </div>
+              <a
+                href={invoicePdfUrl(inv.invoice_id)}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs uppercase tracking-wider text-[#832161] hover:text-[#DA4167] whitespace-nowrap"
+                data-testid={`invoice-pdf-${inv.invoice_id}`}
+              >
+                PDF ↓
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+

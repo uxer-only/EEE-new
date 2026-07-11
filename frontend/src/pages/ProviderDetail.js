@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getProviderById, getProviders } from '@/services/api';
+import { getProviderById, getProviders, createEnquiry } from '@/services/api';
 import { toast } from 'sonner';
 import {
   MapPin, CheckCircle, Star, Calendar, Clock, CaretLeft, CaretRight,
@@ -682,7 +682,7 @@ export default function ProviderDetail() {
                   <div className="flex justify-between items-center">
                     <span className="text-[#52525B] text-sm">{extraRequest.length}/350 characters</span>
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         if (!requestName.trim()) {
                           toast.error('Please enter your name');
                           return;
@@ -696,14 +696,22 @@ export default function ProviderDetail() {
                           return;
                         }
                         setSendingRequest(true);
-                        // Simulate sending request
-                        setTimeout(() => {
+                        try {
+                          await createEnquiry({
+                            provider_id: provider.provider_id || provider.id,
+                            name: requestName,
+                            email: requestEmail,
+                            message: extraRequest,
+                          });
                           toast.success('Request sent successfully!');
                           setRequestName('');
                           setRequestEmail('');
                           setExtraRequest('');
+                        } catch (err) {
+                          toast.error('Failed to send request. Please try again.');
+                        } finally {
                           setSendingRequest(false);
-                        }, 1000);
+                        }
                       }}
                       disabled={sendingRequest || !extraRequest.trim() || !requestName.trim() || !requestEmail.trim()}
                       className="btn-primary px-8 disabled:opacity-50"

@@ -860,6 +860,200 @@ async def update_auto_renew(
     return {"auto_renew": body.auto_renew}
 
 
+# --------------------------------------------------------------------- Enquiries
+
+class EnquiryCreate(BaseModel):
+    provider_id: str
+    name: str
+    email: str
+    message: str
+
+
+@api_router.post("/enquiries")
+async def create_enquiry(body: EnquiryCreate):
+    """Public: save a message sent from the 'Do you have extra requests?' form."""
+    if not body.message.strip():
+        raise HTTPException(status_code=400, detail="Message is required")
+    provider = await db.provider_profiles.find_one({"provider_id": body.provider_id}, {"_id": 0, "user_id": 1})
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider not found")
+    doc = {
+        "enquiry_id": f"enq_{uuid.uuid4().hex[:12]}",
+        "provider_id": body.provider_id,
+        "user_id_provider": provider["user_id"],
+        "name": body.name.strip()[:100],
+        "email": body.email.strip()[:120],
+        "message": body.message.strip()[:1500],
+        "read": False,
+        "created_at": datetime.now(timezone.utc),
+    }
+    await db.enquiries.insert_one(doc)
+    return {"ok": True, "enquiry_id": doc["enquiry_id"]}
+
+
+@api_router.get("/enquiries/mine")
+async def list_my_enquiries(current_user: User = Depends(get_current_user)):
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    cursor = db.enquiries.find(
+        {"user_id_provider": current_user.user_id},
+        {"_id": 0},
+    ).sort("created_at", -1).limit(200)
+    items = []
+    async for row in cursor:
+        ts = row.get("created_at")
+        if isinstance(ts, datetime):
+            row["created_at"] = ts.isoformat()
+        items.append(row)
+    return {"enquiries": items, "unread": sum(1 for e in items if not e.get("read"))}
+
+
+class EnquiryReadUpdate(BaseModel):
+    read: bool = True
+
+
+@api_router.put("/enquiries/{enquiry_id}/read")
+async def mark_enquiry_read(
+    enquiry_id: str,
+    body: EnquiryReadUpdate,
+    current_user: User = Depends(get_current_user),
+):
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    result = await db.enquiries.update_one(
+        {"enquiry_id": enquiry_id, "user_id_provider": current_user.user_id},
+        {"$set": {"read": body.read}},
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+    return {"ok": True, "read": body.read}
+
+
+# --------------------------------------------------------------------- Invoices
+
+@api_router.get("/invoices/mine")
+async def list_my_invoices(current_user: User = Depends(get_current_user)):
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    profile = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0, "provider_id": 1})
+    if not profile:
+        return {"invoices": []}
+    cursor = db.payment_transactions.find(
+        {"provider_id": profile["provider_id"], "payment_status": "paid"},
+        {"_id": 0},
+    ).sort("created_at", -1).limit(200)
+    items = []
+    async for row in cursor:
+        ts = row.get("created_at") or row.get("completed_at")
+        items.append({
+            "invoice_id": row.get("session_id") or row.get("transaction_id"),
+            "amount": row.get("amount_total") or row.get("amount"),
+            "currency": (row.get("currency") or "eur").upper(),
+            "plan": (row.get("metadata") or {}).get("plan_id") or (row.get("metadata") or {}).get("kind", "subscription_purchase"),
+            "featured_id": (row.get("metadata") or {}).get("featured_id"),
+            "vip_id": (row.get("metadata") or {}).get("vip_id"),
+            "auto_renew": (row.get("metadata") or {}).get("auto_renew") == "1",
+            "created_at": ts.isoformat() if isinstance(ts, datetime) else ts,
+        })
+    return {"invoices": items}
+
+
+@api_router.get("/invoices/{invoice_id}/pdf")
+async def download_invoice_pdf(invoice_id: str, current_user: User = Depends(get_current_user)):
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    profile = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0, "provider_id": 1})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    tx = await db.payment_transactions.find_one(
+        {"$or": [{"session_id": invoice_id}, {"transaction_id": invoice_id}], "provider_id": profile["provider_id"]},
+        {"_id": 0},
+    )
+    if not tx:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+
+    # Build PDF on-the-fly
+    from io import BytesIO
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import mm
+    from reportlab.lib.colors import HexColor, black
+    from reportlab.pdfgen import canvas as pdfcanvas
+
+    buf = BytesIO()
+    c = pdfcanvas.Canvas(buf, pagesize=A4)
+    w, h = A4
+    # Header
+    c.setFillColor(HexColor("#832161"))
+    c.setFont("Helvetica-Bold", 22)
+    c.drawString(22 * mm, h - 30 * mm, "Only Elite Escorts")
+    c.setFillColor(HexColor("#DA4167"))
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(22 * mm, h - 38 * mm, "INVOICE")
+
+    # Meta
+    c.setFillColor(black)
+    c.setFont("Helvetica", 10)
+    ts = tx.get("completed_at") or tx.get("created_at")
+    if isinstance(ts, datetime):
+        ts_s = ts.strftime("%Y-%m-%d %H:%M UTC")
+    else:
+        ts_s = str(ts or "")
+    y = h - 55 * mm
+    c.drawString(22 * mm, y, f"Invoice ID: {invoice_id}")
+    y -= 6 * mm
+    c.drawString(22 * mm, y, f"Date: {ts_s}")
+    y -= 6 * mm
+    c.drawString(22 * mm, y, f"Provider: {current_user.name} ({current_user.email})")
+
+    # Line item box
+    y -= 14 * mm
+    c.setFillColor(HexColor("#4B4B4B"))
+    c.rect(22 * mm, y, w - 44 * mm, 8 * mm, fill=True, stroke=False)
+    c.setFillColor(HexColor("#FFFFFF"))
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(24 * mm, y + 2.5 * mm, "Description")
+    c.drawRightString(w - 24 * mm, y + 2.5 * mm, "Amount")
+
+    y -= 12 * mm
+    meta = tx.get("metadata") or {}
+    line_parts = []
+    if meta.get("featured_id"):
+        line_parts.append(f"Featured listing · {meta['featured_id']}")
+    if meta.get("vip_id"):
+        line_parts.append(f"VIP Boost · {meta['vip_id']}")
+    if not line_parts:
+        line_parts.append(str(meta.get("plan_id") or "Subscription purchase"))
+    c.setFillColor(black)
+    c.setFont("Helvetica", 10)
+    c.drawString(24 * mm, y, " + ".join(line_parts))
+    amount = tx.get("amount_total") or tx.get("amount") or 0
+    currency = (tx.get("currency") or "eur").upper()
+    c.drawRightString(w - 24 * mm, y, f"{currency} {amount:.2f}")
+
+    y -= 12 * mm
+    c.setStrokeColor(HexColor("#dbdadd"))
+    c.line(22 * mm, y, w - 22 * mm, y)
+    y -= 8 * mm
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(24 * mm, y, "Total")
+    c.drawRightString(w - 24 * mm, y, f"{currency} {amount:.2f}")
+
+    # Footer
+    c.setFillColor(HexColor("#898989"))
+    c.setFont("Helvetica", 8)
+    c.drawString(22 * mm, 20 * mm, "Only Elite Escorts · Bringing your secret desire closer to you")
+    c.showPage()
+    c.save()
+    pdf_bytes = buf.getvalue()
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="invoice-{invoice_id}.pdf"'},
+    )
+
+
+
+
 @api_router.post("/webhook/stripe")
 async def stripe_webhook(request: Request):
     """Stripe webhook: update payment_transactions and activate subscriptions."""

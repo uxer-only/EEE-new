@@ -62,4 +62,14 @@ export const getSubscriptionStatus = (sessionId) =>
 export const updateAutoRenew = (autoRenew) =>
   api.put('/subscriptions/auto-renew', { auto_renew: autoRenew });
 
+// Enquiries
+export const createEnquiry = (data) => api.post('/enquiries', data);
+export const listMyEnquiries = () => api.get('/enquiries/mine');
+export const markEnquiryRead = (id, read = true) =>
+  api.put(`/enquiries/${id}/read`, { read });
+
+// Invoices
+export const listMyInvoices = () => api.get('/invoices/mine');
+export const invoicePdfUrl = (id) => `${api.defaults.baseURL}/invoices/${id}/pdf`;
+
 export default api;
