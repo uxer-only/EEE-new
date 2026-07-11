@@ -925,15 +925,14 @@ export default function ProviderDashboard() {
                 </button>
               </div>
 
-              {/* Danger zone — Remove profile */}
-              <div className="bg-white border border-red-500/30 rounded-lg p-6 mt-12" data-testid="card-danger-zone">
+              {/* Remove profile */}
+              <div className="bg-white border border-[#B91C1C] rounded-lg p-6 mt-12" data-testid="card-danger-zone">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full border border-red-500/40 flex items-center justify-center">
-                    <Trash size={18} className="text-red-400" />
+                  <div className="w-10 h-10 rounded-full border border-[#B91C1C] flex items-center justify-center">
+                    <Trash size={18} className="text-[#B91C1C]" />
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-red-400/80">Danger zone</p>
-                    <h3 className="text-xl text-[#000000]">Remove my profile</h3>
+                    <h3 className="text-xl text-[#B91C1C]">Remove my profile</h3>
                   </div>
                 </div>
                 <p className="text-[#000000] text-sm mb-6">
@@ -942,7 +941,7 @@ export default function ProviderDashboard() {
                 <button
                   onClick={handleRemoveProfile}
                   disabled={removing}
-                  className="w-full px-4 py-3 border border-red-500/50 text-red-400 hover:bg-red-500/10 transition-colors text-sm uppercase tracking-wider disabled:opacity-50"
+                  className="w-full px-4 py-3 border border-[#B91C1C] text-[#B91C1C] hover:bg-[#B91C1C]/10 transition-colors text-sm uppercase tracking-wider disabled:opacity-50"
                   data-testid="remove-profile-btn"
                 >
                   {removing ? 'Removing…' : 'Remove profile permanently'}
