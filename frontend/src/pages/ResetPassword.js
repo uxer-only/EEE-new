@@ -3,6 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Eye, EyeSlash, CheckCircle } from 'phosphor-react';
 import { resetPassword } from '@/services/api';
+import SiteHeader from '@/components/SiteHeader';
 
 export default function ResetPassword() {
   const [params] = useSearchParams();
@@ -41,6 +42,7 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0C] flex">
+      <SiteHeader />
       <div
         className="hidden lg:block lg:w-1/2 relative"
         style={{
@@ -50,12 +52,9 @@ export default function ResetPassword() {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0C]/80 to-transparent"></div>
-        <Link to="/" className="absolute top-8 left-8 z-10">
-          <h1 className="text-2xl md:text-3xl font-playfair font-bold text-[#DA4167]">Only Elite Escorts</h1>
-        </Link>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-8">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-8 pt-28 md:pt-32">
         <div className="w-full max-w-md">
           {invalidToken ? (
             <div data-testid="reset-invalid">

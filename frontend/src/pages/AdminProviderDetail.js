@@ -8,6 +8,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { getAdminProviderDetail, approveMedia, verifyProvider } from '@/services/api';
 import { toast } from 'sonner';
+import SiteHeader from '@/components/SiteHeader';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function AdminProviderDetail() {
@@ -120,19 +121,18 @@ export default function AdminProviderDetail() {
   return (
     <div className="min-h-screen bg-[#0A0A0C]">
       {/* Header */}
-      <header className="floating-header" data-testid="admin-header">
-        <div className="section-padding py-6 flex items-center justify-between">
-          <Link 
-            to="/admin" 
+      <SiteHeader
+        leftSlot={
+          <Link
+            to="/admin"
             className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
+            data-testid="back-to-admin-dashboard"
           >
-            <CaretLeft size={20} />
-            <span className="uppercase tracking-wider text-sm">Back to Dashboard</span>
+            <CaretLeft size={18} />
+            <span className="uppercase tracking-wider text-xs md:text-sm">Back to Dashboard</span>
           </Link>
-          <h1 className="text-2xl text-[#832161]">Provider Management</h1>
-          <div></div>
-        </div>
-      </header>
+        }
+      />
 
       <div className="pt-32 pb-20 section-padding">
         <div className="max-w-6xl mx-auto">

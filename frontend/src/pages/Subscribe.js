@@ -80,12 +80,7 @@ export default function Subscribe() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0C]">
-      <SiteHeader
-        links={[
-          { to: '/dashboard', label: 'Dashboard', testId: 'dashboard-link' },
-          { to: '/messages', label: 'Messages', testId: 'messages-link' }
-        ]}
-      />
+      <SiteHeader />
 
       <div className="pt-24 md:pt-32 pb-20 px-6 max-w-4xl mx-auto">
         {/* Header */}

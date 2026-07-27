@@ -8,6 +8,7 @@ import {
   Phone, WhatsappLogo, TelegramLogo, ChatCircle, EnvelopeSimple, X
 } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
+import SiteHeader from '@/components/SiteHeader';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 export default function ProviderDetail() {
@@ -154,21 +155,7 @@ export default function ProviderDetail() {
         </button>
       )}
       {/* Header */}
-      <header className="floating-header" data-testid="header">
-        <div className="section-padding py-6 flex items-center justify-between">
-          <Link to="/browse" className="flex items-center gap-2 text-[#FFFFFF] hover:opacity-80 transition-opacity">
-            <CaretLeft size={20} />
-            <span className="uppercase tracking-wider text-sm">Back to Browse</span>
-          </Link>
-          <nav className="flex items-center gap-8">
-            {user && (
-              <Link to="/dashboard" className="btn-ghost" data-testid="dashboard-link">
-                Dashboard
-              </Link>
-            )}
-          </nav>
-        </div>
-      </header>
+      <SiteHeader />
 
       <div className="pt-24 md:pt-32 pb-12 md:pb-20 section-padding">
         <div className="max-w-7xl mx-auto">

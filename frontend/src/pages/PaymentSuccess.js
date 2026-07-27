@@ -52,7 +52,7 @@ export default function PaymentSuccess() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0C]">
-      <SiteHeader links={[{ to: '/dashboard', label: 'Dashboard', testId: 'dashboard-link' }]} />
+      <SiteHeader />
       <div className="pt-32 pb-20 px-6 max-w-xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 8 }}

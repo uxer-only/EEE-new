@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { Eye, EyeSlash } from 'phosphor-react';
+import SiteHeader from '@/components/SiteHeader';
 
 export default function ProviderRegister() {
   const [formData, setFormData] = useState({
@@ -49,13 +50,10 @@ export default function ProviderRegister() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0C] flex">
+      <SiteHeader />
       {/* Left side - Benefits */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-[#0A0A0C] to-[#141416] items-center justify-center p-16">
+      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-[#0A0A0C] to-[#141416] items-center justify-center p-16 pt-32">
         <div className="max-w-lg">
-          <Link to="/" className="mb-12 inline-block">
-            <h1 className="text-3xl md:text-4xl font-playfair font-bold text-[#DA4167]">Only Elite Escorts</h1>
-          </Link>
-          
           <h2 className="text-5xl text-[#F2F0ED] mb-6 leading-tight">
  Join Our Exclusive Network
  </h2>
@@ -73,13 +71,8 @@ export default function ProviderRegister() {
       </div>
 
       {/* Right side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 pt-28 md:pt-32">
         <div className="w-full max-w-md">
-          {/* Mobile logo */}
-          <Link to="/" className="lg:hidden mb-8 inline-block">
-            <h1 className="text-2xl md:text-3xl font-playfair font-bold text-[#DA4167]">Only Elite Escorts</h1>
-          </Link>
-
           <div className="mb-12">
             <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="register-title">
  Create Your Account

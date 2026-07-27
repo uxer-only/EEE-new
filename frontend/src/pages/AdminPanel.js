@@ -74,9 +74,6 @@ export default function AdminPanel() {
             <span className="uppercase tracking-wider text-xs md:text-sm">Admin Dashboard</span>
           </Link>
         }
-        links={[
-          { label: 'Logout', onClick: logout, testId: 'logout-button' }
-        ]}
       />
 
       <div className="pt-28 md:pt-32 pb-20 section-padding">

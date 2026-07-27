@@ -504,11 +504,7 @@ export default function ProviderDashboard() {
 
     return (
       <div className="min-h-screen bg-[#F0EFF4] dashboard-light">
-        <SiteHeader
-          links={[
-            { label: 'Logout', onClick: logout, testId: 'logout-btn' }
-          ]}
-        />
+        <SiteHeader />
 
         <div className="pt-32 pb-20 section-padding">
           <div className="max-w-6xl mx-auto">
@@ -1010,9 +1006,6 @@ export default function ProviderDashboard() {
             </button>
           ) : null
         }
-        links={[
-          { label: 'Logout', onClick: logout, testId: 'logout-btn' }
-        ]}
       />
 
       <div className="pt-32 pb-20 section-padding">

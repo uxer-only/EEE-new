@@ -8,13 +8,7 @@ export default function ClientDashboard() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0C]">
-      <SiteHeader
-        links={[
-          { to: '/browse', label: 'Browse', testId: 'browse-link' },
-          { to: '/messages', label: 'Messages', testId: 'messages-link' },
-          { label: 'Logout', onClick: logout, testId: 'logout-button' }
-        ]}
-      />
+      <SiteHeader />
 
       <div className="pt-32 pb-20 section-padding">
         <div className="max-w-7xl mx-auto">

@@ -86,13 +86,7 @@ export default function Landing() {
         </DialogContent>
       </Dialog>
       {/* Floating Header */}
-      <SiteHeader
-        links={[
-          { to: '/browse', label: 'Browse', testId: 'browse-link' },
-          { to: '/login', label: 'Login', testId: 'login-link' },
-          { to: '/register/provider', label: 'Advertise', variant: 'primary', testId: 'advertise-button' }
-        ]}
-      />
+      <SiteHeader />
 
       {/* Hero Section with Overlapping Profiles */}
       <section className="relative" data-testid="hero-section">

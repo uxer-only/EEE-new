@@ -93,19 +93,7 @@ export default function Browse() {
   return (
     <div className="min-h-screen bg-[#F0EFF4]">
       {/* Header */}
-      <SiteHeader
-        links={
-          user
-            ? [
-                { to: '/dashboard', label: 'Dashboard', testId: 'dashboard-link' },
-                { to: '/messages', label: 'Messages', testId: 'messages-link' }
-              ]
-            : [
-                { to: '/login', label: 'Login', testId: 'login-link' },
-                { to: '/register/provider', label: 'Advertise', variant: 'primary', testId: 'advertise-link' }
-              ]
-        }
-      />
+      <SiteHeader />
 
       <div className="pt-24 md:pt-32 pb-20 section-padding">
         {offlineMode && (

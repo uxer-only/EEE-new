@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { Eye, EyeSlash } from 'phosphor-react';
+import SiteHeader from '@/components/SiteHeader';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -38,6 +39,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0C] flex">
+      <SiteHeader />
       {/* Left side - Image */}
       <div
         className="hidden lg:block lg:w-1/2 relative"
@@ -48,13 +50,10 @@ export default function Register() {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0C]/80 to-transparent"></div>
-        <Link to="/" className="absolute top-8 left-8 z-10">
-          <h1 className="text-2xl md:text-3xl font-playfair font-bold text-[#DA4167]">Only Elite Escorts</h1>
-        </Link>
       </div>
 
       {/* Right side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 pt-28 md:pt-32">
         <div className="w-full max-w-md">
           <div className="mb-12">
             <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="register-title">

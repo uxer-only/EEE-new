@@ -70,12 +70,7 @@ export default function Messages() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0C]">
-      <SiteHeader
-        links={[
-          { to: '/dashboard', label: 'Dashboard', testId: 'dashboard-link' },
-          { label: 'Logout', onClick: logout, testId: 'logout-button' }
-        ]}
-      />
+      <SiteHeader />
 
       <div className="pt-24 md:pt-28 h-screen flex">
         <div className="w-1/3 border-r border-[#27272A] overflow-y-auto" data-testid="conversations-list">

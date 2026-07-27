@@ -85,10 +85,6 @@ export default function AdminDashboard() {
             <span className="uppercase tracking-wider text-xs md:text-sm">Back to Site</span>
           </Link>
         }
-        links={[
-          { to: '/admin/verifications', label: 'Verifications', testId: 'verifications-link' },
-          { label: 'Logout', onClick: logout, testId: 'logout-button' }
-        ]}
       />
 
       <div className="pt-32 pb-20 section-padding">
