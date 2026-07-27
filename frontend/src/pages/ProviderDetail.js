@@ -173,8 +173,11 @@ export default function ProviderDetail() {
       <div className="pt-24 md:pt-32 pb-12 md:pb-20 section-padding">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16">
-            {/* Left - Images (1/3 of width on desktop, sticky) */}
-            <div className="lg:sticky lg:top-24 lg:self-start">
+            {/* Left - Images (1/3 of width on desktop, sticky with independent scroll) */}
+            <div
+              className="lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-2 hide-scrollbar"
+              data-testid="provider-detail-left-column"
+            >
               {provider.photos && provider.photos.length > 0 ? (
                 <>
                   <Carousel className="w-full mb-6" setApi={setCarouselApi}>

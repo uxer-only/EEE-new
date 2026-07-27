@@ -208,3 +208,12 @@ input[type="checkbox"]:focus {
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+/* Hide scrollbar visually while retaining scroll behaviour */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
