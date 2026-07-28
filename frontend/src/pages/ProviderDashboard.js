@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout, updateAutoRenew, listMyEnquiries, markEnquiryRead, listMyInvoices, invoicePdfUrl } from '@/services/api';
+import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout, updateAutoRenew, listMyEnquiries, markEnquiryRead, deleteEnquiry, replyToEnquiry, listMyInvoices, invoicePdfUrl, invoiceViewUrl } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { 
   ChatCircle, CheckCircle, User, MapPin, Camera, Clock, 
   CurrencyDollar, FileText, Phone, EnvelopeSimple, WhatsappLogo,
-  Plus, Trash, CaretRight, CaretLeft, UploadSimple, X, VideoCamera, ShieldCheck, Crown, Sparkle, ArrowRight, DotsSixVertical
+  Plus, Trash, CaretRight, CaretLeft, UploadSimple, X, VideoCamera, ShieldCheck, Crown, Sparkle, ArrowRight, DotsSixVertical,
+  PaperPlaneTilt, DownloadSimple, Eye
 } from 'phosphor-react';
 import { toast } from 'sonner';
 import CharacteristicsForm from '@/components/CharacteristicsForm';
@@ -2515,6 +2516,9 @@ function MessagesBox() {
   const [loading, setLoading] = useState(true);
   const [unread, setUnread] = useState(0);
   const [expandedId, setExpandedId] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [replying, setReplying] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   const load = async () => {
     try {
@@ -2529,12 +2533,50 @@ function MessagesBox() {
   const toggleExpand = async (enq) => {
     const nextId = expandedId === enq.enquiry_id ? null : enq.enquiry_id;
     setExpandedId(nextId);
+    setReplyText('');
     if (nextId && !enq.read) {
       try {
         await markEnquiryRead(enq.enquiry_id, true);
         setItems((prev) => prev.map((e) => e.enquiry_id === enq.enquiry_id ? { ...e, read: true } : e));
         setUnread((u) => Math.max(0, u - 1));
       } catch (e) { /* noop */ }
+    }
+  };
+
+  const handleDelete = async (enq, e) => {
+    e.stopPropagation();
+    if (!window.confirm(`Delete this message from ${enq.name || 'Anonymous'}? This cannot be undone.`)) return;
+    setDeletingId(enq.enquiry_id);
+    try {
+      await deleteEnquiry(enq.enquiry_id);
+      setItems((prev) => prev.filter((e) => e.enquiry_id !== enq.enquiry_id));
+      if (!enq.read) setUnread((u) => Math.max(0, u - 1));
+      if (expandedId === enq.enquiry_id) setExpandedId(null);
+      toast.success('Message deleted');
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Could not delete message');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleReply = async (enq, e) => {
+    e.stopPropagation();
+    const text = replyText.trim();
+    if (text.length < 2) {
+      toast.error('Reply is too short');
+      return;
+    }
+    setReplying(true);
+    try {
+      const res = await replyToEnquiry(enq.enquiry_id, text);
+      toast.success(res.data.delivered ? 'Reply sent' : 'Reply saved (email not delivered)');
+      setReplyText('');
+      setExpandedId(null);
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Could not send reply');
+    } finally {
+      setReplying(false);
     }
   };
 
@@ -2553,31 +2595,87 @@ function MessagesBox() {
       ) : items.length === 0 ? (
         <p className="text-sm text-[#898989]">No messages yet. Enquiries from your public profile will appear here.</p>
       ) : (
-        <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
-          {items.map((enq) => (
-            <button
-              key={enq.enquiry_id}
-              type="button"
-              onClick={() => toggleExpand(enq)}
-              className={`text-left border rounded-lg p-3 transition-colors ${enq.read ? 'border-[#dbdadd] bg-white' : 'border-[#DA4167]/40 bg-[#DA4167]/5'}`}
-              data-testid={`message-item-${enq.enquiry_id}`}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className={`text-sm truncate ${enq.read ? 'text-[#000000]' : 'text-[#000000] font-semibold'}`}>
-                  {enq.name || 'Anonymous'}
-                </span>
-                <span className="text-xs text-[#898989] shrink-0">
-                  {new Date(enq.created_at).toLocaleDateString()}
-                </span>
+        <div className="flex flex-col gap-2 max-h-96 overflow-y-auto pr-1">
+          {items.map((enq) => {
+            const isOpen = expandedId === enq.enquiry_id;
+            return (
+              <div
+                key={enq.enquiry_id}
+                className={`border rounded-lg transition-colors ${enq.read ? 'border-[#dbdadd] bg-white' : 'border-[#DA4167]/40 bg-[#DA4167]/5'}`}
+                data-testid={`message-item-${enq.enquiry_id}`}
+              >
+                <div className="p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(enq)}
+                      className="flex-1 text-left min-w-0"
+                      data-testid={`message-toggle-${enq.enquiry_id}`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`text-sm truncate ${enq.read ? 'text-[#000000]' : 'text-[#000000] font-semibold'}`}>
+                          {enq.name || 'Anonymous'}
+                        </span>
+                        <span className="text-xs text-[#898989] shrink-0">
+                          {new Date(enq.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className={`text-xs mt-1 ${isOpen ? 'text-[#000000] whitespace-pre-wrap' : 'text-[#898989] truncate'}`}>
+                        {enq.message}
+                      </p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => handleDelete(enq, e)}
+                      disabled={deletingId === enq.enquiry_id}
+                      className="text-[#898989] hover:text-[#B91C1C] p-1 rounded transition-colors disabled:opacity-50"
+                      title="Delete message"
+                      aria-label="Delete message"
+                      data-testid={`message-delete-${enq.enquiry_id}`}
+                    >
+                      <Trash size={16} weight="regular" />
+                    </button>
+                  </div>
+
+                  {isOpen && enq.email && (
+                    <div className="mt-3 pt-3 border-t border-[#dbdadd]">
+                      <p className="text-xs text-[#832161] mb-2">
+                        Reply to <span className="text-[#000000] font-medium">{enq.email}</span>
+                      </p>
+                      <textarea
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        placeholder="Write your reply…"
+                        rows={3}
+                        className="input-premium w-full text-sm"
+                        data-testid={`message-reply-textarea-${enq.enquiry_id}`}
+                      />
+                      <div className="flex items-center justify-end gap-2 mt-2">
+                        <button
+                          type="button"
+                          onClick={() => { setExpandedId(null); setReplyText(''); }}
+                          className="text-xs text-[#898989] hover:text-[#000000] uppercase tracking-wider"
+                          data-testid={`message-reply-cancel-${enq.enquiry_id}`}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleReply(enq, e)}
+                          disabled={replying || replyText.trim().length < 2}
+                          className="btn-primary text-xs px-3 py-2 flex items-center gap-2 disabled:opacity-50"
+                          data-testid={`message-reply-send-${enq.enquiry_id}`}
+                        >
+                          <PaperPlaneTilt size={14} weight="fill" />
+                          {replying ? 'Sending…' : 'Send reply'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <p className={`text-xs mt-1 ${expandedId === enq.enquiry_id ? 'text-[#000000] whitespace-pre-wrap' : 'text-[#898989] truncate'}`}>
-                {enq.message}
-              </p>
-              {expandedId === enq.enquiry_id && enq.email && (
-                <p className="text-xs text-[#832161] mt-2">Reply to: {enq.email}</p>
-              )}
-            </button>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -2624,7 +2722,7 @@ function InvoicesBox() {
       ) : items.length === 0 ? (
         <p className="text-sm text-[#898989]">No invoices yet. Each subscription purchase will appear here.</p>
       ) : (
-        <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+        <div className="flex flex-col gap-2 max-h-96 overflow-y-auto pr-1">
           {items.map((inv) => (
             <div
               key={inv.invoice_id}
@@ -2637,15 +2735,28 @@ function InvoicesBox() {
                   {inv.created_at ? new Date(inv.created_at).toLocaleDateString() : '—'} · {formatMoney(inv.amount, inv.currency)}
                 </p>
               </div>
-              <a
-                href={invoicePdfUrl(inv.invoice_id)}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs uppercase tracking-wider text-[#832161] hover:text-[#DA4167] whitespace-nowrap"
-                data-testid={`invoice-pdf-${inv.invoice_id}`}
-              >
-                PDF ↓
-              </a>
+              <div className="flex items-center gap-3 shrink-0">
+                <a
+                  href={invoiceViewUrl(inv.invoice_id)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs uppercase tracking-wider text-[#832161] hover:text-[#DA4167] flex items-center gap-1"
+                  data-testid={`invoice-view-${inv.invoice_id}`}
+                  title="View invoice in a new tab"
+                >
+                  <Eye size={14} weight="regular" />
+                  View
+                </a>
+                <a
+                  href={invoicePdfUrl(inv.invoice_id)}
+                  className="text-xs uppercase tracking-wider text-[#832161] hover:text-[#DA4167] flex items-center gap-1"
+                  data-testid={`invoice-pdf-${inv.invoice_id}`}
+                  title="Download PDF"
+                >
+                  <DownloadSimple size={14} weight="regular" />
+                  Download
+                </a>
+              </div>
             </div>
           ))}
         </div>

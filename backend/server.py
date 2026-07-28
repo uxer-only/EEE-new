@@ -990,6 +990,91 @@ async def mark_enquiry_read(
     return {"ok": True, "read": body.read}
 
 
+@api_router.delete("/enquiries/{enquiry_id}")
+async def delete_enquiry(enquiry_id: str, current_user: User = Depends(get_current_user)):
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    result = await db.enquiries.delete_one(
+        {"enquiry_id": enquiry_id, "user_id_provider": current_user.user_id},
+    )
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+    return {"ok": True, "deleted": enquiry_id}
+
+
+class EnquiryReply(BaseModel):
+    message: str
+
+
+@api_router.post("/enquiries/{enquiry_id}/reply")
+async def reply_to_enquiry(
+    enquiry_id: str,
+    body: EnquiryReply,
+    current_user: User = Depends(get_current_user),
+):
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    text = (body.message or "").strip()
+    if len(text) < 2:
+        raise HTTPException(status_code=400, detail="Reply is too short")
+
+    enq = await db.enquiries.find_one(
+        {"enquiry_id": enquiry_id, "user_id_provider": current_user.user_id},
+        {"_id": 0},
+    )
+    if not enq:
+        raise HTTPException(status_code=404, detail="Enquiry not found")
+
+    client_email = (enq.get("email") or "").strip()
+    if not client_email:
+        raise HTTPException(status_code=400, detail="This enquiry has no reply address")
+
+    provider_name = current_user.name or "Only Elite Escorts"
+    provider_email = current_user.email
+    subject = f"Re: your enquiry on Only Elite Escorts"
+    safe_msg = text.replace("\n", "<br/>")
+    html = f"""
+    <div style="font-family: Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color:#000000;">
+      <h2 style="color:#832161; margin:0 0 12px;">Only Elite Escorts</h2>
+      <p style="color:#DA4167; font-size:12px; letter-spacing:2px; text-transform:uppercase; margin:0 0 24px;">Reply from your enquiry</p>
+      <p>Hi {enq.get('name') or 'there'},</p>
+      <p>{provider_name} has replied to your enquiry:</p>
+      <div style="background:#F0EFF4; border-left:3px solid #DA4167; padding:16px; margin:16px 0;">{safe_msg}</div>
+      <p style="color:#898989; font-size:12px; margin-top:32px;">
+        Reply directly to this email to continue the conversation.
+      </p>
+    </div>
+    """
+
+    sent = False
+    if RESEND_API_KEY:
+        try:
+            payload = {
+                "from": f"Only Elite Escorts <{SENDER_EMAIL}>",
+                "to": [client_email],
+                "subject": subject,
+                "html": html,
+                "reply_to": [provider_email],
+            }
+            await asyncio.to_thread(resend.Emails.send, payload)
+            sent = True
+        except Exception as e:
+            logger.error(f"Enquiry reply email failed to {client_email}: {e}")
+
+    # Log the reply on the enquiry document
+    reply_entry = {
+        "message": text,
+        "sent_by": provider_email,
+        "sent_at": datetime.now(timezone.utc).isoformat(),
+        "delivered": sent,
+    }
+    await db.enquiries.update_one(
+        {"enquiry_id": enquiry_id},
+        {"$push": {"replies": reply_entry}, "$set": {"read": True}},
+    )
+    return {"ok": True, "delivered": sent, "to": client_email}
+
+
 # --------------------------------------------------------------------- Invoices
 
 @api_router.get("/invoices/mine")
@@ -1020,7 +1105,11 @@ async def list_my_invoices(current_user: User = Depends(get_current_user)):
 
 
 @api_router.get("/invoices/{invoice_id}/pdf")
-async def download_invoice_pdf(invoice_id: str, current_user: User = Depends(get_current_user)):
+async def download_invoice_pdf(
+    invoice_id: str,
+    inline: int = 0,
+    current_user: User = Depends(get_current_user),
+):
     if current_user.role != "provider":
         raise HTTPException(status_code=403, detail="Provider access only")
     profile = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0, "provider_id": 1})
@@ -1106,10 +1195,11 @@ async def download_invoice_pdf(invoice_id: str, current_user: User = Depends(get
     c.showPage()
     c.save()
     pdf_bytes = buf.getvalue()
+    disposition = "inline" if inline else "attachment"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="invoice-{invoice_id}.pdf"'},
+        headers={"Content-Disposition": f'{disposition}; filename="invoice-{invoice_id}.pdf"'},
     )
 
 

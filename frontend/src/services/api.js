@@ -67,9 +67,13 @@ export const createEnquiry = (data) => api.post('/enquiries', data);
 export const listMyEnquiries = () => api.get('/enquiries/mine');
 export const markEnquiryRead = (id, read = true) =>
   api.put(`/enquiries/${id}/read`, { read });
+export const deleteEnquiry = (id) => api.delete(`/enquiries/${id}`);
+export const replyToEnquiry = (id, message) =>
+  api.post(`/enquiries/${id}/reply`, { message });
 
 // Invoices
 export const listMyInvoices = () => api.get('/invoices/mine');
 export const invoicePdfUrl = (id) => `${api.defaults.baseURL}/invoices/${id}/pdf`;
+export const invoiceViewUrl = (id) => `${api.defaults.baseURL}/invoices/${id}/pdf?inline=1`;
 
 export default api;
