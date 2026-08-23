@@ -118,7 +118,7 @@ def main():
 
     # ----- Word document ----------------------------------------------
     doc = Document()
-    doc.add_heading("Only Elite Escorts — Website Copy Audit", level=0)
+    doc.add_heading("Elite Escorts Europe — Website Copy Audit", level=0)
     doc.add_paragraph(
         f"Extracted {len(unique)} distinct user-facing text strings from the "
         "frontend source (JSX, attributes, toasts). Grouped by source file."

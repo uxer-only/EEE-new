@@ -1,4 +1,4 @@
-"""Generate the Only Elite Escorts brand guidelines PDF."""
+"""Generate the Elite Escorts Europe brand guidelines PDF."""
 import os
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.colors import HexColor, white, black
@@ -99,15 +99,15 @@ def build():
         OUT, pagesize=A4,
         leftMargin=22*mm, rightMargin=22*mm,
         topMargin=22*mm, bottomMargin=22*mm,
-        title="Only Elite Escorts – Brand Guidelines",
-        author="Only Elite Escorts",
+        title="Elite Escorts Europe – Brand Guidelines",
+        author="Elite Escorts Europe",
     )
 
     story = []
 
     # ============ Cover ================================================
     story.append(Spacer(1, 40*mm))
-    story.append(Paragraph("Only Elite Escorts", h1))
+    story.append(Paragraph("Elite Escorts Europe", h1))
     story.append(Paragraph('<font color="#DA4167">Brand Guidelines</font>', brand_tag))
     story.append(Spacer(1, 10*mm))
     story.append(Paragraph(

@@ -906,7 +906,7 @@ async def create_enquiry(body: EnquiryCreate):
         subject = f"New enquiry from {doc['name'] or 'a visitor'}"
         html = f"""
         <div style="font-family: Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color:#000000;">
-          <h2 style="color:#832161; margin:0 0 12px;">Only Elite Escorts</h2>
+          <h2 style="color:#832161; margin:0 0 12px;">Elite Escorts Europe</h2>
           <p style="color:#DA4167; font-size:12px; letter-spacing:2px; text-transform:uppercase; margin:0 0 24px;">New enquiry</p>
           <p>Hi {provider_name},</p>
           <p>You have received a new message via your public profile.</p>
@@ -924,20 +924,20 @@ async def create_enquiry(body: EnquiryCreate):
             {doc['message']}
           </div>
           <p style="margin:24px 0 12px;">
-            <a href="mailto:{doc['email']}?subject=Re: your enquiry on Only Elite Escorts"
+            <a href="mailto:{doc['email']}?subject=Re: your enquiry on Elite Escorts Europe"
                style="display:inline-block; background:#DA4167; color:#FFFFFF; padding:12px 20px; text-decoration:none; font-weight:bold; letter-spacing:1px; text-transform:uppercase; font-size:13px;">
               Reply to {doc['name'] or 'sender'}
             </a>
           </p>
           <p style="color:#898989; font-size:12px; margin-top:32px;">
             Tip: just hit <em>Reply</em> on this email — your reply will go straight to the sender.<br/>
-            You can also see this message on your <a href="#" style="color:#832161;">Only Elite Escorts dashboard</a>.
+            You can also see this message on your <a href="#" style="color:#832161;">Elite Escorts Europe dashboard</a>.
           </p>
         </div>
         """
         try:
             payload = {
-                "from": f"Only Elite Escorts <{SENDER_EMAIL}>",
+                "from": f"Elite Escorts Europe <{SENDER_EMAIL}>",
                 "to": [provider_email],
                 "subject": subject,
                 "html": html,
@@ -1029,13 +1029,13 @@ async def reply_to_enquiry(
     if not client_email:
         raise HTTPException(status_code=400, detail="This enquiry has no reply address")
 
-    provider_name = current_user.name or "Only Elite Escorts"
+    provider_name = current_user.name or "Elite Escorts Europe"
     provider_email = current_user.email
-    subject = f"Re: your enquiry on Only Elite Escorts"
+    subject = f"Re: your enquiry on Elite Escorts Europe"
     safe_msg = text.replace("\n", "<br/>")
     html = f"""
     <div style="font-family: Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color:#000000;">
-      <h2 style="color:#832161; margin:0 0 12px;">Only Elite Escorts</h2>
+      <h2 style="color:#832161; margin:0 0 12px;">Elite Escorts Europe</h2>
       <p style="color:#DA4167; font-size:12px; letter-spacing:2px; text-transform:uppercase; margin:0 0 24px;">Reply from your enquiry</p>
       <p>Hi {enq.get('name') or 'there'},</p>
       <p>{provider_name} has replied to your enquiry:</p>
@@ -1050,7 +1050,7 @@ async def reply_to_enquiry(
     if RESEND_API_KEY:
         try:
             payload = {
-                "from": f"Only Elite Escorts <{SENDER_EMAIL}>",
+                "from": f"Elite Escorts Europe <{SENDER_EMAIL}>",
                 "to": [client_email],
                 "subject": subject,
                 "html": html,
@@ -1135,7 +1135,7 @@ async def download_invoice_pdf(
     # Header
     c.setFillColor(HexColor("#832161"))
     c.setFont("Helvetica-Bold", 22)
-    c.drawString(22 * mm, h - 30 * mm, "Only Elite Escorts")
+    c.drawString(22 * mm, h - 30 * mm, "Elite Escorts Europe")
     c.setFillColor(HexColor("#DA4167"))
     c.setFont("Helvetica-Bold", 12)
     c.drawString(22 * mm, h - 38 * mm, "INVOICE")
@@ -1191,7 +1191,7 @@ async def download_invoice_pdf(
     # Footer
     c.setFillColor(HexColor("#898989"))
     c.setFont("Helvetica", 8)
-    c.drawString(22 * mm, 20 * mm, "Only Elite Escorts · Bringing your secret desire closer to you")
+    c.drawString(22 * mm, 20 * mm, "Elite Escorts Europe · Bringing your secret desire closer to you")
     c.showPage()
     c.save()
     pdf_bytes = buf.getvalue()

@@ -34,7 +34,7 @@ export default function ProviderRegister() {
 
     try {
       await register(formData.email, formData.password, formData.name, 'provider');
-      toast.success('Welcome to Only Elite Escorts! Please complete your profile');
+      toast.success('Welcome to Elite Escorts Europe! Please complete your profile');
       navigate('/dashboard');
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Registration failed');

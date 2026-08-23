@@ -57,7 +57,7 @@ export default function Register() {
         <div className="w-full max-w-md">
           <div className="mb-12">
             <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="register-title">
-              Join Only Elite Escorts
+              Join Elite Escorts Europe
             </h2>
             <p className="text-[#A1A1AA]">
               Create your account to get started
