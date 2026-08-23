@@ -23,7 +23,6 @@ import ResetPassword from '@/pages/ResetPassword';
 import Subscribe from '@/pages/Subscribe';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import AddToHomeScreen from '@/components/AddToHomeScreen';
 
 function AppRouter() {
   const location = useLocation();
@@ -130,7 +129,6 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <AppRouter />
-          <AddToHomeScreen />
         </BrowserRouter>
         <Toaster position="bottom-right" />
       </AuthProvider>

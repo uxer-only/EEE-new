@@ -256,3 +256,4 @@ Build a modern, premium, and discreet escort marketplace platform focused on tru
   - `${REACT_APP_BACKEND_URL}/only-elite-escorts-copy.xlsx`
 
 2026-08-23: Rebranded site name from 'Only Elite Escorts' to 'Elite Escorts Europe' across frontend (header, landing, register, PWA manifest, index.html), backend (emails, invoice PDFs), and scripts. SW bumped to v61.
+2026-08-23: Removed PWA install functionality — deleted AddToHomeScreen install banner, removed manifest link & iOS PWA meta tags from index.html, service worker now unregisters on load.

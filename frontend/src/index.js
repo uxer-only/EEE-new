@@ -10,9 +10,9 @@ root.render(
   </React.StrictMode>,
 );
 
-// Register service worker (skip when running inside Emergent visual-edit iframe)
-if ('serviceWorker' in navigator && window.self === window.top) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-  });
+// Unregister any previously installed service worker (PWA install removed)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations()
+    .then((regs) => regs.forEach((r) => r.unregister()))
+    .catch(() => {});
 }
