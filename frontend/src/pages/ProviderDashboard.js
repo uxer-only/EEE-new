@@ -1078,37 +1078,6 @@ export default function ProviderDashboard() {
                   <h3 className="text-2xl font-bold text-[#832161] mb-6">Basic Information</h3>
                   
                   <div className="flex flex-col gap-4">
-                    {/* Account Type */}
-                    <div>
-                      <label className="input-label">I am</label>
-                      <div className="grid grid-cols-2 gap-4">
-                        <button
-                          type="button"
-                          onClick={() => setProfileData({ ...profileData, account_type: 'independent' })}
-                          className={`py-3 px-6 border transition-all ${
-                            profileData.account_type === 'independent'
-                              ? 'border-[#832161] text-[#832161]'
-                              : 'border-[#898989] text-[#898989] hover:border-[#832161]'
-                          }`}
-                          data-testid="account-type-independent"
-                        >
-                          <span className="uppercase tracking-wider text-sm font-medium">Independent Companion</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setProfileData({ ...profileData, account_type: 'agency' })}
-                          className={`py-3 px-6 border transition-all ${
-                            profileData.account_type === 'agency'
-                              ? 'border-[#832161] text-[#832161]'
-                              : 'border-[#898989] text-[#898989] hover:border-[#832161]'
-                          }`}
-                          data-testid="account-type-agency"
-                        >
-                          <span className="uppercase tracking-wider text-sm font-medium">Agency</span>
-                        </button>
-                      </div>
-                    </div>
-
                     <div>
                       <label className="input-label">
                         {profileData.account_type === 'agency' ? 'Agency name' : 'Display name'}
