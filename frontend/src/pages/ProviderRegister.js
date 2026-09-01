@@ -83,7 +83,7 @@ export default function ProviderRegister() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="input-label">I am</label>
+              <label className="input-label">I am an</label>
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
