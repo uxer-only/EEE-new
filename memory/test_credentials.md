@@ -38,3 +38,4 @@
 ## Resend integration
 - API key lives in `/app/backend/.env` as `RESEND_API_KEY`
 - Sender: `onboarding@resend.dev` (test sender — only delivers to the account owner's email `cmu956@gmail.com` until a custom domain is verified at resend.com/domains)
+- Unpaid provider (no subscription): unpaidtest99@test.com / testpass123

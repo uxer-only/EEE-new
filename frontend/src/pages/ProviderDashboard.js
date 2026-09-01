@@ -534,10 +534,9 @@ export default function ProviderDashboard() {
               </Link>
             </div>
 
-            {/* Subscription banner */}
-            {subscription && (
-              <div className="mb-8" data-testid="subscription-banner">
-                {!subscription.featured_active ? (
+            {/* Subscription banner — activation notice is the default until payment is confirmed */}
+            <div className="mb-8" data-testid="subscription-banner">
+              {!subscription?.featured_active ? (
                   <div className="rounded-lg border border-[#832161]/40 bg-gradient-to-r from-[#832161]/10 to-transparent p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-start gap-3">
                       <Crown size={22} weight="fill" className="text-[#832161] mt-0.5 shrink-0" />
@@ -614,7 +613,6 @@ export default function ProviderDashboard() {
                   </div>
                 )}
               </div>
-            )}
 
             {/* Messages + Invoices boxes */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8" data-testid="messages-invoices-grid">
