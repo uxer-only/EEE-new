@@ -79,7 +79,7 @@ export default function Subscribe() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0C]">
+    <div className="min-h-screen bg-[#F0EFF4] dashboard-light">
       <SiteHeader />
 
       <div className="pt-24 md:pt-32 pb-20 px-6 max-w-4xl mx-auto">
@@ -90,10 +90,10 @@ export default function Subscribe() {
           className="text-center mb-12"
         >
           <p className="text-[10px] uppercase tracking-[0.3em] text-[#832161] mb-3">Final step</p>
-          <h1 className="text-4xl md:text-5xl text-[#F2F0ED] mb-4">
+          <h1 className="text-4xl md:text-5xl text-[#000000] mb-4">
  Activate your profile
  </h1>
-          <p className="text-[#A1A1AA] max-w-xl mx-auto">
+          <p className="text-[#666666] max-w-xl mx-auto">
             A Featured listing makes your profile visible to clients on Browse. Add VIP Boost to
             appear at the top of every search.
           </p>
@@ -118,8 +118,8 @@ export default function Subscribe() {
           <div className="flex items-start gap-3 mb-6">
             <Sparkle size={22} weight="fill" className="text-[#832161] mt-1 flex-shrink-0" />
             <div>
-              <h2 className="text-2xl text-[#F2F0ED]">Featured Listing</h2>
-              <p className="text-[#A1A1AA] text-sm mt-1">
+              <h2 className="text-2xl text-[#000000]">Featured Listing</h2>
+              <p className="text-[#666666] text-sm mt-1">
                 Required to be visible on Browse. Choose a duration.
               </p>
             </div>
@@ -134,18 +134,18 @@ export default function Subscribe() {
                 className={`relative text-left p-6 border-2 transition-all ${
                   featuredPlan === opt.id
                     ? 'border-[#832161] bg-[#832161]/5'
-                    : 'border-[#27272A] hover:border-[#3F3F46]'
+                    : 'border-[#dbdadd] hover:border-[#898989]'
                 }`}
                 data-testid={`featured-option-${opt.id}`}
               >
                 {opt.badge && (
-                  <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#832161] text-[#0A0A0C] font-medium">
+                  <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#832161] text-white font-medium">
                     {opt.badge}
                   </span>
                 )}
-                <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
-                <p className="text-4xl text-[#F2F0ED] mb-1">€{opt.price}</p>
-                <p className="text-[#71717A] text-xs">{opt.perDay}</p>
+                <p className="text-[#666666] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
+                <p className="text-4xl text-[#000000] mb-1">€{opt.price}</p>
+                <p className="text-[#898989] text-xs">{opt.perDay}</p>
                 {featuredPlan === opt.id && (
                   <CheckCircle size={20} weight="fill" className="absolute bottom-4 right-4 text-[#832161]" />
                 )}
@@ -160,10 +160,10 @@ export default function Subscribe() {
             <div className="flex items-start gap-3">
               <Crown size={22} weight="fill" className="text-[#832161] mt-1 flex-shrink-0" />
               <div>
-                <h2 className="text-2xl text-[#F2F0ED]">
- VIP Boost <span className="text-sm uppercase tracking-[0.2em] text-[#71717A] ml-2">Optional</span>
+                <h2 className="text-2xl text-[#000000]">
+ VIP Boost <span className="text-sm uppercase tracking-[0.2em] text-[#898989] ml-2">Optional</span>
  </h2>
-                <p className="text-[#A1A1AA] text-sm mt-1">
+                <p className="text-[#666666] text-sm mt-1">
                   Be displayed at the very top of Browse, above all standard listings.
                 </p>
               </div>
@@ -174,12 +174,12 @@ export default function Subscribe() {
               aria-checked={vipEnabled}
               onClick={() => setVipEnabled(!vipEnabled)}
               className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
-                vipEnabled ? 'bg-[#832161]' : 'bg-[#27272A]'
+                vipEnabled ? 'bg-[#832161]' : 'bg-[#dbdadd]'
               }`}
               data-testid="vip-toggle"
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-[#F2F0ED] transition-transform ${
+                className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform ${
                   vipEnabled ? 'translate-x-5' : ''
                 }`}
               />
@@ -196,17 +196,17 @@ export default function Subscribe() {
                   className={`relative text-left p-5 border-2 transition-all ${
                     vipPlan === opt.id
                       ? 'border-[#832161] bg-[#832161]/5'
-                      : 'border-[#27272A] hover:border-[#3F3F46]'
+                      : 'border-[#dbdadd] hover:border-[#898989]'
                   }`}
                   data-testid={`vip-option-${opt.id}`}
                 >
                   {opt.badge && (
-                    <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#832161] text-[#0A0A0C] font-medium">
+                    <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#832161] text-white font-medium">
                       {opt.badge}
                     </span>
                   )}
-                  <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
-                  <p className="text-3xl text-[#F2F0ED]">€{opt.price}</p>
+                  <p className="text-[#666666] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
+                  <p className="text-3xl text-[#000000]">€{opt.price}</p>
                   {vipPlan === opt.id && (
                     <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#832161]" />
                   )}
@@ -220,12 +220,12 @@ export default function Subscribe() {
         <section className="card-premium p-6 md:p-8" data-testid="total-section">
           <div className="flex items-end justify-between mb-6 flex-wrap gap-4">
             <div>
-              <p className="text-[#A1A1AA] text-xs uppercase tracking-[0.2em] mb-1">Total today</p>
-              <p className="text-5xl text-[#F2F0ED]" data-testid="total-amount">€{total}</p>
+              <p className="text-[#666666] text-xs uppercase tracking-[0.2em] mb-1">Total today</p>
+              <p className="text-5xl text-[#000000]" data-testid="total-amount">€{total}</p>
             </div>
             <div className="text-right">
-              <p className="text-[#71717A] text-xs">One-time payment</p>
-              <p className="text-[#71717A] text-xs">Secure checkout · Visa, Mastercard, Apple Pay, PayPal & more</p>
+              <p className="text-[#898989] text-xs">One-time payment</p>
+              <p className="text-[#898989] text-xs">Secure checkout · Visa, Mastercard, Apple Pay, PayPal & more</p>
             </div>
           </div>
 
@@ -243,7 +243,7 @@ export default function Subscribe() {
             )}
           </button>
 
-          <p className="text-center text-[#52525B] text-xs mt-4">
+          <p className="text-center text-[#898989] text-xs mt-4">
             Payments are processed by Stripe. We never see your card details.
           </p>
         </section>
@@ -252,7 +252,7 @@ export default function Subscribe() {
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
-            className="text-[#71717A] text-xs uppercase tracking-[0.2em] hover:text-[#A1A1AA]"
+            className="text-[#898989] text-xs uppercase tracking-[0.2em] hover:text-[#832161]"
             data-testid="skip-link"
           >
             Back to dashboard
