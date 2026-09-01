@@ -257,3 +257,4 @@ Build a modern, premium, and discreet escort marketplace platform focused on tru
 
 2026-08-23: Rebranded site name from 'Only Elite Escorts' to 'Elite Escorts Europe' across frontend (header, landing, register, PWA manifest, index.html), backend (emails, invoice PDFs), and scripts. SW bumped to v61.
 2026-08-23: Removed PWA install functionality — deleted AddToHomeScreen install banner, removed manifest link & iOS PWA meta tags from index.html, service worker now unregisters on load.
+2026-09-01: Fixed webpack compile error in carousel.jsx — root cause was a null parentPath crash in plugins/visual-edits/babel-metadata-plugin.js lazyEvaluatePropSource; added null-safe rootPath guard. Verified by testing agent (iteration_5, 100% pass).
