@@ -58,7 +58,7 @@ export default function ProviderDashboard() {
   const [subscription, setSubscription] = useState(null);
   const [profileData, setProfileData] = useState({
     display_name: '',
-    account_type: 'independent',
+    account_type: localStorage.getItem('pending_account_type') || 'independent',
     age: '',
     gender: '',
     essence: '',

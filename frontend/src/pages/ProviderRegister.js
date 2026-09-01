@@ -7,7 +7,7 @@ import SiteHeader from '@/components/SiteHeader';
 
 export default function ProviderRegister() {
   const [formData, setFormData] = useState({
-    name: '',
+    accountType: 'independent',
     email: '',
     password: '',
     agreeTerms: false
@@ -33,7 +33,9 @@ export default function ProviderRegister() {
     setLoading(true);
 
     try {
-      await register(formData.email, formData.password, formData.name, 'provider');
+      const derivedName = formData.email.split('@')[0];
+      localStorage.setItem('pending_account_type', formData.accountType);
+      await register(formData.email, formData.password, derivedName, 'provider');
       toast.success('Welcome to Elite Escorts Europe! Please complete your profile');
       navigate('/dashboard');
     } catch (error) {
@@ -81,17 +83,33 @@ export default function ProviderRegister() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="input-label">Full name</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="input-premium w-full"
-                placeholder="Enter your professional name"
-                required
-                data-testid="name-input"
-              />
-              <p className="input-helper">This will be displayed on your profile</p>
+              <label className="input-label">I am</label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, accountType: 'independent' })}
+                  className={`py-3 px-6 border transition-all ${
+                    formData.accountType === 'independent'
+                      ? 'border-[#DA4167] text-[#DA4167]'
+                      : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#DA4167]'
+                  }`}
+                  data-testid="account-type-independent"
+                >
+                  <span className="uppercase tracking-wider text-sm font-medium">Independent</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, accountType: 'agency' })}
+                  className={`py-3 px-6 border transition-all ${
+                    formData.accountType === 'agency'
+                      ? 'border-[#DA4167] text-[#DA4167]'
+                      : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#DA4167]'
+                  }`}
+                  data-testid="account-type-agency"
+                >
+                  <span className="uppercase tracking-wider text-sm font-medium">Agency</span>
+                </button>
+              </div>
             </div>
 
             <div>
@@ -196,15 +214,6 @@ export default function ProviderRegister() {
             </Link>
           </p>
 
-          <p className="text-center text-[#52525B] text-xs mt-8">
-            Looking to book instead?{' '}
-            <Link
-              to="/register"
-              className="text-[#DA4167] hover:opacity-80 transition-opacity"
-            >
-              Register as a client
-            </Link>
-          </p>
         </div>
       </div>
     </div>
