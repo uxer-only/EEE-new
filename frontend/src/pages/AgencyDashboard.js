@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import {
   Plus, PencilSimple, Trash, MapPin, CheckCircle, Crown, ChatCircle, Users, ArrowRight,
-  ShieldCheck, Gear, ArrowsClockwise, ArrowSquareOut
+  ShieldCheck, Gear, ArrowsClockwise, ArrowSquareOut, User, FileText, CurrencyDollar, Clock
 } from 'phosphor-react';
 import {
   getAgencyProfiles, getAgencyProfile, deleteProviderProfile, setProfilePlan, createBulkCheckout, syncAgencyDefaults
@@ -13,6 +13,9 @@ import { useAuth } from '@/context/AuthContext';
 import SiteHeader from '@/components/SiteHeader';
 import AgencyOnboarding from '@/pages/AgencyOnboarding';
 import VerificationModal from '@/components/VerificationModal';
+import { currencySymbol } from '@/constants/companionData';
+
+const DAY_LABELS = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' };
 
 // Agency per-profile plan catalogue (mirrors backend PLANS allowlist)
 const FEATURED = {
@@ -51,6 +54,7 @@ export default function AgencyDashboard() {
   const [deletingId, setDeletingId] = useState(null);
   const [paying, setPaying] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [editStep, setEditStep] = useState(1);
   const [verifyFor, setVerifyFor] = useState(null);
   const [syncing, setSyncing] = useState(false);
 
@@ -147,13 +151,27 @@ export default function AgencyDashboard() {
 
   // Editing agency defaults (re-uses the wizard, prefilled)
   if (editing) {
-    return <AgencyOnboarding initial={agency} onDone={() => { setEditing(false); setLoading(true); load(); }} />;
+    return <AgencyOnboarding initial={agency} initialStep={editStep} onDone={() => { setEditing(false); setLoading(true); load(); }} />;
   }
+
+  const openEdit = (stepNo) => { setEditStep(stepNo); setEditing(true); };
 
   const activeCount = profiles.filter((p) => p.featured_active).length;
   const totalUnread = profiles.reduce((s, p) => s + (p.unread_enquiries || 0), 0);
   const queued = profiles.filter((p) => p.pending_plan && p.pending_plan.featured_plan);
   const payableTotal = queued.reduce((s, p) => s + planCost(p.pending_plan), 0);
+
+  // ----- Agency master-profile defaults (from the setup wizard) -----
+  const svc = agency.default_services || {};
+  const svcEntries = Object.entries(svc).filter(([, v]) => v && v.type);
+  const inclusiveSvc = svcEntries.filter(([, v]) => v.type === 'inclusive');
+  const extraSvc = svcEntries.filter(([, v]) => v.type === 'extra');
+  const rates = agency.default_rates || {};
+  const sym = currencySymbol(rates.currency);
+  const avail = agency.default_availability || {};
+  const schedule = avail.schedule || {};
+  const scheduleDays = Object.entries(schedule);
+  const availableDays = scheduleDays.filter(([, s]) => s?.available).length;
 
   return (
     <div className="min-h-screen bg-[#F0EFF4] dashboard-light">
@@ -186,7 +204,7 @@ export default function AgencyDashboard() {
               </Link>
             )}
             <button
-              onClick={() => setEditing(true)}
+              onClick={() => openEdit(1)}
               className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#832161] rounded-lg transition-colors"
               data-testid="agency-settings-btn"
             >
@@ -202,7 +220,133 @@ export default function AgencyDashboard() {
             </button>
           </div>
 
-          {/* Stat strip */}
+          {/* Agency profile & defaults — Basic info / Services / Rates / Availability */}
+          <div className="mb-10" data-testid="agency-profile-summary">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg text-[#000000] font-medium">Agency profile &amp; defaults</h3>
+              <span className="text-xs text-[#898989]">Used as the starting point for every new companion profile</span>
+            </div>
+            <div className="flex flex-col gap-6">
+              {/* Basic Information */}
+              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-basic-info">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><User size={18} className="text-[#832161]" /></div>
+                  <h3 className="text-xl text-[#000000]">Basic Information</h3>
+                </div>
+                <dl className="space-y-3 text-sm">
+                  <div className="flex justify-between gap-4"><dt className="text-[#000000]">Agency name</dt><dd className="text-[#000000] text-right">{agency.agency_name || '—'}</dd></div>
+                  <div className="flex justify-between gap-4"><dt className="text-[#000000]">Location</dt><dd className="text-[#000000] text-right">{agency.location?.city ? `${agency.location.city}, ${agency.location.country || ''}` : '—'}</dd></div>
+                  <div className="flex justify-between gap-4"><dt className="text-[#000000]">Languages</dt><dd className="text-[#000000] text-right">{(agency.languages || []).join(', ') || '—'}</dd></div>
+                  <div className="pt-2 border-t border-[#dbdadd]">
+                    <dt className="text-[#000000] mb-2">Description</dt>
+                    <dd className="text-[#000000] line-clamp-3 leading-relaxed">{agency.description || <span className="text-[#898989] italic">Not set</span>}</dd>
+                  </div>
+                </dl>
+                <button onClick={() => openEdit(1)} className="btn-secondary w-full mt-8" data-testid="agency-edit-basic-info-btn">Edit Basic Information</button>
+              </div>
+
+              {/* Services */}
+              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-services">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><FileText size={18} className="text-[#832161]" /></div>
+                  <h3 className="text-xl text-[#000000]">Services</h3>
+                </div>
+                {svcEntries.length === 0 ? (
+                  <p className="text-[#898989] text-sm italic">No services set</p>
+                ) : (
+                  <div className="space-y-4">
+                    {inclusiveSvc.length > 0 && (
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">Inclusive ({inclusiveSvc.length})</p>
+                        <div className="flex flex-wrap gap-2">
+                          {inclusiveSvc.slice(0, 10).map(([name]) => (<span key={name} className="px-3 py-1 text-xs border border-[#dbdadd] text-[#000000] rounded-full">{name}</span>))}
+                          {inclusiveSvc.length > 10 && <span className="px-3 py-1 text-xs text-[#000000]">+{inclusiveSvc.length - 10} more</span>}
+                        </div>
+                      </div>
+                    )}
+                    {extraSvc.length > 0 && (
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">Extra ({extraSvc.length})</p>
+                        <div className="flex flex-wrap gap-2">
+                          {extraSvc.slice(0, 8).map(([name, v]) => (<span key={name} className="px-3 py-1 text-xs border border-[#832161]/40 bg-[#832161]/10 text-[#832161] rounded-full">{name}{v.price && ` · €${v.price}`}</span>))}
+                          {extraSvc.length > 8 && <span className="px-3 py-1 text-xs text-[#000000]">+{extraSvc.length - 8} more</span>}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                <button onClick={() => openEdit(2)} className="btn-secondary w-full mt-8" data-testid="agency-edit-services-btn">Edit Services</button>
+              </div>
+
+              {/* Rates */}
+              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-rates">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><CurrencyDollar size={18} className="text-[#832161]" /></div>
+                  <h3 className="text-xl text-[#000000]">Rates</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {['incall', 'outcall'].map((kind) => {
+                    const col = rates[kind] || {};
+                    const extras = (Array.isArray(col.extras) ? col.extras : []).slice().sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0));
+                    return (
+                      <div key={kind}>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#832161] mb-3">{kind}</p>
+                        <div className="space-y-2">
+                          {[{ key: '1hour', label: '1 hour' }, { key: '2hours', label: '2 hours' }, { key: '3hours', label: '3 hours' }].map(({ key, label }) => (
+                            <div key={key} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
+                              <span className="text-[#000000] text-sm">{label}</span>
+                              <span className="text-[#832161]">{col[key] ? `${sym}${col[key]}` : <span className="text-[#898989] text-sm italic">Not set</span>}</span>
+                            </div>
+                          ))}
+                          {extras.map((extra, i) => (
+                            <div key={`e-${i}`} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
+                              <span className="text-[#000000] text-sm">{extra.hours} hours</span>
+                              <span className="text-[#832161]">{extra.price ? `${sym}${extra.price}` : <span className="text-[#898989] text-sm italic">Not set</span>}</span>
+                            </div>
+                          ))}
+                          {col.overnight !== undefined && col.overnight !== '' && (
+                            <div className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
+                              <span className="text-[#000000] text-sm">Overnight</span>
+                              <span className="text-[#832161]">{sym}{col.overnight}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <button onClick={() => openEdit(3)} className="btn-secondary w-full mt-8" data-testid="agency-edit-rates-btn">Edit Rates</button>
+              </div>
+
+              {/* Availability */}
+              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-availability">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><Clock size={18} className="text-[#832161]" /></div>
+                  <div>
+                    <h3 className="text-xl text-[#000000]">Availability</h3>
+                    <p className="text-[#000000] text-xs mt-1">{availableDays} of 7 days available</p>
+                  </div>
+                </div>
+                {scheduleDays.length === 0 ? (
+                  <p className="text-[#898989] text-sm italic">No availability set</p>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
+                    {scheduleDays.map(([day, sched]) => (
+                      <div key={day} className={`border p-3 text-center transition-colors ${sched?.available ? 'border-[#832161]/40 bg-[#832161]/5' : 'border-[#dbdadd] opacity-50'}`}>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">{DAY_LABELS[day] || day.slice(0, 3)}</p>
+                        {sched?.available ? (<><p className="text-[#000000] text-sm">{sched.start}</p><p className="text-[#000000] text-xs">to</p><p className="text-[#000000] text-sm">{sched.end}</p></>) : (<p className="text-[#000000] text-xs italic">Closed</p>)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <button onClick={() => openEdit(3)} className="btn-secondary w-full mt-8" data-testid="agency-edit-availability-btn">Edit Availability</button>
+              </div>
+            </div>
+          </div>
+
+          {/* Companion profiles */}
+          <h3 className="text-lg text-[#000000] font-medium mb-4" data-testid="companion-profiles-heading">Companion profiles</h3>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex items-center gap-4" data-testid="stat-total">
               <div className="w-11 h-11 rounded-full bg-[#832161]/10 flex items-center justify-center"><Users size={20} className="text-[#832161]" /></div>

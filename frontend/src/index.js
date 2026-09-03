@@ -10,9 +10,27 @@ root.render(
   </React.StrictMode>,
 );
 
-// Unregister any previously installed service worker (PWA install removed)
+// Purge any previously installed PWA service worker + its cached bundle.
+// (The app used to be installable; a stale SW can keep serving an old build.)
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations()
-    .then((regs) => regs.forEach((r) => r.unregister()))
-    .catch(() => {});
+  const hadController = !!navigator.serviceWorker.controller;
+
+  const cleanup = Promise.all([
+    navigator.serviceWorker.getRegistrations()
+      .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+      .catch(() => {}),
+    ('caches' in window
+      ? caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+      : Promise.resolve()
+    ).catch(() => {}),
+  ]);
+
+  // If a stale SW was controlling this page, force a one-time reload so the
+  // freshly-fetched assets take over. Guarded to avoid reload loops.
+  if (hadController && !sessionStorage.getItem('sw_purged')) {
+    cleanup.then(() => {
+      sessionStorage.setItem('sw_purged', '1');
+      window.location.reload();
+    });
+  }
 }

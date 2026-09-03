@@ -25,8 +25,8 @@ const COUNTRIES = [
   'Japan', 'South Korea', 'Thailand', 'Other'
 ];
 
-export default function AgencyOnboarding({ initial, onDone }) {
-  const [step, setStep] = useState(1);
+export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
+  const [step, setStep] = useState(initialStep);
   const [saving, setSaving] = useState(false);
   const [newLanguage, setNewLanguage] = useState('');
   const [showAddLanguage, setShowAddLanguage] = useState(false);
