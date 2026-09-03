@@ -15,18 +15,32 @@ const STEPS = [
 ];
 
 const LANG_PRESETS = ['English', 'French', 'German', 'Russian'];
-const COUNTRIES = Object.keys(COUNTRY_DIAL_CODES);
+
+const COUNTRIES = [
+  'Belgium', 'Netherlands', 'Luxembourg', 'France', 'Germany', 'United Kingdom', 'Spain', 'Italy',
+  'Portugal', 'Switzerland', 'Austria', 'Ireland', 'Denmark', 'Sweden', 'Norway', 'Finland', 'Poland',
+  'Czech Republic', 'Greece', 'Croatia', 'Hungary', 'Romania', 'Bulgaria', 'Slovenia', 'Slovakia',
+  'Estonia', 'Latvia', 'Lithuania', 'Cyprus', 'Malta', 'Monaco', 'Andorra', 'United States', 'Canada',
+  'Australia', 'New Zealand', 'Brazil', 'Argentina', 'Mexico', 'United Arab Emirates', 'Singapore',
+  'Japan', 'South Korea', 'Thailand', 'Other'
+];
 
 export default function AgencyOnboarding({ initial, onDone }) {
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
-  const [newLang, setNewLang] = useState('');
+  const [newLanguage, setNewLanguage] = useState('');
+  const [showAddLanguage, setShowAddLanguage] = useState(false);
   const [data, setData] = useState(() => ({
     agency_name: initial?.agency_name || '',
     location: { city: initial?.location?.city || '', country: initial?.location?.country || '' },
     description: initial?.description || '',
     languages: initial?.languages || [],
-    contact: initial?.contact || { phone: '', email: '', hasWhatsapp: false, hasTelegram: false },
+    contact: initial?.contact || {
+      phone: '', email: '',
+      hasWhatsapp: false, hasTelegram: false, hasSignal: false, hasSms: false,
+      hasViber: false, hasLine: false, hasWechat: false,
+      telegramId: '', lineId: '', wechatId: ''
+    },
     companionshipType: 'escort',
     default_services: initial?.default_services || {},
     apply_services_to_all: initial?.apply_services_to_all ?? true,
@@ -38,17 +52,17 @@ export default function AgencyOnboarding({ initial, onDone }) {
   }));
 
   const update = (patch) => setData((prev) => ({ ...prev, ...patch }));
+  const setContact = (patch) => setData((prev) => ({ ...prev, contact: { ...prev.contact, ...patch } }));
 
-  const toggleLang = (lang) => {
-    const cur = data.languages || [];
-    update({ languages: cur.includes(lang) ? cur.filter((l) => l !== lang) : [...cur, lang] });
-  };
+  const current = data.languages || [];
+  const customLangs = current.filter((l) => !LANG_PRESETS.includes(l));
+  const toggleLang = (lang) => update({ languages: current.includes(lang) ? current.filter((l) => l !== lang) : [...current, lang] });
   const addCustomLang = () => {
-    const v = newLang.trim();
+    const v = newLanguage.trim();
     if (!v) return;
-    if ((data.languages || []).some((l) => l.toLowerCase() === v.toLowerCase())) { setNewLang(''); return; }
-    update({ languages: [...(data.languages || []), v] });
-    setNewLang('');
+    if (current.some((l) => l.toLowerCase() === v.toLowerCase())) { setNewLanguage(''); return; }
+    update({ languages: [...current, v] });
+    setNewLanguage('');
   };
 
   const canProceedStep1 = data.agency_name.trim() && data.location.city.trim() && data.location.country.trim();
@@ -88,7 +102,8 @@ export default function AgencyOnboarding({ initial, onDone }) {
   const back = () => setStep((s) => Math.max(1, s - 1));
 
   const dial = COUNTRY_DIAL_CODES[data.location.country] || '';
-  const customLangs = (data.languages || []).filter((l) => !LANG_PRESETS.includes(l));
+  const rawPhone = data.contact.phone || '';
+  const localPhone = dial && rawPhone.startsWith(dial) ? rawPhone.slice(dial.length).replace(/^\s+/, '') : rawPhone;
 
   return (
     <div className="min-h-screen bg-[#F0EFF4] dashboard-light">
@@ -126,12 +141,13 @@ export default function AgencyOnboarding({ initial, onDone }) {
             key={step}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-[#dbdadd] rounded-lg p-6 md:p-8"
+            className={step === 1 ? '' : 'bg-white border border-[#dbdadd] rounded-lg p-6 md:p-8'}
           >
             {step === 1 && (
               <div className="space-y-8">
-                <div>
-                  <h3 className="text-2xl font-bold text-[#832161] mb-6">Basic info</h3>
+                {/* Box 1: Basic Information */}
+                <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
+                  <h3 className="text-2xl font-bold text-[#832161] mb-6">Basic Information</h3>
                   <div className="flex flex-col gap-4">
                     <div>
                       <label className="input-label">Agency name</label>
@@ -144,103 +160,123 @@ export default function AgencyOnboarding({ initial, onDone }) {
                         data-testid="agency-name-input"
                       />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="input-label">City</label>
-                        <input
-                          type="text"
-                          value={data.location.city}
-                          onChange={(e) => update({ location: { ...data.location, city: e.target.value } })}
-                          className="input-premium w-full"
-                          placeholder="e.g. Paris"
-                          data-testid="agency-city-input"
-                        />
-                      </div>
-                      <div>
-                        <label className="input-label">Country</label>
-                        <select
-                          value={data.location.country}
-                          onChange={(e) => update({ location: { ...data.location, country: e.target.value } })}
-                          className="input-premium w-full"
-                          data-testid="agency-country-select"
-                        >
-                          <option value="">Select country</option>
-                          {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                      </div>
+                    <div>
+                      <label className="input-label">City</label>
+                      <input
+                        type="text"
+                        value={data.location.city}
+                        onChange={(e) => update({ location: { ...data.location, city: e.target.value } })}
+                        className="input-premium w-full"
+                        placeholder="Your city"
+                        data-testid="agency-city-input"
+                      />
                     </div>
                     <div>
-                      <label className="input-label">Agency description</label>
-                      <textarea
-                        value={data.description}
-                        onChange={(e) => update({ description: e.target.value.slice(0, 1500) })}
-                        className="input-premium w-full h-32 resize-none"
-                        placeholder="Describe your agency..."
-                        maxLength={1500}
-                        data-testid="agency-description-input"
-                      />
-                      <div className="flex justify-end mt-2"><span className="text-xs text-[#000000]">{(data.description || '').length}/1500</span></div>
+                      <label className="input-label">Country</label>
+                      <select
+                        value={data.location.country}
+                        onChange={(e) => update({ location: { ...data.location, country: e.target.value } })}
+                        className="input-premium w-full"
+                        data-testid="agency-country-select"
+                      >
+                        <option value="">Select country</option>
+                        {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                      </select>
                     </div>
+                  </div>
 
-                    {/* Languages */}
-                    <div className="mt-2 pt-6 border-t border-[#dbdadd]">
-                      <div className="flex items-end justify-between mb-3">
-                        <label className="input-label !mb-0">Languages</label>
-                        <span className="text-xs text-[#000000]">{(data.languages || []).length} selected</span>
-                      </div>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        {LANG_PRESETS.map((lang) => (
+                  {/* Describe agency */}
+                  <div className="mt-8 pt-8 border-t border-[#dbdadd]">
+                    <label className="input-label">Agency description</label>
+                    <textarea
+                      value={data.description}
+                      onChange={(e) => update({ description: e.target.value.slice(0, 1500) })}
+                      className="input-premium w-full h-32 resize-none"
+                      placeholder="Describe your agency..."
+                      maxLength={1500}
+                      data-testid="agency-description-input"
+                    />
+                    <div className="flex justify-end mt-2"><span className="text-xs text-[#000000]">{(data.description || '').length}/1500</span></div>
+                  </div>
+
+                  {/* Languages */}
+                  <div className="mt-8 pt-8 border-t border-[#dbdadd]">
+                    <div className="flex items-end justify-between mb-3">
+                      <label className="input-label !mb-0">Languages</label>
+                      <span className="text-xs text-[#000000]">{current.length} selected</span>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {LANG_PRESETS.map((lang) => {
+                        const selected = current.includes(lang);
+                        return (
                           <button
                             key={lang}
                             type="button"
                             onClick={() => toggleLang(lang)}
                             className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
-                              (data.languages || []).includes(lang) ? 'border-[#832161] text-[#832161]' : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                              selected ? 'border-[#832161] text-[#832161]' : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                             }`}
                             data-testid={`agency-lang-${lang.toLowerCase()}`}
                           >
                             {lang}
                           </button>
-                        ))}
-                        {customLangs.map((lang) => (
-                          <div key={lang} className="relative py-2.5 pl-3 pr-8 border border-[#832161] text-[#832161] text-sm uppercase tracking-wider flex items-center">
-                            <span className="truncate">{lang}</span>
-                            <button type="button" onClick={() => toggleLang(lang)} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#832161] hover:text-red-400"><X size={14} /></button>
-                          </div>
-                        ))}
-                      </div>
+                        );
+                      })}
+                      {customLangs.map((lang) => (
+                        <div key={lang} className="relative py-2.5 pl-3 pr-8 border border-[#832161] text-[#832161] text-sm uppercase tracking-wider flex items-center">
+                          <span className="truncate">{lang}</span>
+                          <button type="button" onClick={() => toggleLang(lang)} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#832161] hover:text-red-400 transition-colors" aria-label={`Remove ${lang}`}>
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add language CTA → reveals input */}
+                    {showAddLanguage ? (
                       <div className="mt-4 flex items-center gap-2">
                         <input
                           type="text"
-                          value={newLang}
-                          onChange={(e) => setNewLang(e.target.value)}
-                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomLang(); } }}
-                          placeholder="Add another language"
+                          value={newLanguage}
+                          onChange={(e) => setNewLanguage(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') { e.preventDefault(); addCustomLang(); setShowAddLanguage(false); }
+                            else if (e.key === 'Escape') { setNewLanguage(''); setShowAddLanguage(false); }
+                          }}
+                          autoFocus
+                          placeholder="e.g. Italian"
                           className="input-premium flex-1"
                           data-testid="agency-add-language-input"
                         />
-                        <button type="button" onClick={addCustomLang} disabled={!newLang.trim()} className="px-4 py-3 border border-[#832161] text-[#832161] hover:bg-[#832161]/10 disabled:opacity-40 transition-colors text-sm uppercase tracking-wider">
-                          <Plus size={16} />
+                        <button type="button" onClick={() => { addCustomLang(); setShowAddLanguage(false); }} disabled={!newLanguage.trim()} className="px-4 py-3 border border-[#832161] text-[#832161] hover:bg-[#832161]/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm uppercase tracking-wider whitespace-nowrap" data-testid="agency-add-language-confirm">
+                          Add
+                        </button>
+                        <button type="button" onClick={() => { setNewLanguage(''); setShowAddLanguage(false); }} className="px-3 py-3 border border-[#dbdadd] text-[#000000] hover:border-red-400 hover:text-red-400 transition-colors" aria-label="Cancel">
+                          <X size={16} />
                         </button>
                       </div>
-                    </div>
+                    ) : (
+                      <button type="button" onClick={() => setShowAddLanguage(true)} className="mt-4 inline-flex items-center gap-2 px-4 py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#DA4167] transition-colors text-sm uppercase tracking-wider" data-testid="agency-add-language-button">
+                        <Plus size={16} /> Add language
+                      </button>
+                    )}
                   </div>
                 </div>
 
-                {/* Contact */}
-                <div className="pt-6 border-t border-[#dbdadd]">
+                {/* Box 2: Contact Information */}
+                <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
                   <h3 className="text-2xl font-bold text-[#832161] mb-6">Contact information</h3>
                   <div className="flex flex-col gap-4">
                     <div>
                       <label className="input-label">Mobile phone</label>
                       <div className="flex items-stretch border border-[#dbdadd] focus-within:border-[#832161] transition-colors">
-                        {dial && <span className="px-3 py-3 bg-white text-[#832161] text-[13px] border-r border-[#dbdadd] select-none whitespace-nowrap">{dial}</span>}
+                        {dial && <span className="px-3 py-3 bg-white text-[#832161] text-[13px] border-r border-[#dbdadd] select-none whitespace-nowrap" data-testid="agency-phone-dial-code">{dial}</span>}
                         <input
                           type="tel"
-                          value={dial && (data.contact.phone || '').startsWith(dial) ? data.contact.phone.slice(dial.length).trim() : (data.contact.phone || '')}
+                          value={localPhone}
                           onChange={(e) => {
                             const nx = e.target.value.replace(/^\+\d+\s?/, '');
-                            update({ contact: { ...data.contact, phone: dial ? `${dial} ${nx}`.trim() : nx } });
+                            setContact({ phone: dial ? `${dial} ${nx}`.trim() : nx });
                           }}
                           className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-3 text-[13px] text-[#000000] placeholder:text-[#000000] placeholder:italic"
                           placeholder={dial ? 'XXX XX XX XX' : 'Select country first or enter full number'}
@@ -253,24 +289,69 @@ export default function AgencyOnboarding({ initial, onDone }) {
                       <input
                         type="email"
                         value={data.contact.email}
-                        onChange={(e) => update({ contact: { ...data.contact, email: e.target.value } })}
+                        onChange={(e) => setContact({ email: e.target.value })}
                         className="input-premium w-full"
                         placeholder="info@agency.com"
                         data-testid="agency-email-input"
                       />
                     </div>
+
                     <div>
                       <label className="input-label mb-4">Available on</label>
                       <div className="flex gap-6 flex-wrap">
                         <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" checked={data.contact.hasWhatsapp || false} onChange={(e) => update({ contact: { ...data.contact, hasWhatsapp: e.target.checked } })} className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#25D366] checked:border-[#25D366]" />
+                          <input type="checkbox" checked={data.contact.hasWhatsapp || false} onChange={(e) => setContact({ hasWhatsapp: e.target.checked })} className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#25D366] checked:border-[#25D366]" data-testid="agency-contact-whatsapp" />
                           <span className="text-[#000000]">WhatsApp</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" checked={data.contact.hasTelegram || false} onChange={(e) => update({ contact: { ...data.contact, hasTelegram: e.target.checked } })} className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#0088cc] checked:border-[#0088cc]" />
+                          <input type="checkbox" checked={data.contact.hasTelegram || false} onChange={(e) => setContact({ hasTelegram: e.target.checked })} className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#0088cc] checked:border-[#0088cc]" data-testid="agency-contact-telegram" />
                           <span className="text-[#000000]">Telegram</span>
                         </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={data.contact.hasSignal || false} onChange={(e) => setContact({ hasSignal: e.target.checked })} className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#3A76F0] checked:border-[#3A76F0]" data-testid="agency-contact-signal" />
+                          <span className="text-[#000000]">Signal</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={data.contact.hasSms || false} onChange={(e) => setContact({ hasSms: e.target.checked })} className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]" data-testid="agency-contact-sms" />
+                          <span className="text-[#000000]">SMS</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={data.contact.hasViber || false} onChange={(e) => setContact({ hasViber: e.target.checked })} className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7360F2] checked:border-[#7360F2]" data-testid="agency-contact-viber" />
+                          <span className="text-[#000000]">Viber</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={data.contact.hasLine || false} onChange={(e) => setContact({ hasLine: e.target.checked })} className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#00C300] checked:border-[#00C300]" data-testid="agency-contact-line" />
+                          <span className="text-[#000000]">Line</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" checked={data.contact.hasWechat || false} onChange={(e) => setContact({ hasWechat: e.target.checked })} className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#09B83E] checked:border-[#09B83E]" data-testid="agency-contact-wechat" />
+                          <span className="text-[#000000]">WeChat</span>
+                        </label>
                       </div>
+
+                      {/* ID inputs for username-based platforms */}
+                      {(data.contact.hasTelegram || data.contact.hasLine || data.contact.hasWechat) && (
+                        <div className="mt-4 flex flex-col gap-4">
+                          {data.contact.hasTelegram && (
+                            <div>
+                              <label className="input-label" htmlFor="agency-telegram-id">Telegram ID</label>
+                              <input id="agency-telegram-id" type="text" value={data.contact.telegramId || ''} onChange={(e) => setContact({ telegramId: e.target.value })} className="input-premium w-full" placeholder="@username" data-testid="agency-telegram-id-input" />
+                            </div>
+                          )}
+                          {data.contact.hasLine && (
+                            <div>
+                              <label className="input-label" htmlFor="agency-line-id">Line ID</label>
+                              <input id="agency-line-id" type="text" value={data.contact.lineId || ''} onChange={(e) => setContact({ lineId: e.target.value })} className="input-premium w-full" placeholder="your-line-id" data-testid="agency-line-id-input" />
+                            </div>
+                          )}
+                          {data.contact.hasWechat && (
+                            <div>
+                              <label className="input-label" htmlFor="agency-wechat-id">WeChat ID</label>
+                              <input id="agency-wechat-id" type="text" value={data.contact.wechatId || ''} onChange={(e) => setContact({ wechatId: e.target.value })} className="input-premium w-full" placeholder="your-wechat-id" data-testid="agency-wechat-id-input" />
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -304,7 +385,7 @@ export default function AgencyOnboarding({ initial, onDone }) {
             )}
 
             {/* Nav */}
-            <div className={`flex ${step === 1 ? 'justify-end' : 'justify-between'} mt-8 pt-6 border-t border-[#dbdadd]`}>
+            <div className={`flex ${step === 1 ? 'justify-end' : 'justify-between'} mt-8 pt-6 ${step === 1 ? '' : 'border-t border-[#dbdadd]'}`}>
               {step > 1 && (
                 <button onClick={back} className="btn-secondary flex items-center gap-2" data-testid="agency-wizard-back">
                   <CaretLeft size={16} /> Back
