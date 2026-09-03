@@ -28,6 +28,8 @@ export const getProviderDashboard = (providerId) =>
 export const getAgencyProfiles = () => api.get('/agency/profiles');
 export const getAgencyProfile = () => api.get('/agency/profile');
 export const saveAgencyProfile = (data) => api.post('/agency/profile', data);
+export const syncAgencyDefaults = () => api.post('/agency/sync-defaults');
+export const getAgencyPublic = (agencyId) => api.get(`/agencies/${agencyId}/public`);
 export const setProfilePlan = (providerId, data) => api.put(`/agency/profiles/${providerId}/plan`, data);
 
 // Messages

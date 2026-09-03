@@ -1,0 +1,37 @@
+{
+  "summary": "E2E test of 4 new Agency features + regression. Backend pytest 7/7 pass (1 skipped - independent /profile route not exposed). Frontend flows all pass. (1) Payment Success Refresh: with mocked paid /api/subscriptions/status, ?agency=1 renders 'Your profiles are live' + go-dashboard-btn and auto-redirects to /dashboard within ~1.8s; without agency flag, renders 'Your profile is live' and does NOT auto-redirect (verified 2.5s wait). (2) Bulk Verification: verify-profile-<providerId> buttons present on all 3 roster rows; clicking opens VerificationModal ('Verify your identity' with ID front + selfie upload fields) without navigating away from /dashboard. (3) Agency Public Page: view-agency-page-btn links to /agency/agency_ff8af1dbf4a9; public page (no login) shows 'Elite Agency Demo', Paris/France, English·French, 3 companions, agency-public-companions grid with 3 agency-companion-<pid> cards, Sofia has VIP pill (VIP text appears exactly once). Unknown agency id shows 'Agency not found' state. (4) Provider Attribution: /providers/<agency_owned_pid> shows 'Presented by Elite Agency Demo' link (provider-agency-link) → /agency/<agency_id>. (5) Sync Defaults: sync-defaults-btn opens confirm dialog; on accept calls POST /api/agency/sync-defaults and toasts 'Defaults applied to N profiles' (N=3 first call after bumping agency defaults; N=0 on re-click when nothing changed — mongo modified_count behaviour). Regression: independent provider (provider1@lumiere.com) lands on single-profile dashboard with NO agency-header and NO sync-defaults-btn. Backend: agency_id backfilled (agency_ff8af1dbf4a9), /agencies/{id}/public returns 3 live companions with Sofia first (vip_active=true), provider detail has agency block for agency-owned profiles, checkout-bulk works.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/agency/sync-defaults", "issue": "Returns mongo modified_count (not matched_count). If agency defaults already match profiles, response is {updated: 0} and UI toasts 'Defaults applied to 0 profiles', which is confusing when the user just clicked Sync. Consider returning matched_count OR wording toast as 'X profile(s) already in sync' when updated==0."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "AgencyDashboard roster table", "issues": ["React hydration console errors: '<tr> cannot be a child of <span>' and '<span> cannot be a child of <tbody>' — caused by external instrumentation wrapping <tr>/<tbody> children in <span data-ve-dynamic x-excluded style=display:contents>. Warning only, table still renders correctly. Same class of instrumentation noise flagged in iteration_7 & iteration_8."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_agency_public_and_sync.py",
+    "/app/test_reports/pytest/iter9_results.xml"
+  ],
+  "action_items": [
+    "OPTIONAL: Improve sync-defaults response/toast so 'updated: 0' is not confusing when the agency defaults already match profiles (matched_count or better copy).",
+    "OPTIONAL: /providers/me endpoint returned 404 for independent provider (independent-provider agency-block regression test had to be skipped). If a public /profile-fetch-by-authenticated-user exists under a different route, no action needed."
+  ],
+  "critical_code_review_comments": [
+    "AgencyDashboard.js: window.confirm() is used for destructive Sync Defaults (overwrites services/rates/availability on ALL profiles) — consider a proper modal for such a heavy write operation.",
+    "PaymentSuccess.js: auto-redirect on isAgency+paid uses a 1.8s setTimeout — fine, but there's no cleanup guard if user manually clicks 'Open dashboard' first (setTimeout still fires); minor.",
+    "Backend get_agency_public: sorts by vip_until desc, but non-VIP profiles have null vip_until — Mongo sort places nulls last which is what we want; verified Sofia comes first."
+  ],
+  "updated_files": ["/app/backend/tests/test_agency_public_and_sync.py"],
+  "success_rate": {"backend": "100% (7/7 pass, 1 skip)", "frontend": "100%"},
+  "test_credentials": "agency@test.com/agency123 (Elite Agency Demo, agency_id=agency_ff8af1dbf4a9, 3 live profiles Sofia[VIP]/Valentina/Amara). provider1@lumiere.com/sophia123 for independent regression.",
+  "seed_data_creation": "Sync-defaults test bumped agency default_rates to {hour_1:999,hour_2:1500} to force a diff. Also cleared a temporary pending_plan set on the first profile after the bulk-checkout smoke test.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All 4 new agency features pass. Backend tests at /app/backend/tests/test_agency_public_and_sync.py (export REACT_APP_BACKEND_URL before pytest). Agency test account has agency_id=agency_ff8af1dbf4a9. PaymentSuccess auto-redirect can be tested by routing /api/subscriptions/status/** to a fake paid response via playwright page.route.",
+  "rca of the issue": "n/a"
+}

@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import {
-  Plus, PencilSimple, Trash, MapPin, CheckCircle, Crown, ChatCircle, Users, ArrowRight
+  Plus, PencilSimple, Trash, MapPin, CheckCircle, Crown, ChatCircle, Users, ArrowRight,
+  ShieldCheck, Gear, ArrowsClockwise, ArrowSquareOut
 } from 'phosphor-react';
 import {
-  getAgencyProfiles, getAgencyProfile, deleteProviderProfile, setProfilePlan, createBulkCheckout
+  getAgencyProfiles, getAgencyProfile, deleteProviderProfile, setProfilePlan, createBulkCheckout, syncAgencyDefaults
 } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import SiteHeader from '@/components/SiteHeader';
 import AgencyOnboarding from '@/pages/AgencyOnboarding';
+import VerificationModal from '@/components/VerificationModal';
 
 // Agency per-profile plan catalogue (mirrors backend PLANS allowlist)
 const FEATURED = {
@@ -48,6 +50,9 @@ export default function AgencyDashboard() {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const [paying, setPaying] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [verifyFor, setVerifyFor] = useState(null);
+  const [syncing, setSyncing] = useState(false);
 
   const loadRoster = async () => {
     const { data } = await getAgencyProfiles();
@@ -111,6 +116,22 @@ export default function AgencyDashboard() {
     }
   };
 
+  const handleSyncDefaults = async () => {
+    if (!window.confirm('Push your agency default services, rates and availability to ALL profiles?\n\nThis overwrites those sections on every profile. Individual photos, names and bios are not affected.')) return;
+    setSyncing(true);
+    try {
+      const { data } = await syncAgencyDefaults();
+      toast.success(data.updated > 0
+        ? `Defaults applied to ${data.updated} profile${data.updated === 1 ? '' : 's'}`
+        : 'All profiles already match your defaults');
+      loadRoster();
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || 'Could not sync defaults');
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   if (loading || agency === null) {
     return (
       <div className="min-h-screen bg-[#F0EFF4] dashboard-light flex items-center justify-center">
@@ -122,6 +143,11 @@ export default function AgencyDashboard() {
   // Onboarding gate — show the agency setup wizard first
   if (!agency.onboarded) {
     return <AgencyOnboarding onDone={() => { setLoading(true); load(); }} />;
+  }
+
+  // Editing agency defaults (re-uses the wizard, prefilled)
+  if (editing) {
+    return <AgencyOnboarding initial={agency} onDone={() => { setEditing(false); setLoading(true); load(); }} />;
   }
 
   const activeCount = profiles.filter((p) => p.featured_active).length;
@@ -145,6 +171,36 @@ export default function AgencyDashboard() {
               <Plus size={18} weight="bold" /> Add profile
             </button>
           </motion.div>
+
+          {/* Agency action bar */}
+          <div className="flex flex-wrap items-center gap-3 mb-8" data-testid="agency-actions">
+            {agency.agency_id && (
+              <Link
+                to={`/agency/${agency.agency_id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-[#832161]/40 text-[#832161] hover:bg-[#832161]/10 rounded-lg transition-colors"
+                data-testid="view-agency-page-btn"
+              >
+                <ArrowSquareOut size={16} /> View agency page
+              </Link>
+            )}
+            <button
+              onClick={() => setEditing(true)}
+              className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#832161] rounded-lg transition-colors"
+              data-testid="agency-settings-btn"
+            >
+              <Gear size={16} /> Agency settings
+            </button>
+            <button
+              onClick={handleSyncDefaults}
+              disabled={syncing}
+              className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-[#dbdadd] text-[#000000] hover:border-[#DA4167] hover:text-[#DA4167] rounded-lg transition-colors disabled:opacity-50"
+              data-testid="sync-defaults-btn"
+            >
+              <ArrowsClockwise size={16} className={syncing ? 'animate-spin' : ''} /> {syncing ? 'Syncing…' : 'Sync defaults to all'}
+            </button>
+          </div>
 
           {/* Stat strip */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -232,6 +288,9 @@ export default function AgencyDashboard() {
                         <td className="px-5 py-4"><StatusPill profile={p} /></td>
                         <td className="px-5 py-4">
                           <div className="flex items-center justify-end gap-2">
+                            <button onClick={() => setVerifyFor(p.provider_id)} className="inline-flex items-center gap-1 text-xs uppercase tracking-wider px-3 py-2 border border-[#22C55E]/50 text-[#15803D] hover:bg-[#22C55E]/10 rounded transition-colors" data-testid={`verify-profile-${p.provider_id}`}>
+                              <ShieldCheck size={14} /> {p.verified ? 'Verified' : (p.verification_status === 'submitted' ? 'Review' : 'Verify')}
+                            </button>
                             <button onClick={() => navigate(`/dashboard/profile/${p.provider_id}`)} className="inline-flex items-center gap-1 text-xs uppercase tracking-wider px-3 py-2 border border-[#832161]/40 text-[#832161] hover:bg-[#832161]/10 rounded transition-colors" data-testid={`edit-profile-${p.provider_id}`}>
                               <PencilSimple size={14} /> Edit
                             </button>
@@ -265,6 +324,13 @@ export default function AgencyDashboard() {
           </div>
         </div>
       )}
+      {/* Per-profile verification (from the roster, no need to open the profile) */}
+      <VerificationModal
+        open={!!verifyFor}
+        onClose={() => setVerifyFor(null)}
+        onSubmitted={() => { setVerifyFor(null); loadRoster(); }}
+        providerId={verifyFor}
+      />
     </div>
   );
 }

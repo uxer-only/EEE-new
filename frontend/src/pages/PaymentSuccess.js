@@ -12,7 +12,15 @@ export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const sessionId = searchParams.get('session_id');
+  const isAgency = searchParams.get('agency') === '1';
   const [state, setState] = useState({ status: 'pending', tx: null });
+
+  useEffect(() => {
+    if (state.status === 'paid' && isAgency) {
+      const t = setTimeout(() => navigate('/dashboard'), 1800);
+      return () => clearTimeout(t);
+    }
+  }, [state.status, isAgency, navigate]);
 
   useEffect(() => {
     if (!sessionId) {
@@ -71,10 +79,11 @@ export default function PaymentSuccess() {
           {state.status === 'paid' && (
             <>
               <CheckCircle size={56} weight="fill" className="text-[#22C55E] mx-auto mb-6" />
-              <h1 className="text-3xl text-[#F2F0ED] mb-3" data-testid="paid-title">Your profile is live</h1>
+              <h1 className="text-3xl text-[#F2F0ED] mb-3" data-testid="paid-title">{isAgency ? 'Your profiles are live' : 'Your profile is live'}</h1>
               <p className="text-[#A1A1AA] mb-8">
-                Thank you. Your Featured listing
-                {state.tx?.vip_plan ? ' and VIP Boost are' : ' is'} active.
+                {isAgency
+                  ? 'Thank you. All paid companion profiles are now Featured. Taking you to your dashboard…'
+                  : (<>Thank you. Your Featured listing{state.tx?.vip_plan ? ' and VIP Boost are' : ' is'} active.</>)}
               </p>
               <button
                 type="button"

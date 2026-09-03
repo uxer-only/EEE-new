@@ -1401,9 +1401,18 @@ async def get_provider_detail(provider_id: str):
     # Get user info
     user = await db.users.find_one(
         {"user_id": profile["user_id"]},
-        {"_id": 0, "name": 1, "picture": 1, "email": 1}
+        {"_id": 0, "name": 1, "picture": 1, "email": 1, "account_type": 1}
     )
     profile["user"] = user
+
+    # Agency attribution — if the owner is an agency, expose its public page link
+    if user and user.get("account_type") == "agency":
+        ag = await db.agency_profiles.find_one(
+            {"user_id": profile["user_id"]},
+            {"_id": 0, "agency_id": 1, "agency_name": 1},
+        )
+        if ag and ag.get("agency_id"):
+            profile["agency"] = {"agency_id": ag["agency_id"], "name": ag.get("agency_name")}
 
     # Annotate active subscription flags for the frontend (Mongo dates are naive UTC)
     now = datetime.utcnow()
@@ -1547,6 +1556,13 @@ async def get_agency_profile(current_user: User = Depends(get_current_user)):
     doc = await db.agency_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
     if not doc:
         return {"onboarded": False}
+    # Lazy backfill of the public agency_id for docs created before this field existed
+    if not doc.get("agency_id"):
+        agency_id = f"agency_{uuid.uuid4().hex[:12]}"
+        await db.agency_profiles.update_one(
+            {"user_id": current_user.user_id}, {"$set": {"agency_id": agency_id}}
+        )
+        doc["agency_id"] = agency_id
     doc["onboarded"] = True
     return doc
 
@@ -1570,7 +1586,7 @@ async def save_agency_profile(
     }
     await db.agency_profiles.update_one(
         {"user_id": current_user.user_id},
-        {"$set": doc, "$setOnInsert": {"created_at": datetime.now(timezone.utc)}},
+        {"$set": doc, "$setOnInsert": {"created_at": datetime.now(timezone.utc), "agency_id": f"agency_{uuid.uuid4().hex[:12]}"}},
         upsert=True,
     )
     # Propagate services to all existing profiles when requested
@@ -1580,6 +1596,74 @@ async def save_agency_profile(
             {"$set": {"services": body.default_services}},
         )
     return {"ok": True, "onboarded": True}
+
+
+@api_router.post("/agency/sync-defaults")
+async def sync_agency_defaults(current_user: User = Depends(get_current_user)):
+    """Cascade the agency's default services / rates / availability onto every profile it owns."""
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    ag = await db.agency_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not ag:
+        raise HTTPException(status_code=400, detail="Set up your agency first")
+
+    set_fields: Dict[str, Any] = {}
+    if ag.get("default_services"):
+        set_fields["services"] = ag["default_services"]
+    if ag.get("default_rates"):
+        set_fields["rates"] = _normalize_rates(ag["default_rates"])
+    da = ag.get("default_availability") or {}
+    if da.get("availability_type"):
+        set_fields["availability_type"] = da["availability_type"]
+    if da.get("schedule"):
+        set_fields["schedule"] = da["schedule"]
+    if "available247" in da:
+        set_fields["available247"] = da["available247"]
+    if "booking_advance" in da:
+        set_fields["booking_advance"] = da["booking_advance"]
+
+    if not set_fields:
+        return {"ok": True, "updated": 0}
+
+    result = await db.provider_profiles.update_many(
+        {"user_id": current_user.user_id},
+        {"$set": set_fields},
+    )
+    return {"ok": True, "updated": result.modified_count}
+
+
+@api_router.get("/agencies/{agency_id}/public")
+async def get_agency_public(agency_id: str):
+    """Public branded agency page: agency info + its live (Featured) companion profiles."""
+    ag = await db.agency_profiles.find_one({"agency_id": agency_id}, {"_id": 0})
+    if not ag:
+        raise HTTPException(status_code=404, detail="Agency not found")
+    now = datetime.utcnow()
+    cursor = db.provider_profiles.find(
+        {"user_id": ag["user_id"], "featured_until": {"$gt": now}},
+        {"_id": 0, "provider_id": 1, "display_name": 1, "age": 1, "location": 1,
+         "photos": 1, "verified": 1, "vip_until": 1, "essence": 1},
+    ).sort("vip_until", -1)
+    companions = []
+    async for p in cursor:
+        companions.append({
+            "provider_id": p["provider_id"],
+            "display_name": p.get("display_name"),
+            "age": p.get("age"),
+            "location": p.get("location") or {},
+            "photo": (p.get("photos") or [None])[0],
+            "verified": p.get("verified", False),
+            "vip_active": bool(p.get("vip_until") and p["vip_until"] > now),
+            "essence": p.get("essence"),
+        })
+    return {
+        "agency_id": ag["agency_id"],
+        "agency_name": ag.get("agency_name"),
+        "description": ag.get("description"),
+        "location": ag.get("location") or {},
+        "languages": ag.get("languages") or [],
+        "companions": companions,
+    }
 
 
 class ProfilePlanBody(BaseModel):
@@ -1666,7 +1750,7 @@ async def create_bulk_checkout(
         "profile_count": str(len(provider_plans)),
     }
     origin = body.origin_url.rstrip("/")
-    success_url = f"{origin}/payment-success?session_id={{CHECKOUT_SESSION_ID}}"
+    success_url = f"{origin}/payment-success?session_id={{CHECKOUT_SESSION_ID}}&agency=1"
     cancel_url = f"{origin}/dashboard"
 
     from emergentintegrations.payments.stripe.checkout import CheckoutSessionRequest

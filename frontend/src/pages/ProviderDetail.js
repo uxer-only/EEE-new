@@ -5,7 +5,7 @@ import { getProviderById, getProviders, createEnquiry } from '@/services/api';
 import { toast } from 'sonner';
 import {
   MapPin, CheckCircle, Star, Calendar, Clock, CaretLeft, CaretRight,
-  Phone, WhatsappLogo, TelegramLogo, ChatCircle, EnvelopeSimple, X
+  Phone, WhatsappLogo, TelegramLogo, ChatCircle, EnvelopeSimple, X, Users
 } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
 import SiteHeader from '@/components/SiteHeader';
@@ -238,6 +238,16 @@ export default function ProviderDetail() {
                       <span className="text-sm md:text-base">Elite escort based in {provider.location?.city || 'Brussels'}, {provider.location?.country || 'Belgium'}</span>
                     </div>
                   </div>
+                  {provider.agency?.agency_id && (
+                    <Link
+                      to={`/agency/${provider.agency.agency_id}`}
+                      className="inline-flex items-center gap-1.5 mt-3 text-sm text-[#832161] hover:text-[#DA4167] transition-colors"
+                      data-testid="provider-agency-link"
+                    >
+                      <Users size={15} weight="fill" />
+                      Presented by {provider.agency.name || 'agency'}
+                    </Link>
+                  )}
                   {(provider.bio || provider.essence) && (
                     <>
                       <div className="mt-6 mb-3 border-t border-[#dbdadd]"></div>
