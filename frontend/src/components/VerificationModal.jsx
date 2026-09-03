@@ -56,7 +56,7 @@ function Slot({ label, helper, k, required, doc, onRemove, onFile }) {
   );
 }
 
-export default function VerificationModal({ open, onClose, onSubmitted }) {
+export default function VerificationModal({ open, onClose, onSubmitted, providerId }) {
   const [docs, setDocs] = useState({ id_front: null, id_selfie: null, secondary_doc: null });
   const [submitting, setSubmitting] = useState(false);
 
@@ -88,7 +88,7 @@ export default function VerificationModal({ open, onClose, onSubmitted }) {
         id_front: docs.id_front,
         id_selfie: docs.id_selfie,
         secondary_doc: docs.secondary_doc || null,
-      });
+      }, providerId);
       toast.success('Verification submitted — we\'ll review within 24 hours');
       onSubmitted && onSubmitted();
       onClose();

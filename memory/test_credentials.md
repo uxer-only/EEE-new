@@ -39,3 +39,12 @@
 - API key lives in `/app/backend/.env` as `RESEND_API_KEY`
 - Sender: `onboarding@resend.dev` (test sender — only delivers to the account owner's email `cmu956@gmail.com` until a custom domain is verified at resend.com/domains)
 - Unpaid provider (no subscription): unpaidtest99@test.com / testpass123
+
+## Agency account (multi-profile management)
+- Email: `agency_1788425952@test.com`
+- Password: `agency1234`
+- account_type: `agency`
+- Has 2 profiles: Anna (provider_5af196bd0584, Paris) and Bella (provider_4110b5e99276, Berlin)
+- Agency users land on the AgencyDashboard roster (table of profiles). Click Edit → `/dashboard/profile/:providerId` opens the full ProviderDashboard scoped to that profile. "Add profile" → `/dashboard/profile/new`.
+- Register a fresh agency via /register/provider → pick "Agency" button.
+

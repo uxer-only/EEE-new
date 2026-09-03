@@ -19,9 +19,13 @@ export const resetPassword = (data) => api.post('/auth/reset-password', data);
 export const getProviders = (params) => api.get('/providers', { params });
 export const getProviderById = (id) => api.get(`/providers/${id}`);
 export const createProviderProfile = (data) => api.post('/providers/profile', data);
-export const updateProviderProfile = (data) => api.put('/providers/profile', data);
-export const deleteProviderProfile = () => api.delete('/providers/profile');
-export const getProviderDashboard = () => api.get('/providers/dashboard/stats');
+export const updateProviderProfile = (data, providerId) =>
+  api.put('/providers/profile', data, { params: providerId ? { provider_id: providerId } : {} });
+export const deleteProviderProfile = (providerId) =>
+  api.delete('/providers/profile', { params: providerId ? { provider_id: providerId } : {} });
+export const getProviderDashboard = (providerId) =>
+  api.get('/providers/dashboard/stats', { params: providerId ? { provider_id: providerId } : {} });
+export const getAgencyProfiles = () => api.get('/agency/profiles');
 
 // Messages
 export const getConversations = () => api.get('/conversations');
@@ -31,8 +35,10 @@ export const createConversation = (providerId) =>
   api.post(`/conversations?provider_id=${providerId}`);
 
 // Verification
-export const submitVerification = (data) => api.post('/verification/submit', data);
-export const getVerificationStatus = () => api.get('/verification/status');
+export const submitVerification = (data, providerId) =>
+  api.post('/verification/submit', data, { params: providerId ? { provider_id: providerId } : {} });
+export const getVerificationStatus = (providerId) =>
+  api.get('/verification/status', { params: providerId ? { provider_id: providerId } : {} });
 
 // Admin
 export const getPendingVerifications = () => api.get('/admin/verifications');
@@ -54,17 +60,19 @@ export const trackPageView = (page, userId) =>
   api.post('/track', { page, user_id: userId });
 
 // Subscriptions / Payments
-export const getMySubscription = () => api.get('/subscriptions/me');
+export const getMySubscription = (providerId) =>
+  api.get('/subscriptions/me', { params: providerId ? { provider_id: providerId } : {} });
 export const createSubscriptionCheckout = (data) =>
   api.post('/subscriptions/checkout', data);
 export const getSubscriptionStatus = (sessionId) =>
   api.get(`/subscriptions/status/${sessionId}`);
-export const updateAutoRenew = (autoRenew) =>
-  api.put('/subscriptions/auto-renew', { auto_renew: autoRenew });
+export const updateAutoRenew = (autoRenew, providerId) =>
+  api.put('/subscriptions/auto-renew', { auto_renew: autoRenew }, { params: providerId ? { provider_id: providerId } : {} });
 
 // Enquiries
 export const createEnquiry = (data) => api.post('/enquiries', data);
-export const listMyEnquiries = () => api.get('/enquiries/mine');
+export const listMyEnquiries = (providerId) =>
+  api.get('/enquiries/mine', { params: providerId ? { provider_id: providerId } : {} });
 export const markEnquiryRead = (id, read = true) =>
   api.put(`/enquiries/${id}/read`, { read });
 export const deleteEnquiry = (id) => api.delete(`/enquiries/${id}`);
@@ -72,7 +80,8 @@ export const replyToEnquiry = (id, message) =>
   api.post(`/enquiries/${id}/reply`, { message });
 
 // Invoices
-export const listMyInvoices = () => api.get('/invoices/mine');
+export const listMyInvoices = (providerId) =>
+  api.get('/invoices/mine', { params: providerId ? { provider_id: providerId } : {} });
 export const invoicePdfUrl = (id) => `${api.defaults.baseURL}/invoices/${id}/pdf`;
 export const invoiceViewUrl = (id) => `${api.defaults.baseURL}/invoices/${id}/pdf?inline=1`;
 

@@ -1,0 +1,27 @@
+{
+  "summary": "Full e2e test of Agency Accounts feature (backend + frontend). 8/9 pytest backend tests pass (1 skipped due to indep dashboard endpoint shape). All 8 UI flows verified: agency roster shows Anna(Paris)+Bella(Berlin) with Edit/Delete/Add-profile, stat strip=2, scoped subscription banner links to /subscribe?provider_id=<id>, per-profile messages inbox (Anna=1 'Client X', Bella=0), Add-profile navigates to /dashboard/profile/new, Edit navigates to /dashboard/profile/<pid>, back-to-agency-btn returns to roster, delete removes only that row and agency stays logged in, fresh agency register lands on empty AgencyDashboard, independent provider still lands on single-profile ProviderDashboard with no agency table/back-btn/add-btn and cannot create second profile (400).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "AgencyDashboard table", "issues": ["React hydration warning: <span x-excluded style='display:contents'> wrapper inserted by external dev-tool instrumentation between <tbody> and <tr>. Warning only, does not affect functionality but may cause hydration mismatch in stricter React modes."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_agency.py", "/app/test_reports/pytest/agency_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ProviderDashboard.js is ~2735 lines. Consider splitting into modules (banner, messages, invoices, verification, edit forms) for maintainability.",
+    "AgencyDashboard.js is clean and well-scoped (~240 lines) with proper data-testid coverage.",
+    "Backend _resolve_owned_profile helper correctly gates ownership; provider_id query-param pattern is consistent across subscriptions/enquiries/invoices/verification.",
+    "POST /api/providers/profile correctly restricts multi-profile creation to account_type=='agency' (independent returns 400)."
+  ],
+  "updated_files": ["/app/backend/tests/test_agency.py"],
+  "success_rate": {"backend": "89% (8/9, 1 skip)", "frontend": "100%"},
+  "test_credentials": "agency_1788425952@test.com/agency1234 (Anna+Bella), provider1@lumiere.com/sophia123 (indep)",
+  "seed_data_creation": "Created a couple of throwaway agency accounts and 2 disposable profiles under one of them for the delete flow test (test_delete_1788426345@test.com). One profile was deleted, one remains.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend uses httpOnly session_token cookie (not Bearer). Use requests.Session() with credentials=include for API tests. All specified data-testids are present. AgencyDashboard renders when user.account_type==='agency'; independent path unchanged.",
+  "rca of the issue": "n/a — feature working end-to-end"
+}

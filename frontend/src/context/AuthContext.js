@@ -36,9 +36,9 @@ export const AuthProvider = ({ children }) => {
     return response.data;
   };
 
-  const register = async (email, password, name, role) => {
+  const register = async (email, password, name, role, accountType) => {
     const response = await axios.post(`${API}/auth/register`,
-      { email, password, name, role },
+      { email, password, name, role, account_type: accountType || 'independent' },
       { withCredentials: true }
     );
     setUser(response.data);

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { CheckCircle, Crown, Sparkle, ArrowRight } from 'phosphor-react';
@@ -23,6 +23,8 @@ const VIP_OPTIONS = [
 export default function Subscribe() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const providerId = searchParams.get('provider_id') || null;
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [sub, setSub] = useState(null);
@@ -42,7 +44,7 @@ export default function Subscribe() {
     }
     (async () => {
       try {
-        const { data } = await getMySubscription();
+        const { data } = await getMySubscription(providerId);
         setSub(data);
       } catch (e) {
         toast.error('Could not load your subscription');
@@ -64,7 +66,8 @@ export default function Subscribe() {
       const { data } = await createSubscriptionCheckout({
         featured_plan: featuredPlan,
         vip_plan: vipEnabled ? vipPlan : null,
-        origin_url: window.location.origin
+        origin_url: window.location.origin,
+        provider_id: providerId
       });
       if (data?.url) {
         window.location.href = data.url;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout, updateAutoRenew, listMyEnquiries, markEnquiryRead, deleteEnquiry, replyToEnquiry, listMyInvoices, invoicePdfUrl, invoiceViewUrl } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
@@ -48,6 +48,12 @@ const currencySymbol = (code) => CURRENCY_OPTIONS.find((c) => c.code === code)?.
 
 export default function ProviderDashboard() {
   const { user, logout } = useAuth();
+  const { providerId: routeProviderId } = useParams();
+  const navigate = useNavigate();
+  const isNewAgencyProfile = routeProviderId === 'new';
+  const isAgencyScoped = !!routeProviderId;               // managing a specific agency profile
+  const activeProviderId = isNewAgencyProfile ? null : (routeProviderId || null);
+  const subscribeHref = `/subscribe${activeProviderId ? `?provider_id=${activeProviderId}` : ''}`;
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
@@ -163,7 +169,8 @@ export default function ProviderDashboard() {
         featured_plan: planFeatured,
         vip_plan: planVipOn ? planVip : null,
         auto_renew: autoRenew,
-        origin_url: window.location.origin
+        origin_url: window.location.origin,
+        provider_id: activeProviderId
       });
       if (data?.url) {
         window.location.href = data.url;
@@ -197,13 +204,21 @@ export default function ProviderDashboard() {
   const serviceOptions = profileData.companionshipType === 'erotic-massage' ? massageServices : escortServices;
 
   useEffect(() => {
+    if (isNewAgencyProfile) {
+      // Fresh agency profile — start in create mode with escort-style display name
+      setProfileData((pd) => ({ ...pd, account_type: 'independent' }));
+      setMode('create');
+      setLoading(false);
+      return;
+    }
     fetchDashboard();
     fetchSubscription();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeProviderId]);
 
   const fetchSubscription = async () => {
     try {
-      const { data } = await getMySubscription();
+      const { data } = await getMySubscription(activeProviderId);
       setSubscription(data);
     } catch (_subErr) {
       // Subscription endpoint may 404 for brand-new providers — banner simply won't render.
@@ -212,7 +227,7 @@ export default function ProviderDashboard() {
 
   const fetchDashboard = async () => {
     try {
-      const response = await getProviderDashboard();
+      const response = await getProviderDashboard(activeProviderId);
       setDashboard(response.data);
       const p = response.data?.profile;
       if (p) {
@@ -332,9 +347,13 @@ export default function ProviderDashboard() {
     if (!confirmed) return;
     setRemoving(true);
     try {
-      await deleteProviderProfile();
+      await deleteProviderProfile(activeProviderId);
       toast.success('Profile removed');
-      logout();
+      if (isAgencyScoped) {
+        navigate('/dashboard');
+      } else {
+        logout();
+      }
     } catch (error) {
       toast.error(error?.response?.data?.detail || 'Failed to remove profile');
       setRemoving(false);
@@ -370,7 +389,7 @@ export default function ProviderDashboard() {
         photos: newPhotos,
         characteristics: profileData.characteristics
       };
-      await updateProviderProfile(payload);
+      await updateProviderProfile(payload, activeProviderId);
       setUploadedFiles([]);
       toast.success('Profile updated');
       await fetchDashboard();
@@ -410,17 +429,25 @@ export default function ProviderDashboard() {
         photos: newPhotos,
         characteristics: profileData.characteristics
       };
-      if (dashboard?.profile) {
-        await updateProviderProfile(payload);
+      if (dashboard?.profile && !isNewAgencyProfile) {
+        await updateProviderProfile(payload, activeProviderId);
         toast.success('Profile updated successfully!');
+        setUploadedFiles([]);
+        fetchDashboard();
       } else {
-        await createProviderProfile(payload);
+        const { data: created } = await createProviderProfile(payload);
         toast.success('Profile created! Now let\'s verify your identity.');
-        // Auto-open verification modal on first create
-        setTimeout(() => setShowVerificationModal(true), 800);
+        setUploadedFiles([]);
+        if (isAgencyScoped && created?.provider_id) {
+          // Move into the scoped route for this brand-new agency profile
+          navigate(`/dashboard/profile/${created.provider_id}`);
+          setTimeout(() => setShowVerificationModal(true), 800);
+        } else {
+          // Auto-open verification modal on first create
+          setTimeout(() => setShowVerificationModal(true), 800);
+          fetchDashboard();
+        }
       }
-      setUploadedFiles([]);
-      fetchDashboard();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to save profile');
     }
@@ -513,6 +540,15 @@ export default function ProviderDashboard() {
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12" data-testid="manage-header">
               <div>
                 <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-3">Manage Profile</p>
+                {isAgencyScoped && (
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="flex items-center gap-1 text-sm text-[#832161] hover:text-[#DA4167] transition-colors mb-3"
+                    data-testid="back-to-agency-btn"
+                  >
+                    <CaretLeft size={16} /> Back to all profiles
+                  </button>
+                )}
                 <h2 className="text-4xl md:text-5xl text-[#000000] mb-3">Welcome, {p.display_name}</h2>
                 <div className="flex items-center gap-4">
                   {p.verified ? (
@@ -547,7 +583,7 @@ export default function ProviderDashboard() {
                         </p>
                       </div>
                     </div>
-                    <Link to="/subscribe" className="btn-primary whitespace-nowrap" data-testid="activate-cta">
+                    <Link to={subscribeHref} className="btn-primary whitespace-nowrap" data-testid="activate-cta">
                       Choose a plan
                     </Link>
                   </div>
@@ -579,7 +615,7 @@ export default function ProviderDashboard() {
                             onClick={async () => {
                               const next = !(subscription.auto_renew !== false);
                               try {
-                                await updateAutoRenew(next);
+                                await updateAutoRenew(next, activeProviderId);
                                 fetchDashboard();
                                 toast.success(next ? 'Auto-renew enabled' : 'Auto-renew disabled');
                               } catch (err) {
@@ -605,7 +641,7 @@ export default function ProviderDashboard() {
                     </div>
                     <div className="flex gap-3">
                       {!subscription.vip_active && (
-                        <Link to="/subscribe" className="btn-secondary whitespace-nowrap" data-testid="upgrade-vip-cta">
+                        <Link to={subscribeHref} className="btn-secondary whitespace-nowrap" data-testid="upgrade-vip-cta">
                           Upgrade to VIP
                         </Link>
                       )}
@@ -616,8 +652,8 @@ export default function ProviderDashboard() {
 
             {/* Messages + Invoices boxes */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8" data-testid="messages-invoices-grid">
-              <MessagesBox />
-              <InvoicesBox />
+              <MessagesBox providerId={activeProviderId} />
+              <InvoicesBox providerId={activeProviderId} />
             </div>
 
             {/* Verification banner / status */}
@@ -983,6 +1019,7 @@ export default function ProviderDashboard() {
           open={showVerificationModal}
           onClose={() => setShowVerificationModal(false)}
           onSubmitted={fetchDashboard}
+          providerId={activeProviderId}
         />
       </div>
     );
@@ -1002,6 +1039,15 @@ export default function ProviderDashboard() {
             >
               <CaretLeft size={18} />
               <span className="uppercase tracking-wider text-xs md:text-sm">Back to Overview</span>
+            </button>
+          ) : isAgencyScoped ? (
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-2 text-[#000000] hover:text-[#DA4167] transition-colors"
+              data-testid="back-to-agency-btn"
+            >
+              <CaretLeft size={18} />
+              <span className="uppercase tracking-wider text-xs md:text-sm">Back to all profiles</span>
             </button>
           ) : null
         }
@@ -2470,6 +2516,7 @@ export default function ProviderDashboard() {
         open={showVerificationModal}
         onClose={() => setShowVerificationModal(false)}
         onSubmitted={fetchDashboard}
+        providerId={activeProviderId}
       />
     </div>
   );
@@ -2478,7 +2525,7 @@ export default function ProviderDashboard() {
 /* ------------------------------------------------------------------ *
  * Received messages box
  * ------------------------------------------------------------------ */
-function MessagesBox() {
+function MessagesBox({ providerId }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [unread, setUnread] = useState(0);
@@ -2489,13 +2536,13 @@ function MessagesBox() {
 
   const load = async () => {
     try {
-      const res = await listMyEnquiries();
+      const res = await listMyEnquiries(providerId);
       setItems(res.data.enquiries || []);
       setUnread(res.data.unread || 0);
     } catch (e) { /* silent */ } finally { setLoading(false); }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [providerId]);
 
   const toggleExpand = async (enq) => {
     const nextId = expandedId === enq.enquiry_id ? null : enq.enquiry_id;
@@ -2652,16 +2699,17 @@ function MessagesBox() {
 /* ------------------------------------------------------------------ *
  * Invoices box
  * ------------------------------------------------------------------ */
-function InvoicesBox() {
+function InvoicesBox({ providerId }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listMyInvoices()
+    listMyInvoices(providerId)
       .then((r) => setItems(r.data.invoices || []))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+    // eslint-disable-next-line
+  }, [providerId]);
 
   const formatMoney = (amt, currency) => {
     if (amt === null || amt === undefined) return '—';

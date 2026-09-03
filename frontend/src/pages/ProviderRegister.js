@@ -35,7 +35,7 @@ export default function ProviderRegister() {
     try {
       const derivedName = formData.email.split('@')[0];
       localStorage.setItem('pending_account_type', formData.accountType);
-      await register(formData.email, formData.password, derivedName, 'provider');
+      await register(formData.email, formData.password, derivedName, 'provider', formData.accountType);
       toast.success('Welcome to Elite Escorts Europe! Please complete your profile');
       navigate('/dashboard');
     } catch (error) {

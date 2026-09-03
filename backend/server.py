@@ -44,6 +44,7 @@ class User(BaseModel):
     name: str
     picture: Optional[str] = None
     role: str  # provider, client, admin
+    account_type: Optional[str] = None  # independent | agency (providers only)
     created_at: datetime
 
 class UserRegister(BaseModel):
@@ -51,6 +52,7 @@ class UserRegister(BaseModel):
     password: str
     name: str
     role: str  # provider or client
+    account_type: Optional[str] = "independent"  # independent | agency
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -229,6 +231,19 @@ async def get_current_user(request: Request, session_token: Optional[str] = Cook
     
     return User(**user_doc)
 
+
+async def _resolve_owned_profile(current_user: "User", provider_id: Optional[str] = None, projection=None):
+    """Resolve a provider profile owned by current_user.
+    If provider_id is given (e.g. an agency selecting one of its profiles), the profile
+    must belong to the current user. Otherwise return the user's single profile
+    (backward compatible for independent providers)."""
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    query = {"user_id": current_user.user_id}
+    if provider_id:
+        query["provider_id"] = provider_id
+    return await db.provider_profiles.find_one(query, projection)
+
 # ===== AUTH ROUTES =====
 
 @api_router.post("/auth/register")
@@ -250,6 +265,7 @@ async def register(user_data: UserRegister):
         "name": user_data.name,
         "picture": None,
         "role": user_data.role,
+        "account_type": user_data.account_type if user_data.role == "provider" else None,
         "password_hash": hashed_password.decode(),
         "created_at": datetime.now(timezone.utc)
     }
@@ -273,7 +289,8 @@ async def register(user_data: UserRegister):
         "email": user_data.email,
         "name": user_data.name,
         "picture": None,
-        "role": user_data.role
+        "role": user_data.role,
+        "account_type": user_doc["account_type"]
     }
     
     response = JSONResponse(content=user_response)
@@ -318,7 +335,8 @@ async def login(credentials: UserLogin):
         "email": user_doc["email"],
         "name": user_doc["name"],
         "picture": user_doc.get("picture"),
-        "role": user_doc["role"]
+        "role": user_doc["role"],
+        "account_type": user_doc.get("account_type")
     }
     
     response = JSONResponse(content=user_response)
@@ -626,6 +644,7 @@ class CheckoutBody(BaseModel):
     vip_plan: Optional[str] = None  # e.g. "vip_4w" — optional add-on
     auto_renew: bool = True      # provider's preference; stored for future Stripe Billing migration
     origin_url: str              # frontend window.location.origin
+    provider_id: Optional[str] = None  # agency: which profile to activate
 
 
 @api_router.post("/subscriptions/checkout")
@@ -639,7 +658,7 @@ async def create_subscription_checkout(
     if current_user.role != "provider":
         raise HTTPException(status_code=403, detail="Only providers can purchase plans")
 
-    profile = await db.provider_profiles.find_one({"user_id": current_user.user_id})
+    profile = await _resolve_owned_profile(current_user, body.provider_id)
     if not profile:
         raise HTTPException(status_code=400, detail="Create your profile before purchasing a plan")
 
@@ -788,12 +807,15 @@ async def subscription_status(
 
 
 @api_router.get("/subscriptions/me")
-async def my_subscription(current_user: User = Depends(get_current_user)):
+async def my_subscription(
+    provider_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user),
+):
     """Returns the provider's current plan state + days remaining."""
     if current_user.role != "provider":
         raise HTTPException(status_code=403, detail="Provider access only")
-    profile = await db.provider_profiles.find_one(
-        {"user_id": current_user.user_id},
+    profile = await _resolve_owned_profile(
+        current_user, provider_id,
         {"_id": 0, "featured_until": 1, "vip_until": 1, "provider_id": 1},
     )
     if not profile:
@@ -836,14 +858,14 @@ class AutoRenewUpdate(BaseModel):
 @api_router.put("/subscriptions/auto-renew")
 async def update_auto_renew(
     body: AutoRenewUpdate,
+    provider_id: Optional[str] = None,
     current_user: User = Depends(get_current_user),
 ):
     """Toggle auto_renew on the provider's latest subscription."""
     if current_user.role != "provider":
         raise HTTPException(status_code=403, detail="Provider access only")
-    profile = await db.provider_profiles.find_one(
-        {"user_id": current_user.user_id},
-        {"_id": 0, "provider_id": 1},
+    profile = await _resolve_owned_profile(
+        current_user, provider_id, {"_id": 0, "provider_id": 1},
     )
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -953,11 +975,21 @@ async def create_enquiry(body: EnquiryCreate):
 
 
 @api_router.get("/enquiries/mine")
-async def list_my_enquiries(current_user: User = Depends(get_current_user)):
+async def list_my_enquiries(
+    provider_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user),
+):
     if current_user.role != "provider":
         raise HTTPException(status_code=403, detail="Provider access only")
+    query = {"user_id_provider": current_user.user_id}
+    if provider_id:
+        # separate inbox per profile — validate ownership
+        owned = await _resolve_owned_profile(current_user, provider_id, {"_id": 0, "provider_id": 1})
+        if not owned:
+            raise HTTPException(status_code=404, detail="Profile not found")
+        query["provider_id"] = provider_id
     cursor = db.enquiries.find(
-        {"user_id_provider": current_user.user_id},
+        query,
         {"_id": 0},
     ).sort("created_at", -1).limit(200)
     items = []
@@ -1078,10 +1110,13 @@ async def reply_to_enquiry(
 # --------------------------------------------------------------------- Invoices
 
 @api_router.get("/invoices/mine")
-async def list_my_invoices(current_user: User = Depends(get_current_user)):
+async def list_my_invoices(
+    provider_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
     if current_user.role != "provider":
         raise HTTPException(status_code=403, detail="Provider access only")
-    profile = await db.provider_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0, "provider_id": 1})
+    profile = await _resolve_owned_profile(current_user, provider_id, {"_id": 0, "provider_id": 1})
     if not profile:
         return {"invoices": []}
     cursor = db.payment_transactions.find(
@@ -1373,9 +1408,9 @@ async def create_provider_profile(
     if current_user.role != "provider":
         raise HTTPException(status_code=403, detail="Only providers can create profiles")
     
-    # Check if profile exists
+    # Independent providers may have only one profile. Agencies may create many.
     existing = await db.provider_profiles.find_one({"user_id": current_user.user_id})
-    if existing:
+    if existing and current_user.account_type != "agency":
         raise HTTPException(status_code=400, detail="Profile already exists")
     
     provider_id = f"provider_{uuid.uuid4().hex[:12]}"
@@ -1398,13 +1433,14 @@ async def create_provider_profile(
 @api_router.put("/providers/profile")
 async def update_provider_profile(
     updates: ProviderProfileUpdate,
+    provider_id: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
     """Update provider profile"""
     if current_user.role != "provider":
         raise HTTPException(status_code=403, detail="Only providers can update profiles")
     
-    profile = await db.provider_profiles.find_one({"user_id": current_user.user_id})
+    profile = await _resolve_owned_profile(current_user, provider_id)
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
     
@@ -1414,7 +1450,7 @@ async def update_provider_profile(
     
     if update_data:
         await db.provider_profiles.update_one(
-            {"user_id": current_user.user_id},
+            {"provider_id": profile["provider_id"]},
             {"$set": update_data}
         )
     
@@ -1422,35 +1458,72 @@ async def update_provider_profile(
 
 
 @api_router.delete("/providers/profile")
-async def delete_provider_profile(current_user: User = Depends(get_current_user)):
+async def delete_provider_profile(
+    provider_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
     """Permanently delete the authenticated provider's profile and related data"""
     if current_user.role != "provider":
         raise HTTPException(status_code=403, detail="Only providers can delete profiles")
 
-    profile = await db.provider_profiles.find_one({"user_id": current_user.user_id})
+    profile = await _resolve_owned_profile(current_user, provider_id)
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    provider_id = profile.get("provider_id")
+    pid = profile.get("provider_id")
     # Remove related records
-    await db.provider_profiles.delete_one({"user_id": current_user.user_id})
-    if provider_id:
-        await db.subscriptions.delete_many({"provider_id": provider_id})
-        await db.payment_transactions.delete_many({"provider_id": provider_id})
-        await db.verifications.delete_many({"provider_id": provider_id})
-        await db.conversations.delete_many({"provider_id": provider_id})
+    await db.provider_profiles.delete_one({"provider_id": pid})
+    if pid:
+        await db.subscriptions.delete_many({"provider_id": pid})
+        await db.payment_transactions.delete_many({"provider_id": pid})
+        await db.verifications.delete_many({"provider_id": pid})
+        await db.verification_documents.delete_many({"provider_id": pid})
+        await db.enquiries.delete_many({"provider_id": pid})
+        await db.conversations.delete_many({"provider_id": pid})
 
     return {"message": "Profile deleted successfully"}
 
+
+@api_router.get("/agency/profiles")
+async def list_agency_profiles(current_user: User = Depends(get_current_user)):
+    """List every provider profile owned by the current user (for agency roster)."""
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    now = datetime.utcnow()
+    cursor = db.provider_profiles.find(
+        {"user_id": current_user.user_id}, {"_id": 0}
+    ).sort("created_at", 1)
+    profiles = []
+    async for p in cursor:
+        featured_until = p.get("featured_until")
+        # count unread enquiries for this profile
+        unread = await db.enquiries.count_documents(
+            {"provider_id": p["provider_id"], "read": False}
+        )
+        profiles.append({
+            "provider_id": p["provider_id"],
+            "display_name": p.get("display_name") or "Untitled profile",
+            "bio": p.get("bio") or p.get("essence") or "",
+            "location": p.get("location") or {},
+            "verification_status": p.get("verification_status", "pending"),
+            "verified": p.get("verified", False),
+            "featured_active": bool(featured_until and featured_until > now),
+            "unread_enquiries": unread,
+        })
+    return {"profiles": profiles, "account_type": current_user.account_type}
+
+
 @api_router.get("/providers/dashboard/stats")
-async def get_provider_dashboard(current_user: User = Depends(get_current_user)):
+async def get_provider_dashboard(
+    provider_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
     """Get provider dashboard stats"""
     if current_user.role != "provider":
         raise HTTPException(status_code=403, detail="Provider access only")
     
-    profile = await db.provider_profiles.find_one(
-        {"user_id": current_user.user_id},
-        {"_id": 0, "created_at": 0}
+    profile = await _resolve_owned_profile(
+        current_user, provider_id, {"_id": 0, "created_at": 0}
     )
     
     if not profile:
@@ -1632,13 +1705,14 @@ async def create_conversation(
 @api_router.post("/verification/submit")
 async def submit_verification(
     doc_data: VerificationSubmit,
+    provider_id: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
     """Submit verification documents (ID front + selfie with ID + optional secondary)."""
     if current_user.role != "provider":
         raise HTTPException(status_code=403, detail="Only providers can submit verification")
     
-    profile = await db.provider_profiles.find_one({"user_id": current_user.user_id})
+    profile = await _resolve_owned_profile(current_user, provider_id)
     if not profile:
         raise HTTPException(status_code=404, detail="Provider profile not found")
     
@@ -1674,13 +1748,16 @@ async def submit_verification(
     return {"message": "Verification submitted", "document_count": len(docs)}
 
 @api_router.get("/verification/status")
-async def get_verification_status(current_user: User = Depends(get_current_user)):
+async def get_verification_status(
+    provider_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
     """Get verification status"""
     if current_user.role != "provider":
         raise HTTPException(status_code=403, detail="Provider access only")
     
-    profile = await db.provider_profiles.find_one(
-        {"user_id": current_user.user_id},
+    profile = await _resolve_owned_profile(
+        current_user, provider_id,
         {"_id": 0, "verification_status": 1, "verified": 1, "provider_id": 1, "rejection_reason": 1}
     )
     

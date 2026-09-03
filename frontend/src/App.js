@@ -14,6 +14,7 @@ import Browse from '@/pages/Browse';
 import ProviderDetail from '@/pages/ProviderDetail';
 import ClientDashboard from '@/pages/ClientDashboard';
 import ProviderDashboard from '@/pages/ProviderDashboard';
+import AgencyDashboard from '@/pages/AgencyDashboard';
 import Messages from '@/pages/Messages';
 import AdminPanel from '@/pages/AdminPanel';
 import AdminDashboard from '@/pages/AdminDashboard';
@@ -50,6 +51,15 @@ function AppRouter() {
         element={
           <ProtectedRoute>
             <DashboardRouter />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard/profile/:providerId"
+        element={
+          <ProtectedRoute requiredRole="provider">
+            <ProviderDashboard />
           </ProtectedRoute>
         }
       />
@@ -117,6 +127,9 @@ function DashboardRouter() {
   if (!user) return null;
   
   if (user.role === 'provider') {
+    if (user.account_type === 'agency') {
+      return <AgencyDashboard />;
+    }
     return <ProviderDashboard />;
   }
   
