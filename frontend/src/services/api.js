@@ -26,6 +26,9 @@ export const deleteProviderProfile = (providerId) =>
 export const getProviderDashboard = (providerId) =>
   api.get('/providers/dashboard/stats', { params: providerId ? { provider_id: providerId } : {} });
 export const getAgencyProfiles = () => api.get('/agency/profiles');
+export const getAgencyProfile = () => api.get('/agency/profile');
+export const saveAgencyProfile = (data) => api.post('/agency/profile', data);
+export const setProfilePlan = (providerId, data) => api.put(`/agency/profiles/${providerId}/plan`, data);
 
 // Messages
 export const getConversations = () => api.get('/conversations');
@@ -66,6 +69,8 @@ export const createSubscriptionCheckout = (data) =>
   api.post('/subscriptions/checkout', data);
 export const getSubscriptionStatus = (sessionId) =>
   api.get(`/subscriptions/status/${sessionId}`);
+export const createBulkCheckout = (data) =>
+  api.post('/subscriptions/checkout-bulk', data);
 export const updateAutoRenew = (autoRenew, providerId) =>
   api.put('/subscriptions/auto-renew', { auto_renew: autoRenew }, { params: providerId ? { provider_id: providerId } : {} });
 

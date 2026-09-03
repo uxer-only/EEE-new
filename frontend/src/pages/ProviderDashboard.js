@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout, updateAutoRenew, listMyEnquiries, markEnquiryRead, deleteEnquiry, replyToEnquiry, listMyInvoices, invoicePdfUrl, invoiceViewUrl } from '@/services/api';
+import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout, updateAutoRenew, listMyEnquiries, markEnquiryRead, deleteEnquiry, replyToEnquiry, listMyInvoices, invoicePdfUrl, invoiceViewUrl, getAgencyProfile } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { 
   ChatCircle, CheckCircle, User, MapPin, Camera, Clock, 
@@ -140,7 +140,7 @@ export default function ProviderDashboard() {
     { id: 2, title: "Photos & Video's", icon: Camera },
     { id: 3, title: 'Services', icon: FileText },
     { id: 4, title: 'Rates & Availability', icon: CurrencyDollar },
-    { id: 5, title: 'Activate', icon: Crown }
+    ...(isAgencyScoped ? [] : [{ id: 5, title: 'Activate', icon: Crown }])
   ];
 
   // Plan options for Step 5 (mirrors Subscribe.js / backend PLANS allowlist)
@@ -205,8 +205,38 @@ export default function ProviderDashboard() {
 
   useEffect(() => {
     if (isNewAgencyProfile) {
-      // Fresh agency profile — start in create mode with escort-style display name
-      setProfileData((pd) => ({ ...pd, account_type: 'independent' }));
+      // Fresh agency profile — start in create mode with escort-style display name,
+      // prefilled with the agency's default services / rates / availability / contact.
+      (async () => {
+        try {
+          const { data: ag } = await getAgencyProfile();
+          if (ag && ag.onboarded) {
+            setProfileData((pd) => ({
+              ...pd,
+              account_type: 'independent',
+              location: {
+                city: ag.location?.city || pd.location.city,
+                country: ag.location?.country || pd.location.country
+              },
+              contact: { ...pd.contact, ...(ag.contact || {}) },
+              services: ag.apply_services_to_all && ag.default_services ? ag.default_services : pd.services,
+              rates: (ag.default_rates && (ag.default_rates.incall || ag.default_rates.outcall)) ? ag.default_rates : pd.rates,
+              availability_type: ag.default_availability?.availability_type || pd.availability_type,
+              schedule: ag.default_availability?.schedule || pd.schedule,
+              available247: ag.default_availability?.available247 ?? pd.available247,
+              booking_advance: ag.default_availability?.booking_advance ?? pd.booking_advance,
+              characteristics: {
+                ...pd.characteristics,
+                languages: Array.isArray(ag.languages) ? ag.languages : pd.characteristics.languages
+              }
+            }));
+          } else {
+            setProfileData((pd) => ({ ...pd, account_type: 'independent' }));
+          }
+        } catch (_e) {
+          setProfileData((pd) => ({ ...pd, account_type: 'independent' }));
+        }
+      })();
       setMode('create');
       setLoading(false);
       return;
@@ -436,14 +466,13 @@ export default function ProviderDashboard() {
         fetchDashboard();
       } else {
         const { data: created } = await createProviderProfile(payload);
-        toast.success('Profile created! Now let\'s verify your identity.');
         setUploadedFiles([]);
         if (isAgencyScoped && created?.provider_id) {
-          // Move into the scoped route for this brand-new agency profile
-          navigate(`/dashboard/profile/${created.provider_id}`);
-          setTimeout(() => setShowVerificationModal(true), 800);
+          // Agency: return to the roster so they can choose a plan and add more profiles
+          toast.success('Profile added! Choose a plan for it on your dashboard.');
+          navigate('/dashboard');
         } else {
-          // Auto-open verification modal on first create
+          toast.success('Profile created! Now let\'s verify your identity.');
           setTimeout(() => setShowVerificationModal(true), 800);
           fetchDashboard();
         }
@@ -2481,18 +2510,30 @@ export default function ProviderDashboard() {
                       <CaretRight size={20} />
                     </button>
                   ) : currentStep === 4 ? (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        await handleCreateProfile();
-                        setCurrentStep(5);
-                      }}
-                      className="btn-primary flex items-center gap-2"
-                      data-testid="save-and-continue-button"
-                    >
-                      Save & continue
-                      <CaretRight size={20} />
-                    </button>
+                    isAgencyScoped ? (
+                      <button
+                        type="button"
+                        onClick={handleCreateProfile}
+                        className="btn-primary flex items-center gap-2"
+                        data-testid="save-agency-profile-button"
+                      >
+                        Save profile
+                        <CheckCircle size={18} weight="bold" />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await handleCreateProfile();
+                          setCurrentStep(5);
+                        }}
+                        className="btn-primary flex items-center gap-2"
+                        data-testid="save-and-continue-button"
+                      >
+                        Save & continue
+                        <CaretRight size={20} />
+                      </button>
+                    )
                   ) : (
                     <button
                       type="button"

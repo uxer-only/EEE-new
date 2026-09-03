@@ -624,6 +624,9 @@ PLANS = {
     "featured_4w": {"label": "Featured · 4 weeks", "amount": 55.00, "duration_days": 28, "kind": "featured"},
     "vip_2w":      {"label": "VIP Boost · 2 weeks", "amount": 15.00, "duration_days": 14, "kind": "vip"},
     "vip_4w":      {"label": "VIP Boost · 4 weeks", "amount": 25.00, "duration_days": 28, "kind": "vip"},
+    # Agency per-profile pricing (€30 / 2wk, €50 / 4wk)
+    "agency_featured_2w": {"label": "Featured · 2 weeks", "amount": 30.00, "duration_days": 14, "kind": "featured"},
+    "agency_featured_4w": {"label": "Featured · 4 weeks", "amount": 50.00, "duration_days": 28, "kind": "featured"},
 }
 CURRENCY = "eur"
 
@@ -721,8 +724,31 @@ async def create_subscription_checkout(
     }
 
 
+async def _apply_plan_to_profile(provider_id: str, featured_plan: Optional[str], vip_plan: Optional[str], now: datetime):
+    """Apply Featured (+ optional VIP) duration to a single provider profile (additive top-up)."""
+    profile = await db.provider_profiles.find_one({"provider_id": provider_id})
+    if not profile:
+        return
+    set_fields: Dict[str, Any] = {}
+    feat = PLANS.get(featured_plan or "")
+    if feat:
+        current = profile.get("featured_until")
+        base = current if (current and current > now) else now
+        set_fields["featured_until"] = base + timedelta(days=feat["duration_days"])
+    if vip_plan:
+        vp = PLANS.get(vip_plan)
+        if vp:
+            current = profile.get("vip_until")
+            base = current if (current and current > now) else now
+            set_fields["vip_until"] = base + timedelta(days=vp["duration_days"])
+    # Clear the pending plan now that it is paid
+    set_fields["pending_plan"] = None
+    await db.provider_profiles.update_one({"provider_id": provider_id}, {"$set": set_fields})
+
+
 async def _activate_subscription_for_session(session_id: str) -> Optional[dict]:
-    """Idempotent: read the pending tx, apply Featured + VIP duration to provider profile.
+    """Idempotent: read the pending tx, apply Featured + VIP duration to the target profile(s).
+    Handles both single-profile and agency bulk (provider_plans list) transactions.
     Returns the updated tx or None if already processed / not found."""
     tx = await db.payment_transactions.find_one({"session_id": session_id})
     if not tx:
@@ -732,31 +758,18 @@ async def _activate_subscription_for_session(session_id: str) -> Optional[dict]:
     if tx.get("payment_status") != "paid":
         return tx  # not paid yet
 
-    profile = await db.provider_profiles.find_one({"provider_id": tx["provider_id"]})
-    if not profile:
-        return tx
-
     now = datetime.utcnow()  # naive UTC for comparisons against Mongo dates
-    set_fields: Dict[str, Any] = {}
 
-    feat = PLANS.get(tx.get("featured_plan") or "")
-    if feat:
-        # Extend from existing future expiry if any, else from now
-        current = profile.get("featured_until")
-        base = current if (current and current > now) else now
-        set_fields["featured_until"] = base + timedelta(days=feat["duration_days"])
-
-    vip_key = tx.get("vip_plan")
-    if vip_key:
-        vip_plan = PLANS.get(vip_key)
-        if vip_plan:
-            current = profile.get("vip_until")
-            base = current if (current and current > now) else now
-            set_fields["vip_until"] = base + timedelta(days=vip_plan["duration_days"])
-
-    if set_fields:
-        await db.provider_profiles.update_one(
-            {"provider_id": tx["provider_id"]}, {"$set": set_fields}
+    provider_plans = tx.get("provider_plans")
+    if provider_plans:
+        # Agency bulk: activate every profile in the batch
+        for pp in provider_plans:
+            await _apply_plan_to_profile(
+                pp.get("provider_id"), pp.get("featured_plan"), pp.get("vip_plan"), now
+            )
+    else:
+        await _apply_plan_to_profile(
+            tx.get("provider_id"), tx.get("featured_plan"), tx.get("vip_plan"), now
         )
 
     await db.payment_transactions.update_one(
@@ -1508,9 +1521,185 @@ async def list_agency_profiles(current_user: User = Depends(get_current_user)):
             "verification_status": p.get("verification_status", "pending"),
             "verified": p.get("verified", False),
             "featured_active": bool(featured_until and featured_until > now),
+            "pending_plan": p.get("pending_plan"),
             "unread_enquiries": unread,
         })
     return {"profiles": profiles, "account_type": current_user.account_type}
+
+
+class AgencyProfileBody(BaseModel):
+    agency_name: str
+    location: Dict[str, Any] = {}
+    description: Optional[str] = None
+    languages: List[str] = []
+    contact: Optional[Dict[str, Any]] = None
+    default_services: Any = {}
+    apply_services_to_all: bool = False
+    default_rates: Dict[str, Any] = {}
+    default_availability: Optional[Dict[str, Any]] = None
+
+
+@api_router.get("/agency/profile")
+async def get_agency_profile(current_user: User = Depends(get_current_user)):
+    """Return the agency master profile (defaults) or {onboarded: False} if not set up yet."""
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    doc = await db.agency_profiles.find_one({"user_id": current_user.user_id}, {"_id": 0})
+    if not doc:
+        return {"onboarded": False}
+    doc["onboarded"] = True
+    return doc
+
+
+@api_router.post("/agency/profile")
+async def save_agency_profile(
+    body: AgencyProfileBody,
+    current_user: User = Depends(get_current_user),
+):
+    """Create/update the agency master profile. When apply_services_to_all is on,
+    the default services are copied into every existing agency profile."""
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    data = body.model_dump()
+    data["default_rates"] = _normalize_rates(data.get("default_rates"))
+    doc = {
+        "user_id": current_user.user_id,
+        **data,
+        "onboarded": True,
+        "updated_at": datetime.now(timezone.utc),
+    }
+    await db.agency_profiles.update_one(
+        {"user_id": current_user.user_id},
+        {"$set": doc, "$setOnInsert": {"created_at": datetime.now(timezone.utc)}},
+        upsert=True,
+    )
+    # Propagate services to all existing profiles when requested
+    if body.apply_services_to_all and body.default_services:
+        await db.provider_profiles.update_many(
+            {"user_id": current_user.user_id},
+            {"$set": {"services": body.default_services}},
+        )
+    return {"ok": True, "onboarded": True}
+
+
+class ProfilePlanBody(BaseModel):
+    featured_plan: Optional[str] = None  # "agency_featured_2w" | "agency_featured_4w" | None to clear
+    vip_plan: Optional[str] = None
+
+
+@api_router.put("/agency/profiles/{provider_id}/plan")
+async def set_profile_plan(
+    provider_id: str,
+    body: ProfilePlanBody,
+    current_user: User = Depends(get_current_user),
+):
+    """Queue (or clear) the Featured (+ optional VIP) plan a profile will be paid for at checkout."""
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    profile = await _resolve_owned_profile(current_user, provider_id, {"_id": 0, "provider_id": 1})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    pending = None
+    if body.featured_plan:
+        feat = PLANS.get(body.featured_plan)
+        if not feat or feat["kind"] != "featured":
+            raise HTTPException(status_code=400, detail="Invalid featured plan")
+        vip_plan = None
+        if body.vip_plan:
+            vp = PLANS.get(body.vip_plan)
+            if not vp or vp["kind"] != "vip":
+                raise HTTPException(status_code=400, detail="Invalid VIP plan")
+            vip_plan = body.vip_plan
+        pending = {"featured_plan": body.featured_plan, "vip_plan": vip_plan}
+
+    await db.provider_profiles.update_one(
+        {"provider_id": provider_id},
+        {"$set": {"pending_plan": pending}},
+    )
+    return {"ok": True, "pending_plan": pending}
+
+
+class BulkCheckoutBody(BaseModel):
+    origin_url: str
+
+
+@api_router.post("/subscriptions/checkout-bulk")
+async def create_bulk_checkout(
+    body: BulkCheckoutBody,
+    http_request: Request,
+    current_user: User = Depends(get_current_user),
+):
+    """One Stripe checkout that activates every agency profile with a queued (pending) plan."""
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+
+    cursor = db.provider_profiles.find(
+        {"user_id": current_user.user_id, "pending_plan": {"$ne": None}},
+        {"_id": 0, "provider_id": 1, "pending_plan": 1, "display_name": 1},
+    )
+    provider_plans = []
+    total_amount = 0.0
+    async for p in cursor:
+        pp = p.get("pending_plan") or {}
+        feat = PLANS.get(pp.get("featured_plan") or "")
+        if not feat:
+            continue
+        amt = feat["amount"]
+        vip = PLANS.get(pp.get("vip_plan") or "") if pp.get("vip_plan") else None
+        if vip:
+            amt += vip["amount"]
+        total_amount += amt
+        provider_plans.append({
+            "provider_id": p["provider_id"],
+            "featured_plan": pp.get("featured_plan"),
+            "vip_plan": pp.get("vip_plan"),
+        })
+
+    if not provider_plans:
+        raise HTTPException(status_code=400, detail="Select a plan for at least one profile first")
+
+    total_amount = round(total_amount, 2)
+    metadata = {
+        "user_id": current_user.user_id,
+        "kind": "agency_bulk",
+        "profile_count": str(len(provider_plans)),
+    }
+    origin = body.origin_url.rstrip("/")
+    success_url = f"{origin}/payment-success?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url = f"{origin}/dashboard"
+
+    from emergentintegrations.payments.stripe.checkout import CheckoutSessionRequest
+    stripe = _stripe_checkout(http_request)
+    req = CheckoutSessionRequest(
+        amount=total_amount,
+        currency=CURRENCY,
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata=metadata,
+    )
+    session = await stripe.create_checkout_session(req)
+
+    await db.payment_transactions.insert_one({
+        "session_id": session.session_id,
+        "user_id": current_user.user_id,
+        "provider_plans": provider_plans,
+        "provider_ids": [pp["provider_id"] for pp in provider_plans],
+        "amount": total_amount,
+        "currency": CURRENCY,
+        "metadata": metadata,
+        "payment_status": "pending",
+        "status": "open",
+        "created_at": datetime.now(timezone.utc),
+    })
+
+    return {
+        "url": session.url,
+        "session_id": session.session_id,
+        "amount": total_amount,
+        "currency": CURRENCY,
+        "profile_count": len(provider_plans),
+    }
 
 
 @api_router.get("/providers/dashboard/stats")
