@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { List, X } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
 
 /**
  * Global site header with the standard three-item nav:
  *   - Logged out : Browse / Login / Advertise
- *   - Logged in  : Browse / Dashboard / Advertise
+ *   - Logged in  : Browse / Dashboard / Log out
  *
  * Props (all optional):
  *  - leftSlot: React node rendered instead of the default logo (e.g. admin badge)
@@ -15,13 +15,22 @@ import { useAuth } from '@/context/AuthContext';
  */
 export default function SiteHeader({ leftSlot = null, links = null }) {
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      navigate('/');
+    }
+  };
 
   const defaultLinks = user
     ? [
         { to: '/browse', label: 'Browse', testId: 'nav-browse' },
         { to: '/dashboard', label: 'Dashboard', testId: 'nav-dashboard' },
-        { to: '/register/provider', label: 'Advertise', variant: 'primary', testId: 'nav-advertise' },
+        { label: 'Log out', onClick: handleLogout, variant: 'primary', testId: 'nav-logout' },
       ]
     : [
         { to: '/browse', label: 'Browse', testId: 'nav-browse' },
