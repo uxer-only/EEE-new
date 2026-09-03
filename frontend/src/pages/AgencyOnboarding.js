@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { User, FileText, CurrencyDollar, CaretLeft, CaretRight, Plus, X, Check, Info } from 'phosphor-react';
+import { User, FileText, CurrencyDollar, CaretLeft, CaretRight, Plus, X, Check, CheckCircle, Info } from 'phosphor-react';
 import { saveAgencyProfile } from '@/services/api';
 import SiteHeader from '@/components/SiteHeader';
 import ServicesStep from '@/components/onboarding/ServicesStep';
@@ -116,22 +116,25 @@ export default function AgencyOnboarding({ initial, onDone }) {
             <p className="text-[#898989]">These details become the defaults for every companion profile you add.</p>
           </div>
 
-          {/* Progress */}
-          <div className="flex items-center justify-center gap-2 md:gap-4 mb-10" data-testid="agency-wizard-steps">
-            {STEPS.map((s, i) => {
+          {/* Progress Steps — same UI as the independent flow */}
+          <div className="flex items-center justify-between mb-10 px-4" data-testid="agency-wizard-steps">
+            {STEPS.map((s, index) => {
               const Icon = s.icon;
               const active = step === s.id;
               const done = step > s.id;
+              const textCls = active ? 'text-[#832161]' : done ? 'text-green-600' : 'text-[#000000]';
+              const borderCls = active ? 'border-[#832161] bg-white' : done ? 'border-green-600 bg-white' : 'border-[#dbdadd] bg-white';
               return (
-                <div key={s.id} className="flex items-center gap-2 md:gap-4">
-                  <div className={`flex items-center gap-2 px-3 py-2 rounded-full border transition-colors ${
-                    active ? 'border-[#DA4167] text-[#DA4167] bg-[#DA4167]/5'
-                    : done ? 'border-[#22C55E] text-[#15803D]' : 'border-[#dbdadd] text-[#898989]'
-                  }`}>
-                    {done ? <Check size={16} weight="bold" /> : <Icon size={16} />}
-                    <span className="text-xs uppercase tracking-wider hidden sm:inline">{s.title}</span>
+                <div key={s.id} className="flex items-center">
+                  <div className={`flex flex-col items-center gap-2 transition-all ${textCls}`} data-testid={`step-${s.id}`}>
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${borderCls}`}>
+                      {done ? <CheckCircle size={24} weight="fill" /> : <Icon size={24} />}
+                    </div>
+                    <span className="text-xs uppercase tracking-wider hidden md:block">{s.title}</span>
                   </div>
-                  {i < STEPS.length - 1 && <div className="w-6 md:w-12 h-px bg-[#dbdadd]" />}
+                  {index < STEPS.length - 1 && (
+                    <div className={`w-8 md:w-16 h-0.5 mx-2 ${done ? 'bg-green-600' : 'bg-[#dbdadd]'}`} />
+                  )}
                 </div>
               );
             })}
@@ -269,8 +272,8 @@ export default function AgencyOnboarding({ initial, onDone }) {
                   <div className="flex flex-col gap-4">
                     <div>
                       <label className="input-label">Mobile phone</label>
-                      <div className="flex items-stretch border border-[#dbdadd] focus-within:border-[#832161] transition-colors">
-                        {dial && <span className="px-3 py-3 bg-white text-[#832161] text-[13px] border-r border-[#dbdadd] select-none whitespace-nowrap" data-testid="agency-phone-dial-code">{dial}</span>}
+                      <div className="flex items-stretch border border-[#898989] focus-within:border-[#DA4167] transition-colors">
+                        {dial && <span className="px-3 py-3 bg-white text-[#832161] text-[13px] border-r border-[#898989] select-none whitespace-nowrap" data-testid="agency-phone-dial-code">{dial}</span>}
                         <input
                           type="tel"
                           value={localPhone}
