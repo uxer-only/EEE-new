@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import {
   Plus, PencilSimple, Trash, MapPin, CheckCircle, Crown, ChatCircle, Users, ArrowRight,
-  ShieldCheck, Gear, ArrowsClockwise, ArrowSquareOut, User, FileText, CurrencyDollar, Clock
+  ShieldCheck, Gear, ArrowsClockwise, User, FileText, CurrencyDollar, Clock
 } from 'phosphor-react';
 import {
   getAgencyProfiles, getAgencyProfile, deleteProviderProfile, setProfilePlan, createBulkCheckout, syncAgencyDefaults
@@ -192,17 +192,6 @@ export default function AgencyDashboard() {
 
           {/* Agency action bar */}
           <div className="flex flex-wrap items-center gap-3 mb-8" data-testid="agency-actions">
-            {agency.agency_id && (
-              <Link
-                to={`/agency/${agency.agency_id}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-[#832161]/40 text-[#832161] hover:bg-[#832161]/10 rounded-lg transition-colors"
-                data-testid="view-agency-page-btn"
-              >
-                <ArrowSquareOut size={16} /> View agency page
-              </Link>
-            )}
             <button
               onClick={() => openEdit(1)}
               className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#832161] rounded-lg transition-colors"

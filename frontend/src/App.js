@@ -15,7 +15,6 @@ import ProviderDetail from '@/pages/ProviderDetail';
 import ClientDashboard from '@/pages/ClientDashboard';
 import ProviderDashboard from '@/pages/ProviderDashboard';
 import AgencyDashboard from '@/pages/AgencyDashboard';
-import AgencyPublic from '@/pages/AgencyPublic';
 import Messages from '@/pages/Messages';
 import AdminPanel from '@/pages/AdminPanel';
 import AdminDashboard from '@/pages/AdminDashboard';
@@ -46,7 +45,8 @@ function AppRouter() {
       
       <Route path="/browse" element={<Browse />} />
       <Route path="/providers/:id" element={<ProviderDetail />} />
-      <Route path="/agency/:agencyId" element={<AgencyPublic />} />
+      {/* Agencies no longer have a public page — any /agency/* URL redirects to /browse */}
+      <Route path="/agency/*" element={<Navigate to="/browse" replace />} />
       
       <Route
         path="/dashboard"

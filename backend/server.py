@@ -1405,15 +1405,6 @@ async def get_provider_detail(provider_id: str):
     )
     profile["user"] = user
 
-    # Agency attribution — if the owner is an agency, expose its public page link
-    if user and user.get("account_type") == "agency":
-        ag = await db.agency_profiles.find_one(
-            {"user_id": profile["user_id"]},
-            {"_id": 0, "agency_id": 1, "agency_name": 1},
-        )
-        if ag and ag.get("agency_id"):
-            profile["agency"] = {"agency_id": ag["agency_id"], "name": ag.get("agency_name")}
-
     # Annotate active subscription flags for the frontend (Mongo dates are naive UTC)
     now = datetime.utcnow()
     profile["featured_active"] = bool(profile.get("featured_until") and profile["featured_until"] > now)
@@ -1630,40 +1621,6 @@ async def sync_agency_defaults(current_user: User = Depends(get_current_user)):
         {"$set": set_fields},
     )
     return {"ok": True, "updated": result.modified_count}
-
-
-@api_router.get("/agencies/{agency_id}/public")
-async def get_agency_public(agency_id: str):
-    """Public branded agency page: agency info + its live (Featured) companion profiles."""
-    ag = await db.agency_profiles.find_one({"agency_id": agency_id}, {"_id": 0})
-    if not ag:
-        raise HTTPException(status_code=404, detail="Agency not found")
-    now = datetime.utcnow()
-    cursor = db.provider_profiles.find(
-        {"user_id": ag["user_id"], "featured_until": {"$gt": now}},
-        {"_id": 0, "provider_id": 1, "display_name": 1, "age": 1, "location": 1,
-         "photos": 1, "verified": 1, "vip_until": 1, "essence": 1},
-    ).sort("vip_until", -1)
-    companions = []
-    async for p in cursor:
-        companions.append({
-            "provider_id": p["provider_id"],
-            "display_name": p.get("display_name"),
-            "age": p.get("age"),
-            "location": p.get("location") or {},
-            "photo": (p.get("photos") or [None])[0],
-            "verified": p.get("verified", False),
-            "vip_active": bool(p.get("vip_until") and p["vip_until"] > now),
-            "essence": p.get("essence"),
-        })
-    return {
-        "agency_id": ag["agency_id"],
-        "agency_name": ag.get("agency_name"),
-        "description": ag.get("description"),
-        "location": ag.get("location") or {},
-        "languages": ag.get("languages") or [],
-        "companions": companions,
-    }
 
 
 class ProfilePlanBody(BaseModel):
