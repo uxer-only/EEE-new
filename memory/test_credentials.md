@@ -41,10 +41,12 @@
 - Unpaid provider (no subscription): unpaidtest99@test.com / testpass123
 
 ## Agency account (multi-profile management)
-- Email: `agency_1788425952@test.com`
-- Password: `agency1234`
-- account_type: `agency`
-- Has 2 profiles: Anna (provider_5af196bd0584, Paris) and Bella (provider_4110b5e99276, Berlin)
+- **Primary agency demo**
+  - Email: `agency@test.com`
+  - Password: `agency123`
+  - account_type: `agency`
+  - 3 profiles seeded: Sofia (Paris), Valentina (Milan), Amara (Amsterdam)
+- Older agency (2 profiles): `agency_1788425952@test.com` / `agency1234` (Anna=Paris, Bella=Berlin)
 - Agency users land on the AgencyDashboard roster (table of profiles). Click Edit → `/dashboard/profile/:providerId` opens the full ProviderDashboard scoped to that profile. "Add profile" → `/dashboard/profile/new`.
 - Register a fresh agency via /register/provider → pick "Agency" button.
 
