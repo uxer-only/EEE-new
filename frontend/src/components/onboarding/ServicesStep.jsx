@@ -27,8 +27,8 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true }) => 
               onClick={() => update({ companionshipType: 'escort' })}
               className={`px-6 py-3 border text-sm transition-all ${
                 data.companionshipType === 'escort'
-                  ? 'border-[#832161] text-[#832161]'
-                  : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                  ? 'border-[#DA4167] bg-[#DA4167] text-white shadow-sm'
+                  : 'border-[#DA4167]/50 text-[#DA4167] bg-white hover:bg-[#DA4167]/10 hover:border-[#DA4167]'
               }`}
             >
               Escort
@@ -38,8 +38,8 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true }) => 
               onClick={() => update({ companionshipType: 'erotic-massage' })}
               className={`px-6 py-3 border text-sm transition-all ${
                 data.companionshipType === 'erotic-massage'
-                  ? 'border-[#832161] text-[#832161]'
-                  : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                  ? 'border-[#DA4167] bg-[#DA4167] text-white shadow-sm'
+                  : 'border-[#DA4167]/50 text-[#DA4167] bg-white hover:bg-[#DA4167]/10 hover:border-[#DA4167]'
               }`}
             >
               Erotic Massage
@@ -75,8 +75,8 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true }) => 
                     onClick={() => update({ services: { ...services, [service]: { type: serviceData.type === 'inclusive' ? null : 'inclusive', price: '' } } })}
                     className={`px-3 h-9 text-xs border transition-all ${
                       serviceData.type === 'inclusive'
-                        ? 'border-[#832161] text-[#832161]'
-                        : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                        ? 'border-[#DA4167] bg-[#DA4167] text-white shadow-sm'
+                        : 'border-[#DA4167]/50 text-[#DA4167] bg-white hover:bg-[#DA4167]/10 hover:border-[#DA4167]'
                     }`}
                   >
                     Inclusive
@@ -86,8 +86,8 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true }) => 
                     onClick={() => update({ services: { ...services, [service]: { type: serviceData.type === 'extra' ? null : 'extra', price: serviceData.price } } })}
                     className={`px-3 h-9 text-xs border transition-all ${
                       serviceData.type === 'extra'
-                        ? 'border-[#832161] text-[#832161]'
-                        : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                        ? 'border-[#DA4167] bg-[#DA4167] text-white shadow-sm'
+                        : 'border-[#DA4167]/50 text-[#DA4167] bg-white hover:bg-[#DA4167]/10 hover:border-[#DA4167]'
                     }`}
                   >
                     Extra
