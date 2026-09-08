@@ -42,9 +42,9 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
       telegramId: '', lineId: '', wechatId: ''
     },
     companionshipType: 'escort',
-    default_services: initial?.default_services || {},
+    services: initial?.default_services || {},
     apply_services_to_all: initial?.apply_services_to_all ?? true,
-    default_rates: initial?.default_rates || blankRates(),
+    rates: initial?.default_rates || blankRates(),
     schedule: initial?.default_availability?.schedule || defaultSchedule(),
     availability_type: initial?.default_availability?.availability_type || 'both',
     available247: initial?.default_availability?.available247 || false,
@@ -76,9 +76,9 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
         description: data.description,
         languages: data.languages,
         contact: data.contact,
-        default_services: data.default_services,
+        default_services: data.services,
         apply_services_to_all: data.apply_services_to_all,
-        default_rates: data.default_rates,
+        default_rates: data.rates,
         default_availability: {
           availability_type: data.availability_type,
           schedule: data.schedule,
@@ -217,7 +217,9 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                             type="button"
                             onClick={() => toggleLang(lang)}
                             className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
-                              selected ? 'border-[#832161] text-[#832161]' : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                              selected
+                                ? 'border-[#DA4167] bg-[#DA4167] text-white shadow-sm'
+                                : 'border-[#DA4167]/50 text-[#DA4167] bg-white hover:bg-[#DA4167]/10 hover:border-[#DA4167]'
                             }`}
                             data-testid={`agency-lang-${lang.toLowerCase()}`}
                           >
@@ -226,9 +228,9 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                         );
                       })}
                       {customLangs.map((lang) => (
-                        <div key={lang} className="relative py-2.5 pl-3 pr-8 border border-[#832161] text-[#832161] text-sm uppercase tracking-wider flex items-center">
+                        <div key={lang} className="relative py-2.5 pl-3 pr-8 border border-[#DA4167] bg-[#DA4167] text-white text-sm uppercase tracking-wider flex items-center shadow-sm">
                           <span className="truncate">{lang}</span>
-                          <button type="button" onClick={() => toggleLang(lang)} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#832161] hover:text-red-400 transition-colors" aria-label={`Remove ${lang}`}>
+                          <button type="button" onClick={() => toggleLang(lang)} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/80 hover:text-white transition-colors" aria-label={`Remove ${lang}`}>
                             <X size={14} />
                           </button>
                         </div>

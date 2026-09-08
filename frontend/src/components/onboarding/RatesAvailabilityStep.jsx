@@ -34,8 +34,8 @@ export const RatesAvailabilityStep = ({ data, update }) => {
                 onClick={() => update({ availability_type: opt.value })}
                 className={`py-3 px-4 border text-sm uppercase tracking-wider transition-all ${
                   data.availability_type === opt.value
-                    ? 'border-[#832161] text-[#832161]'
-                    : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                    ? 'border-[#DA4167] bg-[#DA4167] text-white shadow-sm'
+                    : 'border-[#DA4167]/50 text-[#DA4167] bg-white hover:bg-[#DA4167]/10 hover:border-[#DA4167]'
                 }`}
                 data-testid={`availability-type-${opt.value}`}
               >

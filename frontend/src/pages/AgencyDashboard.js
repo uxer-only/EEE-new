@@ -424,7 +424,7 @@ export default function AgencyDashboard() {
                             <button onClick={() => setVerifyFor(p.provider_id)} className="inline-flex items-center gap-1 text-xs uppercase tracking-wider px-3 py-2 border border-[#22C55E]/50 text-[#15803D] hover:bg-[#22C55E]/10 rounded transition-colors" data-testid={`verify-profile-${p.provider_id}`}>
                               <ShieldCheck size={14} /> {p.verified ? 'Verified' : (p.verification_status === 'submitted' ? 'Review' : 'Verify')}
                             </button>
-                            <button onClick={() => navigate(`/dashboard/profile/${p.provider_id}`)} className="inline-flex items-center gap-1 text-xs uppercase tracking-wider px-3 py-2 border border-[#832161]/40 text-[#832161] hover:bg-[#832161]/10 rounded transition-colors" data-testid={`edit-profile-${p.provider_id}`}>
+                            <button onClick={() => navigate(`/dashboard/profile/${p.provider_id}`)} className="inline-flex items-center gap-1 text-xs uppercase tracking-wider px-3 py-2 border border-[#832161] text-[#832161] hover:bg-[#832161]/10 rounded transition-colors" data-testid={`edit-profile-${p.provider_id}`}>
                               <PencilSimple size={14} /> Edit
                             </button>
                             <button onClick={() => handleDelete(p)} disabled={deletingId === p.provider_id} className="inline-flex items-center gap-1 text-xs uppercase tracking-wider px-3 py-2 border border-[#B91C1C]/40 text-[#B91C1C] hover:bg-[#B91C1C]/10 rounded transition-colors disabled:opacity-50" data-testid={`delete-profile-${p.provider_id}`}>

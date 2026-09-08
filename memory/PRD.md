@@ -15,6 +15,13 @@ Build a modern, premium, and discreet escort marketplace platform focused on tru
 - **Backend:** FastAPI, MongoDB (Motor async), Pydantic, JWT
 - **Architecture:** Monorepo with `frontend` and `backend` services
 
+
+## Changelog — 2026-09-08 (Agency flow polish)
+- Restored 36 seed test profiles on Browse by extending expired `featured_until` (+1yr) and refreshing VIP.
+- Fixed agency onboarding data-wiring bug: shared `ServicesStep`/`RatesAvailabilityStep` write to `data.services`/`data.rates`; AgencyOnboarding now initializes those from `default_services`/`default_rates` and saves them back. Services & rates from the wizard now persist and show in the Agency Dashboard cards.
+- Redesigned selector states (agency language buttons + shared availability "Available for" buttons) to distinct pink: selectable = white/pink outline, selected = filled `#DA4167`, hover = pink tint. Fixes "looks disabled" grey.
+- Agency companion-table Edit CTA changed from faded `border-[#832161]/40` to full wine `#832161` to match independent dashboard.
+
 ## Database Schema
 - **users:** `{username, email, password_hash, role, created_at}`
 - **provider_profiles:** `{user_id, provider_id, display_name, age, gender, location:{city,country}, bio, essence, companionshipType, services (dict {name:{type,price}}), rates:{1hour,2hours,3hours,overnight} (floats), contact:{phone,whatsapp,email}, schedule:{day:{available,start,end}}, photos:[str], verified, verification_status, available, created_at}`
