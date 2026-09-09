@@ -18,26 +18,26 @@ const ETHNICITIES = ['European', 'Asian', 'Latin', 'African', 'Middle Eastern', 
 const ORIENTATIONS = ['Straight', 'Bi', 'Lesbian', 'Gay', 'Pansexual'];
 
 const NATIONALITIES = [
-  // Europe
-  'Belgian', 'Dutch', 'Luxembourgish', 'French', 'German', 'British', 'Irish',
-  'Spanish', 'Portuguese', 'Italian', 'Swiss', 'Austrian',
-  'Danish', 'Swedish', 'Norwegian', 'Finnish', 'Icelandic',
-  'Polish', 'Czech', 'Slovak', 'Hungarian', 'Romanian', 'Bulgarian',
-  'Greek', 'Croatian', 'Serbian', 'Slovenian', 'Albanian',
-  'Russian', 'Ukrainian', 'Belarusian', 'Lithuanian', 'Latvian', 'Estonian',
-  // Americas
-  'American', 'Canadian', 'Mexican', 'Brazilian', 'Argentinian', 'Colombian',
-  'Venezuelan', 'Chilean', 'Peruvian', 'Cuban', 'Dominican',
-  // Asia
-  'Chinese', 'Japanese', 'Korean', 'Thai', 'Vietnamese', 'Filipino',
-  'Indonesian', 'Malaysian', 'Indian', 'Pakistani', 'Kazakh', 'Uzbek',
-  // Middle East
-  'Turkish', 'Israeli', 'Lebanese', 'Iranian', 'Syrian',
-  // Africa
-  'Egyptian', 'Moroccan', 'Tunisian', 'Algerian', 'South African', 'Nigerian',
-  'Ethiopian', 'Kenyan', 'Ghanaian',
-  // Oceania
-  'Australian', 'New Zealander',
+  'Albanian', 'Algerian', 'American', 'Argentinian', 'Australian', 'Austrian',
+  'Belarusian', 'Belgian', 'Brazilian', 'British', 'Bulgarian',
+  'Canadian', 'Chilean', 'Chinese', 'Colombian', 'Croatian', 'Cuban', 'Czech',
+  'Danish', 'Dominican', 'Dutch',
+  'Egyptian', 'Estonian', 'Ethiopian',
+  'Filipino', 'Finnish', 'French',
+  'German', 'Ghanaian', 'Greek',
+  'Hungarian',
+  'Icelandic', 'Indian', 'Indonesian', 'Iranian', 'Irish', 'Israeli', 'Italian',
+  'Japanese',
+  'Kazakh', 'Kenyan', 'Korean',
+  'Latvian', 'Lebanese', 'Lithuanian', 'Luxembourgish',
+  'Malaysian', 'Mexican', 'Moroccan',
+  'New Zealander', 'Nigerian', 'Norwegian',
+  'Pakistani', 'Peruvian', 'Polish', 'Portuguese',
+  'Romanian', 'Russian',
+  'Serbian', 'Slovak', 'Slovenian', 'South African', 'Spanish', 'Swedish', 'Swiss', 'Syrian',
+  'Thai', 'Tunisian', 'Turkish',
+  'Ukrainian', 'Uzbek',
+  'Venezuelan', 'Vietnamese',
   // Catch-all
   'Other'
 ];
