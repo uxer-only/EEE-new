@@ -166,6 +166,12 @@ Build a modern, premium, and discreet escort marketplace platform focused on tru
 
 ## Implemented Features
 
+### June 2026 — Type-to-confirm delete + 3-day renewal grace period
+- `ConfirmDeleteModal` (components/ConfirmDeleteModal.jsx): user must type the agency name / profile display name exactly to enable the red delete button. Used for "Delete Agency Profile" (AgencyDashboard) and "Remove profile permanently" (ProviderDashboard).
+- Grace period (`GRACE_DAYS = 3` in server.py): Browse (`GET /api/providers`) keeps listings visible until `featured_until + 3d`; VIP drops immediately at `vip_until`. `/subscriptions/me`, `/agency/profiles`, `/providers/{id}` expose `in_grace` + `grace_days_left`.
+- Dashboard prompts: amber "Your listing has expired — N more days · Renew now" banner (ProviderDashboard, data-testid `grace-banner`), amber "Renew · Nd left" pill in agency roster, notice on /subscribe. Public visitors see no hint.
+- Renewal email: background task (`_renewal_notice_loop`, runs on startup then every 6h) emails the owner once per lapse via Resend ("<name> is due for renewal", link `APP_URL/subscribe?provider_id=…`). Tracked with `renewal_notice_for` on the profile; only marked after a successful send. New env key `APP_URL` in backend/.env. NOTE: Resend test mode only delivers to the account owner's email until a domain is verified.
+
 ### June 2026 — Agency Dashboard polish
 - Section block titles (Basic Information / Services / Rates / Availability) bold; big full-width Edit CTAs replaced with a compact "Edit" button inline with the title, right-aligned
 - Basic Info labels semi-bold, inline `Label: value` layout; Description label semi-bold

@@ -29,6 +29,8 @@ db = client[os.environ['DB_NAME']]
 JWT_SECRET = os.environ.get('JWT_SECRET', 'secret')
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
+APP_URL = os.environ.get('APP_URL', '').rstrip('/')
+GRACE_DAYS = 3
 if RESEND_API_KEY:
     resend.api_key = RESEND_API_KEY
 
@@ -724,6 +726,81 @@ async def create_subscription_checkout(
     }
 
 
+def _grace_state(featured_until, now: datetime) -> Dict[str, Any]:
+    """Lapsed listings stay visible for GRACE_DAYS with a renew prompt."""
+    if not featured_until or featured_until > now:
+        return {"in_grace": False, "grace_days_left": 0}
+    grace_end = featured_until + timedelta(days=GRACE_DAYS)
+    if grace_end <= now:
+        return {"in_grace": False, "grace_days_left": 0}
+    return {"in_grace": True, "grace_days_left": max(0, round((grace_end - now).total_seconds() / 86400, 2))}
+
+
+def _renewal_email_html(display_name: str, grace_end: datetime, renew_url: str) -> str:
+    when = grace_end.strftime("%d %B %Y")
+    return f"""
+    <div style="font-family:Georgia,serif; max-width:560px; margin:0 auto; padding:32px; background:#FFFFFF; color:#000000;">
+      <h1 style="font-size:22px; color:#832161; margin:0 0 16px;">Elite Escorts Europe</h1>
+      <h2 style="font-size:18px; font-weight:normal; margin:0 0 16px;">Your listing is due for renewal</h2>
+      <p style="line-height:1.6;">Hi {display_name},</p>
+      <p style="line-height:1.6;">Your Featured listing has expired. It will stay visible on Browse until <strong>{when}</strong>
+        ({GRACE_DAYS}-day grace period), after which it will be hidden from clients.</p>
+      <p style="margin:24px 0 12px;">
+        <a href="{renew_url}" style="display:inline-block; background:#DA4167; color:#FFFFFF; padding:12px 20px; text-decoration:none; font-weight:bold; letter-spacing:1px; text-transform:uppercase; font-size:13px;">Renew now</a>
+      </p>
+      <p style="color:#898989; font-size:12px; margin-top:32px;">Renewing during the grace period keeps your profile online without interruption.</p>
+    </div>
+    """
+
+
+async def send_renewal_notices():
+    """Email owners of listings that lapsed into the grace period (once per lapse)."""
+    now = datetime.utcnow()
+    cursor = db.provider_profiles.find(
+        {"featured_until": {"$lte": now, "$gt": now - timedelta(days=GRACE_DAYS)}},
+        {"_id": 0, "provider_id": 1, "user_id": 1, "display_name": 1, "featured_until": 1, "renewal_notice_for": 1},
+    )
+    sent = 0
+    async for p in cursor:
+        if p.get("renewal_notice_for") == p["featured_until"]:
+            continue
+        user = await db.users.find_one({"user_id": p["user_id"]}, {"_id": 0, "email": 1, "name": 1})
+        if not user or not user.get("email"):
+            continue
+        renew_url = f"{APP_URL}/subscribe?provider_id={p['provider_id']}"
+        grace_end = p["featured_until"] + timedelta(days=GRACE_DAYS)
+        if RESEND_API_KEY:
+            try:
+                await asyncio.to_thread(resend.Emails.send, {
+                    "from": f"Elite Escorts Europe <{SENDER_EMAIL}>",
+                    "to": [user["email"]],
+                    "subject": f"{p.get('display_name') or 'Your profile'} is due for renewal",
+                    "html": _renewal_email_html(p.get("display_name") or user.get("name") or "there", grace_end, renew_url),
+                })
+            except Exception as e:
+                logger.error(f"Renewal email failed for {user['email']}: {e}")
+                continue
+        else:
+            logger.warning("RESEND_API_KEY not configured; renewal link for %s: %s", user["email"], renew_url)
+        await db.provider_profiles.update_one(
+            {"provider_id": p["provider_id"]},
+            {"$set": {"renewal_notice_for": p["featured_until"], "renewal_notice_sent_at": datetime.now(timezone.utc)}},
+        )
+        sent += 1
+    return sent
+
+
+async def _renewal_notice_loop():
+    while True:
+        try:
+            n = await send_renewal_notices()
+            if n:
+                logger.info(f"Sent {n} renewal notice(s)")
+        except Exception as e:
+            logger.error(f"Renewal notice loop error: {e}")
+        await asyncio.sleep(6 * 3600)
+
+
 async def _apply_plan_to_profile(provider_id: str, featured_plan: Optional[str], vip_plan: Optional[str], now: datetime):
     """Apply Featured (+ optional VIP) duration to a single provider profile (additive top-up)."""
     profile = await db.provider_profiles.find_one({"provider_id": provider_id})
@@ -850,12 +927,15 @@ async def my_subscription(
         sort=[("created_at", -1)],
     )
     auto_renew_pref = bool(latest_sub.get("auto_renew", True)) if latest_sub else True
+    grace = _grace_state(featured_until, now)
 
     return {
         "has_profile": True,
         "featured_active": bool(featured_until and featured_until > now),
         "featured_until": featured_until.isoformat() if featured_until else None,
         "featured_days_left": _days_left(featured_until),
+        "in_grace": grace["in_grace"],
+        "grace_days_left": grace["grace_days_left"],
         "vip_active": bool(vip_until and vip_until > now),
         "vip_until": vip_until.isoformat() if vip_until else None,
         "vip_days_left": _days_left(vip_until),
@@ -1358,10 +1438,10 @@ async def browse_providers(
     _add_numeric_range_expr(query, "characteristics.height", min_height, max_height)
     _add_numeric_range_expr(query, "characteristics.weight", min_weight, max_weight)
 
-    # Subscription gate: only providers with an active Featured plan are visible.
+    # Subscription gate: active Featured plan, or lapsed within the grace period.
     # Mongo returns naive datetimes — compare in naive UTC.
     now = datetime.utcnow()
-    query["featured_until"] = {"$gt": now}
+    query["featured_until"] = {"$gt": now - timedelta(days=GRACE_DAYS)}
 
     profiles = await db.provider_profiles.find(query, {"_id": 0}).to_list(200)
 
@@ -1408,6 +1488,7 @@ async def get_provider_detail(provider_id: str):
     # Annotate active subscription flags for the frontend (Mongo dates are naive UTC)
     now = datetime.utcnow()
     profile["featured_active"] = bool(profile.get("featured_until") and profile["featured_until"] > now)
+    profile["in_grace"] = _grace_state(profile.get("featured_until"), now)["in_grace"]
     profile["vip_active"] = bool(profile.get("vip_until") and profile["vip_until"] > now)
 
     return profile
@@ -1521,6 +1602,7 @@ async def list_agency_profiles(current_user: User = Depends(get_current_user)):
             "verification_status": p.get("verification_status", "pending"),
             "verified": p.get("verified", False),
             "featured_active": bool(featured_until and featured_until > now),
+            **_grace_state(featured_until, now),
             "pending_plan": p.get("pending_plan"),
             "unread_enquiries": unread,
         })
@@ -2423,6 +2505,10 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+@app.on_event("startup")
+async def start_background_jobs():
+    asyncio.create_task(_renewal_notice_loop())
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

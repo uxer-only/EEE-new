@@ -103,6 +103,13 @@ export default function Subscribe() {
         </motion.div>
 
         {/* Existing subscription banner */}
+        {sub?.in_grace && (
+          <div className="mb-8 p-4 border border-[#F59E0B]/60 bg-[#F59E0B]/10 rounded text-center" data-testid="grace-banner">
+            <p className="text-[#B45309] text-sm">
+              Your listing expired and stays visible for {Math.ceil(sub.grace_days_left)} more day{Math.ceil(sub.grace_days_left) === 1 ? '' : 's'}. Renew below to stay online without interruption.
+            </p>
+          </div>
+        )}
         {sub?.featured_active && (
           <div
             className="mb-8 p-4 border border-[#22C55E]/40 bg-[#22C55E]/5 rounded text-center"

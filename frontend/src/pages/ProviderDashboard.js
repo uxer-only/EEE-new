@@ -12,6 +12,7 @@ import {
 import { toast } from 'sonner';
 import CharacteristicsForm from '@/components/CharacteristicsForm';
 import VerificationModal from '@/components/VerificationModal';
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import SiteHeader from '@/components/SiteHeader';
 
 // Map country → international dial code prefix
@@ -60,6 +61,7 @@ export default function ProviderDashboard() {
   const [mode, setMode] = useState('overview'); // 'overview' | 'edit' | 'create'
   const [saving, setSaving] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [subscription, setSubscription] = useState(null);
   const [profileData, setProfileData] = useState({
@@ -371,10 +373,6 @@ export default function ProviderDashboard() {
   };
 
   const handleRemoveProfile = async () => {
-    const confirmed = window.confirm(
-      'Permanently delete your profile?\n\nThis cannot be undone. Your photos, services, subscription history and verification documents will all be removed.'
-    );
-    if (!confirmed) return;
     setRemoving(true);
     try {
       await deleteProviderProfile(activeProviderId);
@@ -601,7 +599,22 @@ export default function ProviderDashboard() {
 
             {/* Subscription banner — activation notice is the default until payment is confirmed */}
             <div className="mb-8" data-testid="subscription-banner">
-              {!subscription?.featured_active ? (
+              {subscription?.in_grace ? (
+                  <div className="rounded-lg border border-[#F59E0B]/60 bg-[#F59E0B]/10 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4" data-testid="grace-banner">
+                    <div className="flex items-start gap-3">
+                      <Crown size={22} weight="fill" className="text-[#B45309] mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-[#000000] font-medium mb-1">Your listing has expired</p>
+                        <p className="text-[#000000] text-sm">
+                          It stays visible on Browse for <span className="font-semibold">{Math.ceil(subscription.grace_days_left)} more day{Math.ceil(subscription.grace_days_left) === 1 ? '' : 's'}</span>. Renew now to avoid being hidden from clients.
+                        </p>
+                      </div>
+                    </div>
+                    <Link to={subscribeHref} className="btn-primary whitespace-nowrap" data-testid="renew-cta">
+                      Renew now
+                    </Link>
+                  </div>
+                ) : !subscription?.featured_active ? (
                   <div className="rounded-lg border border-[#832161]/40 bg-gradient-to-r from-[#832161]/10 to-transparent p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-start gap-3">
                       <Crown size={22} weight="fill" className="text-[#832161] mt-0.5 shrink-0" />
@@ -1033,7 +1046,7 @@ export default function ProviderDashboard() {
                   This permanently deletes your profile, photos, subscriptions and verification documents. This action cannot be undone.
                 </p>
                 <button
-                  onClick={handleRemoveProfile}
+                  onClick={() => setConfirmRemove(true)}
                   disabled={removing}
                   className="w-full px-4 py-3 border border-[#B91C1C] text-[#B91C1C] hover:bg-[#B91C1C]/10 transition-colors text-sm uppercase tracking-wider disabled:opacity-50"
                   data-testid="remove-profile-btn"
@@ -1044,6 +1057,16 @@ export default function ProviderDashboard() {
             </div>
           </div>
         </div>
+        <ConfirmDeleteModal
+          open={confirmRemove}
+          onClose={() => setConfirmRemove(false)}
+          onConfirm={handleRemoveProfile}
+          busy={removing}
+          title="Remove profile permanently"
+          description="Your photos, services, subscription history, enquiries and verification documents will all be deleted. This cannot be undone."
+          confirmWord={p.display_name || 'DELETE'}
+          confirmLabel="Remove profile"
+        />
         <VerificationModal
           open={showVerificationModal}
           onClose={() => setShowVerificationModal(false)}

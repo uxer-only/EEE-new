@@ -13,6 +13,7 @@ import { useAuth } from '@/context/AuthContext';
 import SiteHeader from '@/components/SiteHeader';
 import AgencyOnboarding from '@/pages/AgencyOnboarding';
 import VerificationModal from '@/components/VerificationModal';
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import { currencySymbol } from '@/constants/companionData';
 
 const DAY_LABELS = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' };
@@ -34,6 +35,10 @@ const StatusPill = ({ profile }) => (
   profile.featured_active ? (
     <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-[#22C55E]/10 text-[#15803D]">
       <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" /> Live
+    </span>
+  ) : profile.in_grace ? (
+    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-[#F59E0B]/15 text-[#B45309]" title="Listing expired — still visible during the grace period" data-testid={`grace-pill-${profile.provider_id}`}>
+      <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" /> Renew · {Math.ceil(profile.grace_days_left)}d left
     </span>
   ) : profile.pending_plan ? (
     <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-[#DA4167]/10 text-[#DA4167]">
@@ -59,9 +64,9 @@ export default function AgencyDashboard() {
   const [verifyFor, setVerifyFor] = useState(null);
   const [syncing, setSyncing] = useState(false);
   const [deletingAgency, setDeletingAgency] = useState(false);
+  const [confirmAgencyDelete, setConfirmAgencyDelete] = useState(false);
 
   const handleDeleteAgency = async () => {
-    if (!window.confirm('Delete your agency profile?\n\nThis permanently removes your agency defaults AND every companion profile, including photos, subscriptions, enquiries and verification documents. This cannot be undone.')) return;
     setDeletingAgency(true);
     try {
       await deleteAgencyProfile();
@@ -171,7 +176,7 @@ export default function AgencyDashboard() {
 
   const openEdit = (stepNo) => { setEditStep(stepNo); setEditing(true); };
 
-  const activeCount = profiles.filter((p) => p.featured_active).length;
+  const activeCount = profiles.filter((p) => p.featured_active || p.in_grace).length;
   const totalUnread = profiles.reduce((s, p) => s + (p.unread_enquiries || 0), 0);
   const queued = profiles.filter((p) => p.pending_plan && p.pending_plan.featured_plan);
   const payableTotal = queued.reduce((s, p) => s + planCost(p.pending_plan), 0);
@@ -467,7 +472,7 @@ export default function AgencyDashboard() {
           {/* Delete agency */}
           <div className="mt-12 flex justify-center" data-testid="agency-danger-zone">
             <button
-              onClick={handleDeleteAgency}
+              onClick={() => setConfirmAgencyDelete(true)}
               disabled={deletingAgency}
               className="inline-flex items-center gap-2 px-6 py-3 border border-[#B91C1C] text-[#B91C1C] hover:bg-[#B91C1C]/10 transition-colors text-sm uppercase tracking-wider disabled:opacity-50"
               data-testid="delete-agency-profile-btn"
@@ -492,6 +497,16 @@ export default function AgencyDashboard() {
           </div>
         </div>
       )}
+      <ConfirmDeleteModal
+        open={confirmAgencyDelete}
+        onClose={() => setConfirmAgencyDelete(false)}
+        onConfirm={handleDeleteAgency}
+        busy={deletingAgency}
+        title="Delete agency profile"
+        description={`This permanently removes your agency defaults and all ${profiles.length} companion profile${profiles.length === 1 ? '' : 's'}, including photos, subscriptions, enquiries and verification documents. This cannot be undone.`}
+        confirmWord={agency.agency_name || 'DELETE'}
+        confirmLabel="Delete agency"
+      />
       {/* Per-profile verification (from the roster, no need to open the profile) */}
       <VerificationModal
         open={!!verifyFor}
