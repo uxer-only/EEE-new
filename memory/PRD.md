@@ -166,6 +166,13 @@ Build a modern, premium, and discreet escort marketplace platform focused on tru
 
 ## Implemented Features
 
+### June 2026 — Agency Dashboard polish
+- Section block titles (Basic Information / Services / Rates / Availability) bold; big full-width Edit CTAs replaced with a compact "Edit" button inline with the title, right-aligned
+- Basic Info labels semi-bold, inline `Label: value` layout; Description label semi-bold
+- Services: Inclusive/Extra labels semi-bold, 40px gap between inclusive chips and Extra label
+- Rates: Incall/Outcall labels semi-bold
+- New bottom-of-page "Delete Agency Profile" CTA → `DELETE /api/agency/profile` (removes agency defaults + all companion profiles and related subscriptions/enquiries/verifications), then logs out
+
 ### March 25, 2026
 - **Admin Dashboard:**
   - Stats cards (providers, clients, pending media, bookings)

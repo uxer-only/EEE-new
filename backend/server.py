@@ -1589,6 +1589,20 @@ async def save_agency_profile(
     return {"ok": True, "onboarded": True}
 
 
+@api_router.delete("/agency/profile")
+async def delete_agency_profile(current_user: User = Depends(get_current_user)):
+    """Permanently delete the agency master profile and every companion profile it owns."""
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    pids = [p["provider_id"] async for p in db.provider_profiles.find({"user_id": current_user.user_id}, {"_id": 0, "provider_id": 1})]
+    if pids:
+        await db.provider_profiles.delete_many({"provider_id": {"$in": pids}})
+        for coll in (db.subscriptions, db.payment_transactions, db.verifications, db.verification_documents, db.enquiries, db.conversations):
+            await coll.delete_many({"provider_id": {"$in": pids}})
+    await db.agency_profiles.delete_one({"user_id": current_user.user_id})
+    return {"message": "Agency profile deleted", "profiles_removed": len(pids)}
+
+
 @api_router.post("/agency/sync-defaults")
 async def sync_agency_defaults(current_user: User = Depends(get_current_user)):
     """Cascade the agency's default services / rates / availability onto every profile it owns."""

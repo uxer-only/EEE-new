@@ -7,7 +7,7 @@ import {
   ShieldCheck, Gear, ArrowsClockwise, User, FileText, CurrencyDollar, Clock
 } from 'phosphor-react';
 import {
-  getAgencyProfiles, getAgencyProfile, deleteProviderProfile, setProfilePlan, createBulkCheckout, syncAgencyDefaults
+  getAgencyProfiles, getAgencyProfile, deleteProviderProfile, setProfilePlan, createBulkCheckout, syncAgencyDefaults, deleteAgencyProfile
 } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import SiteHeader from '@/components/SiteHeader';
@@ -16,6 +16,7 @@ import VerificationModal from '@/components/VerificationModal';
 import { currencySymbol } from '@/constants/companionData';
 
 const DAY_LABELS = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' };
+const EDIT_BTN = 'text-xs uppercase tracking-wider px-3 py-1.5 border border-[#832161] text-[#832161] hover:bg-[#832161]/10 rounded transition-colors';
 
 // Agency per-profile plan catalogue (mirrors backend PLANS allowlist)
 const FEATURED = {
@@ -46,7 +47,7 @@ const StatusPill = ({ profile }) => (
 );
 
 export default function AgencyDashboard() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [agency, setAgency] = useState(null);       // null=loading, {onboarded}
   const [profiles, setProfiles] = useState([]);
@@ -57,6 +58,20 @@ export default function AgencyDashboard() {
   const [editStep, setEditStep] = useState(1);
   const [verifyFor, setVerifyFor] = useState(null);
   const [syncing, setSyncing] = useState(false);
+  const [deletingAgency, setDeletingAgency] = useState(false);
+
+  const handleDeleteAgency = async () => {
+    if (!window.confirm('Delete your agency profile?\n\nThis permanently removes your agency defaults AND every companion profile, including photos, subscriptions, enquiries and verification documents. This cannot be undone.')) return;
+    setDeletingAgency(true);
+    try {
+      await deleteAgencyProfile();
+      toast.success('Agency profile deleted');
+      logout();
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || 'Could not delete agency profile');
+      setDeletingAgency(false);
+    }
+  };
 
   const loadRoster = async () => {
     const { data } = await getAgencyProfiles();
@@ -218,35 +233,40 @@ export default function AgencyDashboard() {
             <div className="flex flex-col gap-6">
               {/* Basic Information */}
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-basic-info">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><User size={18} className="text-[#832161]" /></div>
-                  <h3 className="text-xl text-[#000000]">Basic Information</h3>
+                <div className="flex items-center justify-between gap-3 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><User size={18} className="text-[#832161]" /></div>
+                    <h3 className="text-xl font-bold text-[#000000]">Basic Information</h3>
+                  </div>
+                  <button onClick={() => openEdit(1)} className={EDIT_BTN} data-testid="agency-edit-basic-info-btn">Edit</button>
                 </div>
                 <dl className="space-y-3 text-sm">
-                  <div className="flex justify-between gap-4"><dt className="text-[#000000]">Agency name</dt><dd className="text-[#000000] text-right">{agency.agency_name || '—'}</dd></div>
-                  <div className="flex justify-between gap-4"><dt className="text-[#000000]">Location</dt><dd className="text-[#000000] text-right">{agency.location?.city ? `${agency.location.city}, ${agency.location.country || ''}` : '—'}</dd></div>
-                  <div className="flex justify-between gap-4"><dt className="text-[#000000]">Languages</dt><dd className="text-[#000000] text-right">{(agency.languages || []).join(', ') || '—'}</dd></div>
+                  <div className="text-[#000000]"><dt className="inline font-semibold">Agency name</dt><dd className="inline">: {agency.agency_name || '—'}</dd></div>
+                  <div className="text-[#000000]"><dt className="inline font-semibold">Location</dt><dd className="inline">: {agency.location?.city ? `${agency.location.city}, ${agency.location.country || ''}` : '—'}</dd></div>
+                  <div className="text-[#000000]"><dt className="inline font-semibold">Languages</dt><dd className="inline">: {(agency.languages || []).join(', ') || '—'}</dd></div>
                   <div className="pt-2 border-t border-[#dbdadd]">
-                    <dt className="text-[#000000] mb-2">Description</dt>
+                    <dt className="text-[#000000] font-semibold mb-2">Description</dt>
                     <dd className="text-[#000000] line-clamp-3 leading-relaxed">{agency.description || <span className="text-[#898989] italic">Not set</span>}</dd>
                   </div>
                 </dl>
-                <button onClick={() => openEdit(1)} className="btn-secondary w-full mt-8" data-testid="agency-edit-basic-info-btn">Edit Basic Information</button>
               </div>
 
               {/* Services */}
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-services">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><FileText size={18} className="text-[#832161]" /></div>
-                  <h3 className="text-xl text-[#000000]">Services</h3>
+                <div className="flex items-center justify-between gap-3 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><FileText size={18} className="text-[#832161]" /></div>
+                    <h3 className="text-xl font-bold text-[#000000]">Services</h3>
+                  </div>
+                  <button onClick={() => openEdit(2)} className={EDIT_BTN} data-testid="agency-edit-services-btn">Edit</button>
                 </div>
                 {svcEntries.length === 0 ? (
                   <p className="text-[#898989] text-sm italic">No services set</p>
                 ) : (
-                  <div className="space-y-4">
+                  <div>
                     {inclusiveSvc.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">Inclusive ({inclusiveSvc.length})</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#000000] mb-2">Inclusive ({inclusiveSvc.length})</p>
                         <div className="flex flex-wrap gap-2">
                           {inclusiveSvc.slice(0, 10).map(([name]) => (<span key={name} className="px-3 py-1 text-xs border border-[#dbdadd] text-[#000000] rounded-full">{name}</span>))}
                           {inclusiveSvc.length > 10 && <span className="px-3 py-1 text-xs text-[#000000]">+{inclusiveSvc.length - 10} more</span>}
@@ -254,8 +274,8 @@ export default function AgencyDashboard() {
                       </div>
                     )}
                     {extraSvc.length > 0 && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">Extra ({extraSvc.length})</p>
+                      <div className={inclusiveSvc.length > 0 ? 'mt-10' : ''}>
+                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#000000] mb-2">Extra ({extraSvc.length})</p>
                         <div className="flex flex-wrap gap-2">
                           {extraSvc.slice(0, 8).map(([name, v]) => (<span key={name} className="px-3 py-1 text-xs border border-[#832161]/40 bg-[#832161]/10 text-[#832161] rounded-full">{name}{v.price && ` · €${v.price}`}</span>))}
                           {extraSvc.length > 8 && <span className="px-3 py-1 text-xs text-[#000000]">+{extraSvc.length - 8} more</span>}
@@ -264,14 +284,16 @@ export default function AgencyDashboard() {
                     )}
                   </div>
                 )}
-                <button onClick={() => openEdit(2)} className="btn-secondary w-full mt-8" data-testid="agency-edit-services-btn">Edit Services</button>
               </div>
 
               {/* Rates */}
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-rates">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><CurrencyDollar size={18} className="text-[#832161]" /></div>
-                  <h3 className="text-xl text-[#000000]">Rates</h3>
+                <div className="flex items-center justify-between gap-3 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><CurrencyDollar size={18} className="text-[#832161]" /></div>
+                    <h3 className="text-xl font-bold text-[#000000]">Rates</h3>
+                  </div>
+                  <button onClick={() => openEdit(3)} className={EDIT_BTN} data-testid="agency-edit-rates-btn">Edit</button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {['incall', 'outcall'].map((kind) => {
@@ -279,7 +301,7 @@ export default function AgencyDashboard() {
                     const extras = (Array.isArray(col.extras) ? col.extras : []).slice().sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0));
                     return (
                       <div key={kind}>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#832161] mb-3">{kind}</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#832161] mb-3">{kind}</p>
                         <div className="space-y-2">
                           {[{ key: '1hour', label: '1 hour' }, { key: '2hours', label: '2 hours' }, { key: '3hours', label: '3 hours' }].map(({ key, label }) => (
                             <div key={key} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
@@ -304,17 +326,19 @@ export default function AgencyDashboard() {
                     );
                   })}
                 </div>
-                <button onClick={() => openEdit(3)} className="btn-secondary w-full mt-8" data-testid="agency-edit-rates-btn">Edit Rates</button>
               </div>
 
               {/* Availability */}
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-availability">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><Clock size={18} className="text-[#832161]" /></div>
-                  <div>
-                    <h3 className="text-xl text-[#000000]">Availability</h3>
-                    <p className="text-[#000000] text-xs mt-1">{availableDays} of 7 days available</p>
+                <div className="flex items-center justify-between gap-3 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><Clock size={18} className="text-[#832161]" /></div>
+                    <div>
+                      <h3 className="text-xl font-bold text-[#000000]">Availability</h3>
+                      <p className="text-[#000000] text-xs mt-1">{availableDays} of 7 days available</p>
+                    </div>
                   </div>
+                  <button onClick={() => openEdit(3)} className={EDIT_BTN} data-testid="agency-edit-availability-btn">Edit</button>
                 </div>
                 {scheduleDays.length === 0 ? (
                   <p className="text-[#898989] text-sm italic">No availability set</p>
@@ -328,7 +352,6 @@ export default function AgencyDashboard() {
                     ))}
                   </div>
                 )}
-                <button onClick={() => openEdit(3)} className="btn-secondary w-full mt-8" data-testid="agency-edit-availability-btn">Edit Availability</button>
               </div>
             </div>
           </div>
@@ -439,6 +462,18 @@ export default function AgencyDashboard() {
                 </table>
               </div>
             )}
+          </div>
+
+          {/* Delete agency */}
+          <div className="mt-12 flex justify-center" data-testid="agency-danger-zone">
+            <button
+              onClick={handleDeleteAgency}
+              disabled={deletingAgency}
+              className="inline-flex items-center gap-2 px-6 py-3 border border-[#B91C1C] text-[#B91C1C] hover:bg-[#B91C1C]/10 transition-colors text-sm uppercase tracking-wider disabled:opacity-50"
+              data-testid="delete-agency-profile-btn"
+            >
+              <Trash size={16} /> {deletingAgency ? 'Deleting…' : 'Delete Agency Profile'}
+            </button>
           </div>
         </div>
       </div>
