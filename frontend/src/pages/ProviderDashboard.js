@@ -1202,19 +1202,30 @@ export default function ProviderDashboard() {
                     </div>
                     <div>
                       <label className="input-label">Gender</label>
-                      <select
-                        value={profileData.gender}
-                        onChange={(e) => setProfileData({ ...profileData, gender: e.target.value })}
-                        className="input-premium w-full"
-                        data-testid="gender-input"
-                      >
-                        <option value="">Select gender</option>
-                        <option value="female">Female</option>
-                        <option value="male">Male</option>
-                        <option value="trans">Trans</option>
-                      </select>
+                      <div className="grid grid-cols-3 gap-2 max-w-md" data-testid="gender-input">
+                        {[
+                          { value: 'female', label: 'Female' },
+                          { value: 'male', label: 'Male' },
+                          { value: 'trans', label: 'Trans' }
+                        ].map((opt) => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => setProfileData({ ...profileData, gender: profileData.gender === opt.value ? '' : opt.value })}
+                            className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
+                              profileData.gender === opt.value
+                                ? 'border-[#832161] text-[#832161]'
+                                : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                            }`}
+                            data-testid={`gender-${opt.value}`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
+                    {!isAgencyScoped && (
                     <div>
                       <label className="input-label">City</label>
                       <input
@@ -1226,6 +1237,8 @@ export default function ProviderDashboard() {
                         data-testid="city-input"
                       />
                     </div>
+                    )}
+                    {!isAgencyScoped && (
                     <div>
                       <label className="input-label">Country</label>
                       <select
@@ -1282,6 +1295,7 @@ export default function ProviderDashboard() {
                           <option value="Other">Other</option>
                         </select>
                       </div>
+                    )}
                   </div>
 
                   {/* Describe yourself */}
@@ -1439,6 +1453,7 @@ export default function ProviderDashboard() {
                 </div>
 
                 {/* Box 2: Contact Information */}
+                {!isAgencyScoped && (
                 <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
                   <h3 className="text-2xl font-bold text-[#832161] mb-6">Contact information</h3>
                   <div className="flex flex-col gap-4">
@@ -1643,6 +1658,7 @@ export default function ProviderDashboard() {
                     </div>
                   </div>
                 </div>
+                )}
 
                 {/* Box 2: Physical Characteristics (optional) */}
                 <div className="bg-white border border-[#dbdadd] rounded-lg p-6">

@@ -87,6 +87,29 @@ const YesNoField = ({ label, value, onChange, testIdBase }) => (
   </div>
 );
 
+const ButtonSelectField = ({ label, value, options, onChange, testId }) => (
+  <div>
+    <label className="input-label">{label}</label>
+    <div className="flex flex-wrap gap-2" data-testid={testId}>
+      {options.map((o) => (
+        <button
+          key={o}
+          type="button"
+          onClick={() => onChange(value === o ? '' : o)}
+          className={`py-2 px-3 border text-sm uppercase tracking-wider transition-all ${
+            value === o
+              ? 'border-[#832161] text-[#832161]'
+              : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+          }`}
+          data-testid={`${testId}-${o.toLowerCase().replace(/\s+/g, '-')}`}
+        >
+          {o}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
 export default function CharacteristicsForm({ characteristics, onChange }) {
   const update = (key, value) => onChange({ ...characteristics, [key]: value });
 
@@ -102,7 +125,7 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
       />
 
       {/* Ethnicity */}
-      <SelectField
+      <ButtonSelectField
         label="Ethnicity"
         value={characteristics.ethnicity}
         options={ETHNICITIES}
@@ -111,7 +134,7 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
       />
 
       {/* Orientation */}
-      <SelectField
+      <ButtonSelectField
         label="Orientation"
         value={characteristics.orientation}
         options={ORIENTATIONS}
