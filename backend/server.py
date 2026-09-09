@@ -1619,6 +1619,7 @@ class AgencyProfileBody(BaseModel):
     apply_services_to_all: bool = False
     default_rates: Dict[str, Any] = {}
     default_availability: Optional[Dict[str, Any]] = None
+    apply_rates_to_all: bool = False
 
 
 @api_router.get("/agency/profile")
@@ -1668,6 +1669,25 @@ async def save_agency_profile(
             {"user_id": current_user.user_id},
             {"$set": {"services": body.default_services}},
         )
+    # Propagate rates & availability to all existing profiles when requested
+    if body.apply_rates_to_all:
+        rate_fields: Dict[str, Any] = {}
+        if data.get("default_rates"):
+            rate_fields["rates"] = data["default_rates"]
+        da = data.get("default_availability") or {}
+        if da.get("availability_type"):
+            rate_fields["availability_type"] = da["availability_type"]
+        if da.get("schedule"):
+            rate_fields["schedule"] = da["schedule"]
+        if "available247" in da:
+            rate_fields["available247"] = da["available247"]
+        if "booking_advance" in da:
+            rate_fields["booking_advance"] = da["booking_advance"]
+        if rate_fields:
+            await db.provider_profiles.update_many(
+                {"user_id": current_user.user_id},
+                {"$set": rate_fields},
+            )
     return {"ok": True, "onboarded": True}
 
 

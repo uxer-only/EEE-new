@@ -64,6 +64,8 @@ export default function ProviderDashboard() {
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [subscription, setSubscription] = useState(null);
+  const [applyServicesToAll, setApplyServicesToAll] = useState(false);
+  const [applyRatesToAll, setApplyRatesToAll] = useState(false);
   const [profileData, setProfileData] = useState({
     display_name: '',
     account_type: localStorage.getItem('pending_account_type') || 'independent',
@@ -140,8 +142,8 @@ export default function ProviderDashboard() {
   const steps = [
     { id: 1, title: 'Basic Info', icon: User },
     { id: 2, title: "Photos & Video's", icon: Camera },
-    { id: 3, title: 'Services', icon: FileText },
-    ...(isAgencyScoped ? [] : [{ id: 4, title: 'Rates & Availability', icon: CurrencyDollar }]),
+    ...(isAgencyScoped && applyServicesToAll ? [] : [{ id: 3, title: 'Services', icon: FileText }]),
+    ...(isAgencyScoped && applyRatesToAll ? [] : [{ id: 4, title: 'Rates & Availability', icon: CurrencyDollar }]),
     ...(isAgencyScoped ? [] : [{ id: 5, title: 'Activate', icon: Crown }])
   ];
 
@@ -247,6 +249,21 @@ export default function ProviderDashboard() {
     fetchSubscription();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeProviderId]);
+
+  // Load agency default flags (controls whether Services / Rates steps appear per-profile)
+  useEffect(() => {
+    if (!isAgencyScoped) return;
+    (async () => {
+      try {
+        const { data: ag } = await getAgencyProfile();
+        if (ag && ag.onboarded) {
+          setApplyServicesToAll(!!ag.apply_services_to_all);
+          setApplyRatesToAll(!!ag.apply_rates_to_all);
+        }
+      } catch (_e) { /* agency profile may not exist yet */ }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAgencyScoped]);
 
   const fetchSubscription = async () => {
     try {
@@ -532,11 +549,13 @@ export default function ProviderDashboard() {
   };
 
   const nextStep = () => {
-    if (currentStep < 5) setCurrentStep(currentStep + 1);
+    const idx = steps.findIndex((s) => s.id === currentStep);
+    if (idx >= 0 && idx < steps.length - 1) setCurrentStep(steps[idx + 1].id);
   };
 
   const prevStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
+    const idx = steps.findIndex((s) => s.id === currentStep);
+    if (idx > 0) setCurrentStep(steps[idx - 1].id);
   };
 
   if (loading) {
@@ -864,6 +883,7 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 3. Services */}
+              {(!isAgencyScoped || !applyServicesToAll) && (
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-services">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
@@ -923,9 +943,10 @@ export default function ProviderDashboard() {
                   Edit Services
                 </button>
               </div>
+              )}
 
               {/* 4. Rates */}
-              {!isAgencyScoped && (
+              {(!isAgencyScoped || !applyRatesToAll) && (
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-rates">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
@@ -993,7 +1014,7 @@ export default function ProviderDashboard() {
               )}
 
               {/* 5. Availability */}
-              {!isAgencyScoped && (
+              {(!isAgencyScoped || !applyRatesToAll) && (
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-availability">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
@@ -2542,7 +2563,29 @@ export default function ProviderDashboard() {
                     </button>
                   )}
 
-                  {currentStep < (isAgencyScoped ? 3 : 4) ? (
+                  {isAgencyScoped ? (
+                    steps[steps.length - 1]?.id === currentStep ? (
+                      <button
+                        type="button"
+                        onClick={handleCreateProfile}
+                        className="btn-primary flex items-center gap-2"
+                        data-testid="save-agency-profile-button"
+                      >
+                        Save profile
+                        <CheckCircle size={18} weight="bold" />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={nextStep}
+                        className="btn-primary flex items-center gap-2"
+                        data-testid="next-button"
+                      >
+                        Next
+                        <CaretRight size={20} />
+                      </button>
+                    )
+                  ) : currentStep < 4 ? (
                     <button
                       type="button"
                       onClick={nextStep}
@@ -2551,16 +2594,6 @@ export default function ProviderDashboard() {
                     >
                       Next
                       <CaretRight size={20} />
-                    </button>
-                  ) : isAgencyScoped ? (
-                    <button
-                      type="button"
-                      onClick={handleCreateProfile}
-                      className="btn-primary flex items-center gap-2"
-                      data-testid="save-agency-profile-button"
-                    >
-                      Save profile
-                      <CheckCircle size={18} weight="bold" />
                     </button>
                   ) : currentStep === 4 ? (
                     <button

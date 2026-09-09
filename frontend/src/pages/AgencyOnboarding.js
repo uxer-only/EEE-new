@@ -45,6 +45,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
     services: initial?.default_services || {},
     apply_services_to_all: initial?.apply_services_to_all ?? true,
     rates: initial?.default_rates || blankRates(),
+    apply_rates_to_all: initial?.apply_rates_to_all ?? true,
     schedule: initial?.default_availability?.schedule || defaultSchedule(),
     availability_type: initial?.default_availability?.availability_type || 'both',
     available247: initial?.default_availability?.available247 || false,
@@ -79,6 +80,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
         default_services: data.services,
         apply_services_to_all: data.apply_services_to_all,
         default_rates: data.rates,
+        apply_rates_to_all: data.apply_rates_to_all,
         default_availability: {
           availability_type: data.availability_type,
           schedule: data.schedule,
@@ -386,7 +388,25 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
             )}
 
             {step === 3 && (
-              <RatesAvailabilityStep data={data} update={update} />
+              <div className="space-y-6">
+                <RatesAvailabilityStep data={data} update={update} />
+                <div className="rounded-lg border border-[#832161]/30 bg-[#832161]/5 p-4">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={data.apply_rates_to_all}
+                      onChange={(e) => update({ apply_rates_to_all: e.target.checked })}
+                      className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+                      data-testid="apply-rates-to-all"
+                    />
+                    <span className="text-[#000000] font-medium">Apply these rates &amp; availability to all profiles</span>
+                  </label>
+                  <div className="flex items-start gap-2 mt-2 pl-8">
+                    <Info size={15} className="text-[#832161] mt-0.5 shrink-0" />
+                    <p className="text-sm text-[#898989]">You can also set rates &amp; availability individually in each profile itself.</p>
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* Nav */}
