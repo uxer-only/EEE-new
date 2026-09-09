@@ -7,7 +7,7 @@ import {
 } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
 import { getAdminProviders, getAdminStats, getAdminTraffic } from '@/services/api';
-import { toast } from 'sonner';
+import { notifyError, notifyProblem } from '../lib/notify';
 import SiteHeader from '@/components/SiteHeader';
 
 export default function AdminDashboard() {
@@ -22,7 +22,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
-      toast.error('Admin access required');
+      notifyProblem('Admin access is required.', 'Sign in with an admin account to view this page.');
       navigate('/login');
       return;
     }
@@ -56,7 +56,7 @@ export default function AdminDashboard() {
       setStats(statsRes.data);
       setTraffic(trafficRes.data);
     } catch (_err) {
-      toast.error('Failed to load admin data');
+      notifyError(_err, "We couldn't load the admin dashboard.");
     } finally {
       setLoading(false);
     }

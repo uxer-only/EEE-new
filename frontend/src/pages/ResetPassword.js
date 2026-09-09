@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { notifyError, notifyProblem } from '../lib/notify';
 import { Eye, EyeSlash, CheckCircle } from 'phosphor-react';
 import { resetPassword } from '@/services/api';
 import SiteHeader from '@/components/SiteHeader';
@@ -21,11 +22,11 @@ export default function ResetPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password.length < 8) {
-      toast.error('Password must be at least 8 characters');
+      notifyProblem('Your password is too short.', 'Use at least 8 characters, mixing letters and numbers.');
       return;
     }
     if (password !== confirm) {
-      toast.error('Passwords do not match');
+      notifyProblem("The passwords don't match.", 'Re-enter the same password in both fields.');
       return;
     }
     setLoading(true);
@@ -34,7 +35,7 @@ export default function ResetPassword() {
       setSuccess(true);
       setTimeout(() => navigate('/login'), 2500);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Could not reset password');
+      notifyError(error, "We couldn't reset your password.");
     } finally {
       setLoading(false);
     }

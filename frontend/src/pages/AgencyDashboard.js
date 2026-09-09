@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { notifyError, notifyProblem } from '../lib/notify';
 import {
   Plus, PencilSimple, Trash, MapPin, CheckCircle, Crown, ChatCircle, Users, ArrowRight,
   ShieldCheck, Gear, ArrowsClockwise, User, FileText, CurrencyDollar, Clock
@@ -73,7 +74,7 @@ export default function AgencyDashboard() {
       toast.success('Agency profile deleted');
       logout();
     } catch (e) {
-      toast.error(e?.response?.data?.detail || 'Could not delete agency profile');
+      notifyError(e, "We couldn't delete your agency profile.");
       setDeletingAgency(false);
     }
   };
@@ -89,7 +90,7 @@ export default function AgencyDashboard() {
       setAgency(ag);
       if (ag.onboarded) await loadRoster();
     } catch (e) {
-      toast.error('Failed to load agency dashboard');
+      notifyError(e, "We couldn't load your agency dashboard.");
     } finally {
       setLoading(false);
     }
@@ -105,7 +106,7 @@ export default function AgencyDashboard() {
       setProfiles((prev) => prev.filter((p) => p.provider_id !== profile.provider_id));
       toast.success('Profile removed');
     } catch (e) {
-      toast.error(e?.response?.data?.detail || 'Could not delete profile');
+      notifyError(e, "We couldn't delete this profile.");
     } finally {
       setDeletingId(null);
     }
@@ -119,7 +120,7 @@ export default function AgencyDashboard() {
     try {
       await setProfilePlan(profile.provider_id, { featured_plan: featured_plan || null, vip_plan });
     } catch (e) {
-      toast.error('Could not update plan');
+      notifyError(e, "We couldn't update this plan.");
       loadRoster();
     }
   };
@@ -131,11 +132,11 @@ export default function AgencyDashboard() {
       if (data?.url) {
         window.location.href = data.url;
       } else {
-        toast.error('Could not start checkout');
+        notifyProblem("We couldn't start checkout.", 'Please try again in a moment.');
         setPaying(false);
       }
     } catch (e) {
-      toast.error(e?.response?.data?.detail || 'Checkout failed');
+      notifyError(e, "We couldn't start checkout.");
       setPaying(false);
     }
   };
@@ -150,7 +151,7 @@ export default function AgencyDashboard() {
         : 'All profiles already match your defaults');
       loadRoster();
     } catch (e) {
-      toast.error(e?.response?.data?.detail || 'Could not sync defaults');
+      notifyError(e, "We couldn't sync your defaults.");
     } finally {
       setSyncing(false);
     }

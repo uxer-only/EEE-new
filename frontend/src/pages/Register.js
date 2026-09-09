@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import { notifyError } from '../lib/notify';
 import { Eye, EyeSlash } from 'phosphor-react';
 import SiteHeader from '@/components/SiteHeader';
 
@@ -25,7 +26,7 @@ export default function Register() {
       toast.success('Account created successfully');
       navigate('/dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Registration failed');
+      notifyError(error, "We couldn't create your account.");
     } finally {
       setLoading(false);
     }

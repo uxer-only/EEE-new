@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import { notifyError, notifyProblem } from '../lib/notify';
 import { Eye, EyeSlash } from 'phosphor-react';
 import SiteHeader from '@/components/SiteHeader';
 
@@ -21,12 +22,12 @@ export default function ProviderRegister() {
     e.preventDefault();
     
     if (!formData.agreeTerms) {
-      toast.error('Please agree to the terms and conditions');
+      notifyProblem('You need to accept the terms first.', 'Tick the terms and conditions box to continue.');
       return;
     }
 
     if (formData.password.length < 8) {
-      toast.error('Password must be at least 8 characters');
+      notifyProblem('Your password is too short.', 'Use at least 8 characters, mixing letters and numbers.');
       return;
     }
 
@@ -39,7 +40,7 @@ export default function ProviderRegister() {
       toast.success('Welcome to Elite Escorts Europe! Please complete your profile');
       navigate('/dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Registration failed');
+      notifyError(error, "We couldn't create your account.");
     } finally {
       setLoading(false);
     }

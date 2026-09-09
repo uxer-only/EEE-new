@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
+import { notifyProblem } from '../lib/notify';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -26,7 +26,7 @@ export default function AuthCallback() {
         const sessionId = params.get('session_id');
 
         if (!sessionId) {
-          toast.error('Invalid authentication');
+          notifyProblem('This sign-in link is invalid.', 'Please start the sign-in process again.');
           navigate('/login');
           return;
         }
@@ -47,7 +47,7 @@ export default function AuthCallback() {
           state: { user: response.data }
         });
       } catch (_err) {
-        toast.error('Authentication failed');
+        notifyProblem("We couldn't sign you in.", 'Please try signing in again.');
         navigate('/login', { replace: true });
       }
     };

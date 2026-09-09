@@ -8,6 +8,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { getAdminProviderDetail, approveMedia, verifyProvider } from '@/services/api';
 import { toast } from 'sonner';
+import { notifyError, notifyProblem } from '../lib/notify';
 import SiteHeader from '@/components/SiteHeader';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -23,7 +24,7 @@ export default function AdminProviderDetail() {
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
-      toast.error('Admin access required');
+      notifyProblem('Admin access is required.', 'Sign in with an admin account to view this page.');
       navigate('/login');
       return;
     }
@@ -35,7 +36,7 @@ export default function AdminProviderDetail() {
       const response = await getAdminProviderDetail(providerId);
       setProvider(response.data);
     } catch (error) {
-      toast.error('Failed to load provider');
+      notifyError(error, "We couldn't load this provider.");
       navigate('/admin');
     } finally {
       setLoading(false);
@@ -49,7 +50,7 @@ export default function AdminProviderDetail() {
       toast.success('Media approved');
       fetchProvider();
     } catch (error) {
-      toast.error('Failed to approve media');
+      notifyError(error, "We couldn't approve this media.");
     } finally {
       setProcessing(false);
     }
@@ -57,7 +58,7 @@ export default function AdminProviderDetail() {
 
   const handleRejectMedia = async (mediaId) => {
     if (!rejectionReason.trim()) {
-      toast.error('Please provide a rejection reason');
+      notifyProblem('A rejection reason is required.', 'Add a short reason so the provider knows what to fix.');
       return;
     }
     setProcessing(true);
@@ -68,7 +69,7 @@ export default function AdminProviderDetail() {
       setRejectionReason('');
       fetchProvider();
     } catch (error) {
-      toast.error('Failed to reject media');
+      notifyError(error, "We couldn't reject this media.");
     } finally {
       setProcessing(false);
     }
@@ -81,7 +82,7 @@ export default function AdminProviderDetail() {
       toast.success(provider.verified ? 'Provider unverified' : 'Provider verified');
       fetchProvider();
     } catch (error) {
-      toast.error('Failed to update verification');
+      notifyError(error, "We couldn't update the verification status.");
     } finally {
       setProcessing(false);
     }

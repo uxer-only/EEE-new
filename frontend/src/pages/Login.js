@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import { notifyError } from '../lib/notify';
 import { Eye, EyeSlash } from 'phosphor-react';
 import SiteHeader from '@/components/SiteHeader';
 
@@ -22,7 +23,7 @@ export default function Login() {
       toast.success('Welcome back');
       navigate('/dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Login failed');
+      notifyError(error, "We couldn't sign you in.");
     } finally {
       setLoading(false);
     }

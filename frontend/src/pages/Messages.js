@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { getConversations, getMessages, sendMessage } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { PaperPlaneTilt, ChatCircle } from 'phosphor-react';
-import { toast } from 'sonner';
+import { notifyError } from '../lib/notify';
 import SiteHeader from '@/components/SiteHeader';
 
 export default function Messages() {
@@ -39,7 +39,7 @@ export default function Messages() {
       setConversations(response.data);
       if (response.data.length > 0) setSelectedConv(response.data[0]);
     } catch (error) {
-      toast.error('Failed to load conversations');
+      notifyError(error, "We couldn't load your conversations.");
     } finally {
       setLoading(false);
     }
@@ -50,7 +50,7 @@ export default function Messages() {
       const response = await getMessages(convId);
       setMessages(response.data);
     } catch (_err) {
-      toast.error('Failed to load messages');
+      notifyError(_err, "We couldn't load this conversation's messages.");
     }
   };
 
@@ -64,7 +64,7 @@ export default function Messages() {
       fetchMessages(selectedConv.conversation_id);
       fetchConversations();
     } catch (error) {
-      toast.error('Failed to send message');
+      notifyError(error, "We couldn't send your message.");
     }
   };
 

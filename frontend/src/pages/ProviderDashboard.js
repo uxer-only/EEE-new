@@ -10,6 +10,7 @@ import {
   PaperPlaneTilt, DownloadSimple, Eye
 } from 'phosphor-react';
 import { toast } from 'sonner';
+import { notifyError, notifyProblem } from '../lib/notify';
 import CharacteristicsForm from '@/components/CharacteristicsForm';
 import VerificationModal from '@/components/VerificationModal';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
@@ -179,11 +180,11 @@ export default function ProviderDashboard() {
       if (data?.url) {
         window.location.href = data.url;
       } else {
-        toast.error('Could not start checkout');
+        notifyProblem("We couldn't start checkout.", 'Please try again in a moment.');
         setPayRedirecting(false);
       }
     } catch (e) {
-      toast.error(e?.response?.data?.detail || 'Checkout failed');
+      notifyError(e, "We couldn't start checkout.");
       setPayRedirecting(false);
     }
   };
@@ -353,7 +354,7 @@ export default function ProviderDashboard() {
         setMode('create');
       }
     } catch (error) {
-      toast.error('Failed to load dashboard');
+      notifyError(error, "We couldn't load your dashboard.");
     } finally {
       setLoading(false);
     }
@@ -400,7 +401,7 @@ export default function ProviderDashboard() {
         logout();
       }
     } catch (error) {
-      toast.error(error?.response?.data?.detail || 'Failed to remove profile');
+      notifyError(error, "We couldn't remove your profile.");
       setRemoving(false);
     }
   };
@@ -440,13 +441,24 @@ export default function ProviderDashboard() {
       await fetchDashboard();
       setMode('overview');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to save');
+      notifyError(error, "We couldn't save your changes.");
     } finally {
       setSaving(false);
     }
   };
 
   const handleCreateProfile = async () => {
+    // Friendly guardrails before hitting the server
+    if (!profileData.display_name?.trim()) {
+      notifyProblem('A display name is required.', 'Go to the Basic Info step and enter a display name for this profile.');
+      setCurrentStep(1);
+      return;
+    }
+    if (!isAgencyScoped && !profileData.location?.country) {
+      notifyProblem('A country is required.', 'Go to the Basic Info step and select the country for this profile.');
+      setCurrentStep(1);
+      return;
+    }
     try {
       // Persist uploaded files as base64 data URLs so they survive page refresh
       let newPhotos = profileData.photos || [];
@@ -493,7 +505,7 @@ export default function ProviderDashboard() {
         }
       }
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to save profile');
+      notifyError(error, "We couldn't save your profile.");
     }
   };
 
@@ -524,7 +536,7 @@ export default function ProviderDashboard() {
     const validFiles = files.filter(file => validTypes.includes(file.type));
     
     if (validFiles.length !== files.length) {
-      toast.error('Some files were skipped. Only JPG, PNG, WebP images and MP4 videos are allowed.');
+      notifyProblem('Some files were skipped.', 'Only JPG, PNG and WebP images and MP4 videos are allowed — please choose supported files.');
     }
 
     const newFiles = validFiles.map(file => ({
@@ -680,7 +692,7 @@ export default function ProviderDashboard() {
                                 fetchDashboard();
                                 toast.success(next ? 'Auto-renew enabled' : 'Auto-renew disabled');
                               } catch (err) {
-                                toast.error('Could not update auto-renew');
+                                notifyError(err, "We couldn't update auto-renew.");
                               }
                             }}
                             className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${
@@ -2683,7 +2695,7 @@ function MessagesBox({ providerId }) {
       if (expandedId === enq.enquiry_id) setExpandedId(null);
       toast.success('Message deleted');
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Could not delete message');
+      notifyError(err, "We couldn't delete this message.");
     } finally {
       setDeletingId(null);
     }
@@ -2693,7 +2705,7 @@ function MessagesBox({ providerId }) {
     e.stopPropagation();
     const text = replyText.trim();
     if (text.length < 2) {
-      toast.error('Reply is too short');
+      notifyProblem('Your reply is too short.', 'Write at least a couple of words before sending.');
       return;
     }
     setReplying(true);
@@ -2703,7 +2715,7 @@ function MessagesBox({ providerId }) {
       setReplyText('');
       setExpandedId(null);
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Could not send reply');
+      notifyError(err, "We couldn't send your reply.");
     } finally {
       setReplying(false);
     }

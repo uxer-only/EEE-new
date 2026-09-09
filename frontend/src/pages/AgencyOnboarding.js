@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { notifyError, notifyProblem } from '../lib/notify';
 import { User, FileText, CurrencyDollar, CaretLeft, CaretRight, Plus, X, Check, CheckCircle, Info } from 'phosphor-react';
 import { saveAgencyProfile } from '@/services/api';
 import SiteHeader from '@/components/SiteHeader';
@@ -91,13 +92,13 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
       toast.success('Agency set up! Now add your companion profiles.');
       onDone && onDone();
     } catch (e) {
-      toast.error(e?.response?.data?.detail || 'Could not save agency setup');
+      notifyError(e, "We couldn't save your agency setup.");
       setSaving(false);
     }
   };
 
   const next = () => {
-    if (step === 1 && !canProceedStep1) { toast.error('Please fill agency name, city and country'); return; }
+    if (step === 1 && !canProceedStep1) { notifyProblem('Some agency details are missing.', 'Fill in the agency name, city and country to continue.'); return; }
     setStep((s) => Math.min(3, s + 1));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

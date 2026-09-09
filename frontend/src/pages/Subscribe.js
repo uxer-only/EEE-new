@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
+import { notifyError, notifyProblem } from '../lib/notify';
 import { CheckCircle, Crown, Sparkle, ArrowRight } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -47,7 +47,7 @@ export default function Subscribe() {
         const { data } = await getMySubscription(providerId);
         setSub(data);
       } catch (e) {
-        toast.error('Could not load your subscription');
+        notifyError(e, "We couldn't load your subscription.");
       } finally {
         setLoading(false);
       }
@@ -72,11 +72,11 @@ export default function Subscribe() {
       if (data?.url) {
         window.location.href = data.url;
       } else {
-        toast.error('Could not start checkout');
+        notifyProblem("We couldn't start checkout.", 'Please try again in a moment.');
         setSubmitting(false);
       }
     } catch (e) {
-      toast.error(e?.response?.data?.detail || 'Checkout failed');
+      notifyError(e, "We couldn't start checkout.");
       setSubmitting(false);
     }
   };

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, UploadSimple, CheckCircle, ShieldCheck, Image as ImageIcon } from 'phosphor-react';
 import { toast } from 'sonner';
+import { notifyError, notifyProblem } from '../lib/notify';
 import { submitVerification } from '@/services/api';
 
 const MAX_MB = 5;
@@ -65,11 +66,11 @@ export default function VerificationModal({ open, onClose, onSubmitted, provider
   const handleFile = async (key, file) => {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file (JPG, PNG, WebP, or HEIC)');
+      notifyProblem('That file type is not supported.', 'Upload an image file — JPG, PNG, WebP, or HEIC.');
       return;
     }
     if (file.size > MAX_MB * 1024 * 1024) {
-      toast.error(`File too large — max ${MAX_MB} MB`);
+      notifyProblem(`That file is too large (max ${MAX_MB} MB).`, 'Compress the image or choose a smaller file, then upload again.');
       return;
     }
     const dataUrl = await fileToDataUrl(file);
@@ -93,7 +94,7 @@ export default function VerificationModal({ open, onClose, onSubmitted, provider
       onSubmitted && onSubmitted();
       onClose();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Submission failed');
+      notifyError(error, "We couldn't submit your verification.");
     } finally {
       setSubmitting(false);
     }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getProviders } from '@/services/api';
-import { toast } from 'sonner';
+import { notifyError, notifyProblem } from '../lib/notify';
 import { MagnifyingGlass, MapPin, Faders, CheckCircle, Crown } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
 import SiteHeader from '@/components/SiteHeader';
@@ -67,10 +67,10 @@ export default function Browse() {
           setProviders(cached);
           setOfflineMode(true);
         } else {
-          toast.error('Failed to load providers');
+          notifyError(error, "We couldn't load providers.");
         }
       } catch {
-        toast.error('Failed to load providers');
+        notifyProblem("We couldn't load providers.", 'Check your connection and refresh the page.');
       }
     } finally {
       setLoading(false);

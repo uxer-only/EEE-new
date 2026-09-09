@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { toast } from 'sonner';
+import { notifyError } from '../lib/notify';
 import { CaretLeft, EnvelopeSimple } from 'phosphor-react';
 import { forgotPassword } from '@/services/api';
 import SiteHeader from '@/components/SiteHeader';
@@ -17,7 +17,7 @@ export default function ForgotPassword() {
       await forgotPassword({ email });
       setSent(true);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Something went wrong');
+      notifyError(error, "We couldn't process your request.");
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getProviderById, getProviders, createEnquiry } from '@/services/api';
 import { toast } from 'sonner';
+import { notifyError, notifyProblem } from '../lib/notify';
 import {
   MapPin, CheckCircle, Star, Calendar, Clock, CaretLeft, CaretRight,
   Phone, WhatsappLogo, TelegramLogo, ChatCircle, EnvelopeSimple, X
@@ -110,7 +111,7 @@ export default function ProviderDetail() {
         // Best-effort cache write — quota / private mode failures are intentionally swallowed.
       }
     } catch (error) {
-      toast.error('Provider not found');
+      notifyError(error, "We couldn't load this profile.");
       navigate('/browse');
     } finally {
       setLoading(false);
@@ -674,15 +675,15 @@ export default function ProviderDetail() {
                     <button
                       onClick={async () => {
                         if (!requestName.trim()) {
-                          toast.error('Please enter your name');
+                          notifyProblem('Your name is missing.', 'Enter your name so the provider knows who is contacting them.');
                           return;
                         }
                         if (!requestEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(requestEmail)) {
-                          toast.error('Please enter a valid email address');
+                          notifyProblem('That email address looks invalid.', 'Enter a valid email (e.g. you@example.com) so the provider can reply.');
                           return;
                         }
                         if (!extraRequest.trim()) {
-                          toast.error('Please enter your request');
+                          notifyProblem('Your message is empty.', 'Write a short request describing what you are looking for.');
                           return;
                         }
                         setSendingRequest(true);
@@ -698,7 +699,7 @@ export default function ProviderDetail() {
                           setRequestEmail('');
                           setExtraRequest('');
                         } catch (err) {
-                          toast.error('Failed to send request. Please try again.');
+                          notifyError(err, "We couldn't send your request.");
                         } finally {
                           setSendingRequest(false);
                         }

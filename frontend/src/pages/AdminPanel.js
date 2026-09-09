@@ -5,6 +5,7 @@ import { getPendingVerifications, updateVerification } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { CheckCircle, X, Clock, ShieldCheck, Eye, CaretLeft } from 'phosphor-react';
 import { toast } from 'sonner';
+import { notifyError, notifyProblem } from '../lib/notify';
 import SiteHeader from '@/components/SiteHeader';
 
 const DOC_LABELS = {
@@ -31,7 +32,7 @@ export default function AdminPanel() {
       const response = await getPendingVerifications();
       setVerifications(response.data || []);
     } catch (error) {
-      toast.error('Failed to load verifications');
+      notifyError(error, "We couldn't load pending verifications.");
     } finally {
       setLoading(false);
     }
@@ -39,7 +40,7 @@ export default function AdminPanel() {
 
   const handleDecide = async (status) => {
     if (status === 'rejected' && !reason.trim()) {
-      toast.error('Please add a reason so the provider knows what to fix');
+      notifyProblem('A reason is required to reject.', 'Add a short note so the provider knows what to fix.');
       return;
     }
     try {
@@ -53,7 +54,7 @@ export default function AdminPanel() {
       setRejecting(false);
       fetchVerifications();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Update failed');
+      notifyError(error, "We couldn't update this verification.");
     }
   };
 
