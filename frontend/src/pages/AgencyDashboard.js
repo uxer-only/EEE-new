@@ -17,7 +17,7 @@ import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import { currencySymbol } from '@/constants/companionData';
 
 const DAY_LABELS = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' };
-const EDIT_BTN = 'text-xs uppercase tracking-wider px-3 py-1.5 border border-[#832161] text-[#832161] hover:bg-[#832161]/10 rounded transition-colors';
+const EDIT_BTN = 'inline-flex items-center gap-1.5 text-xs uppercase tracking-wider px-3 py-1.5 border border-[#832161] text-[#832161] hover:bg-[#832161]/10 rounded transition-colors';
 
 // Agency per-profile plan catalogue (mirrors backend PLANS allowlist)
 const FEATURED = {
@@ -243,7 +243,7 @@ export default function AgencyDashboard() {
                     <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><User size={18} className="text-[#832161]" /></div>
                     <h3 className="text-xl font-bold text-[#000000]">Basic Information</h3>
                   </div>
-                  <button onClick={() => openEdit(1)} className={EDIT_BTN} data-testid="agency-edit-basic-info-btn">Edit</button>
+                  <button onClick={() => openEdit(1)} className={EDIT_BTN} data-testid="agency-edit-basic-info-btn"><PencilSimple size={14} /> Edit</button>
                 </div>
                 <dl className="space-y-3 text-sm">
                   <div className="text-[#000000]"><dt className="inline font-semibold">Agency name</dt><dd className="inline">: {agency.agency_name || '—'}</dd></div>
@@ -263,7 +263,7 @@ export default function AgencyDashboard() {
                     <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><FileText size={18} className="text-[#832161]" /></div>
                     <h3 className="text-xl font-bold text-[#000000]">Services</h3>
                   </div>
-                  <button onClick={() => openEdit(2)} className={EDIT_BTN} data-testid="agency-edit-services-btn">Edit</button>
+                  <button onClick={() => openEdit(2)} className={EDIT_BTN} data-testid="agency-edit-services-btn"><PencilSimple size={14} /> Edit</button>
                 </div>
                 {svcEntries.length === 0 ? (
                   <p className="text-[#898989] text-sm italic">No services set</p>
@@ -298,7 +298,7 @@ export default function AgencyDashboard() {
                     <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><CurrencyDollar size={18} className="text-[#832161]" /></div>
                     <h3 className="text-xl font-bold text-[#000000]">Rates</h3>
                   </div>
-                  <button onClick={() => openEdit(3)} className={EDIT_BTN} data-testid="agency-edit-rates-btn">Edit</button>
+                  <button onClick={() => openEdit(3)} className={EDIT_BTN} data-testid="agency-edit-rates-btn"><PencilSimple size={14} /> Edit</button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {['incall', 'outcall'].map((kind) => {
@@ -343,7 +343,7 @@ export default function AgencyDashboard() {
                       <p className="text-[#000000] text-xs mt-1">{availableDays} of 7 days available</p>
                     </div>
                   </div>
-                  <button onClick={() => openEdit(3)} className={EDIT_BTN} data-testid="agency-edit-availability-btn">Edit</button>
+                  <button onClick={() => openEdit(3)} className={EDIT_BTN} data-testid="agency-edit-availability-btn"><PencilSimple size={14} /> Edit</button>
                 </div>
                 {scheduleDays.length === 0 ? (
                   <p className="text-[#898989] text-sm italic">No availability set</p>
