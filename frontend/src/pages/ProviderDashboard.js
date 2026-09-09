@@ -141,7 +141,7 @@ export default function ProviderDashboard() {
     { id: 1, title: 'Basic Info', icon: User },
     { id: 2, title: "Photos & Video's", icon: Camera },
     { id: 3, title: 'Services', icon: FileText },
-    { id: 4, title: 'Rates & Availability', icon: CurrencyDollar },
+    ...(isAgencyScoped ? [] : [{ id: 4, title: 'Rates & Availability', icon: CurrencyDollar }]),
     ...(isAgencyScoped ? [] : [{ id: 5, title: 'Activate', icon: Crown }])
   ];
 
@@ -925,6 +925,7 @@ export default function ProviderDashboard() {
               </div>
 
               {/* 4. Rates */}
+              {!isAgencyScoped && (
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-rates">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
@@ -989,8 +990,10 @@ export default function ProviderDashboard() {
                   Edit Rates
                 </button>
               </div>
+              )}
 
               {/* 5. Availability */}
+              {!isAgencyScoped && (
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-availability">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
@@ -1031,6 +1034,7 @@ export default function ProviderDashboard() {
                   Edit Availability
                 </button>
               </div>
+              )}
 
               {/* Remove profile */}
               <div className="bg-white border border-[#B91C1C] rounded-lg p-6 mt-12" data-testid="card-danger-zone">
@@ -2538,7 +2542,7 @@ export default function ProviderDashboard() {
                     </button>
                   )}
 
-                  {currentStep < 4 ? (
+                  {currentStep < (isAgencyScoped ? 3 : 4) ? (
                     <button
                       type="button"
                       onClick={nextStep}
@@ -2548,31 +2552,29 @@ export default function ProviderDashboard() {
                       Next
                       <CaretRight size={20} />
                     </button>
+                  ) : isAgencyScoped ? (
+                    <button
+                      type="button"
+                      onClick={handleCreateProfile}
+                      className="btn-primary flex items-center gap-2"
+                      data-testid="save-agency-profile-button"
+                    >
+                      Save profile
+                      <CheckCircle size={18} weight="bold" />
+                    </button>
                   ) : currentStep === 4 ? (
-                    isAgencyScoped ? (
-                      <button
-                        type="button"
-                        onClick={handleCreateProfile}
-                        className="btn-primary flex items-center gap-2"
-                        data-testid="save-agency-profile-button"
-                      >
-                        Save profile
-                        <CheckCircle size={18} weight="bold" />
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          await handleCreateProfile();
-                          setCurrentStep(5);
-                        }}
-                        className="btn-primary flex items-center gap-2"
-                        data-testid="save-and-continue-button"
-                      >
-                        Save & continue
-                        <CaretRight size={20} />
-                      </button>
-                    )
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await handleCreateProfile();
+                        setCurrentStep(5);
+                      }}
+                      className="btn-primary flex items-center gap-2"
+                      data-testid="save-and-continue-button"
+                    >
+                      Save & continue
+                      <CaretRight size={20} />
+                    </button>
                   ) : (
                     <button
                       type="button"
