@@ -365,7 +365,7 @@ export default function AgencyDashboard() {
           {/* Companion profiles */}
           <h3 className="text-lg text-[#000000] font-medium mb-4" data-testid="companion-profiles-heading">Companion profiles</h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex items-center gap-4" data-testid="stat-total">
               <div className="w-11 h-11 rounded-full bg-[#832161]/10 flex items-center justify-center"><Users size={20} className="text-[#832161]" /></div>
               <div><p className="text-2xl font-bold text-[#000000]">{profiles.length}</p><p className="text-xs text-[#898989] uppercase tracking-wider">Total profiles</p></div>
