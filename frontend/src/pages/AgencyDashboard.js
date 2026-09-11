@@ -381,9 +381,9 @@ export default function AgencyDashboard() {
           </div>
 
           {/* Table */}
-          <div className="rounded-lg border border-[#dbdadd] bg-white overflow-hidden" data-testid="agency-profiles-table">
+          <div data-testid="agency-profiles-table">
             {profiles.length === 0 ? (
-              <div className="p-12 text-center" data-testid="agency-empty-state">
+              <div className="rounded-lg border border-[#dbdadd] bg-white p-12 text-center" data-testid="agency-empty-state">
                 <div className="w-14 h-14 rounded-full bg-[#832161]/10 flex items-center justify-center mx-auto mb-4"><Users size={26} className="text-[#832161]" /></div>
                 <h3 className="text-lg font-bold text-[#000000] mb-2">No profiles yet</h3>
                 <p className="text-sm text-[#898989] mb-6 max-w-md mx-auto">Add your first companion profile. It inherits your agency defaults, and you can tailor it individually.</p>
@@ -393,14 +393,14 @@ export default function AgencyDashboard() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left">
+                <table className="w-full text-left border-separate border-spacing-y-[6px]">
                   <thead>
-                    <tr className="border-b border-[#dbdadd] bg-[#F0EFF4]/60">
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#898989] font-medium">Profile</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#898989] font-medium hidden lg:table-cell">Description</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#898989] font-medium">Plan</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#898989] font-medium">Status</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#898989] font-medium text-right">Actions</th>
+                    <tr className="bg-[#d9d9db]">
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-medium rounded-l-lg">Profile</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-medium hidden lg:table-cell">Description</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-medium">Plan</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-medium">Status</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-medium text-right rounded-r-lg">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -413,8 +413,8 @@ export default function AgencyDashboard() {
                         </span>
                       ) : null;
                       return (
-                      <tr key={p.provider_id} className="border-b border-[#dbdadd] last:border-0 hover:bg-[#F0EFF4]/40 transition-colors [&>td]:align-middle" data-testid={`agency-profile-row-${p.provider_id}`}>
-                        <td className="px-5 py-4">
+                      <tr key={p.provider_id} className="[&>td]:align-middle [&>td]:bg-white [&>td]:border-y [&>td]:border-[#dbdadd] transition-colors" data-testid={`agency-profile-row-${p.provider_id}`}>
+                        <td className="px-5 py-4 border-l rounded-l-lg">
                           <div className="flex flex-col gap-2">
                             <div className="min-h-[50px] flex flex-col justify-center">
                               <div className="flex items-center gap-2">
@@ -465,7 +465,7 @@ export default function AgencyDashboard() {
                             {vipSpacer}
                           </div>
                         </td>
-                        <td className="px-5 py-4">
+                        <td className="px-5 py-4 border-r rounded-r-lg">
                           <div className="flex flex-col gap-2">
                             <div className="min-h-[50px] flex items-center justify-end gap-1">
                             <button
