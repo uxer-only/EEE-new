@@ -445,12 +445,12 @@ export default function AgencyDashboard() {
                         </td>
                         <td className="px-5 py-4"><StatusPill profile={p} /></td>
                         <td className="px-5 py-4 align-top">
-                          <div className="flex items-center justify-end gap-1">
+                          <div className="flex items-center justify-end gap-1 h-6">
                             <button
                               onClick={() => setVerifyFor(p.provider_id)}
                               title={p.verified ? 'Verified' : (p.verification_status === 'submitted' ? 'Review verification' : 'Verify identity')}
                               aria-label={p.verified ? 'Verified' : 'Verify identity'}
-                              className={`p-2 rounded transition-colors hover:bg-black/5 ${p.verified ? 'text-[#22C55E]' : 'text-[#EA580C]'}`}
+                              className={`p-1.5 rounded transition-colors hover:bg-black/5 ${p.verified ? 'text-[#22C55E]' : 'text-[#EA580C]'}`}
                               data-testid={`verify-profile-${p.provider_id}`}
                             >
                               <ShieldCheck size={18} weight={p.verified ? 'fill' : 'regular'} />
@@ -459,7 +459,7 @@ export default function AgencyDashboard() {
                               onClick={() => navigate(`/dashboard/profile/${p.provider_id}`)}
                               title="Edit profile"
                               aria-label="Edit profile"
-                              className="p-2 rounded transition-colors hover:bg-black/5 text-[#000000]"
+                              className="p-1.5 rounded transition-colors hover:bg-black/5 text-[#000000]"
                               data-testid={`edit-profile-${p.provider_id}`}
                             >
                               <PencilSimple size={18} />
@@ -469,7 +469,7 @@ export default function AgencyDashboard() {
                               disabled={deletingId === p.provider_id}
                               title="Delete profile"
                               aria-label="Delete profile"
-                              className="p-2 rounded transition-colors hover:bg-[#B91C1C]/10 text-[#B91C1C] disabled:opacity-50"
+                              className="p-1.5 rounded transition-colors hover:bg-[#B91C1C]/10 text-[#B91C1C] disabled:opacity-50"
                               data-testid={`delete-profile-${p.provider_id}`}
                             >
                               <Trash size={18} />
