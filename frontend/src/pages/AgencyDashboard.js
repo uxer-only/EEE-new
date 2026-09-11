@@ -444,8 +444,8 @@ export default function AgencyDashboard() {
                           </div>
                         </td>
                         <td className="px-5 py-4"><StatusPill profile={p} /></td>
-                        <td className="px-5 py-4 align-top">
-                          <div className="flex items-center justify-end gap-1 h-6">
+                        <td className="px-5 py-4 align-middle">
+                          <div className="flex items-center justify-end gap-1">
                             <button
                               onClick={() => setVerifyFor(p.provider_id)}
                               title={p.verified ? 'Verified' : (p.verification_status === 'submitted' ? 'Review verification' : 'Verify identity')}
