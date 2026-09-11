@@ -231,7 +231,7 @@ export default function AgencyDashboard() {
           </div>
 
           {/* Agency profile & defaults — Basic info / Services / Rates / Availability */}
-          <div className="mb-10 order-1" data-testid="agency-profile-summary">
+          <div className="mb-10 mt-10 order-1" data-testid="agency-profile-summary">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg text-[#000000] font-medium">Agency profile &amp; defaults</h3>
               <span className="text-xs text-[#898989]">Used as the starting point for every new companion profile</span>
