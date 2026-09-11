@@ -272,7 +272,7 @@ export default function AgencyDashboard() {
                   <div>
                     {inclusiveSvc.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#000000] mb-2">Inclusive ({inclusiveSvc.length})</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#832161] mb-2">Inclusive ({inclusiveSvc.length})</p>
                         <div className="flex flex-wrap gap-2">
                           {inclusiveSvc.slice(0, 10).map(([name]) => (<span key={name} className="px-3 py-1 text-xs border border-[#dbdadd] text-[#000000] rounded-full">{name}</span>))}
                           {inclusiveSvc.length > 10 && <span className="px-3 py-1 text-xs text-[#000000]">+{inclusiveSvc.length - 10} more</span>}
@@ -281,7 +281,7 @@ export default function AgencyDashboard() {
                     )}
                     {extraSvc.length > 0 && (
                       <div className={inclusiveSvc.length > 0 ? 'mt-10' : ''}>
-                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#000000] mb-2">Extra ({extraSvc.length})</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#832161] mb-2">Extra ({extraSvc.length})</p>
                         <div className="flex flex-wrap gap-2">
                           {extraSvc.slice(0, 8).map(([name, v]) => (<span key={name} className="px-3 py-1 text-xs border border-[#832161]/40 bg-[#832161]/10 text-[#832161] rounded-full">{name}{v.price && ` · €${v.price}`}</span>))}
                           {extraSvc.length > 8 && <span className="px-3 py-1 text-xs text-[#000000]">+{extraSvc.length - 8} more</span>}

@@ -923,7 +923,7 @@ export default function ProviderDashboard() {
                     )}
                     {inclusiveServices.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">Inclusive ({inclusiveServices.length})</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#832161] mb-2">Inclusive ({inclusiveServices.length})</p>
                         <div className="flex flex-wrap gap-2">
                           {inclusiveServices.slice(0, 8).map(([name]) => (
                             <span key={name} className="px-3 py-1 text-xs border border-[#dbdadd] text-[#000000] rounded-full">{name}</span>
@@ -934,7 +934,7 @@ export default function ProviderDashboard() {
                     )}
                     {extraServices.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">Extra ({extraServices.length})</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#832161] mb-2">Extra ({extraServices.length})</p>
                         <div className="flex flex-wrap gap-2">
                           {extraServices.slice(0, 6).map(([name, v]) => (
                             <span key={name} className="px-3 py-1 text-xs border border-[#832161]/40 bg-[#832161]/10 text-[#832161] rounded-full">
