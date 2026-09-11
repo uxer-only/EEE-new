@@ -407,7 +407,7 @@ export default function AgencyDashboard() {
                     {profiles.map((p) => {
                       const pp = p.pending_plan || {};
                       return (
-                      <tr key={p.provider_id} className="border-b border-[#dbdadd] last:border-0 hover:bg-[#F0EFF4]/40 transition-colors [&>td]:align-top" data-testid={`agency-profile-row-${p.provider_id}`}>
+                      <tr key={p.provider_id} className="border-b border-[#dbdadd] last:border-0 hover:bg-[#F0EFF4]/40 transition-colors [&>td]:align-middle" data-testid={`agency-profile-row-${p.provider_id}`}>
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-2">
                             <p className="font-medium text-[#000000]">{p.display_name}</p>
@@ -419,6 +419,12 @@ export default function AgencyDashboard() {
                         <td className="px-5 py-4 hidden lg:table-cell"><p className="text-sm text-[#898989] line-clamp-1 max-w-xs">{p.bio || '—'}</p></td>
                         <td className="px-5 py-4">
                           <div className="flex flex-col gap-2">
+                            {pp.featured_plan && (
+                              <span aria-hidden="true" className="invisible flex items-center gap-2 text-xs">
+                                <span className="w-4 h-4" />
+                                <Crown size={13} /> VIP Boost
+                              </span>
+                            )}
                             <select
                               value={pp.featured_plan || ''}
                               onChange={(e) => changePlan(p, e.target.value, !!pp.vip_plan)}
@@ -445,7 +451,7 @@ export default function AgencyDashboard() {
                         </td>
                         <td className="px-5 py-4"><StatusPill profile={p} /></td>
                         <td className="px-5 py-4">
-                          <div className="flex items-center justify-end gap-1 h-6">
+                          <div className="flex items-center justify-end gap-1">
                             <button
                               onClick={() => setVerifyFor(p.provider_id)}
                               title={p.verified ? 'Verified' : (p.verification_status === 'submitted' ? 'Review verification' : 'Verify identity')}
