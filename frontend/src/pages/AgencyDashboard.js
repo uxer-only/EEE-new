@@ -445,15 +445,34 @@ export default function AgencyDashboard() {
                         </td>
                         <td className="px-5 py-4"><StatusPill profile={p} /></td>
                         <td className="px-5 py-4">
-                          <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => setVerifyFor(p.provider_id)} className="inline-flex items-center gap-1 text-xs uppercase tracking-wider px-3 py-2 border border-[#22C55E]/50 text-[#15803D] hover:bg-[#22C55E]/10 rounded transition-colors" data-testid={`verify-profile-${p.provider_id}`}>
-                              <ShieldCheck size={14} /> {p.verified ? 'Verified' : (p.verification_status === 'submitted' ? 'Review' : 'Verify')}
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => setVerifyFor(p.provider_id)}
+                              title={p.verified ? 'Verified' : (p.verification_status === 'submitted' ? 'Review verification' : 'Verify identity')}
+                              aria-label={p.verified ? 'Verified' : 'Verify identity'}
+                              className={`p-2 rounded transition-colors hover:bg-black/5 ${p.verified ? 'text-[#22C55E]' : 'text-[#EA580C]'}`}
+                              data-testid={`verify-profile-${p.provider_id}`}
+                            >
+                              <ShieldCheck size={18} weight={p.verified ? 'fill' : 'regular'} />
                             </button>
-                            <button onClick={() => navigate(`/dashboard/profile/${p.provider_id}`)} className="inline-flex items-center gap-1 text-xs uppercase tracking-wider px-3 py-2 border border-[#832161] text-[#832161] hover:bg-[#832161]/10 rounded transition-colors" data-testid={`edit-profile-${p.provider_id}`}>
-                              <PencilSimple size={14} /> Edit
+                            <button
+                              onClick={() => navigate(`/dashboard/profile/${p.provider_id}`)}
+                              title="Edit profile"
+                              aria-label="Edit profile"
+                              className="p-2 rounded transition-colors hover:bg-black/5 text-[#000000]"
+                              data-testid={`edit-profile-${p.provider_id}`}
+                            >
+                              <PencilSimple size={18} />
                             </button>
-                            <button onClick={() => handleDelete(p)} disabled={deletingId === p.provider_id} className="inline-flex items-center gap-1 text-xs uppercase tracking-wider px-3 py-2 border border-[#B91C1C]/40 text-[#B91C1C] hover:bg-[#B91C1C]/10 rounded transition-colors disabled:opacity-50" data-testid={`delete-profile-${p.provider_id}`}>
-                              <Trash size={14} /> {deletingId === p.provider_id ? '…' : 'Delete'}
+                            <button
+                              onClick={() => handleDelete(p)}
+                              disabled={deletingId === p.provider_id}
+                              title="Delete profile"
+                              aria-label="Delete profile"
+                              className="p-2 rounded transition-colors hover:bg-[#B91C1C]/10 text-[#B91C1C] disabled:opacity-50"
+                              data-testid={`delete-profile-${p.provider_id}`}
+                            >
+                              <Trash size={18} />
                             </button>
                           </div>
                         </td>
