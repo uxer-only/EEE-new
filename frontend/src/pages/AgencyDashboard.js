@@ -198,7 +198,7 @@ export default function AgencyDashboard() {
     <div className="min-h-screen bg-[#F0EFF4] dashboard-light">
       <SiteHeader />
       <div className="pt-32 pb-40 section-padding">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto flex flex-col">
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10" data-testid="agency-header">
             <div>
@@ -231,7 +231,7 @@ export default function AgencyDashboard() {
           </div>
 
           {/* Agency profile & defaults — Basic info / Services / Rates / Availability */}
-          <div className="mb-10" data-testid="agency-profile-summary">
+          <div className="mb-10 order-1" data-testid="agency-profile-summary">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg text-[#000000] font-medium">Agency profile &amp; defaults</h3>
               <span className="text-xs text-[#898989]">Used as the starting point for every new companion profile</span>
@@ -486,7 +486,7 @@ export default function AgencyDashboard() {
           </div>
 
           {/* Delete agency */}
-          <div className="mt-12 flex justify-center" data-testid="agency-danger-zone">
+          <div className="mt-12 flex justify-center order-2" data-testid="agency-danger-zone">
             <button
               onClick={() => setConfirmAgencyDelete(true)}
               disabled={deletingAgency}
