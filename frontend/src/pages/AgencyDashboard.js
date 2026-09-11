@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { notifyError, notifyProblem } from '../lib/notify';
 import {
-  Plus, PencilSimple, Trash, MapPin, CheckCircle, Crown, ChatCircle, Users, ArrowRight,
+  Plus, PencilSimple, Trash, CheckCircle, Crown, ChatCircle, Users, ArrowRight,
   ShieldCheck, Gear, ArrowsClockwise, User, FileText, CurrencyDollar, Clock
 } from 'phosphor-react';
 import {
@@ -398,7 +398,6 @@ export default function AgencyDashboard() {
                     <tr className="border-b border-[#dbdadd] bg-[#F0EFF4]/60">
                       <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#898989] font-medium">Profile</th>
                       <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#898989] font-medium hidden lg:table-cell">Description</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#898989] font-medium">Location</th>
                       <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#898989] font-medium">Plan</th>
                       <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#898989] font-medium">Status</th>
                       <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#898989] font-medium text-right">Actions</th>
@@ -415,12 +414,9 @@ export default function AgencyDashboard() {
                             {p.verified && <CheckCircle size={14} weight="fill" className="text-[#22C55E]" />}
                             {p.unread_enquiries > 0 && <span className="text-[10px] font-medium px-1.5 py-0.5 bg-[#DA4167] text-white rounded-full">{p.unread_enquiries}</span>}
                           </div>
-                          <div className="lg:hidden mt-1 text-xs text-[#898989] line-clamp-2 max-w-xs">{p.bio || '—'}</div>
+                          <div className="lg:hidden mt-1 text-xs text-[#898989] line-clamp-1 max-w-xs">{p.bio || '—'}</div>
                         </td>
-                        <td className="px-5 py-4 hidden lg:table-cell"><p className="text-sm text-[#898989] line-clamp-2 max-w-xs">{p.bio || '—'}</p></td>
-                        <td className="px-5 py-4">
-                          <span className="inline-flex items-center gap-1 text-sm text-[#000000]"><MapPin size={14} className="text-[#832161]" />{[p.location?.city, p.location?.country].filter(Boolean).join(', ') || '—'}</span>
-                        </td>
+                        <td className="px-5 py-4 hidden lg:table-cell"><p className="text-sm text-[#898989] line-clamp-1 max-w-xs">{p.bio || '—'}</p></td>
                         <td className="px-5 py-4">
                           <div className="flex flex-col gap-2">
                             <select
