@@ -407,7 +407,7 @@ export default function AgencyDashboard() {
                     {profiles.map((p) => {
                       const pp = p.pending_plan || {};
                       return (
-                      <tr key={p.provider_id} className="border-b border-[#dbdadd] last:border-0 hover:bg-[#F0EFF4]/40 transition-colors" data-testid={`agency-profile-row-${p.provider_id}`}>
+                      <tr key={p.provider_id} className="border-b border-[#dbdadd] last:border-0 hover:bg-[#F0EFF4]/40 transition-colors [&>td]:align-top" data-testid={`agency-profile-row-${p.provider_id}`}>
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-2">
                             <p className="font-medium text-[#000000]">{p.display_name}</p>
@@ -444,8 +444,8 @@ export default function AgencyDashboard() {
                           </div>
                         </td>
                         <td className="px-5 py-4"><StatusPill profile={p} /></td>
-                        <td className="px-5 py-4 align-middle">
-                          <div className="flex items-center justify-end gap-1">
+                        <td className="px-5 py-4">
+                          <div className="flex items-center justify-end gap-1 h-6">
                             <button
                               onClick={() => setVerifyFor(p.provider_id)}
                               title={p.verified ? 'Verified' : (p.verification_status === 'submitted' ? 'Review verification' : 'Verify identity')}
