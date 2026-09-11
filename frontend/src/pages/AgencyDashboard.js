@@ -396,11 +396,11 @@ export default function AgencyDashboard() {
                 <table className="w-full text-left border-separate border-spacing-y-[6px]">
                   <thead>
                     <tr className="bg-[#d9d9db]">
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-medium rounded-l-lg">Profile</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-medium hidden lg:table-cell">Description</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-medium">Plan</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-medium">Status</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-medium text-right rounded-r-lg">Actions</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-semibold rounded-l-lg">Profile</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-semibold hidden lg:table-cell">Description</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-semibold">Plan</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-semibold">Status</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-semibold text-right rounded-r-lg">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
