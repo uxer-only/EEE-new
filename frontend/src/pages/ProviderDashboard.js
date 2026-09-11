@@ -824,7 +824,7 @@ export default function ProviderDashboard() {
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 1</p>
-                    <h3 className="text-xl text-[#000000]">Basic Info</h3>
+                    <h3 className="text-lg font-bold text-[#000000]">Basic Info</h3>
                   </div>
                 </div>
                 <dl className="space-y-3 text-sm">
@@ -866,7 +866,7 @@ export default function ProviderDashboard() {
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 2</p>
-                    <h3 className="text-xl text-[#000000]">Photos & Video&apos;s</h3>
+                    <h3 className="text-lg font-bold text-[#000000]">Photos & Video&apos;s</h3>
                   </div>
                 </div>
                 {p.photos && p.photos.length > 0 ? (
@@ -903,7 +903,7 @@ export default function ProviderDashboard() {
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 3</p>
-                    <h3 className="text-xl text-[#000000]">Services</h3>
+                    <h3 className="text-lg font-bold text-[#000000]">Services</h3>
                   </div>
                 </div>
                 {legacyServices.length === 0 && inclusiveServices.length === 0 && extraServices.length === 0 ? (
@@ -966,7 +966,7 @@ export default function ProviderDashboard() {
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 4</p>
-                    <h3 className="text-xl text-[#000000]">Rates</h3>
+                    <h3 className="text-lg font-bold text-[#000000]">Rates</h3>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1034,7 +1034,7 @@ export default function ProviderDashboard() {
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 4</p>
-                    <h3 className="text-xl text-[#000000]">Availability</h3>
+                    <h3 className="text-lg font-bold text-[#000000]">Availability</h3>
                     <p className="text-[#000000] text-xs mt-1">{availableDays} of 7 days available</p>
                   </div>
                 </div>

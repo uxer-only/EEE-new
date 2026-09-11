@@ -233,7 +233,7 @@ export default function AgencyDashboard() {
           {/* Agency profile & defaults — Basic info / Services / Rates / Availability */}
           <div className="mb-10 mt-10 order-1" data-testid="agency-profile-summary">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg text-[#000000] font-medium">Agency profile</h3>
+              <h3 className="text-xl font-bold text-[#832161]">Agency profile</h3>
               <span className="text-xs text-[#898989]">Used as the starting point for every new companion profile</span>
             </div>
             <div className="flex flex-col gap-6">
@@ -242,7 +242,7 @@ export default function AgencyDashboard() {
                 <div className="flex items-center justify-between gap-3 mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><User size={18} className="text-[#832161]" /></div>
-                    <h3 className="text-xl font-bold text-[#000000]">Basic Information</h3>
+                    <h3 className="text-lg font-bold text-[#000000]">Basic Information</h3>
                   </div>
                   <button onClick={() => openEdit(1)} className={EDIT_BTN} data-testid="agency-edit-basic-info-btn"><PencilSimple size={14} /> Edit</button>
                 </div>
@@ -262,7 +262,7 @@ export default function AgencyDashboard() {
                 <div className="flex items-center justify-between gap-3 mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><FileText size={18} className="text-[#832161]" /></div>
-                    <h3 className="text-xl font-bold text-[#000000]">Services</h3>
+                    <h3 className="text-lg font-bold text-[#000000]">Services</h3>
                   </div>
                   <button onClick={() => openEdit(2)} className={EDIT_BTN} data-testid="agency-edit-services-btn"><PencilSimple size={14} /> Edit</button>
                 </div>
@@ -297,7 +297,7 @@ export default function AgencyDashboard() {
                 <div className="flex items-center justify-between gap-3 mb-6">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><CurrencyDollar size={18} className="text-[#832161]" /></div>
-                    <h3 className="text-xl font-bold text-[#000000]">Rates</h3>
+                    <h3 className="text-lg font-bold text-[#000000]">Rates</h3>
                   </div>
                   <button onClick={() => openEdit(3)} className={EDIT_BTN} data-testid="agency-edit-rates-btn"><PencilSimple size={14} /> Edit</button>
                 </div>
@@ -340,7 +340,7 @@ export default function AgencyDashboard() {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><Clock size={18} className="text-[#832161]" /></div>
                     <div>
-                      <h3 className="text-xl font-bold text-[#000000]">Availability</h3>
+                      <h3 className="text-lg font-bold text-[#000000]">Availability</h3>
                       <p className="text-[#000000] text-xs mt-1">{availableDays} of 7 days available</p>
                     </div>
                   </div>
@@ -363,7 +363,7 @@ export default function AgencyDashboard() {
           </div>
 
           {/* Companion profiles */}
-          <h3 className="text-lg text-[#000000] font-medium mb-4" data-testid="companion-profiles-heading">Companion profiles</h3>
+          <h3 className="text-xl font-bold text-[#832161] mb-4" data-testid="companion-profiles-heading">Companion profiles</h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex items-center gap-4" data-testid="stat-total">
