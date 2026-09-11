@@ -406,25 +406,35 @@ export default function AgencyDashboard() {
                   <tbody>
                     {profiles.map((p) => {
                       const pp = p.pending_plan || {};
+                      const vipSpacer = pp.featured_plan ? (
+                        <span aria-hidden="true" className="invisible flex items-center gap-2 text-xs">
+                          <span className="w-4 h-4" />
+                          <Crown size={13} /> VIP Boost
+                        </span>
+                      ) : null;
                       return (
                       <tr key={p.provider_id} className="border-b border-[#dbdadd] last:border-0 hover:bg-[#F0EFF4]/40 transition-colors [&>td]:align-middle" data-testid={`agency-profile-row-${p.provider_id}`}>
                         <td className="px-5 py-4">
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium text-[#000000]">{p.display_name}</p>
-                            {p.verified && <CheckCircle size={14} weight="fill" className="text-[#22C55E]" />}
-                            {p.unread_enquiries > 0 && <span className="text-[10px] font-medium px-1.5 py-0.5 bg-[#DA4167] text-white rounded-full">{p.unread_enquiries}</span>}
+                          <div className="flex flex-col gap-2">
+                            <div className="min-h-[50px] flex flex-col justify-center">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium text-[#000000]">{p.display_name}</p>
+                                {p.verified && <CheckCircle size={14} weight="fill" className="text-[#22C55E]" />}
+                                {p.unread_enquiries > 0 && <span className="text-[10px] font-medium px-1.5 py-0.5 bg-[#DA4167] text-white rounded-full">{p.unread_enquiries}</span>}
+                              </div>
+                              <div className="lg:hidden mt-1 text-xs text-[#898989] line-clamp-1 max-w-xs">{p.bio || '—'}</div>
+                            </div>
+                            {vipSpacer}
                           </div>
-                          <div className="lg:hidden mt-1 text-xs text-[#898989] line-clamp-1 max-w-xs">{p.bio || '—'}</div>
                         </td>
-                        <td className="px-5 py-4 hidden lg:table-cell"><p className="text-sm text-[#898989] line-clamp-1 max-w-xs">{p.bio || '—'}</p></td>
+                        <td className="px-5 py-4 hidden lg:table-cell">
+                          <div className="flex flex-col gap-2">
+                            <div className="min-h-[50px] flex items-center"><p className="text-sm text-[#898989] line-clamp-1 max-w-xs">{p.bio || '—'}</p></div>
+                            {vipSpacer}
+                          </div>
+                        </td>
                         <td className="px-5 py-4">
                           <div className="flex flex-col gap-2">
-                            {pp.featured_plan && (
-                              <span aria-hidden="true" className="invisible flex items-center gap-2 text-xs">
-                                <span className="w-4 h-4" />
-                                <Crown size={13} /> VIP Boost
-                              </span>
-                            )}
                             <select
                               value={pp.featured_plan || ''}
                               onChange={(e) => changePlan(p, e.target.value, !!pp.vip_plan)}
@@ -449,9 +459,15 @@ export default function AgencyDashboard() {
                             )}
                           </div>
                         </td>
-                        <td className="px-5 py-4"><StatusPill profile={p} /></td>
                         <td className="px-5 py-4">
-                          <div className="flex items-center justify-end gap-1">
+                          <div className="flex flex-col gap-2">
+                            <div className="min-h-[50px] flex items-center"><StatusPill profile={p} /></div>
+                            {vipSpacer}
+                          </div>
+                        </td>
+                        <td className="px-5 py-4">
+                          <div className="flex flex-col gap-2">
+                            <div className="min-h-[50px] flex items-center justify-end gap-1">
                             <button
                               onClick={() => setVerifyFor(p.provider_id)}
                               title={p.verified ? 'Verified' : (p.verification_status === 'submitted' ? 'Review verification' : 'Verify identity')}
@@ -480,6 +496,8 @@ export default function AgencyDashboard() {
                             >
                               <Trash size={18} />
                             </button>
+                            </div>
+                            {vipSpacer}
                           </div>
                         </td>
                       </tr>
