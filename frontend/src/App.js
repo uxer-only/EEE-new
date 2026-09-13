@@ -138,6 +138,10 @@ function DashboardRouter() {
   
   if (!user) return null;
   
+  if (user.role === 'admin') {
+    return <Navigate to="/admin" replace />;
+  }
+  
   if (user.role === 'provider') {
     if (user.account_type === 'agency') {
       return <AgencyDashboard />;

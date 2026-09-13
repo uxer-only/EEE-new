@@ -29,7 +29,7 @@ export default function SiteHeader({ leftSlot = null, links = null }) {
   const defaultLinks = user
     ? [
         { to: '/browse', label: 'Browse', testId: 'nav-browse' },
-        { to: '/dashboard', label: 'Dashboard', testId: 'nav-dashboard' },
+        { to: user.role === 'admin' ? '/admin' : '/dashboard', label: 'Dashboard', testId: 'nav-dashboard' },
         { label: 'Log out', onClick: handleLogout, variant: 'primary', testId: 'nav-logout' },
       ]
     : [
