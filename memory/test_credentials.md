@@ -50,3 +50,15 @@
 - Agency users land on the AgencyDashboard roster (table of profiles). Click Edit → `/dashboard/profile/:providerId` opens the full ProviderDashboard scoped to that profile. "Add profile" → `/dashboard/profile/new`.
 - Register a fresh agency via /register/provider → pick "Agency" button.
 
+
+## Admin demo seed data (seed_tag='admin_demo', all password: demo1234)
+Seeded via: `cd /app/backend && python3 seed_admin_demo.py` (idempotent — wipes & recreates its own tagged data).
+- 5 independent providers (verified + live on browse):
+  - isabella.indep@demo.com (Isabella Rose, London)
+  - chloé... actually first-name based: `chloé.indep@demo.com` (Chloé Laurent, Paris)
+  - mia.indep@demo.com (Mia König, Berlin)
+  - aria.indep@demo.com (Aria van Dijk, Amsterdam)
+  - valentina.indep@demo.com (Valentina Cruz, Barcelona)
+- 2 agencies (verified + live companions):
+  - rosenoire.agency@demo.com (Rose Noire, Paris — companions Camille, Elena, Nadia)
+  - viennaelite.agency@demo.com (Vienna Elite, Vienna — companions Lena, Victoria)
