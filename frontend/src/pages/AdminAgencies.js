@@ -32,7 +32,7 @@ const StatCard = ({ icon: Icon, label, value, accent = '#832161', testId }) => (
 const TabNav = ({ active }) => (
   <div className="flex flex-wrap items-center gap-2 mb-8">
     {[
-      { to: '/admin', label: 'Overview', id: 'overview' },
+      { to: '/admin', label: 'Independents', id: 'overview' },
       { to: '/admin/agencies', label: 'Agencies', id: 'agencies' },
       { to: '/admin/verifications', label: 'Verifications', id: 'verifications' },
     ].map((t) =>
