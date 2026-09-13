@@ -89,6 +89,13 @@ export default function AdminDashboard() {
 
       <div className="pt-32 pb-20 section-padding">
         <div className="max-w-7xl mx-auto">
+          {/* Admin nav tabs */}
+          <div className="flex items-center gap-2 mb-8">
+            <span className="px-4 py-2 text-sm uppercase tracking-wider border border-[#DA4167] text-[#DA4167] rounded" data-testid="tab-overview">Overview</span>
+            <Link to="/admin/agencies" className="px-4 py-2 text-sm uppercase tracking-wider border border-[#27272A] text-[#A1A1AA] hover:border-[#DA4167] hover:text-[#DA4167] rounded transition-colors" data-testid="tab-agencies">Agencies</Link>
+            <Link to="/admin/verifications" className="px-4 py-2 text-sm uppercase tracking-wider border border-[#27272A] text-[#A1A1AA] hover:border-[#DA4167] hover:text-[#DA4167] rounded transition-colors" data-testid="tab-verifications">Verifications</Link>
+          </div>
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
             <motion.div

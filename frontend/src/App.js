@@ -19,6 +19,7 @@ import Messages from '@/pages/Messages';
 import AdminPanel from '@/pages/AdminPanel';
 import AdminDashboard from '@/pages/AdminDashboard';
 import AdminProviderDetail from '@/pages/AdminProviderDetail';
+import AdminAgencies from '@/pages/AdminAgencies';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Subscribe from '@/pages/Subscribe';
@@ -107,6 +108,15 @@ function AppRouter() {
         element={
           <ProtectedRoute requiredRole="admin">
             <AdminProviderDetail />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/admin/agencies"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminAgencies />
           </ProtectedRoute>
         }
       />

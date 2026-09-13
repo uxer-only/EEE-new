@@ -1386,7 +1386,7 @@ async def browse_providers(
     max_weight: Optional[float] = None,
 ):
     """Browse and search providers"""
-    query: dict = {"verified": True, "available": True}
+    query: dict = {"verified": True, "available": True, "suspended": {"$ne": True}}
 
     if city:
         query["location.city"] = {"$regex": city, "$options": "i"}
@@ -2508,6 +2508,124 @@ async def admin_verify_provider(
         raise HTTPException(status_code=404, detail="Provider not found")
     
     return {"status": "success", "verified": verified}
+
+# ===== ADMIN: AGENCY MANAGEMENT =====
+
+@api_router.get("/admin/agencies")
+async def admin_list_agencies(
+    request: Request,
+    session_token: Optional[str] = Cookie(None)
+):
+    """List every agency with roster stats (admin only)."""
+    admin = await get_admin_user(request, session_token)
+    now = datetime.utcnow()
+    agencies = await db.agency_profiles.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    result = []
+    for ag in agencies:
+        uid = ag.get("user_id")
+        profiles = await db.provider_profiles.find({"user_id": uid}, {"_id": 0}).to_list(1000)
+        total = len(profiles)
+        live = sum(
+            1 for p in profiles
+            if not p.get("suspended")
+            and p.get("verified")
+            and p.get("available")
+            and p.get("featured_until") and p["featured_until"] > now - timedelta(days=GRACE_DAYS)
+        )
+        user = await db.users.find_one({"user_id": uid}, {"_id": 0, "password_hash": 0})
+        result.append({
+            "agency_id": ag.get("agency_id"),
+            "user_id": uid,
+            "agency_name": ag.get("agency_name") or "Untitled agency",
+            "location": ag.get("location") or {},
+            "contact": ag.get("contact") or {},
+            "suspended": bool(ag.get("suspended")),
+            "total_profiles": total,
+            "live_profiles": live,
+            "email": (user or {}).get("email"),
+            "name": (user or {}).get("name"),
+            "created_at": ag["created_at"].isoformat() if isinstance(ag.get("created_at"), datetime) else ag.get("created_at"),
+        })
+    return result
+
+@api_router.get("/admin/agencies/{agency_user_id}")
+async def admin_get_agency_detail(
+    agency_user_id: str,
+    request: Request,
+    session_token: Optional[str] = Cookie(None)
+):
+    """Agency detail + companion roster (admin only)."""
+    admin = await get_admin_user(request, session_token)
+    now = datetime.utcnow()
+    ag = await db.agency_profiles.find_one({"user_id": agency_user_id}, {"_id": 0})
+    if not ag:
+        raise HTTPException(status_code=404, detail="Agency not found")
+    user = await db.users.find_one({"user_id": agency_user_id}, {"_id": 0, "password_hash": 0})
+    profiles = await db.provider_profiles.find({"user_id": agency_user_id}, {"_id": 0}).sort("created_at", 1).to_list(1000)
+    roster = []
+    for p in profiles:
+        fu = p.get("featured_until")
+        roster.append({
+            "provider_id": p["provider_id"],
+            "display_name": p.get("display_name") or "Untitled profile",
+            "location": p.get("location") or {},
+            "verified": p.get("verified", False),
+            "suspended": bool(p.get("suspended")),
+            "live": bool(not p.get("suspended") and p.get("verified") and p.get("available") and fu and fu > now - timedelta(days=GRACE_DAYS)),
+            "photos": p.get("photos") or [],
+        })
+    return {
+        "agency_id": ag.get("agency_id"),
+        "user_id": agency_user_id,
+        "agency_name": ag.get("agency_name") or "Untitled agency",
+        "description": ag.get("description"),
+        "location": ag.get("location") or {},
+        "contact": ag.get("contact") or {},
+        "languages": ag.get("languages") or [],
+        "suspended": bool(ag.get("suspended")),
+        "user": user,
+        "created_at": ag["created_at"].isoformat() if isinstance(ag.get("created_at"), datetime) else ag.get("created_at"),
+        "profiles": roster,
+    }
+
+@api_router.post("/admin/agencies/{agency_user_id}/suspend")
+async def admin_suspend_agency(
+    agency_user_id: str,
+    request: Request,
+    session_token: Optional[str] = Cookie(None)
+):
+    """Suspend or unsuspend an agency and all its profiles (admin only)."""
+    admin = await get_admin_user(request, session_token)
+    body = await request.json()
+    suspend = bool(body.get("suspend", True))
+    ag = await db.agency_profiles.find_one({"user_id": agency_user_id})
+    if not ag:
+        raise HTTPException(status_code=404, detail="Agency not found")
+    await db.agency_profiles.update_one({"user_id": agency_user_id}, {"$set": {"suspended": suspend}})
+    await db.provider_profiles.update_many({"user_id": agency_user_id}, {"$set": {"suspended": suspend}})
+    return {"status": "success", "suspended": suspend}
+
+@api_router.delete("/admin/agencies/{agency_user_id}")
+async def admin_delete_agency(
+    agency_user_id: str,
+    request: Request,
+    session_token: Optional[str] = Cookie(None)
+):
+    """Delete an agency, all its companion profiles and related data (admin only)."""
+    admin = await get_admin_user(request, session_token)
+    ag = await db.agency_profiles.find_one({"user_id": agency_user_id})
+    if not ag:
+        raise HTTPException(status_code=404, detail="Agency not found")
+    profiles = await db.provider_profiles.find({"user_id": agency_user_id}, {"_id": 0, "provider_id": 1}).to_list(1000)
+    provider_ids = [p["provider_id"] for p in profiles]
+    if provider_ids:
+        await db.provider_media.delete_many({"provider_id": {"$in": provider_ids}})
+        await db.enquiries.delete_many({"provider_id": {"$in": provider_ids}})
+        await db.subscriptions.delete_many({"provider_id": {"$in": provider_ids}})
+    await db.provider_profiles.delete_many({"user_id": agency_user_id})
+    await db.agency_profiles.delete_one({"user_id": agency_user_id})
+    await db.users.delete_one({"user_id": agency_user_id})
+    return {"status": "success", "deleted_profiles": len(provider_ids)}
 
 # Include the router in the main app
 app.include_router(api_router)

@@ -60,6 +60,13 @@ export const getAdminTraffic = (days = 7) => api.get(`/admin/traffic?days=${days
 export const verifyProvider = (providerId, verified) => 
   api.post(`/admin/providers/${providerId}/verify`, { verified });
 
+// Admin - Agency management
+export const getAdminAgencies = () => api.get('/admin/agencies');
+export const getAdminAgencyDetail = (agencyUserId) => api.get(`/admin/agencies/${agencyUserId}`);
+export const suspendAgency = (agencyUserId, suspend) =>
+  api.post(`/admin/agencies/${agencyUserId}/suspend`, { suspend });
+export const deleteAgency = (agencyUserId) => api.delete(`/admin/agencies/${agencyUserId}`);
+
 // Traffic tracking
 export const trackPageView = (page, userId) => 
   api.post('/track', { page, user_id: userId });
