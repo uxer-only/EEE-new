@@ -184,7 +184,7 @@ export default function AdminAgencies() {
                   placeholder="Search agencies..."
                   value={search}
                   onChange={(e) => onSearch(e.target.value)}
-                  className="input-premium pl-10 pr-4 py-2 w-full sm:w-64"
+                  className="input-premium !pl-11 pr-4 py-2 w-full sm:w-64"
                   data-testid="agency-search-input"
                 />
               </div>
