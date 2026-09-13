@@ -270,7 +270,7 @@ export default function AdminDashboard() {
                     <tr
                       key={provider.provider_id}
                       onClick={() => navigate(`/admin/providers/${provider.provider_id}`)}
-                      className={`cursor-pointer transition-colors [&>td]:bg-white [&>td]:border-y [&>td]:border-[#dbdadd] hover:[&>td]:bg-[#F0EFF4]/60 ${provider.needs_action ? '[&>td]:!bg-amber-50' : ''}`}
+                      className={`cursor-pointer transition-colors [&>td]:align-middle [&>td]:bg-white [&>td]:border-y [&>td]:border-[#dbdadd] hover:[&>td]:bg-[#F0EFF4]/60 ${provider.needs_action ? '[&>td]:!bg-amber-50' : ''}`}
                       data-testid={`provider-row-${index}`}
                     >
                       <td className="py-4 px-4 border-l rounded-l-lg">
