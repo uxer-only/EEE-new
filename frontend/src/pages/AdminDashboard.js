@@ -133,7 +133,7 @@ export default function AdminDashboard() {
           {/* Title */}
           <div className="mb-8">
             <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-2">Administration</p>
-            <h2 className="text-4xl md:text-5xl text-[#000000]">Independents</h2>
+            <h2 className="text-4xl md:text-5xl text-[#000000]">Overview</h2>
           </div>
 
           <TabNav active="overview" />
