@@ -11,6 +11,13 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // CRITICAL (Emergent OAuth): if returning from the OAuth callback, skip the /auth/me
+    // check. AuthCallback will exchange the session_id and establish the session first,
+    // otherwise this checkAuth() races ahead and 401s before the cookie is set.
+    if (window.location.hash?.includes('session_id=')) {
+      setLoading(false);
+      return;
+    }
     checkAuth();
   }, []);
 
