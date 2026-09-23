@@ -2666,7 +2666,7 @@ function MessagesBox({ providerId }) {
       const res = await listMyEnquiries(providerId);
       setItems(res.data.enquiries || []);
       setUnread(res.data.unread || 0);
-    } catch (e) { /* silent */ } finally { setLoading(false); }
+    } catch (e) { console.error('Failed to load enquiries', e); } finally { setLoading(false); }
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [providerId]);
@@ -2680,7 +2680,7 @@ function MessagesBox({ providerId }) {
         await markEnquiryRead(enq.enquiry_id, true);
         setItems((prev) => prev.map((e) => e.enquiry_id === enq.enquiry_id ? { ...e, read: true } : e));
         setUnread((u) => Math.max(0, u - 1));
-      } catch (e) { /* noop */ }
+      } catch (e) { console.error('Failed to mark enquiry read', e); }
     }
   };
 
