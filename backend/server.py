@@ -1457,13 +1457,16 @@ async def browse_providers(
         )
     )
 
-    # Add user info
+    # Add user info (batch fetch to avoid N+1 queries)
+    user_ids = [p["user_id"] for p in profiles]
+    users = await db.users.find(
+        {"user_id": {"$in": user_ids}},
+        {"_id": 0, "user_id": 1, "name": 1, "picture": 1}
+    ).to_list(len(user_ids) or 1)
+    user_map = {u["user_id"]: u for u in users}
     for profile in profiles:
-        user = await db.users.find_one(
-            {"user_id": profile["user_id"]},
-            {"_id": 0, "name": 1, "picture": 1}
-        )
-        profile["user"] = user
+        u = user_map.get(profile["user_id"])
+        profile["user"] = {k: v for k, v in (u or {}).items() if k != "user_id"} if u else None
 
     return profiles
 
@@ -2394,16 +2397,12 @@ async def admin_get_stats(
     total_clients = await db.users.count_documents({"role": "client"})
     pending_media = await db.provider_media.count_documents({"status": "pending"})
     
-    # Get providers needing action
-    providers_needing_action = 0
-    providers = await db.provider_profiles.find({}, {"provider_id": 1}).to_list(1000)
-    for p in providers:
-        count = await db.provider_media.count_documents({
-            "provider_id": p["provider_id"],
-            "status": "pending"
-        })
-        if count > 0:
-            providers_needing_action += 1
+    # Get providers needing action (single query — count distinct providers with pending media)
+    provider_ids = [p["provider_id"] for p in await db.provider_profiles.find({}, {"_id": 0, "provider_id": 1}).to_list(1000)]
+    providers_with_pending = await db.provider_media.distinct(
+        "provider_id", {"provider_id": {"$in": provider_ids}, "status": "pending"}
+    )
+    providers_needing_action = len(providers_with_pending)
     
     return {
         "total_providers": total_providers,
