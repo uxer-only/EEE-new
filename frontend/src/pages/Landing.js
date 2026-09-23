@@ -226,6 +226,7 @@ export default function Landing() {
             <button className="hover:text-[#DA4167] transition-colors">Privacy</button>
             <button className="hover:text-[#DA4167] transition-colors">Terms</button>
             <button className="hover:text-[#DA4167] transition-colors">Contact</button>
+            <Link to="/login" className="hover:text-[#DA4167] transition-colors" data-testid="footer-admin-link">Admin</Link>
           </div>
         </div>
       </footer>
