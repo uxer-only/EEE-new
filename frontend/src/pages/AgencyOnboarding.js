@@ -45,6 +45,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
     companionshipType: 'escort',
     services: initial?.default_services || {},
     apply_services_to_all: initial?.apply_services_to_all ?? true,
+    accepts_disabilities: initial?.accepts_disabilities || false,
     rates: initial?.default_rates || blankRates(),
     apply_rates_to_all: initial?.apply_rates_to_all ?? true,
     schedule: initial?.default_availability?.schedule || defaultSchedule(),
@@ -80,6 +81,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
         contact: data.contact,
         default_services: data.services,
         apply_services_to_all: data.apply_services_to_all,
+        accepts_disabilities: data.accepts_disabilities,
         default_rates: data.rates,
         apply_rates_to_all: data.apply_rates_to_all,
         default_availability: {

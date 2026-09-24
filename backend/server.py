@@ -86,6 +86,7 @@ class ProviderProfile(BaseModel):
     verified: bool = False
     verification_status: str = "pending"  # pending, approved, rejected
     available: bool = True
+    accepts_disabilities: Optional[bool] = False
     created_at: datetime
 
 class ProviderProfileCreate(BaseModel):
@@ -106,6 +107,7 @@ class ProviderProfileCreate(BaseModel):
     schedule: Optional[Dict[str, Any]] = None
     photos: List[str] = []
     characteristics: Optional[Dict[str, Any]] = None
+    accepts_disabilities: Optional[bool] = False
 
 class ProviderProfileUpdate(BaseModel):
     display_name: Optional[str] = None
@@ -126,6 +128,7 @@ class ProviderProfileUpdate(BaseModel):
     photos: Optional[List[str]] = None
     characteristics: Optional[Dict[str, Any]] = None
     available: Optional[bool] = None
+    accepts_disabilities: Optional[bool] = None
 
 class Message(BaseModel):
     message_id: str
@@ -1623,6 +1626,7 @@ class AgencyProfileBody(BaseModel):
     default_rates: Dict[str, Any] = {}
     default_availability: Optional[Dict[str, Any]] = None
     apply_rates_to_all: bool = False
+    accepts_disabilities: bool = False
 
 
 @api_router.get("/agency/profile")
@@ -1670,7 +1674,7 @@ async def save_agency_profile(
     if body.apply_services_to_all and body.default_services:
         await db.provider_profiles.update_many(
             {"user_id": current_user.user_id},
-            {"$set": {"services": body.default_services}},
+            {"$set": {"services": body.default_services, "accepts_disabilities": body.accepts_disabilities}},
         )
     # Propagate rates & availability to all existing profiles when requested
     if body.apply_rates_to_all:

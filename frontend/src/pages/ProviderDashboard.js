@@ -98,6 +98,7 @@ export default function ProviderDashboard() {
     },
     availability_type: 'both',  // 'incall' | 'outcall' | 'both'
     booking_advance: false,
+    accepts_disabilities: false,
     photos: [],
     characteristics: {
       nationality: '',
@@ -225,6 +226,7 @@ export default function ProviderDashboard() {
               },
               contact: { ...pd.contact, ...(ag.contact || {}) },
               services: ag.apply_services_to_all && ag.default_services ? ag.default_services : pd.services,
+              accepts_disabilities: ag.accepts_disabilities ?? pd.accepts_disabilities,
               rates: (ag.default_rates && (ag.default_rates.incall || ag.default_rates.outcall)) ? ag.default_rates : pd.rates,
               availability_type: ag.default_availability?.availability_type || pd.availability_type,
               schedule: ag.default_availability?.schedule || pd.schedule,
@@ -330,6 +332,7 @@ export default function ProviderDashboard() {
           availability_type: p.availability_type || 'both',
           booking_advance: p.booking_advance || false,
           available247: p.available247 || false,
+          accepts_disabilities: p.accepts_disabilities || false,
           photos: p.photos || [],
           characteristics: {
             nationality: p.characteristics?.nationality || '',
@@ -432,6 +435,7 @@ export default function ProviderDashboard() {
         availability_type: profileData.availability_type,
         booking_advance: profileData.booking_advance,
         available247: profileData.available247,
+        accepts_disabilities: profileData.accepts_disabilities,
         photos: newPhotos,
         characteristics: profileData.characteristics
       };
@@ -483,6 +487,7 @@ export default function ProviderDashboard() {
         availability_type: profileData.availability_type,
         booking_advance: profileData.booking_advance,
         available247: profileData.available247,
+        accepts_disabilities: profileData.accepts_disabilities,
         photos: newPhotos,
         characteristics: profileData.characteristics
       };
@@ -2068,6 +2073,20 @@ export default function ProviderDashboard() {
                     </p>
                   </div>
                 )}
+
+                {/* Accepts people with disabilities */}
+                <div className="mt-2 rounded-lg border border-[#832161]/30 bg-[#832161]/5 p-4">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!!profileData.accepts_disabilities}
+                      onChange={(e) => setProfileData({ ...profileData, accepts_disabilities: e.target.checked })}
+                      className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+                      data-testid="accepts-disabilities-checkbox"
+                    />
+                    <span className="text-[#000000] font-medium">We accept people with disabilities</span>
+                  </label>
+                </div>
               </div>
             )}
 

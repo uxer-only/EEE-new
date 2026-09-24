@@ -153,6 +153,19 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true }) => 
           </p>
         </div>
       )}
+
+      <div className="mt-2 rounded-lg border border-[#832161]/30 bg-[#832161]/5 p-4">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={!!data.accepts_disabilities}
+            onChange={(e) => update({ accepts_disabilities: e.target.checked })}
+            className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+            data-testid="accepts-disabilities-checkbox"
+          />
+          <span className="text-[#000000] font-medium">We accept people with disabilities</span>
+        </label>
+      </div>
     </div>
   );
 };
