@@ -181,8 +181,8 @@ export default function Landing() {
                           </p>
                           <p className="text-[#A1A1AA] text-xs truncate">
                             {provider.age && <span>{provider.age}</span>}
-                            {provider.age && provider.location?.country && <span> · </span>}
-                            {provider.location?.country}
+                            {provider.age && provider.location?.city && <span> · </span>}
+                            {provider.location?.city}
                           </p>
                         </div>
                         {provider.verified && (
