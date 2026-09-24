@@ -90,8 +90,8 @@ export default function Landing() {
 
       {/* Hero Section with Overlapping Profiles */}
       <section className="relative" data-testid="hero-section">
-        {/* Hero Background - extends behind profiles */}
-        <div className="absolute inset-0 z-0 h-[100vh] overflow-hidden">
+        {/* Hero Background - fixed so content scrolls over it */}
+        <div className="fixed inset-0 z-0 h-screen w-full overflow-hidden">
           <picture>
             <source
               media="(max-width: 767px)"
@@ -217,7 +217,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="section-padding py-12 border-t border-[#27272A]" data-testid="footer">
+      <footer className="section-padding py-12 border-t border-[#27272A] relative z-10" data-testid="footer">
         <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4">
           <p className="text-[#52525B] text-sm text-center sm:text-left">
             © 2026 Elite Escorts Europe. All rights reserved.
