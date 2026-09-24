@@ -279,7 +279,7 @@ export default function Browse() {
                       {/* VIP pill - top left */}
                       {provider.vip_active && (
                         <div
-                          className="absolute top-2 left-2 px-2 py-1 bg-[#832161] text-[#0A0A0C] text-[10px] font-semibold uppercase tracking-wider rounded-sm flex items-center gap-1 shadow-lg"
+                          className="absolute top-2 left-2 px-2 py-1 bg-[#832161] text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm flex items-center gap-1 shadow-lg"
                           data-testid={`vip-pill-${index}`}
                         >
                           <Crown size={11} weight="fill" />
