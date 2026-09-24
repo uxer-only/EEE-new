@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/sonner';
 // Pages
 import Landing from '@/pages/Landing';
 import Login from '@/pages/Login';
+import AdminLogin from '@/pages/AdminLogin';
 import Register from '@/pages/Register';
 import ProviderRegister from '@/pages/ProviderRegister';
 import AuthCallback from '@/pages/AuthCallback';
@@ -39,6 +40,7 @@ function AppRouter() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/register" element={<Register />} />
       <Route path="/register/provider" element={<ProviderRegister />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
