@@ -305,6 +305,14 @@ export default function Browse() {
                             <span>{provider.age}</span>
                             <span>•</span>
                             <span className="truncate">{provider.location?.city}</span>
+                            {provider.distance_km != null && (
+                              <>
+                                <span>•</span>
+                                <span className="whitespace-nowrap text-[#DA4167]" data-testid={`distance-${index}`}>
+                                  ~{Math.round(provider.distance_km)} km
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>

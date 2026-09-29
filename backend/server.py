@@ -5,6 +5,9 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import re
+import math
+import time
+import ipaddress
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr
@@ -31,6 +34,7 @@ JWT_SECRET = os.environ.get('JWT_SECRET', 'secret')
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
 REPORT_RECIPIENT = os.environ.get('REPORT_EMAIL', 'info@eliteescortseurope.eu')
+IPGEOLOCATION_API_KEY = os.environ.get('IPGEOLOCATION_API_KEY')
 APP_URL = os.environ.get('APP_URL', '').rstrip('/')
 GRACE_DAYS = 3
 if RESEND_API_KEY:
@@ -1441,8 +1445,108 @@ async def stripe_webhook(request: Request):
     return {"received": True}
 
 
+# ---------- Geo helpers for distance-based browse sorting ----------
+_ip_geo_mem: Dict[str, Any] = {}  # ip -> (coords_or_None, expires_ts)
+
+
+def _visitor_ip(request: Request) -> Optional[str]:
+    """Return the first public IP from X-Forwarded-For (leftmost = original client), else peer."""
+    xff = request.headers.get("x-forwarded-for", "")
+    candidates = [c.strip() for c in xff.split(",") if c.strip()]
+    if request.client and request.client.host:
+        candidates.append(request.client.host)
+    for ip in candidates:
+        try:
+            addr = ipaddress.ip_address(ip)
+        except ValueError:
+            continue
+        if not (addr.is_private or addr.is_loopback or addr.is_link_local or addr.is_reserved or addr.is_unspecified):
+            return str(addr)
+    return None
+
+
+async def _get_ip_coords(ip: Optional[str]):
+    """(lat, lng) for a public IP via ipgeolocation.io v3, cached 24h. None on failure/private IP."""
+    if not IPGEOLOCATION_API_KEY or not ip:
+        return None
+    now_ts = time.time()
+    cached = _ip_geo_mem.get(ip)
+    if cached and cached[1] > now_ts:
+        return cached[0]
+    doc = await db.ip_geo_cache.find_one({"_id": ip})
+    if doc and doc.get("expires_at", 0) > now_ts:
+        coords = (doc["lat"], doc["lng"]) if doc.get("lat") is not None else None
+        _ip_geo_mem[ip] = (coords, now_ts + 3600)
+        return coords
+    coords = None
+    try:
+        async with httpx.AsyncClient(timeout=4.0) as client:
+            r = await client.get(
+                "https://api.ipgeolocation.io/v3/ipgeo",
+                params={"apiKey": IPGEOLOCATION_API_KEY, "ip": ip, "fields": "location"},
+            )
+        if r.status_code == 200:
+            loc = r.json().get("location", {})
+            lat, lng = loc.get("latitude"), loc.get("longitude")
+            if lat is not None and lng is not None:
+                coords = (float(lat), float(lng))
+    except Exception as e:
+        logger.error(f"IP geolocation failed for {ip}: {e}")
+    await db.ip_geo_cache.replace_one(
+        {"_id": ip},
+        {"_id": ip, "lat": coords[0] if coords else None, "lng": coords[1] if coords else None,
+         "expires_at": now_ts + 86400},
+        upsert=True,
+    )
+    _ip_geo_mem[ip] = (coords, now_ts + 3600)
+    return coords
+
+
+async def _geocode_city(city: str, country: str = ""):
+    """Forward-geocode a city to (lat, lng) via OSM Nominatim, cached in DB. None on failure."""
+    if not city:
+        return None
+    key = f"{city.strip().lower()}|{(country or '').strip().lower()}"
+    doc = await db.geocode_cache.find_one({"_id": key})
+    if doc:
+        return (doc["lat"], doc["lng"]) if doc.get("lat") is not None else None
+    coords = None
+    try:
+        q = f"{city}, {country}" if country else city
+        async with httpx.AsyncClient(
+            timeout=5.0,
+            headers={"User-Agent": "EliteEscortsEurope/1.0 (info@eliteescortseurope.eu)"},
+        ) as client:
+            r = await client.get(
+                "https://nominatim.openstreetmap.org/search",
+                params={"q": q, "format": "json", "limit": 1},
+            )
+        if r.status_code == 200:
+            arr = r.json()
+            if arr:
+                coords = (float(arr[0]["lat"]), float(arr[0]["lon"]))
+    except Exception as e:
+        logger.error(f"Geocoding failed for '{city}': {e}")
+    await db.geocode_cache.replace_one(
+        {"_id": key},
+        {"_id": key, "lat": coords[0] if coords else None, "lng": coords[1] if coords else None},
+        upsert=True,
+    )
+    return coords
+
+
+def _haversine_km(lat1, lng1, lat2, lng2) -> float:
+    R = 6371.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlmb = math.radians(lng2 - lng1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dlmb / 2) ** 2
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+
 @api_router.get("/providers")
 async def browse_providers(
+    request: Request,
     city: Optional[str] = None,
     service: Optional[str] = None,
     min_rate: Optional[float] = None,
@@ -1527,17 +1631,45 @@ async def browse_providers(
 
     profiles = await db.provider_profiles.find(query, {"_id": 0}).to_list(200)
 
-    # Annotate vip_active for the frontend + sort VIP first, newest VIP first.
+    # Annotate vip_active for the frontend.
     for p in profiles:
         vu = p.get("vip_until")
         p["vip_active"] = bool(vu and vu > now)
-    profiles.sort(
-        key=lambda p: (
-            0 if p["vip_active"] else 1,                 # VIPs first
-            -(p.get("vip_until").timestamp() if p.get("vip_until") else 0),
-            -(p.get("created_at").timestamp() if p.get("created_at") else 0),
+
+    # Distance-based sort: VIPs on top (closest first), then non-VIPs (closest first).
+    # Falls back to VIP -> vip_until -> newest when the visitor's location is unknown.
+    visitor_coords = await _get_ip_coords(_visitor_ip(request))
+    if visitor_coords:
+        vlat, vlng = visitor_coords
+        for p in profiles:
+            loc = p.get("location") or {}
+            plat, plng = loc.get("lat"), loc.get("lng")
+            if plat is None or plng is None:
+                coords = await _geocode_city(loc.get("city", ""), loc.get("country", ""))
+                if coords:
+                    plat, plng = coords
+                    await db.provider_profiles.update_one(
+                        {"provider_id": p["provider_id"]},
+                        {"$set": {"location.lat": plat, "location.lng": plng}},
+                    )
+                    p.setdefault("location", {})["lat"] = plat
+                    p["location"]["lng"] = plng
+            p["distance_km"] = round(_haversine_km(vlat, vlng, plat, plng), 1) if (plat is not None and plng is not None) else None
+        profiles.sort(
+            key=lambda p: (
+                0 if p["vip_active"] else 1,                                   # VIPs first
+                p["distance_km"] if p.get("distance_km") is not None else float("inf"),  # closest first
+                -(p.get("created_at").timestamp() if p.get("created_at") else 0),        # tiebreak: newest
+            )
         )
-    )
+    else:
+        profiles.sort(
+            key=lambda p: (
+                0 if p["vip_active"] else 1,                 # VIPs first
+                -(p.get("vip_until").timestamp() if p.get("vip_until") else 0),
+                -(p.get("created_at").timestamp() if p.get("created_at") else 0),
+            )
+        )
 
     # Add user info (batch fetch to avoid N+1 queries)
     user_ids = [p["user_id"] for p in profiles]
