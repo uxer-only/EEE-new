@@ -223,8 +223,7 @@ export default function Landing() {
             © 2026 Elite Escorts Europe. All rights reserved.
           </p>
           <div className="flex gap-6 sm:gap-8 text-[#52525B] text-sm">
-            <button className="hover:text-[#DA4167] transition-colors">Privacy</button>
-            <button className="hover:text-[#DA4167] transition-colors">Terms</button>
+            <button className="hover:text-[#DA4167] transition-colors">Terms &amp; Privacy</button>
             <button className="hover:text-[#DA4167] transition-colors">Contact</button>
             <Link to="/admin/login" className="hover:text-[#DA4167] transition-colors" data-testid="footer-admin-link">Admin</Link>
           </div>
