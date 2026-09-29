@@ -90,6 +90,9 @@ export const listMyEnquiries = (providerId) =>
 export const markEnquiryRead = (id, read = true) =>
   api.put(`/enquiries/${id}/read`, { read });
 export const deleteEnquiry = (id) => api.delete(`/enquiries/${id}`);
+
+// Reports
+export const reportProvider = (data) => api.post('/reports', data);
 export const replyToEnquiry = (id, message) =>
   api.post(`/enquiries/${id}/reply`, { message });
 

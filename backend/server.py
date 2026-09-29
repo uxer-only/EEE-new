@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+import re
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr
@@ -29,6 +30,7 @@ db = client[os.environ['DB_NAME']]
 JWT_SECRET = os.environ.get('JWT_SECRET', 'secret')
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
+REPORT_RECIPIENT = os.environ.get('REPORT_EMAIL', 'info@eliteescortseurope.eu')
 APP_URL = os.environ.get('APP_URL', '').rstrip('/')
 GRACE_DAYS = 3
 if RESEND_API_KEY:
@@ -1068,6 +1070,83 @@ async def create_enquiry(body: EnquiryCreate):
             logger.error(f"Enquiry notification email failed for {provider_email}: {e}")
 
     return {"ok": True, "enquiry_id": doc["enquiry_id"]}
+
+
+class ReportCreate(BaseModel):
+    provider_id: str
+    reporter_name: str
+    reporter_email: str
+    description: str
+    images: List[str] = []  # base64 data URLs
+
+
+def _report_email_html(doc: dict) -> str:
+    imgs = len(doc.get("images") or [])
+    return f"""
+    <div style="font-family:Arial,Helvetica,sans-serif; max-width:600px; margin:0 auto; color:#1a1a1a;">
+      <h2 style="color:#832161;">Profile reported as fake</h2>
+      <table style="width:100%; border-collapse:collapse; font-size:14px;">
+        <tr><td style="padding:6px 0; color:#898989;">Profile</td><td style="padding:6px 0; font-weight:bold;">{doc.get('provider_name') or doc['provider_id']}</td></tr>
+        <tr><td style="padding:6px 0; color:#898989;">Reported by</td><td style="padding:6px 0;">{doc['reporter_name']} &lt;{doc['reporter_email']}&gt;</td></tr>
+        <tr><td style="padding:6px 0; color:#898989;">Attachments</td><td style="padding:6px 0;">{imgs} image(s)</td></tr>
+      </table>
+      <div style="background:#F0EFF4; border-left:3px solid #DA4167; padding:16px; margin:16px 0; white-space:pre-wrap;">{doc['description']}</div>
+      <p style="color:#898989; font-size:12px; margin-top:24px;">Report ID: {doc['report_id']} — reply to this email to reach the reporter.</p>
+    </div>
+    """
+
+
+@api_router.post("/reports")
+async def create_report(body: ReportCreate):
+    """Public: report a profile as fake. Stored for admin review and emailed to the site admin."""
+    if not body.reporter_name.strip():
+        raise HTTPException(status_code=400, detail="Your name is required")
+    if not body.reporter_email.strip() or not re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", body.reporter_email):
+        raise HTTPException(status_code=400, detail="A valid email is required")
+    if not body.description.strip():
+        raise HTTPException(status_code=400, detail="A description is required")
+
+    provider = await db.provider_profiles.find_one(
+        {"provider_id": body.provider_id}, {"_id": 0, "display_name": 1}
+    )
+    if not provider:
+        raise HTTPException(status_code=404, detail="Provider not found")
+
+    images = [img for img in (body.images or []) if img][:5]
+    doc = {
+        "report_id": f"rep_{uuid.uuid4().hex[:12]}",
+        "provider_id": body.provider_id,
+        "provider_name": provider.get("display_name"),
+        "reporter_name": body.reporter_name.strip(),
+        "reporter_email": body.reporter_email.strip(),
+        "description": body.description.strip()[:500],
+        "images": images,
+        "status": "open",
+        "created_at": datetime.now(timezone.utc),
+    }
+    await db.reports.insert_one(doc)
+
+    if RESEND_API_KEY:
+        attachments = []
+        for i, img in enumerate(images):
+            content = img.split(",", 1)[1] if "," in img else img
+            ext = "jpg" if img.startswith("data:image/jpeg") else ("webp" if img.startswith("data:image/webp") else "png")
+            attachments.append({"filename": f"evidence_{i + 1}.{ext}", "content": content})
+        try:
+            payload = {
+                "from": f"Elite Escorts Europe <{SENDER_EMAIL}>",
+                "to": [REPORT_RECIPIENT],
+                "subject": f"Profile report: {doc['provider_name'] or doc['provider_id']}",
+                "html": _report_email_html(doc),
+                "reply_to": [doc["reporter_email"]],
+            }
+            if attachments:
+                payload["attachments"] = attachments
+            await asyncio.to_thread(resend.Emails.send, payload)
+        except Exception as e:
+            logger.error(f"Report email failed: {e}")
+
+    return {"ok": True, "report_id": doc["report_id"]}
 
 
 @api_router.get("/enquiries/mine")

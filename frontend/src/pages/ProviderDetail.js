@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getProviderById, getProviders, createEnquiry } from '@/services/api';
+import { getProviderById, getProviders, createEnquiry, reportProvider } from '@/services/api';
 import { toast } from 'sonner';
 import { notifyError, notifyProblem } from '../lib/notify';
 import {
   MapPin, CheckCircle, Star, Calendar, Clock, CaretLeft, CaretRight,
-  Phone, WhatsappLogo, TelegramLogo, ChatCircle, EnvelopeSimple, X
+  Phone, WhatsappLogo, TelegramLogo, ChatCircle, EnvelopeSimple, X, Flag, UploadSimple
 } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
 import SiteHeader from '@/components/SiteHeader';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function ProviderDetail() {
   const { id } = useParams();
@@ -27,6 +28,66 @@ export default function ProviderDetail() {
   const [requestName, setRequestName] = useState('');
   const [requestEmail, setRequestEmail] = useState('');
   const [sendingRequest, setSendingRequest] = useState(false);
+
+  // Report profile modal
+  const [showReport, setShowReport] = useState(false);
+  const [reportName, setReportName] = useState('');
+  const [reportEmail, setReportEmail] = useState('');
+  const [reportText, setReportText] = useState('');
+  const [reportImages, setReportImages] = useState([]); // base64 data URLs
+  const [submittingReport, setSubmittingReport] = useState(false);
+
+  const handleReportFiles = (e) => {
+    const files = Array.from(e.target.files || []);
+    const valid = ['image/jpeg', 'image/png', 'image/webp'];
+    const picked = files.filter((f) => valid.includes(f.type) && f.size <= 5 * 1024 * 1024);
+    if (picked.length !== files.length) {
+      notifyProblem('Some files were skipped.', 'Only JPG, PNG or WEBP images up to 5MB each are allowed.');
+    }
+    const room = 5 - reportImages.length;
+    const toRead = picked.slice(0, room);
+    toRead.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => setReportImages((prev) => (prev.length >= 5 ? prev : [...prev, reader.result]));
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  };
+
+  const submitReport = async () => {
+    if (!reportName.trim()) {
+      notifyProblem('Your name is missing.', 'Enter your name so we know who filed the report.');
+      return;
+    }
+    if (!reportEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(reportEmail)) {
+      notifyProblem('That email address looks invalid.', 'Enter a valid email (e.g. you@example.com) so we can follow up.');
+      return;
+    }
+    if (!reportText.trim()) {
+      notifyProblem('The description is empty.', 'Briefly describe why you believe this profile is fake.');
+      return;
+    }
+    setSubmittingReport(true);
+    try {
+      await reportProvider({
+        provider_id: provider.provider_id || provider.id,
+        reporter_name: reportName,
+        reporter_email: reportEmail,
+        description: reportText,
+        images: reportImages,
+      });
+      toast.success('Report submitted. Thank you — our team will review it.');
+      setShowReport(false);
+      setReportName('');
+      setReportEmail('');
+      setReportText('');
+      setReportImages([]);
+    } catch (err) {
+      notifyError(err, "We couldn't submit your report.");
+    } finally {
+      setSubmittingReport(false);
+    }
+  };
 
   useEffect(() => {
     fetchProvider();
@@ -715,6 +776,119 @@ export default function ProviderDetail() {
               </div>
             </div>
           </div>
+
+          {/* Report profile CTA */}
+          <div className="mt-8 flex justify-center" data-testid="report-profile-cta-wrap">
+            <button
+              onClick={() => setShowReport(true)}
+              className="inline-flex items-center gap-2 text-sm text-[#52525B] hover:text-[#DA4167] transition-colors"
+              data-testid="report-profile-button"
+            >
+              <Flag size={16} weight="fill" />
+              Report this profile as fake
+            </button>
+          </div>
+
+          {/* Report profile modal */}
+          <Dialog open={showReport} onOpenChange={setShowReport}>
+            <DialogContent className="bg-white text-[#000000] border-[#dbdadd] max-w-lg" data-testid="report-profile-modal">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-[#832161]">Report this profile</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <p className="text-[#52525B] text-sm">
+                  Help us keep the platform safe. Tell us why you believe this profile is fake — our administrators will review your report.
+                </p>
+                <div>
+                  <label className="input-label !text-[#000000]">Your name</label>
+                  <input
+                    type="text"
+                    value={reportName}
+                    onChange={(e) => setReportName(e.target.value)}
+                    placeholder="Your name"
+                    className="input-premium w-full !text-[#3D2645] !border-[#dbdadd]"
+                    data-testid="report-name-input"
+                  />
+                </div>
+                <div>
+                  <label className="input-label !text-[#000000]">Your e-mail address</label>
+                  <input
+                    type="email"
+                    value={reportEmail}
+                    onChange={(e) => setReportEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="input-premium w-full !text-[#3D2645] !border-[#dbdadd]"
+                    data-testid="report-email-input"
+                  />
+                </div>
+                <div>
+                  <label className="input-label !text-[#000000]">Description</label>
+                  <textarea
+                    value={reportText}
+                    onChange={(e) => setReportText(e.target.value.slice(0, 500))}
+                    placeholder="Describe why you think this profile is fake..."
+                    className="input-premium w-full h-32 resize-none !text-[#3D2645] !border-[#dbdadd]"
+                    maxLength={500}
+                    data-testid="report-description-input"
+                  />
+                  <div className="text-right mt-1">
+                    <span className="text-[#52525B] text-xs">{reportText.length}/500 characters</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="input-label !text-[#000000]">Upload pictures (optional)</label>
+                  <label
+                    className="flex items-center justify-center gap-2 w-full h-24 border border-dashed border-[#dbdadd] rounded-lg cursor-pointer text-[#52525B] hover:border-[#832161] hover:text-[#832161] transition-colors"
+                    data-testid="report-upload-label"
+                  >
+                    <UploadSimple size={20} />
+                    <span className="text-sm">Click to add images (max 5, JPG/PNG/WEBP, 5MB each)</span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      multiple
+                      onChange={handleReportFiles}
+                      className="hidden"
+                      data-testid="report-upload-input"
+                    />
+                  </label>
+                  {reportImages.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3" data-testid="report-image-previews">
+                      {reportImages.map((src, i) => (
+                        <div key={i} className="relative w-16 h-16 rounded overflow-hidden border border-[#dbdadd]">
+                          <img src={src} alt={`evidence ${i + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            onClick={() => setReportImages((prev) => prev.filter((_, idx) => idx !== i))}
+                            className="absolute top-0 right-0 bg-black/60 text-white p-0.5"
+                            data-testid={`report-image-remove-${i}`}
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    onClick={() => setShowReport(false)}
+                    className="btn-secondary px-6 !text-[#3D2645] !border-[#dbdadd]"
+                    data-testid="report-cancel-button"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={submitReport}
+                    disabled={submittingReport}
+                    className="btn-primary px-8 disabled:opacity-50"
+                    data-testid="report-submit-button"
+                  >
+                    {submittingReport ? 'Submitting...' : 'Submit report'}
+                  </button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           {/* Reviews */}
           {provider.reviews && provider.reviews.length > 0 && (
