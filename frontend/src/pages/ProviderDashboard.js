@@ -1267,7 +1267,7 @@ export default function ProviderDashboard() {
                             onClick={() => setProfileData({ ...profileData, gender: profileData.gender === opt.value ? '' : opt.value })}
                             className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
                               profileData.gender === opt.value
-                                ? 'border-[#832161] text-[#832161]'
+                                ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
                                 : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                             }`}
                             data-testid={`gender-${opt.value}`}
@@ -1288,7 +1288,7 @@ export default function ProviderDashboard() {
                             onClick={() => setProfileData({ ...profileData, characteristics: { ...profileData.characteristics, orientation: profileData.characteristics?.orientation === opt ? '' : opt } })}
                             className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
                               profileData.characteristics?.orientation === opt
-                                ? 'border-[#832161] text-[#832161]'
+                                ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
                                 : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                             }`}
                             data-testid={`orientation-${opt.toLowerCase()}`}
@@ -1441,7 +1441,7 @@ export default function ProviderDashboard() {
                                   onClick={() => toggle(lang)}
                                   className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
                                     selected
-                                      ? 'border-[#832161] text-[#832161]'
+                                      ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
                                       : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                                   }`}
                                   data-testid={`basic-lang-${lang.toLowerCase()}`}
@@ -1939,7 +1939,7 @@ export default function ProviderDashboard() {
                       onClick={() => setProfileData({ ...profileData, companionshipType: 'escort' })}
                       className={`px-6 py-3 border text-sm transition-all ${
                         profileData.companionshipType === 'escort'
-                          ? 'border-[#832161] text-[#832161]'
+                          ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
                           : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                       }`}
                     >
@@ -1950,7 +1950,7 @@ export default function ProviderDashboard() {
                       onClick={() => setProfileData({ ...profileData, companionshipType: 'erotic-massage' })}
                       className={`px-6 py-3 border text-sm transition-all ${
                         profileData.companionshipType === 'erotic-massage'
-                          ? 'border-[#832161] text-[#832161]'
+                          ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
                           : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                       }`}
                     >
@@ -2003,7 +2003,7 @@ export default function ProviderDashboard() {
                               })}
                               className={`px-3 h-9 text-xs border transition-all ${
                                 serviceData.type === 'inclusive'
-                                  ? 'border-[#832161] text-[#832161]'
+                                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
                                   : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                               }`}
                             >
@@ -2023,7 +2023,7 @@ export default function ProviderDashboard() {
                               })}
                               className={`px-3 h-9 text-xs border transition-all ${
                                 serviceData.type === 'extra'
-                                  ? 'border-[#832161] text-[#832161]'
+                                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
                                   : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                               }`}
                             >
@@ -2148,7 +2148,7 @@ export default function ProviderDashboard() {
                           onClick={() => setProfileData({ ...profileData, availability_type: opt.value })}
                           className={`py-3 px-4 border text-sm uppercase tracking-wider transition-all ${
                             profileData.availability_type === opt.value
-                              ? 'border-[#832161] text-[#832161]'
+                              ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
                               : 'border-[#898989] text-[#898989] hover:border-[#832161]'
                           }`}
                           data-testid={`availability-type-${opt.value}`}
