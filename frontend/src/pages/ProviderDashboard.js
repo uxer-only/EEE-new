@@ -1398,7 +1398,7 @@ export default function ProviderDashboard() {
                       </span>
                     </div>
                     {(() => {
-                      const PRESETS = ['English', 'French', 'German', 'Russian'];
+                      const PRESETS = ['English', 'Dutch', 'French', 'German', 'Russian'];
                       const current = profileData.characteristics?.languages || [];
                       const customs = current.filter((l) => !PRESETS.includes(l));
 
@@ -1959,6 +1959,20 @@ export default function ProviderDashboard() {
                   </div>
                 </div>
 
+                {/* Accepts people with disabilities */}
+                <div className="rounded-lg border border-[#832161]/30 bg-[#832161]/5 p-4">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!!profileData.accepts_disabilities}
+                      onChange={(e) => setProfileData({ ...profileData, accepts_disabilities: e.target.checked })}
+                      className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+                      data-testid="accepts-disabilities-checkbox"
+                    />
+                    <span className="text-[#000000] font-medium">We accept people with disabilities</span>
+                  </label>
+                </div>
+
                 {/* Divider */}
                 <div className="border-t border-[#dbdadd] my-4"></div>
                 
@@ -2106,20 +2120,6 @@ export default function ProviderDashboard() {
                     </p>
                   </div>
                 )}
-
-                {/* Accepts people with disabilities */}
-                <div className="mt-2 rounded-lg border border-[#832161]/30 bg-[#832161]/5 p-4">
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={!!profileData.accepts_disabilities}
-                      onChange={(e) => setProfileData({ ...profileData, accepts_disabilities: e.target.checked })}
-                      className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
-                      data-testid="accepts-disabilities-checkbox"
-                    />
-                    <span className="text-[#000000] font-medium">We accept people with disabilities</span>
-                  </label>
-                </div>
               </div>
             )}
 

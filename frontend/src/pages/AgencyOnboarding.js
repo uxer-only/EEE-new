@@ -15,7 +15,7 @@ const STEPS = [
   { id: 3, title: 'Rates & availability', icon: CurrencyDollar }
 ];
 
-const LANG_PRESETS = ['English', 'French', 'German', 'Russian'];
+const LANG_PRESETS = ['English', 'Dutch', 'French', 'German', 'Russian'];
 
 const COUNTRIES = [
   'Belgium', 'Netherlands', 'Luxembourg', 'France', 'Germany', 'United Kingdom', 'Spain', 'Italy',
