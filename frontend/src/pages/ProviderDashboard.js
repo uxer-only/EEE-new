@@ -1269,8 +1269,8 @@ export default function ProviderDashboard() {
 
                     <div>
                       <label className="input-label">Orientation</label>
-                      <div className="grid grid-cols-3 gap-2 max-w-md" data-testid="orientation-input">
-                        {['Straight', 'Bi', 'Lesbian', 'Gay', 'Pansexual'].map((opt) => (
+                      <div className="grid grid-cols-4 gap-2 max-w-md" data-testid="orientation-input">
+                        {['Straight', 'Bi', 'Lesbian', 'Gay'].map((opt) => (
                           <button
                             key={opt}
                             type="button"
