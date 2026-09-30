@@ -60,6 +60,7 @@ export default function ProviderDashboard() {
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [mode, setMode] = useState('overview'); // 'overview' | 'edit' | 'create'
+  const [createdProviderId, setCreatedProviderId] = useState(null); // id of a just-created independent profile (keeps the Activate wizard step working)
   const [saving, setSaving] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -176,7 +177,7 @@ export default function ProviderDashboard() {
         vip_plan: planVipOn ? planVip : null,
         auto_renew: autoRenew,
         origin_url: window.location.origin,
-        provider_id: activeProviderId
+        provider_id: activeProviderId || createdProviderId
       });
       if (data?.url) {
         window.location.href = data.url;
@@ -456,12 +457,12 @@ export default function ProviderDashboard() {
     if (!profileData.display_name?.trim()) {
       notifyProblem('A display name is required.', 'Go to the Basic Info step and enter a display name for this profile.');
       setCurrentStep(1);
-      return;
+      return false;
     }
     if (!isAgencyScoped && !profileData.location?.country) {
       notifyProblem('A country is required.', 'Go to the Basic Info step and select the country for this profile.');
       setCurrentStep(1);
-      return;
+      return false;
     }
     try {
       // Persist uploaded files as base64 data URLs so they survive page refresh
@@ -496,6 +497,13 @@ export default function ProviderDashboard() {
         toast.success('Profile updated successfully!');
         setUploadedFiles([]);
         fetchDashboard();
+        return true;
+      } else if (createdProviderId && !isAgencyScoped) {
+        // Re-saving the just-created independent profile (user went Back, edited, and continued again)
+        await updateProviderProfile(payload, createdProviderId);
+        setUploadedFiles([]);
+        toast.success('Changes saved.');
+        return true;
       } else {
         const { data: created } = await createProviderProfile(payload);
         setUploadedFiles([]);
@@ -503,14 +511,17 @@ export default function ProviderDashboard() {
           // Agency: return to the roster so they can choose a plan and add more profiles
           toast.success('Profile added! Choose a plan for it on your dashboard.');
           navigate('/dashboard');
-        } else {
-          toast.success('Profile created! Now let\'s verify your identity.');
-          setTimeout(() => setShowVerificationModal(true), 800);
-          fetchDashboard();
+          return true;
         }
+        // Independent: stay inside the wizard on the Activate step so the stepper
+        // and "Previous" button remain — the user can still go back to edit anything.
+        setCreatedProviderId(created?.provider_id || null);
+        toast.success('Profile saved — pick a plan to activate. You can still go back to edit.');
+        return true;
       }
     } catch (error) {
       notifyError(error, "We couldn't save your profile.");
+      return false;
     }
   };
 
@@ -2652,8 +2663,8 @@ export default function ProviderDashboard() {
                     <button
                       type="button"
                       onClick={async () => {
-                        await handleCreateProfile();
-                        setCurrentStep(5);
+                        const ok = await handleCreateProfile();
+                        if (ok) setCurrentStep(5);
                       }}
                       className="btn-primary flex items-center gap-2"
                       data-testid="save-and-continue-button"
