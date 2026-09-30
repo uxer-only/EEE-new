@@ -15,7 +15,6 @@
  */
 
 const ETHNICITIES = ['European', 'Asian', 'Latin', 'African', 'Middle Eastern', 'Mixed', 'Other'];
-const ORIENTATIONS = ['Straight', 'Bi', 'Lesbian', 'Gay', 'Pansexual'];
 
 const NATIONALITIES = [
   'Albanian', 'Algerian', 'American', 'Argentinian', 'Australian', 'Austrian',
@@ -131,15 +130,6 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
         options={ETHNICITIES}
         onChange={(v) => update('ethnicity', v)}
         testId="char-ethnicity"
-      />
-
-      {/* Orientation */}
-      <ButtonSelectField
-        label="Orientation"
-        value={characteristics.orientation}
-        options={ORIENTATIONS}
-        onChange={(v) => update('orientation', v)}
-        testId="char-orientation"
       />
 
       {/* Height */}

@@ -1267,6 +1267,28 @@ export default function ProviderDashboard() {
                       </div>
                     </div>
 
+                    <div>
+                      <label className="input-label">Orientation</label>
+                      <div className="grid grid-cols-3 gap-2 max-w-md" data-testid="orientation-input">
+                        {['Straight', 'Bi', 'Lesbian', 'Gay', 'Pansexual'].map((opt) => (
+                          <button
+                            key={opt}
+                            type="button"
+                            onClick={() => setProfileData({ ...profileData, characteristics: { ...profileData.characteristics, orientation: profileData.characteristics?.orientation === opt ? '' : opt } })}
+                            className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
+                              profileData.characteristics?.orientation === opt
+                                ? 'border-[#832161] text-[#832161]'
+                                : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                            }`}
+                            data-testid={`orientation-${opt.toLowerCase()}`}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+
                     {!isAgencyScoped && (
                     <div>
                       <label className="input-label">City</label>
