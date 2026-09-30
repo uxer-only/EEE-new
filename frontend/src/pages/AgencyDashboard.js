@@ -11,6 +11,7 @@ import {
   getAgencyProfiles, getAgencyProfile, deleteProviderProfile, setProfilePlan, createBulkCheckout, syncAgencyDefaults, deleteAgencyProfile
 } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
+import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import SiteHeader from '@/components/SiteHeader';
 import AgencyOnboarding from '@/pages/AgencyOnboarding';
 import VerificationModal from '@/components/VerificationModal';
@@ -126,6 +127,10 @@ export default function AgencyDashboard() {
   };
 
   const handleFinishPay = async () => {
+    if (user && user.email_verified === false) {
+      notifyProblem('Please confirm your email first.', 'Check your inbox for the confirmation link — you can resend it from the banner at the top of your dashboard.');
+      return;
+    }
     setPaying(true);
     try {
       const { data } = await createBulkCheckout({ origin_url: window.location.origin });
@@ -199,6 +204,7 @@ export default function AgencyDashboard() {
       <SiteHeader />
       <div className="pt-32 pb-40 section-padding">
         <div className="max-w-6xl mx-auto flex flex-col">
+          <EmailVerificationBanner user={user} />
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10" data-testid="agency-header">
             <div>

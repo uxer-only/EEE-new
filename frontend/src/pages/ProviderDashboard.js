@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout, updateAutoRenew, listMyEnquiries, markEnquiryRead, deleteEnquiry, replyToEnquiry, listMyInvoices, invoicePdfUrl, invoiceViewUrl, getAgencyProfile } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
+import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import { 
   ChatCircle, CheckCircle, User, MapPin, Camera, Clock, 
   CurrencyDollar, FileText, Phone, EnvelopeSimple, WhatsappLogo,
@@ -170,6 +171,10 @@ export default function ProviderDashboard() {
     (planVipOn ? VIP_OPTIONS.find((o) => o.id === planVip)?.price || 0 : 0);
 
   const handlePayAndActivate = async () => {
+    if (user && user.email_verified === false) {
+      notifyProblem('Please confirm your email first.', 'Check your inbox for the confirmation link — you can resend it from the banner at the top of your dashboard.');
+      return;
+    }
     setPayRedirecting(true);
     try {
       const { data } = await createSubscriptionCheckout({
@@ -610,6 +615,7 @@ export default function ProviderDashboard() {
 
         <div className="pt-32 pb-20 section-padding">
           <div className="max-w-6xl mx-auto">
+            <EmailVerificationBanner user={user} />
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12" data-testid="manage-header">
               <div>
@@ -1160,6 +1166,7 @@ export default function ProviderDashboard() {
 
       <div className="pt-32 pb-20 section-padding">
         <div className="max-w-4xl mx-auto">
+          <EmailVerificationBanner user={user} />
           {/* Page Title */}
           <div className="text-center mb-12">
             <h2 className="text-4xl text-[#000000] mb-4">

@@ -14,6 +14,8 @@ const api = axios.create({
 // Auth
 export const forgotPassword = (data) => api.post('/auth/forgot-password', data);
 export const resetPassword = (data) => api.post('/auth/reset-password', data);
+export const verifyEmail = (token) => api.get('/auth/verify-email', { params: { token } });
+export const resendVerification = () => api.post('/auth/resend-verification', {});
 
 // Providers
 export const getProviders = (params) => api.get('/providers', { params });

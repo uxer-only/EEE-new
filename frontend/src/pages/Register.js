@@ -23,7 +23,7 @@ export default function Register() {
 
     try {
       await register(formData.email, formData.password, formData.name, 'provider');
-      toast.success('Account created successfully');
+      toast.success('Account created! Check your email to confirm your address.');
       navigate('/dashboard');
     } catch (error) {
       notifyError(error, "We couldn't create your account.");

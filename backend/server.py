@@ -36,6 +36,7 @@ SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
 REPORT_RECIPIENT = os.environ.get('REPORT_EMAIL', 'info@eliteescortseurope.eu')
 IPGEOLOCATION_API_KEY = os.environ.get('IPGEOLOCATION_API_KEY')
 APP_URL = os.environ.get('APP_URL', '').rstrip('/')
+PRODUCT_NAME = "Elite Escorts Europe"
 GRACE_DAYS = 3
 if RESEND_API_KEY:
     resend.api_key = RESEND_API_KEY
@@ -53,6 +54,7 @@ class User(BaseModel):
     picture: Optional[str] = None
     role: str  # provider, client, admin
     account_type: Optional[str] = None  # independent | agency (providers only)
+    email_verified: bool = False
     created_at: datetime
 
 class UserRegister(BaseModel):
@@ -258,7 +260,7 @@ async def _resolve_owned_profile(current_user: "User", provider_id: Optional[str
 # ===== AUTH ROUTES =====
 
 @api_router.post("/auth/register")
-async def register(user_data: UserRegister):
+async def register(user_data: UserRegister, request: Request):
     """Register new user with email/password"""
     # Check if user exists
     existing = await db.users.find_one({"email": user_data.email})
@@ -278,10 +280,17 @@ async def register(user_data: UserRegister):
         "role": user_data.role,
         "account_type": user_data.account_type if user_data.role == "provider" else None,
         "password_hash": hashed_password.decode(),
+        "email_verified": False,
         "created_at": datetime.now(timezone.utc)
     }
     
     await db.users.insert_one(user_doc)
+
+    # Send email verification link (manual sign-ups only)
+    origin = request.headers.get("origin") or request.headers.get("referer", "").rstrip("/")
+    if not origin:
+        origin = APP_URL or str(request.base_url).rstrip("/")
+    await _send_verification_email(user_doc, origin)
     
     # Create session
     session_token = f"session_{uuid.uuid4().hex}"
@@ -301,7 +310,8 @@ async def register(user_data: UserRegister):
         "name": user_data.name,
         "picture": None,
         "role": user_data.role,
-        "account_type": user_doc["account_type"]
+        "account_type": user_doc["account_type"],
+        "email_verified": False
     }
     
     response = JSONResponse(content=user_response)
@@ -347,7 +357,8 @@ async def login(credentials: UserLogin):
         "name": user_doc["name"],
         "picture": user_doc.get("picture"),
         "role": user_doc["role"],
-        "account_type": user_doc.get("account_type")
+        "account_type": user_doc.get("account_type"),
+        "email_verified": user_doc.get("email_verified", True)
     }
     
     response = JSONResponse(content=user_response)
@@ -399,6 +410,7 @@ async def exchange_session(session_data: SessionExchange):
             "name": auth_data["name"],
             "picture": auth_data["picture"],
             "role": "client",  # Default role for OAuth
+            "email_verified": True,  # Google/Emergent OAuth already verifies the email
             "created_at": datetime.now(timezone.utc)
         }
         await db.users.insert_one(user_doc)
@@ -558,6 +570,98 @@ async def reset_password(payload: ResetPasswordRequest):
     )
     await db.user_sessions.delete_many({"user_id": record["user_id"]})
     return {"message": "Password updated successfully. Please login with your new password."}
+
+
+def _verification_email_html(first_name: str, confirm_url: str) -> str:
+    return f"""
+    <div style="font-family:Arial,Helvetica,sans-serif; max-width:600px; margin:0 auto; color:#1a1a1a; line-height:1.6;">
+      <p>Hi {first_name},</p>
+      <p>Thank you for signing up for {PRODUCT_NAME}! We're glad to have you on board.</p>
+      <p>To finish setting up your account, please confirm that this is your email address:</p>
+      <p style="text-align:center; margin:32px 0;">
+        <a href="{confirm_url}" style="background:#832161; color:#ffffff; text-decoration:none; padding:14px 32px; border-radius:6px; font-weight:bold; display:inline-block;">Confirm my email</a>
+      </p>
+      <p style="color:#898989; font-size:13px;">This link expires in 24hrs. If the button doesn't work, copy and paste this link into your browser:<br>
+        <a href="{confirm_url}" style="color:#832161; word-break:break-all;">{confirm_url}</a>
+      </p>
+      <p>Your inbox stays yours. We only use your email address for things related to your account, like sign-in, security alerts, and important service updates. We never use it to send marketing emails, and we never share it with third parties.</p>
+      <p>Didn't create an account? You can safely ignore this email. No account will be activated without confirmation.</p>
+      <p>Thanks again,<br>Anouchka from {PRODUCT_NAME}</p>
+    </div>
+    """
+
+
+async def _send_verification_email(user_doc: dict, origin: str):
+    """Generate a 24h verification token and email a confirmation link. No-op if already verified."""
+    if user_doc.get("email_verified"):
+        return
+    await db.email_verification_tokens.delete_many({"user_id": user_doc["user_id"]})
+    token = secrets.token_urlsafe(32)
+    await db.email_verification_tokens.insert_one({
+        "token": token,
+        "user_id": user_doc["user_id"],
+        "email": user_doc["email"],
+        "expires_at": datetime.now(timezone.utc) + timedelta(hours=24),
+        "used": False,
+        "created_at": datetime.now(timezone.utc),
+    })
+    origin = (origin or APP_URL or "").rstrip("/")
+    confirm_url = f"{origin}/verify-email?token={token}"
+    first_name = (user_doc.get("name") or "there").split(" ")[0]
+    if RESEND_API_KEY:
+        try:
+            await asyncio.to_thread(
+                resend.Emails.send,
+                {
+                    "from": f"Anouchka from {PRODUCT_NAME} <{SENDER_EMAIL}>",
+                    "to": [user_doc["email"]],
+                    "subject": f"Confirm your email for {PRODUCT_NAME}",
+                    "html": _verification_email_html(first_name, confirm_url),
+                },
+            )
+        except Exception as e:
+            logger.error(f"Verification email failed for {user_doc['email']}: {e}")
+    else:
+        logger.warning("RESEND_API_KEY not configured; verification link: %s", confirm_url)
+
+
+@api_router.get("/auth/verify-email")
+async def verify_email(token: str):
+    """Confirm a user's email from the link in the verification email. Idempotent: a used token
+    whose account is already verified still returns success (handles link prefetch / double-clicks)."""
+    record = await db.email_verification_tokens.find_one({"token": token}, {"_id": 0})
+    if not record:
+        raise HTTPException(status_code=400, detail="This confirmation link is invalid.")
+    user = await db.users.find_one({"user_id": record["user_id"]}, {"_id": 0, "email_verified": 1})
+    if record.get("used"):
+        if user and user.get("email_verified"):
+            return {"message": "Your email has been confirmed. Welcome to Elite Escorts Europe!"}
+        raise HTTPException(status_code=400, detail="This confirmation link has already been used.")
+    expires_at = record.get("expires_at")
+    if isinstance(expires_at, datetime):
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+        if expires_at < datetime.now(timezone.utc):
+            raise HTTPException(status_code=400, detail="This confirmation link has expired. Please request a new one.")
+    await db.users.update_one({"user_id": record["user_id"]}, {"$set": {"email_verified": True}})
+    await db.email_verification_tokens.update_one(
+        {"token": token}, {"$set": {"used": True, "used_at": datetime.now(timezone.utc)}}
+    )
+    return {"message": "Your email has been confirmed. Welcome to Elite Escorts Europe!"}
+
+
+@api_router.post("/auth/resend-verification")
+async def resend_verification(request: Request, current_user: User = Depends(get_current_user)):
+    """Re-send the verification email to the logged-in user."""
+    if current_user.email_verified:
+        return {"message": "Your email is already verified."}
+    user_doc = await db.users.find_one({"user_id": current_user.user_id})
+    origin = request.headers.get("origin") or request.headers.get("referer", "").rstrip("/")
+    if not origin:
+        origin = APP_URL or str(request.base_url).rstrip("/")
+    await _send_verification_email(user_doc, origin)
+    return {"message": "We've sent you a new confirmation email. Please check your inbox."}
+
 
 
 # ===== PROVIDER ROUTES =====
@@ -2860,6 +2964,10 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def start_background_jobs():
+    # Mark all pre-existing accounts (incl. seeded admin/agency/demo) as verified so nothing breaks
+    await db.users.update_many({"email_verified": {"$exists": False}}, {"$set": {"email_verified": True}})
+    await db.email_verification_tokens.create_index("expires_at", expireAfterSeconds=0)
+    await db.email_verification_tokens.create_index("token")
     asyncio.create_task(_renewal_notice_loop())
 
 @app.on_event("shutdown")
