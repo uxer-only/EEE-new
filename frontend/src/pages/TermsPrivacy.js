@@ -71,22 +71,23 @@ export default function TermsPrivacy() {
 
         <H3>Prices</H3>
         <P>Www.eliteescortseurope.eu charges the following rates per advertisement:</P>
-        <H4>Independent advertisers</H4>
+        <H4>Independent advertisers (per profile)</H4>
         <div className="overflow-x-auto mb-6">
           <table className="w-full text-sm border border-[#27272A]" data-testid="price-table-independent">
             <thead>
               <tr className="bg-[#832161]/15 text-[#E5D4DF]">
-                <th className="text-left px-4 py-2 border border-[#27272A]">Duration</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">Price</th>
+                <th className="text-left px-4 py-2 border border-[#27272A]">7 days</th>
+                <th className="text-left px-4 py-2 border border-[#27272A]">15 days</th>
+                <th className="text-left px-4 py-2 border border-[#27272A]">1 month</th>
+                <th className="text-left px-4 py-2 border border-[#27272A]">3 months</th>
               </tr>
             </thead>
             <tbody className="text-[#B8B8BE]">
-              {[['7 days', '€ 35'], ['15 days', '€ 60'], ['1 month', '€ 90'], ['3 months', '€ 240']].map((r, i) => (
-                <tr key={i}>
-                  <td className="px-4 py-2 border border-[#27272A]">{r[0]}</td>
-                  <td className="px-4 py-2 border border-[#27272A]">{r[1]}</td>
-                </tr>
-              ))}
+              <tr>
+                {['€ 30', '€ 50', '€ 90', '€ 240'].map((c, j) => (
+                  <td key={j} className="px-4 py-2 border border-[#27272A]">{c}</td>
+                ))}
+              </tr>
             </tbody>
           </table>
         </div>
@@ -104,9 +105,8 @@ export default function TermsPrivacy() {
             </thead>
             <tbody className="text-[#B8B8BE]">
               {[
-                ['3 – 6', '€ 30 /pp', '€ 52 /pp', '€ 77 /pp', '€ 205 /pp'],
-                ['6 – 9', '€ 25 /pp', '€ 42 /pp', '€ 65 /pp', '€ 180 /pp'],
-                ['9 – 12', '€ 20 /pp', '€ 30 /pp', '€ 50 /pp', '€ 150 /pp'],
+                ['3 – 6', '€ 25 /pp', '€ 52 /pp', '€ 77 /pp', '€ 205 /pp'],
+                ['7 – …', '€ 20 /pp', '€ 35 /pp', '€ 60 /pp', '€ 150 /pp'],
               ].map((r, i) => (
                 <tr key={i}>
                   {r.map((c, j) => <td key={j} className="px-4 py-2 border border-[#27272A]">{c}</td>)}
