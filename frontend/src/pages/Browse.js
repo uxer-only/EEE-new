@@ -159,7 +159,7 @@ export default function Browse() {
           </div>
         )}
         {/* Search Bar */}
-        <div className="max-w-6xl mx-auto mb-10 md:mb-16">
+        <div className="max-w-7xl mx-auto mb-10 md:mb-16">
           <h2 className="text-4xl md:text-5xl text-[#141416] mb-6 md:mb-8 text-center" data-testid="browse-title">
  Discover Excellence
  </h2>
@@ -170,7 +170,7 @@ export default function Browse() {
           <div className="flex items-stretch gap-3 lg:contents">
             {/* Gender filter + extra filters */}
             <div
-              className="flex-1 lg:flex-none min-w-0 flex items-center justify-center gap-0.5 md:gap-1 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] px-2 py-2"
+              className="flex-1 lg:basis-0 min-w-0 flex items-center justify-center gap-0.5 md:gap-1 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] px-2 py-2"
               data-testid="filter-card"
             >
               {GENDER_OPTIONS.map((g) => (
@@ -229,7 +229,7 @@ export default function Browse() {
             <button
               type="button"
               onClick={handleToggleCloseToMe}
-              className={`${showLocationSearch ? 'flex' : 'hidden'} lg:flex items-center gap-3 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] px-4 py-3 text-left`}
+              className={`${showLocationSearch ? 'flex' : 'hidden'} lg:flex lg:flex-1 lg:basis-0 min-w-0 items-center gap-3 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] px-4 py-3 text-left`}
               data-testid="close-to-me-toggle"
               aria-pressed={closeToMe}
             >
