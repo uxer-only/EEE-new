@@ -243,7 +243,7 @@ export default function Browse() {
         {/* Results */}
         <div className="max-w-[1800px] mx-auto">
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {[...Array(30)].map((_, i) => (
                 <div key={i} className="shimmer aspect-[3/4]" data-testid={`skeleton-${i}`}></div>
               ))}
@@ -253,7 +253,7 @@ export default function Browse() {
               <p className="text-[#A1A1AA] text-lg">No providers found matching your criteria</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {providers.map((provider, index) => (
                 <motion.div
                   key={provider.provider_id}
