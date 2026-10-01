@@ -212,7 +212,7 @@ export default function Browse() {
                 value={filters.city}
                 onChange={(e) => setFilters({ ...filters, city: e.target.value })}
                 placeholder="Search by city or name..."
-                style={{ borderRadius: '10px' }}
+                style={{ borderRadius: '0px' }}
                 className="w-full bg-white border border-[#dbdadd] py-3.5 pl-4 pr-11 text-[13px] text-[#3D2645] placeholder:text-[#9CA3AF] placeholder:italic focus:border-[#832161] focus:ring-0 focus:outline-none transition-colors"
                 data-testid="city-search-input"
               />
