@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { notifyError } from '../lib/notify';
-import { Eye, EyeSlash } from 'phosphor-react';
+import { Eye, EyeSlash, ShieldCheck } from 'phosphor-react';
 import SiteHeader from '@/components/SiteHeader';
 
 export default function AdminLogin() {
@@ -11,7 +11,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -19,9 +19,14 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      await login(email, password);
-      toast.success('Welcome back');
-      navigate('/dashboard');
+      const user = await login(email, password);
+      if (user?.role !== 'admin') {
+        await logout();
+        notifyError(null, 'This account is not a website administrator.');
+        return;
+      }
+      toast.success('Welcome back, administrator');
+      navigate('/admin');
     } catch (error) {
       notifyError(error, "We couldn't sign you in.");
     } finally {
@@ -48,11 +53,15 @@ export default function AdminLogin() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 pt-28 md:pt-32">
         <div className="w-full max-w-md">
           <div className="mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-[#DA4167]/10 text-[#DA4167] text-xs font-semibold uppercase tracking-widest mb-4" data-testid="admin-login-badge">
+              <ShieldCheck size={16} weight="fill" />
+              Administrator
+            </div>
             <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="admin-login-title">
-              Login
+              Website Administrator Login
             </h2>
             <p className="text-[#A1A1AA]">
-              Access your account to continue
+              Restricted area — sign in with your administrator account.
             </p>
           </div>
 
