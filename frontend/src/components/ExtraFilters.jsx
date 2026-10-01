@@ -1,8 +1,8 @@
 /**
- * Extra filters panel shown on /browse.
- * Slim, focused set: service type, nationality, ethnicity, orientation,
- * breast size and breast type.
+ * Extra filters grid shown inside the "More filters" panel on /browse.
+ * Slim, focused set: nationality, ethnicity, orientation, breast size, breast type.
  */
+import { CaretDown } from 'phosphor-react';
 
 const ETHNICITIES = ['European', 'Asian', 'Latin', 'African', 'Middle Eastern', 'Mixed', 'Other'];
 const ORIENTATIONS = ['Straight', 'Bi', 'Lesbian', 'Gay', 'Pansexual'];
@@ -28,18 +28,25 @@ const NATIONALITIES = [
 
 const Select = ({ label, value, options, onChange, testId }) => (
   <div>
-    <label className="input-label !text-[#898989]">{label}</label>
-    <select
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
-      className="input-premium w-full"
-      data-testid={testId}
-    >
-      <option value="">Any</option>
-      {options.map((o) => (
-        <option key={o} value={o}>{o}</option>
-      ))}
-    </select>
+    <label className="block text-sm text-[#52525B] mb-2">{label}</label>
+    <div className="relative">
+      <select
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ borderRadius: '10px' }}
+        className="w-full appearance-none bg-white border border-[#dbdadd] text-[15px] text-[#141416] pl-4 pr-10 py-3 focus:border-[#832161] focus:ring-0 focus:outline-none transition-colors cursor-pointer"
+        data-testid={testId}
+      >
+        <option value="">Any</option>
+        {options.map((o) => (
+          <option key={o} value={o}>{o}</option>
+        ))}
+      </select>
+      <CaretDown
+        size={16}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#52525B] pointer-events-none"
+      />
+    </div>
   </div>
 );
 
@@ -47,14 +54,12 @@ export default function ExtraFilters({ filters, setFilters }) {
   const set = (key, value) => setFilters({ ...filters, [key]: value });
 
   return (
-    <div className="dashboard-light space-y-8">
-      <div className="space-y-6 max-w-md">
-        <Select label="Nationality" value={filters.nationality} options={NATIONALITIES} onChange={(v) => set('nationality', v)} testId="extra-nationality" />
-        <Select label="Ethnicity" value={filters.ethnicity} options={ETHNICITIES} onChange={(v) => set('ethnicity', v)} testId="extra-ethnicity" />
-        <Select label="Orientation" value={filters.orientation} options={ORIENTATIONS} onChange={(v) => set('orientation', v)} testId="extra-orientation" />
-        <Select label="Breast size" value={filters.breast_size} options={BREAST_SIZES} onChange={(v) => set('breast_size', v)} testId="extra-breast_size" />
-        <Select label="Breast type" value={filters.breast_type} options={BREAST_TYPES} onChange={(v) => set('breast_type', v)} testId="extra-breast_type" />
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+      <Select label="Nationality" value={filters.nationality} options={NATIONALITIES} onChange={(v) => set('nationality', v)} testId="extra-nationality" />
+      <Select label="Ethnicity" value={filters.ethnicity} options={ETHNICITIES} onChange={(v) => set('ethnicity', v)} testId="extra-ethnicity" />
+      <Select label="Orientation" value={filters.orientation} options={ORIENTATIONS} onChange={(v) => set('orientation', v)} testId="extra-orientation" />
+      <Select label="Breast size" value={filters.breast_size} options={BREAST_SIZES} onChange={(v) => set('breast_size', v)} testId="extra-breast_size" />
+      <Select label="Breast type" value={filters.breast_type} options={BREAST_TYPES} onChange={(v) => set('breast_type', v)} testId="extra-breast_type" />
     </div>
   );
 }

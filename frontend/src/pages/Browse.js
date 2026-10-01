@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getProviders } from '@/services/api';
 import { notifyError, notifyProblem } from '../lib/notify';
-import { MagnifyingGlass, MapPin, Faders, CheckCircle, Crown, Check } from 'phosphor-react';
+import { MagnifyingGlass, MapPin, Faders, CheckCircle, Crown, Check, X } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
 import SiteHeader from '@/components/SiteHeader';
 import ExtraFilters from '@/components/ExtraFilters';
@@ -255,31 +255,43 @@ export default function Browse() {
             </form>
           </div>
 
-          {/* Filters Panel */}
+          {/* More filters panel */}
           {showFilters && (
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              className="mt-8 border border-[#3F3F46] p-6 md:p-8"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-3 w-full max-w-[880px] bg-white rounded-2xl shadow-[0_12px_44px_rgba(20,20,22,0.14)] overflow-hidden"
               data-testid="filters-panel"
             >
-              <ExtraFilters
-                filters={filters}
-                setFilters={setFilters}
-              />
-              <div className="mt-8 flex justify-end items-center gap-4">
+              <div className="p-6 md:p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-[#141416]">More filters</h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowFilters(false)}
+                    className="text-[#898989] hover:text-[#141416] transition-colors"
+                    data-testid="filters-close"
+                    aria-label="Close filters"
+                  >
+                    <X size={22} />
+                  </button>
+                </div>
+                <ExtraFilters filters={filters} setFilters={setFilters} />
+              </div>
+              <div className="border-t border-[#ececef] px-6 md:px-8 py-4 flex items-center justify-between">
                 <button
                   type="button"
                   onClick={handleClearExtraFilters}
-                  className="text-xs uppercase tracking-[0.2em] text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
+                  className="text-sm font-medium text-[#832161] underline underline-offset-4 hover:text-[#6d1b51] transition-colors"
                   data-testid="extra-filters-clear"
                 >
-                  Clear all filters
+                  Clear all
                 </button>
                 <button
                   type="button"
-                  onClick={fetchProviders}
-                  className="btn-primary"
+                  onClick={() => { fetchProviders(); setShowFilters(false); }}
+                  style={{ borderRadius: '12px' }}
+                  className="bg-[#832161] hover:bg-[#6d1b51] text-white font-semibold px-6 py-3 transition-colors"
                   data-testid="apply-filters-button"
                 >
                   Apply filters
