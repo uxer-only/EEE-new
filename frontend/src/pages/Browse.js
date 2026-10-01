@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getProviders } from '@/services/api';
 import { notifyError, notifyProblem } from '../lib/notify';
-import { MagnifyingGlass, MapPin, Faders, CheckCircle, Crown } from 'phosphor-react';
+import { MagnifyingGlass, MapPin, Faders, CheckCircle, Crown, CaretDown } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
 import SiteHeader from '@/components/SiteHeader';
 import ExtraFilters from '@/components/ExtraFilters';
@@ -26,12 +26,23 @@ const EXTRA_FILTER_KEYS = [
   'breast_size', 'breast_type'
 ];
 
+// Major European cities offered for the "near me" location override.
+const ORIGIN_CITIES = [
+  'London', 'Paris', 'Amsterdam', 'Berlin', 'Madrid', 'Barcelona', 'Rome',
+  'Milan', 'Vienna', 'Brussels', 'Zurich', 'Geneva', 'Munich', 'Frankfurt',
+  'Hamburg', 'Lisbon', 'Prague', 'Warsaw', 'Budapest', 'Dublin', 'Copenhagen',
+  'Stockholm', 'Oslo', 'Athens', 'Monaco', 'Marbella', 'Lyon', 'Nice'
+];
+
+const ORIGIN_STORAGE_KEY = 'ee-origin-city';
+
 export default function Browse() {
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
+  const [originCity, setOriginCity] = useState(() => localStorage.getItem(ORIGIN_STORAGE_KEY) || '');
   const { user } = useAuth();
 
   // Count of active "extra" filters (excludes city + gender — those are always visible).
@@ -43,13 +54,14 @@ export default function Browse() {
 
   useEffect(() => {
     fetchProviders();
-  }, [filters.gender]);
+  }, [filters.gender, originCity]);
 
   const fetchProviders = async () => {
     try {
       const params = {};
       if (filters.city) params.city = filters.city;
       if (filters.gender) params.gender = filters.gender;
+      if (originCity) params.origin_city = originCity;
 
       // Extra filters
       EXTRA_FILTER_KEYS.forEach((k) => {
@@ -80,6 +92,15 @@ export default function Browse() {
   const handleSearch = (e) => {
     e.preventDefault();
     fetchProviders();
+  };
+
+  const handleOriginChange = (value) => {
+    setOriginCity(value);
+    if (value) {
+      localStorage.setItem(ORIGIN_STORAGE_KEY, value);
+    } else {
+      localStorage.removeItem(ORIGIN_STORAGE_KEY);
+    }
   };
 
   const handleClearExtraFilters = () => {
@@ -208,6 +229,33 @@ export default function Browse() {
               Search
             </button>
           </form>
+
+          {/* Location override — lets visitors pick the city results are sorted nearest to */}
+          <div
+            className="mt-3 flex items-center justify-center sm:justify-start gap-2 text-[13px] text-[#52525B]"
+            data-testid="location-override"
+          >
+            <MapPin size={16} weight="fill" className="text-[#832161]" />
+            <span>Showing results nearest to</span>
+            <div className="relative">
+              <select
+                value={originCity}
+                onChange={(e) => handleOriginChange(e.target.value)}
+                style={{ borderRadius: '8px' }}
+                className="appearance-none bg-white border border-[#dbdadd] pl-3 pr-8 py-1.5 text-[13px] text-[#3D2645] font-medium focus:border-[#832161] focus:ring-0 focus:outline-none cursor-pointer transition-colors"
+                data-testid="origin-city-select"
+              >
+                <option value="">Auto-detect my location</option>
+                {ORIGIN_CITIES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <CaretDown
+                size={14}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#52525B] pointer-events-none"
+              />
+            </div>
+          </div>
           </div>
 
           {/* Filters Panel */}

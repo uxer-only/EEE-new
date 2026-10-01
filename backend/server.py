@@ -1674,6 +1674,9 @@ async def browse_providers(
     max_height: Optional[float] = None,
     min_weight: Optional[float] = None,
     max_weight: Optional[float] = None,
+    # Visitor-selected location override for distance sorting (overrides IP geolocation)
+    origin_city: Optional[str] = None,
+    origin_country: Optional[str] = None,
 ):
     """Browse and search providers"""
     query: dict = {"verified": True, "available": True, "suspended": {"$ne": True}}
@@ -1742,7 +1745,12 @@ async def browse_providers(
 
     # Distance-based sort: VIPs on top (closest first), then non-VIPs (closest first).
     # Falls back to VIP -> vip_until -> newest when the visitor's location is unknown.
-    visitor_coords = await _get_ip_coords(_visitor_ip(request))
+    # A visitor-selected city (origin_city) overrides IP-based geolocation.
+    visitor_coords = None
+    if origin_city:
+        visitor_coords = await _geocode_city(origin_city, origin_country or "")
+    if not visitor_coords:
+        visitor_coords = await _get_ip_coords(_visitor_ip(request))
     if visitor_coords:
         vlat, vlng = visitor_coords
         for p in profiles:
