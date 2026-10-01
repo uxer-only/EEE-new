@@ -118,8 +118,8 @@ export default function Browse() {
               onClick={() => setFilters({ ...filters, gender: '' })}
               className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
                 filters.gender === ''
-                  ? 'border-[#832161] bg-[#832161] text-white'
-                  : 'border-[#832161] text-[#832161] font-bold hover:bg-[#832161]/10'
+                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
+                  : 'border-[#898989] text-[#898989] hover:border-[#832161] hover:text-[#832161]'
               }`}
               data-testid="filter-all"
             >
@@ -129,8 +129,8 @@ export default function Browse() {
               onClick={() => setFilters({ ...filters, gender: 'female' })}
               className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
                 filters.gender === 'female'
-                  ? 'border-[#832161] bg-[#832161] text-white'
-                  : 'border-[#832161] text-[#832161] font-bold hover:bg-[#832161]/10'
+                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
+                  : 'border-[#898989] text-[#898989] hover:border-[#832161] hover:text-[#832161]'
               }`}
               data-testid="filter-female"
             >
@@ -140,8 +140,8 @@ export default function Browse() {
               onClick={() => setFilters({ ...filters, gender: 'male' })}
               className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
                 filters.gender === 'male'
-                  ? 'border-[#832161] bg-[#832161] text-white'
-                  : 'border-[#832161] text-[#832161] font-bold hover:bg-[#832161]/10'
+                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
+                  : 'border-[#898989] text-[#898989] hover:border-[#832161] hover:text-[#832161]'
               }`}
               data-testid="filter-male"
             >
@@ -151,8 +151,8 @@ export default function Browse() {
               onClick={() => setFilters({ ...filters, gender: 'trans' })}
               className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
                 filters.gender === 'trans'
-                  ? 'border-[#832161] bg-[#832161] text-white'
-                  : 'border-[#832161] text-[#832161] font-bold hover:bg-[#832161]/10'
+                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
+                  : 'border-[#898989] text-[#898989] hover:border-[#832161] hover:text-[#832161]'
               }`}
               data-testid="filter-trans"
             >
@@ -163,8 +163,8 @@ export default function Browse() {
               onClick={() => setShowFilters(!showFilters)}
               className={`relative px-4 md:px-6 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all flex items-center gap-2 ${
                 showFilters || activeExtraCount > 0
-                  ? 'border-[#832161] bg-[#832161] text-white'
-                  : 'border-[#832161] text-[#832161] font-bold hover:bg-[#832161]/10'
+                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
+                  : 'border-[#898989] text-[#898989] hover:border-[#832161] hover:text-[#832161]'
               }`}
               data-testid="filters-button"
               aria-label="Extra filters"
@@ -189,12 +189,12 @@ export default function Browse() {
                 value={filters.city}
                 onChange={(e) => setFilters({ ...filters, city: e.target.value })}
                 placeholder="Search by city or name..."
-                className="input-premium w-full pr-10"
+                className="w-full bg-white border border-[#dbdadd] rounded-md py-3.5 pl-4 pr-11 text-[13px] text-[#3D2645] placeholder:text-[#9CA3AF] placeholder:italic focus:border-[#832161] focus:ring-0 focus:outline-none transition-colors"
                 data-testid="city-search-input"
               />
               <MagnifyingGlass
                 size={20}
-                className="absolute right-3 text-[#52525B]"
+                className="absolute right-3 text-[#52525B] pointer-events-none"
               />
             </div>
             <button
