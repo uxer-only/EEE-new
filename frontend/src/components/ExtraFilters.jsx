@@ -47,7 +47,7 @@ export default function ExtraFilters({ filters, setFilters }) {
   const set = (key, value) => setFilters({ ...filters, [key]: value });
 
   return (
-    <div className="space-y-8">
+    <div className="dashboard-light space-y-8">
       <div className="space-y-6 max-w-md">
         <Select label="Nationality" value={filters.nationality} options={NATIONALITIES} onChange={(v) => set('nationality', v)} testId="extra-nationality" />
         <Select label="Ethnicity" value={filters.ethnicity} options={ETHNICITIES} onChange={(v) => set('ethnicity', v)} testId="extra-ethnicity" />
