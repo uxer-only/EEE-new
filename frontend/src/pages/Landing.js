@@ -53,7 +53,7 @@ export default function Landing() {
               <Warning size={32} className="text-[#832161]" weight="fill" />
             </div>
             <h2 className="text-2xl text-[#F2F0ED] mb-4">
- Age Verification Required
+ Attention
  </h2>
             <p className="text-[#A1A1AA] mb-8 text-sm leading-relaxed">
               This website contains adult content and is intended for individuals 18 years of age or older. By entering, you confirm that you are of legal age in your jurisdiction.
@@ -75,11 +75,8 @@ export default function Landing() {
               </button>
             </div>
             <div className="mt-6 pt-6 border-t border-[#27272A] flex justify-center gap-6 text-xs text-[#52525B]">
-              <Link to="/privacy" className="hover:text-[#DA4167] transition-colors">
-                Privacy Policy
-              </Link>
               <Link to="/terms" className="hover:text-[#DA4167] transition-colors">
-                Terms & Conditions
+                Terms, Privacy &amp; Cookies
               </Link>
             </div>
           </div>
