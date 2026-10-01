@@ -9,7 +9,7 @@ export const SiteFooter = () => (
       <div className="flex gap-6 sm:gap-8 text-[#52525B] text-sm">
         <Link to="/terms" className="hover:text-[#DA4167] transition-colors" data-testid="footer-terms-link">Terms, Privacy &amp; Cookies</Link>
         <Link to="/advertising-prices" className="hover:text-[#DA4167] transition-colors" data-testid="footer-advertising-link">Advertising prices</Link>
-        <button className="hover:text-[#DA4167] transition-colors">Contact</button>
+        <Link to="/contact" className="hover:text-[#DA4167] transition-colors" data-testid="footer-contact-link">Contact</Link>
         <Link to="/admin/login" className="hover:text-[#DA4167] transition-colors" data-testid="footer-admin-link">Admin</Link>
       </div>
     </div>
