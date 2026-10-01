@@ -1,13 +1,13 @@
 import SiteHeader from '@/components/SiteHeader';
 
 const H2 = ({ children }) => (
-  <h2 className="font-playfair text-2xl md:text-3xl text-[#832161] mt-12 mb-4">{children}</h2>
+  <h2 className="font-playfair text-2xl md:text-3xl text-[#DA4167] mt-12 mb-4">{children}</h2>
 );
 const H3 = ({ children }) => (
-  <h3 className="font-playfair text-lg md:text-xl text-[#832161] mt-8 mb-3">{children}</h3>
+  <h3 className="font-playfair text-lg md:text-xl text-[#DA4167] mt-8 mb-3">{children}</h3>
 );
 const H4 = ({ children }) => (
-  <h4 className="font-manrope font-semibold text-sm md:text-base text-[#B5468A] mt-6 mb-2">{children}</h4>
+  <h4 className="font-manrope font-semibold text-sm md:text-base text-[#E8799B] mt-6 mb-2">{children}</h4>
 );
 const P = ({ children }) => (
   <p className="text-[#B8B8BE] text-sm leading-relaxed mb-4">{children}</p>
@@ -23,7 +23,7 @@ export default function TermsPrivacy() {
     <div className="min-h-screen bg-[#0A0A0C] text-[#F2F0ED]" data-testid="terms-privacy-page">
       <SiteHeader />
       <div className="max-w-3xl mx-auto px-6 pt-28 md:pt-32 pb-20">
-        <h1 className="font-playfair text-4xl md:text-5xl text-[#832161] mb-2">Terms, Privacy &amp; Cookies</h1>
+        <h1 className="font-playfair text-4xl md:text-5xl text-[#DA4167] mb-2">Terms, Privacy &amp; Cookies</h1>
         <p className="text-[#71717A] text-xs mb-8">Elite Escorts Europe — last updated {new Date().getFullYear()}</p>
 
         {/* Introduction */}
@@ -75,7 +75,7 @@ export default function TermsPrivacy() {
         <div className="overflow-x-auto mb-6">
           <table className="w-full text-sm border border-[#27272A]" data-testid="price-table-independent">
             <thead>
-              <tr className="bg-[#832161]/15 text-[#E5D4DF]">
+              <tr className="bg-[#DA4167]/15 text-[#F2F0ED]">
                 <th className="text-left px-4 py-2 border border-[#27272A]">7 days</th>
                 <th className="text-left px-4 py-2 border border-[#27272A]">15 days</th>
                 <th className="text-left px-4 py-2 border border-[#27272A]">1 month</th>
@@ -95,7 +95,7 @@ export default function TermsPrivacy() {
         <div className="overflow-x-auto mb-6">
           <table className="w-full text-sm border border-[#27272A]" data-testid="price-table-agency">
             <thead>
-              <tr className="bg-[#832161]/15 text-[#E5D4DF]">
+              <tr className="bg-[#DA4167]/15 text-[#F2F0ED]">
                 <th className="text-left px-4 py-2 border border-[#27272A]">Profiles</th>
                 <th className="text-left px-4 py-2 border border-[#27272A]">7 days</th>
                 <th className="text-left px-4 py-2 border border-[#27272A]">15 days</th>
