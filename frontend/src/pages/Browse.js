@@ -262,7 +262,7 @@ export default function Browse() {
               />
               <button
                 type="submit"
-                style={{ borderRadius: '12px' }}
+                style={{ borderRadius: '16px' }}
                 className="flex-shrink-0 w-11 h-11 bg-[#832161] hover:bg-[#6d1b51] text-white flex items-center justify-center transition-colors"
                 data-testid="search-button"
                 aria-label="Search"
@@ -314,7 +314,7 @@ export default function Browse() {
                   <button
                     type="button"
                     onClick={() => { fetchProviders(); setShowFilters(false); }}
-                    style={{ borderRadius: '12px' }}
+                    style={{ borderRadius: '16px' }}
                     className="flex-1 lg:flex-none bg-[#832161] hover:bg-[#6d1b51] text-white font-semibold px-6 py-3.5 lg:py-3 transition-colors"
                     data-testid="apply-filters-button"
                   >

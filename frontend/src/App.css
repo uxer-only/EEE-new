@@ -10,11 +10,11 @@
 
 /* Button styles */
 .btn-primary {
-  @apply inline-flex items-center justify-center h-[50px] bg-[#DA4167] text-[#FFFFFF] hover:bg-[#c33658] px-8 uppercase tracking-widest text-sm font-semibold transition-all duration-300 ease-out;
+  @apply inline-flex items-center justify-center h-[50px] rounded-2xl bg-[#DA4167] text-[#FFFFFF] hover:bg-[#c33658] px-8 uppercase tracking-widest text-sm font-semibold transition-all duration-300 ease-out;
 }
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center h-[50px] bg-transparent border border-[#FFFFFF] text-[#FFFFFF] font-bold hover:bg-white/10 px-8 uppercase tracking-widest text-sm transition-all;
+  @apply inline-flex items-center justify-center h-[50px] rounded-2xl bg-transparent border border-[#FFFFFF] text-[#FFFFFF] font-bold hover:bg-white/10 px-8 uppercase tracking-widest text-sm transition-all;
 }
 
 .dashboard-light .btn-secondary {
