@@ -198,7 +198,7 @@ export default function Landing() {
             <div className="flex items-center justify-center mt-16">
               <Link
                 to="/browse"
-                className="group inline-flex items-center justify-center gap-3 h-[56px] min-w-[240px] px-8 bg-transparent border border-[#FFFFFF]/70 text-[#FFFFFF] uppercase tracking-[0.2em] text-sm font-semibold backdrop-blur-sm transition-all duration-300 hover:border-[#FFFFFF] hover:bg-[#FFFFFF]/10"
+                className="group inline-flex items-center justify-center gap-3 h-[56px] min-w-[240px] px-8 rounded-[8px] bg-transparent border border-[#FFFFFF]/70 text-[#FFFFFF] uppercase tracking-[0.2em] text-sm font-semibold backdrop-blur-sm transition-all duration-300 hover:border-[#FFFFFF] hover:bg-[#FFFFFF]/10"
                 data-testid="cta-browse-button"
               >
                 <span>All profiles</span>
