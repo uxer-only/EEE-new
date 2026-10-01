@@ -241,7 +241,7 @@ export default function Browse() {
         </div>
 
         {/* Results */}
-        <div className="max-w-[1800px] mx-auto">
+        <div className="max-w-7xl mx-auto">
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {[...Array(30)].map((_, i) => (
