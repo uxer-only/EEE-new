@@ -43,6 +43,7 @@ export default function Browse() {
   const [offlineMode, setOfflineMode] = useState(false);
   const [closeToMe, setCloseToMe] = useState(() => localStorage.getItem(CLOSE_TO_ME_KEY) === '1');
   const [coords, setCoords] = useState(null);
+  const [showLocationSearch, setShowLocationSearch] = useState(false);
   const { user } = useAuth();
 
   // Count of active "extra" filters (excludes city + gender — those are always visible).
@@ -165,16 +166,18 @@ export default function Browse() {
 
           {/* Filter + location + search toolbar */}
           <div className="flex flex-col lg:flex-row items-stretch gap-3 lg:gap-4">
+          {/* Row 1 (mobile): gender filter card + location reveal button */}
+          <div className="flex items-stretch gap-3 lg:contents">
             {/* Gender filter + extra filters */}
             <div
-              className="flex items-center justify-center gap-1 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] px-2 py-2"
+              className="flex-1 lg:flex-none min-w-0 flex items-center justify-center gap-0.5 md:gap-1 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] px-2 py-2"
               data-testid="filter-card"
             >
               {GENDER_OPTIONS.map((g) => (
                 <button
                   key={g.value || 'all'}
                   onClick={() => setFilters({ ...filters, gender: g.value })}
-                  className={`px-3 md:px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                  className={`px-2 md:px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors ${
                     filters.gender === g.value
                       ? 'bg-[#832161] text-white'
                       : 'text-[#52525B] hover:text-[#832161]'
@@ -184,11 +187,11 @@ export default function Browse() {
                   {g.label}
                 </button>
               ))}
-              <div className="w-px h-6 bg-[#e5e7eb] mx-1" />
+              <div className="w-px h-6 bg-[#e5e7eb] mx-0.5 md:mx-1" />
               <button
                 type="button"
                 onClick={() => setShowFilters(!showFilters)}
-                className={`relative p-2.5 rounded-xl transition-colors ${
+                className={`relative p-2 md:p-2.5 rounded-xl transition-colors ${
                   showFilters || activeExtraCount > 0
                     ? 'text-[#832161] bg-[#832161]/5'
                     : 'text-[#52525B] hover:text-[#832161]'
@@ -207,12 +210,26 @@ export default function Browse() {
                 )}
               </button>
             </div>
+            {/* Mobile-only location & search reveal button */}
+            <button
+              type="button"
+              onClick={() => setShowLocationSearch((v) => !v)}
+              className={`lg:hidden flex-shrink-0 w-14 flex items-center justify-center rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] border-2 transition-colors ${
+                showLocationSearch ? 'bg-[#832161]/5 border-[#832161]' : 'bg-white border-transparent'
+              }`}
+              data-testid="mobile-location-toggle"
+              aria-label="Toggle location and search"
+              aria-pressed={showLocationSearch}
+            >
+              <MapPin size={24} className="text-[#832161]" />
+            </button>
+          </div>
 
             {/* Close-to-me location toggle (uses device geolocation) */}
             <button
               type="button"
               onClick={handleToggleCloseToMe}
-              className="flex items-center gap-3 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] px-4 py-3 text-left"
+              className={`${showLocationSearch ? 'flex' : 'hidden'} lg:flex items-center gap-3 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] px-4 py-3 text-left`}
               data-testid="close-to-me-toggle"
               aria-pressed={closeToMe}
             >
@@ -233,7 +250,7 @@ export default function Browse() {
             {/* City / name search */}
             <form
               onSubmit={handleSearch}
-              className="flex-1 flex items-center gap-2 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] pl-5 pr-2 py-2"
+              className={`${showLocationSearch ? 'flex' : 'hidden'} lg:flex flex-1 items-center gap-2 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] pl-5 pr-2 py-2`}
             >
               <input
                 type="text"
@@ -255,49 +272,57 @@ export default function Browse() {
             </form>
           </div>
 
-          {/* More filters panel */}
+          {/* More filters — dropdown card on desktop, bottom sheet on mobile */}
           {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-3 w-full max-w-[880px] bg-white rounded-2xl shadow-[0_12px_44px_rgba(20,20,22,0.14)] overflow-hidden"
-              data-testid="filters-panel"
-            >
-              <div className="p-6 md:p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-[#141416]">More filters</h3>
+            <>
+              <div
+                className="lg:hidden fixed inset-0 bg-black/40 z-40"
+                onClick={() => setShowFilters(false)}
+                data-testid="filters-scrim"
+              />
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="fixed inset-x-0 bottom-0 z-50 max-h-[88vh] overflow-y-auto rounded-t-3xl bg-white shadow-[0_-8px_40px_rgba(20,20,22,0.18)] lg:static lg:inset-auto lg:z-auto lg:max-h-none lg:overflow-hidden lg:rounded-2xl lg:mt-3 lg:w-full lg:max-w-[880px] lg:shadow-[0_12px_44px_rgba(20,20,22,0.14)]"
+                data-testid="filters-panel"
+              >
+                <div className="lg:hidden mx-auto mt-3 mb-1 h-1.5 w-10 rounded-full bg-[#d8d6db]" />
+                <div className="p-6 md:p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl lg:text-lg font-semibold text-[#141416]">More filters</h3>
+                    <button
+                      type="button"
+                      onClick={() => setShowFilters(false)}
+                      className="text-[#898989] hover:text-[#141416] transition-colors"
+                      data-testid="filters-close"
+                      aria-label="Close filters"
+                    >
+                      <X size={24} />
+                    </button>
+                  </div>
+                  <ExtraFilters filters={filters} setFilters={setFilters} />
+                </div>
+                <div className="sticky bottom-0 bg-white border-t border-[#ececef] px-6 md:px-8 py-4 flex items-center gap-4 lg:justify-between">
                   <button
                     type="button"
-                    onClick={() => setShowFilters(false)}
-                    className="text-[#898989] hover:text-[#141416] transition-colors"
-                    data-testid="filters-close"
-                    aria-label="Close filters"
+                    onClick={handleClearExtraFilters}
+                    className="flex-shrink-0 text-sm font-medium text-[#832161] underline underline-offset-4 hover:text-[#6d1b51] transition-colors"
+                    data-testid="extra-filters-clear"
                   >
-                    <X size={22} />
+                    Clear all
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { fetchProviders(); setShowFilters(false); }}
+                    style={{ borderRadius: '12px' }}
+                    className="flex-1 lg:flex-none bg-[#832161] hover:bg-[#6d1b51] text-white font-semibold px-6 py-3.5 lg:py-3 transition-colors"
+                    data-testid="apply-filters-button"
+                  >
+                    Apply filters
                   </button>
                 </div>
-                <ExtraFilters filters={filters} setFilters={setFilters} />
-              </div>
-              <div className="border-t border-[#ececef] px-6 md:px-8 py-4 flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={handleClearExtraFilters}
-                  className="text-sm font-medium text-[#832161] underline underline-offset-4 hover:text-[#6d1b51] transition-colors"
-                  data-testid="extra-filters-clear"
-                >
-                  Clear all
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { fetchProviders(); setShowFilters(false); }}
-                  style={{ borderRadius: '12px' }}
-                  className="bg-[#832161] hover:bg-[#6d1b51] text-white font-semibold px-6 py-3 transition-colors"
-                  data-testid="apply-filters-button"
-                >
-                  Apply filters
-                </button>
-              </div>
-            </motion.div>
+              </motion.div>
+            </>
           )}
         </div>
 
