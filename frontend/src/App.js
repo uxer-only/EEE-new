@@ -10,6 +10,7 @@ import Login from '@/pages/Login';
 import AdminLogin from '@/pages/AdminLogin';
 import TermsPrivacy from '@/pages/TermsPrivacy';
 import VerifyEmail from '@/pages/VerifyEmail';
+import AdvertisingPrices from '@/pages/AdvertisingPrices';
 import Register from '@/pages/Register';
 import ProviderRegister from '@/pages/ProviderRegister';
 import AuthCallback from '@/pages/AuthCallback';
@@ -45,6 +46,7 @@ function AppRouter() {
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/terms" element={<TermsPrivacy />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/advertising-prices" element={<AdvertisingPrices />} />
       <Route path="/register" element={<Register />} />
       <Route path="/register/provider" element={<ProviderRegister />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
