@@ -28,12 +28,12 @@ export default function SiteHeader({ leftSlot = null, links = null }) {
 
   const defaultLinks = user
     ? [
-        { to: '/browse', label: 'Browse', testId: 'nav-browse' },
+        { to: '/browse', label: 'Elite Escorts', testId: 'nav-browse' },
         { to: user.role === 'admin' ? '/admin' : '/dashboard', label: 'Dashboard', testId: 'nav-dashboard' },
         { label: 'Log out', onClick: handleLogout, variant: 'primary', testId: 'nav-logout' },
       ]
     : [
-        { to: '/browse', label: 'Browse', testId: 'nav-browse' },
+        { to: '/browse', label: 'Elite Escorts', testId: 'nav-browse' },
         { to: '/login', label: 'Login', testId: 'nav-login' },
         { to: '/register/provider', label: 'Advertise', variant: 'primary', testId: 'nav-advertise' },
       ];
