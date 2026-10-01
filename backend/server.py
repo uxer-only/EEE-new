@@ -1675,6 +1675,8 @@ async def browse_providers(
     min_weight: Optional[float] = None,
     max_weight: Optional[float] = None,
     # Visitor-selected location override for distance sorting (overrides IP geolocation)
+    origin_lat: Optional[float] = None,
+    origin_lng: Optional[float] = None,
     origin_city: Optional[str] = None,
     origin_country: Optional[str] = None,
 ):
@@ -1747,7 +1749,9 @@ async def browse_providers(
     # Falls back to VIP -> vip_until -> newest when the visitor's location is unknown.
     # A visitor-selected city (origin_city) overrides IP-based geolocation.
     visitor_coords = None
-    if origin_city:
+    if origin_lat is not None and origin_lng is not None:
+        visitor_coords = (origin_lat, origin_lng)
+    if not visitor_coords and origin_city:
         visitor_coords = await _geocode_city(origin_city, origin_country or "")
     if not visitor_coords:
         visitor_coords = await _get_ip_coords(_visitor_ip(request))

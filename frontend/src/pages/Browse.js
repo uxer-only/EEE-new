@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getProviders } from '@/services/api';
 import { notifyError, notifyProblem } from '../lib/notify';
-import { MagnifyingGlass, MapPin, Faders, CheckCircle, Crown, CaretDown } from 'phosphor-react';
+import { MagnifyingGlass, MapPin, Faders, CheckCircle, Crown, Check } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
 import SiteHeader from '@/components/SiteHeader';
 import ExtraFilters from '@/components/ExtraFilters';
@@ -26,15 +26,14 @@ const EXTRA_FILTER_KEYS = [
   'breast_size', 'breast_type'
 ];
 
-// Major European cities offered for the "near me" location override.
-const ORIGIN_CITIES = [
-  'London', 'Paris', 'Amsterdam', 'Berlin', 'Madrid', 'Barcelona', 'Rome',
-  'Milan', 'Vienna', 'Brussels', 'Zurich', 'Geneva', 'Munich', 'Frankfurt',
-  'Hamburg', 'Lisbon', 'Prague', 'Warsaw', 'Budapest', 'Dublin', 'Copenhagen',
-  'Stockholm', 'Oslo', 'Athens', 'Monaco', 'Marbella', 'Lyon', 'Nice'
-];
+const CLOSE_TO_ME_KEY = 'ee-close-to-me';
 
-const ORIGIN_STORAGE_KEY = 'ee-origin-city';
+const GENDER_OPTIONS = [
+  { label: 'All', value: '', testId: 'filter-all' },
+  { label: 'Female', value: 'female', testId: 'filter-female' },
+  { label: 'Male', value: 'male', testId: 'filter-male' },
+  { label: 'Trans', value: 'trans', testId: 'filter-trans' },
+];
 
 export default function Browse() {
   const [providers, setProviders] = useState([]);
@@ -42,7 +41,8 @@ export default function Browse() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
-  const [originCity, setOriginCity] = useState(() => localStorage.getItem(ORIGIN_STORAGE_KEY) || '');
+  const [closeToMe, setCloseToMe] = useState(() => localStorage.getItem(CLOSE_TO_ME_KEY) === '1');
+  const [coords, setCoords] = useState(null);
   const { user } = useAuth();
 
   // Count of active "extra" filters (excludes city + gender — those are always visible).
@@ -54,14 +54,23 @@ export default function Browse() {
 
   useEffect(() => {
     fetchProviders();
-  }, [filters.gender, originCity]);
+  }, [filters.gender, coords]);
+
+  // Re-request device location on mount if the user previously opted in.
+  useEffect(() => {
+    if (closeToMe) requestLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchProviders = async () => {
     try {
       const params = {};
       if (filters.city) params.city = filters.city;
       if (filters.gender) params.gender = filters.gender;
-      if (originCity) params.origin_city = originCity;
+      if (coords) {
+        params.origin_lat = coords.lat;
+        params.origin_lng = coords.lng;
+      }
 
       // Extra filters
       EXTRA_FILTER_KEYS.forEach((k) => {
@@ -94,12 +103,33 @@ export default function Browse() {
     fetchProviders();
   };
 
-  const handleOriginChange = (value) => {
-    setOriginCity(value);
-    if (value) {
-      localStorage.setItem(ORIGIN_STORAGE_KEY, value);
+  const requestLocation = () => {
+    if (!navigator.geolocation) {
+      notifyProblem("Location unavailable", "Your browser doesn't support location access.");
+      setCloseToMe(false);
+      localStorage.removeItem(CLOSE_TO_ME_KEY);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {
+        notifyProblem("Location blocked", "Allow location access to see escorts closest to you.");
+        setCloseToMe(false);
+        localStorage.removeItem(CLOSE_TO_ME_KEY);
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
+    );
+  };
+
+  const handleToggleCloseToMe = () => {
+    const next = !closeToMe;
+    setCloseToMe(next);
+    if (next) {
+      localStorage.setItem(CLOSE_TO_ME_KEY, '1');
+      requestLocation();
     } else {
-      localStorage.removeItem(ORIGIN_STORAGE_KEY);
+      localStorage.removeItem(CLOSE_TO_ME_KEY);
+      setCoords(null);
     }
   };
 
@@ -128,134 +158,101 @@ export default function Browse() {
           </div>
         )}
         {/* Search Bar */}
-        <div className="max-w-4xl mx-auto mb-10 md:mb-16">
+        <div className="max-w-6xl mx-auto mb-10 md:mb-16">
           <h2 className="text-4xl md:text-5xl text-[#141416] mb-6 md:mb-8 text-center" data-testid="browse-title">
  Discover Excellence
  </h2>
-          
-          {/* Filter buttons + search share the same width */}
-          <div className="w-fit max-w-full mx-auto">
-          {/* Gender Filter Buttons */}
-          <div className="flex items-center justify-center flex-wrap gap-2 md:gap-4 mb-8">
-            <button
-              onClick={() => setFilters({ ...filters, gender: '' })}
-              className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
-                filters.gender === ''
-                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                  : 'border-[#898989] text-[#898989] hover:border-[#832161] hover:text-[#832161]'
-              }`}
-              data-testid="filter-all"
+
+          {/* Filter + location + search toolbar */}
+          <div className="flex flex-col lg:flex-row items-stretch gap-3 lg:gap-4">
+            {/* Gender filter + extra filters */}
+            <div
+              className="flex items-center justify-center gap-1 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] px-2 py-2"
+              data-testid="filter-card"
             >
-              All
-            </button>
-            <button
-              onClick={() => setFilters({ ...filters, gender: 'female' })}
-              className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
-                filters.gender === 'female'
-                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                  : 'border-[#898989] text-[#898989] hover:border-[#832161] hover:text-[#832161]'
-              }`}
-              data-testid="filter-female"
-            >
-              Female
-            </button>
-            <button
-              onClick={() => setFilters({ ...filters, gender: 'male' })}
-              className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
-                filters.gender === 'male'
-                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                  : 'border-[#898989] text-[#898989] hover:border-[#832161] hover:text-[#832161]'
-              }`}
-              data-testid="filter-male"
-            >
-              Male
-            </button>
-            <button
-              onClick={() => setFilters({ ...filters, gender: 'trans' })}
-              className={`px-4 md:px-8 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all ${
-                filters.gender === 'trans'
-                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                  : 'border-[#898989] text-[#898989] hover:border-[#832161] hover:text-[#832161]'
-              }`}
-              data-testid="filter-trans"
-            >
-              Trans
-            </button>
+              {GENDER_OPTIONS.map((g) => (
+                <button
+                  key={g.value || 'all'}
+                  onClick={() => setFilters({ ...filters, gender: g.value })}
+                  className={`px-3 md:px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                    filters.gender === g.value
+                      ? 'bg-[#832161] text-white'
+                      : 'text-[#52525B] hover:text-[#832161]'
+                  }`}
+                  data-testid={g.testId}
+                >
+                  {g.label}
+                </button>
+              ))}
+              <div className="w-px h-6 bg-[#e5e7eb] mx-1" />
+              <button
+                type="button"
+                onClick={() => setShowFilters(!showFilters)}
+                className={`relative p-2.5 rounded-xl transition-colors ${
+                  showFilters || activeExtraCount > 0
+                    ? 'text-[#832161] bg-[#832161]/5'
+                    : 'text-[#52525B] hover:text-[#832161]'
+                }`}
+                data-testid="filters-button"
+                aria-label="Extra filters"
+              >
+                <Faders size={20} />
+                {activeExtraCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-[#832161] text-white text-[10px] font-semibold leading-none"
+                    data-testid="extra-filters-count"
+                  >
+                    {activeExtraCount}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Close-to-me location toggle (uses device geolocation) */}
             <button
               type="button"
-              onClick={() => setShowFilters(!showFilters)}
-              className={`relative px-4 md:px-6 py-2.5 md:py-3 border uppercase tracking-wider text-xs md:text-sm font-medium transition-all flex items-center gap-2 ${
-                showFilters || activeExtraCount > 0
-                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                  : 'border-[#898989] text-[#898989] hover:border-[#832161] hover:text-[#832161]'
-              }`}
-              data-testid="filters-button"
-              aria-label="Extra filters"
+              onClick={handleToggleCloseToMe}
+              className="flex items-center gap-3 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] px-4 py-3 text-left"
+              data-testid="close-to-me-toggle"
+              aria-pressed={closeToMe}
             >
-              <Faders size={18} />
-              <span className="hidden sm:inline">Extra Filters</span>
-              {activeExtraCount > 0 && (
-                <span
-                  className="ml-1 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-white text-[#832161] text-[10px] font-semibold leading-none"
-                  data-testid="extra-filters-count"
-                >
-                  {activeExtraCount}
-                </span>
-              )}
+              <span
+                className={`flex-shrink-0 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
+                  closeToMe ? 'bg-[#832161] border-[#832161]' : 'border-[#c9c7cc] bg-white'
+                }`}
+              >
+                {closeToMe && <Check size={14} weight="bold" className="text-white" />}
+              </span>
+              <span className="flex-1 min-w-0">
+                <span className="block text-sm font-semibold text-[#141416] leading-tight">Show escorts close to me</span>
+                <span className="block text-xs text-[#898989] leading-tight">Uses your device location</span>
+              </span>
+              <MapPin size={22} weight="fill" className="text-[#832161] flex-shrink-0" />
             </button>
-          </div>
-          
-          <form onSubmit={handleSearch} className="w-full flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <div className="flex-1 relative flex items-center">
+
+            {/* City / name search */}
+            <form
+              onSubmit={handleSearch}
+              className="flex-1 flex items-center gap-2 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] pl-5 pr-2 py-2"
+            >
               <input
                 type="text"
                 value={filters.city}
                 onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-                placeholder="Search by city or name..."
-                style={{ borderRadius: '0px' }}
-                className="w-full bg-white border border-[#dbdadd] py-3.5 pl-4 pr-11 text-[13px] text-[#3D2645] placeholder:text-[#9CA3AF] placeholder:italic focus:border-[#832161] focus:ring-0 focus:outline-none transition-colors"
+                placeholder="Search city or name"
+                className="flex-1 min-w-0 bg-transparent border-0 text-sm text-[#3D2645] placeholder:text-[#9CA3AF] focus:ring-0 focus:outline-none"
                 data-testid="city-search-input"
               />
-              <MagnifyingGlass
-                size={20}
-                className="absolute right-3 text-[#52525B] pointer-events-none"
-              />
-            </div>
-            <button
-              type="submit"
-              className="btn-primary w-full sm:w-auto"
-              data-testid="search-button"
-            >
-              Search
-            </button>
-          </form>
-
-          {/* Location override — lets visitors pick the city results are sorted nearest to */}
-          <div
-            className="mt-3 flex items-center justify-center sm:justify-start gap-2 text-[13px] text-[#52525B]"
-            data-testid="location-override"
-          >
-            <MapPin size={16} weight="fill" className="text-[#832161]" />
-            <span>Showing results nearest to</span>
-            <div className="relative">
-              <select
-                value={originCity}
-                onChange={(e) => handleOriginChange(e.target.value)}
-                style={{ borderRadius: '8px' }}
-                className="appearance-none bg-white border border-[#dbdadd] pl-3 pr-8 py-1.5 text-[13px] text-[#3D2645] font-medium focus:border-[#832161] focus:ring-0 focus:outline-none cursor-pointer transition-colors"
-                data-testid="origin-city-select"
+              <button
+                type="submit"
+                style={{ borderRadius: '12px' }}
+                className="flex-shrink-0 w-11 h-11 bg-[#832161] hover:bg-[#6d1b51] text-white flex items-center justify-center transition-colors"
+                data-testid="search-button"
+                aria-label="Search"
               >
-                <option value="">Auto-detect my location</option>
-                {ORIGIN_CITIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-              <CaretDown
-                size={14}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#52525B] pointer-events-none"
-              />
-            </div>
-          </div>
+                <MagnifyingGlass size={20} />
+              </button>
+            </form>
           </div>
 
           {/* Filters Panel */}
