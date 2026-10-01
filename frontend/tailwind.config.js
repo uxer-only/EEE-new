@@ -52,9 +52,15 @@ module.exports = {
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        none: '0px',
+        sm: '8px',
+        DEFAULT: '8px',
+        md: '8px',
+        lg: '8px',
+        xl: '8px',
+        '2xl': '8px',
+        '3xl': '8px',
+        full: '9999px',
       },
       keyframes: {
         'accordion-down': {
