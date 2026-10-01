@@ -1,4 +1,5 @@
 import SiteHeader from '@/components/SiteHeader';
+import { SiteFooter } from '@/components/SiteFooter';
 
 const H2 = ({ children }) => (
   <h2 className="font-manrope font-semibold text-2xl md:text-3xl text-[#E8799B] mt-12 mb-4">{children}</h2>
@@ -250,6 +251,7 @@ export default function TermsPrivacy() {
 
         <p className="text-[#71717A] text-xs mt-12">For any questions, contact us at info@eliteescortseurope.eu</p>
       </div>
+      <SiteFooter />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import SiteHeader from '@/components/SiteHeader';
+import { SiteFooter } from '@/components/SiteFooter';
 
 const H2 = ({ children }) => (
   <h2 className="font-manrope font-semibold text-2xl md:text-3xl text-[#E8799B] mt-12 mb-4">{children}</h2>
@@ -70,6 +71,7 @@ export default function AdvertisingPrices() {
         <P>Your satisfaction matters to us, so we offer a clear refund policy. You can request a refund within 48 hours of your purchase. Refunds are granted if you give a valid reason showing that the purchase was fraudulent or unauthorized, or if we decide at our discretion that a refund is appropriate in your case.</P>
         <P>Contact us at info@eliteescortseurope.eu to initiate a refund.</P>
       </div>
+      <SiteFooter />
     </div>
   );
 }
