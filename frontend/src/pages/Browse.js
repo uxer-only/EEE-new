@@ -112,6 +112,8 @@ export default function Browse() {
  Discover Excellence
  </h2>
           
+          {/* Filter buttons + search share the same width */}
+          <div className="w-fit max-w-full mx-auto">
           {/* Gender Filter Buttons */}
           <div className="flex items-center justify-center flex-wrap gap-2 md:gap-4 mb-8">
             <button
@@ -182,7 +184,7 @@ export default function Browse() {
             </button>
           </div>
           
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <form onSubmit={handleSearch} className="w-full flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1 relative flex items-center">
               <input
                 type="text"
@@ -206,6 +208,7 @@ export default function Browse() {
               Search
             </button>
           </form>
+          </div>
 
           {/* Filters Panel */}
           {showFilters && (
