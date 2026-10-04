@@ -45,9 +45,9 @@ const Card = ({ title, subtitle, tag, children, testId }) => (
   </div>
 );
 
-// Inline segmented pills: selected = wine filled, unselected = plain text
+// Segmented control on a light track: selected = wine filled, unselected = plain text
 const PillToggle = ({ options, value, onChange, testId, idKey = (o) => o.toLowerCase() }) => (
-  <div className="flex flex-wrap items-center gap-1" data-testid={testId}>
+  <div className="inline-flex flex-wrap bg-[#F5F2F7] rounded-lg p-1 gap-1" data-testid={testId}>
     {options.map((opt) => {
       const v = typeof opt === 'string' ? opt : opt.value;
       const label = typeof opt === 'string' ? opt : opt.label;
@@ -57,7 +57,7 @@ const PillToggle = ({ options, value, onChange, testId, idKey = (o) => o.toLower
           key={v}
           type="button"
           onClick={() => onChange(active ? '' : v)}
-          className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+          className={`px-5 py-2 rounded-md text-sm font-semibold transition-colors ${
             active ? 'bg-[#7A2357] text-white' : 'text-[#5F5966] hover:text-[#7A2357]'
           }`}
           data-testid={`${testId}-${idKey(v)}`}
