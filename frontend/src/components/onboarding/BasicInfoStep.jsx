@@ -363,7 +363,7 @@ export default function BasicInfoStep({
             {/* Messaging apps */}
             <div>
               <Label>Clients can also reach you on</Label>
-              <div className="flex flex-wrap gap-2 mt-4">
+              <div className="flex flex-wrap gap-2 mt-1">
                 {MESSAGING_APPS.map((app) => {
                   const selected = profileData.contact[app.key] || false;
                   return (
