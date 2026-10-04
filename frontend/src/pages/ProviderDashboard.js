@@ -1315,7 +1315,7 @@ export default function ProviderDashboard() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className={currentStep === 1 ? 'p-0' : 'bg-white border border-[#dbdadd] rounded-lg p-8 transition-none'}
+            className={currentStep === 1 ? 'p-0' : 'bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8 shadow-[0_6px_20px_rgba(52,24,60,0.06)] transition-none'}
           >
             {/* Step 1: Basic Info */}
             {currentStep === 1 && (
@@ -1334,7 +1334,7 @@ export default function ProviderDashboard() {
             {/* Step 2: Photos & Video's */}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <h3 className="text-2xl font-bold text-[#7A2357] mb-6">Photos & Video&apos;s</h3>
+                <h3 className="text-[24px] md:text-[28px] font-bold text-[#1B1820] mb-6">Photos & Video&apos;s</h3>
                 <p className="text-[#000000] text-sm mb-6">Add photos and videos to your profile. Media will be reviewed before being published.</p>
 
                 {/* Upload Zone */}
@@ -1511,7 +1511,7 @@ export default function ProviderDashboard() {
             {/* Step 3: Services */}
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h3 className="text-2xl font-bold text-[#7A2357] mb-6">Services</h3>
+                <h3 className="text-[24px] md:text-[28px] font-bold text-[#1B1820] mb-6">Services</h3>
                 
                 {/* Type of Companionship */}
                 <div className="mb-8">
@@ -1712,7 +1712,7 @@ export default function ProviderDashboard() {
                 {/* Availability */}
                 <div id="availability-section" className="flex flex-col gap-4 scroll-mt-24">
                   <div>
-                    <h3 className="text-2xl font-bold text-[#7A2357] mb-1">Availability</h3>
+                    <h3 className="text-[24px] md:text-[28px] font-bold text-[#1B1820] mb-1">Availability</h3>
                     <p className="text-[#000000] text-sm">Set your availability for each day</p>
                   </div>
 
@@ -1843,7 +1843,7 @@ export default function ProviderDashboard() {
                 {/* Rates */}
                 <div id="rates-section" className="flex flex-col gap-4 scroll-mt-24">
                   <div>
-                    <h3 className="text-2xl font-bold text-[#7A2357] mb-1">Rates</h3>
+                    <h3 className="text-[24px] md:text-[28px] font-bold text-[#1B1820] mb-1">Rates</h3>
                   </div>
 
                   {/* Currency selector */}
