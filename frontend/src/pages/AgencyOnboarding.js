@@ -149,7 +149,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
             key={step}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className={step === 1 ? '' : 'bg-white border border-[#dbdadd] rounded-lg p-6 md:p-8'}
+            className={step === 1 || step === 3 ? '' : 'bg-white border border-[#dbdadd] rounded-lg p-6 md:p-8'}
           >
             {step === 1 && (
               <div className="space-y-8">
