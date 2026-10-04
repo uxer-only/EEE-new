@@ -7,7 +7,7 @@ import { CaretDown } from 'phosphor-react';
 const ETHNICITIES = ['European', 'Asian', 'Latin', 'African', 'Middle Eastern', 'Mixed', 'Other'];
 const ORIENTATIONS = ['Straight', 'Bi', 'Lesbian', 'Gay', 'Pansexual'];
 const BREAST_SIZES = ['A', 'B', 'C', 'D', 'DD', 'E', 'F', 'G+'];
-const BREAST_TYPES = ['Natural', 'Implants'];
+const BREAST_TYPES = ['Natural', 'Enhanced'];
 const NATIONALITIES = [
   'Belgian', 'Dutch', 'Luxembourgish', 'French', 'German', 'British', 'Irish',
   'Spanish', 'Portuguese', 'Italian', 'Swiss', 'Austrian',

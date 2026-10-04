@@ -8,11 +8,12 @@ import {
   ChatCircle, CheckCircle, User, MapPin, Camera, Clock, 
   CurrencyDollar, FileText, Phone, EnvelopeSimple, WhatsappLogo,
   Plus, Trash, CaretRight, CaretLeft, UploadSimple, X, VideoCamera, ShieldCheck, Crown, Sparkle, ArrowRight, DotsSixVertical,
-  PaperPlaneTilt, DownloadSimple, Eye
+  PaperPlaneTilt, DownloadSimple, Eye, Check, CircleNotch
 } from 'phosphor-react';
 import { toast } from 'sonner';
 import { notifyError, notifyProblem } from '../lib/notify';
 import CharacteristicsForm from '@/components/CharacteristicsForm';
+import BasicInfoStep from '@/components/onboarding/BasicInfoStep';
 import VerificationModal from '@/components/VerificationModal';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import SiteHeader from '@/components/SiteHeader';
@@ -63,6 +64,7 @@ export default function ProviderDashboard() {
   const [mode, setMode] = useState('overview'); // 'overview' | 'edit' | 'create'
   const [createdProviderId, setCreatedProviderId] = useState(null); // id of a just-created independent profile (keeps the Activate wizard step working)
   const [saving, setSaving] = useState(false);
+  const [draftStatus, setDraftStatus] = useState('idle'); // idle | saving | saved | error
   const [removing, setRemoving] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
@@ -529,6 +531,71 @@ export default function ProviderDashboard() {
       return false;
     }
   };
+
+  // ---- Draft autosave + Save & exit (creation flow only) ----
+  const buildDraftPayload = () => ({
+    display_name: profileData.display_name,
+    account_type: profileData.account_type,
+    age: profileData.age ? parseInt(profileData.age) : null,
+    gender: profileData.gender,
+    essence: profileData.essence,
+    companionshipType: profileData.companionshipType,
+    location: profileData.location,
+    bio: profileData.bio,
+    services: profileData.services,
+    rates: profileData.rates,
+    contact: profileData.contact,
+    schedule: profileData.schedule,
+    availability_type: profileData.availability_type,
+    booking_advance: profileData.booking_advance,
+    available247: profileData.available247,
+    accepts_disabilities: profileData.accepts_disabilities,
+    photos: profileData.photos || [],
+    characteristics: profileData.characteristics,
+  });
+
+  const canPersistDraft = () =>
+    !!profileData.display_name?.trim() && (isAgencyScoped || !!profileData.location?.country);
+
+  const saveDraft = async ({ allowCreate = false } = {}) => {
+    if (mode === 'edit') return false;
+    if (!canPersistDraft()) return false;
+    try {
+      setDraftStatus('saving');
+      const payload = buildDraftPayload();
+      if (dashboard?.profile && !isNewAgencyProfile) {
+        await updateProviderProfile(payload, activeProviderId);
+      } else if (createdProviderId && !isAgencyScoped) {
+        await updateProviderProfile(payload, createdProviderId);
+      } else if (allowCreate && !isAgencyScoped) {
+        const { data: created } = await createProviderProfile(payload);
+        setCreatedProviderId(created?.provider_id || null);
+      } else {
+        setDraftStatus('idle');
+        return false;
+      }
+      setDraftStatus('saved');
+      return true;
+    } catch (e) {
+      setDraftStatus('error');
+      return false;
+    }
+  };
+
+  const handleSaveExit = async () => {
+    if (canPersistDraft()) await saveDraft({ allowCreate: true });
+    navigate('/dashboard');
+  };
+
+  // Debounced autosave while editing an already-persisted draft (no silent create)
+  useEffect(() => {
+    if (mode === 'edit' || !canPersistDraft()) return;
+    const hasRecord = (dashboard?.profile && !isNewAgencyProfile) || (createdProviderId && !isAgencyScoped);
+    if (!hasRecord) return;
+    const t = setTimeout(() => { saveDraft(); }, 2000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileData]);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -1167,50 +1234,71 @@ export default function ProviderDashboard() {
       <div className="pt-32 pb-20 section-padding">
         <div className="max-w-4xl mx-auto">
           <EmailVerificationBanner user={user} />
-          {/* Page Title */}
-          <div className="text-center mb-12">
-            <h2 className="text-4xl text-[#000000] mb-4">
- {mode === 'edit' ? `Edit ${steps[currentStep - 1]?.title}` : 'Complete Your Profile'}
- </h2>
-            <p className="text-[#000000]">
-              {mode === 'edit' ? 'Update this section of your profile' : 'Set up your provider profile to start receiving enquiries'}
-            </p>
-          </div>
+          {/* Page header */}
+          {mode === 'edit' ? (
+            <div className="text-center mb-10">
+              <h2 className="text-4xl font-bold text-[#141416] mb-2">Edit {steps[currentStep - 1]?.title}</h2>
+              <p className="text-[#898989]">Update this section of your profile</p>
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#832161] mb-2" data-testid="step-indicator-label">
+                  Step {currentStep} of {steps.length} · About 6 minutes left
+                </p>
+                <h2 className="text-[30px] md:text-4xl font-bold text-[#141416] leading-tight mb-1">Complete your profile</h2>
+                <p className="text-[#898989]">Set up your provider profile to start receiving enquiries.</p>
+              </div>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                {draftStatus !== 'idle' && (
+                  <span className="flex items-center gap-1.5 text-sm text-[#898989]" data-testid="draft-status">
+                    {draftStatus === 'saving' ? (
+                      <><CircleNotch size={16} className="animate-spin" /> Saving…</>
+                    ) : draftStatus === 'error' ? (
+                      <span className="text-[#DA4167]">Couldn't save</span>
+                    ) : (
+                      <><CheckCircle size={16} weight="fill" className="text-[#832161]" /> Draft saved</>
+                    )}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleSaveExit}
+                  className="px-5 py-2.5 rounded-lg border border-[#dcdade] bg-white text-sm font-semibold text-[#141416] hover:border-[#832161] hover:text-[#832161] transition-colors"
+                  data-testid="save-exit-button"
+                >
+                  Save &amp; exit
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Progress Steps - only for creation flow */}
           {mode !== 'edit' && (
-          <div className="flex items-center justify-between mb-12 px-4">
+          <div className="flex items-center mb-8 overflow-x-auto pb-2">
             {steps.map((step, index) => {
-              const stepStateClass = (() => {
-                if (currentStep === step.id) return 'text-[#832161]';
-                if (currentStep > step.id) return 'text-green-600';
-                return 'text-[#000000]';
-              })();
-              const stepBorderClass = (() => {
-                if (currentStep === step.id) return 'border-[#832161] bg-white';
-                if (currentStep > step.id) return 'border-green-600 bg-white';
-                return 'border-[#dbdadd] bg-white';
-              })();
+              const active = currentStep === step.id;
+              const done = currentStep > step.id;
               return (
-              <div key={step.id} className="flex items-center">
+              <div key={step.id} className="flex items-center flex-shrink-0">
                 <button
                   onClick={() => setCurrentStep(step.id)}
-                  className={`flex flex-col items-center gap-2 transition-all ${stepStateClass}`}
+                  className="flex items-center gap-2 transition-colors"
                   data-testid={`step-${step.id}`}
                 >
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${stepBorderClass}`}>
-                    {currentStep > step.id ? (
-                      <CheckCircle size={24} weight="fill" />
-                    ) : (
-                      <step.icon size={24} />
-                    )}
-                  </div>
-                  <span className="text-xs uppercase tracking-wider hidden md:block">{step.title}</span>
+                  <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-semibold border-2 transition-colors ${
+                    active ? 'border-[#832161] text-[#832161] bg-white'
+                    : done ? 'border-[#832161] bg-[#832161] text-white'
+                    : 'border-[#dcdade] text-[#b7b5bb] bg-white'
+                  }`}>
+                    {done ? <Check size={14} weight="bold" /> : step.id}
+                  </span>
+                  <span className={`text-sm whitespace-nowrap ${
+                    active ? 'font-semibold text-[#141416]' : done ? 'text-[#141416]' : 'text-[#b7b5bb]'
+                  }`}>{step.title}</span>
                 </button>
                 {index < steps.length - 1 && (
-                  <div className={`w-8 md:w-16 h-0.5 mx-2 ${
-                    currentStep > step.id ? 'bg-green-600' : 'bg-[#dbdadd]'
-                  }`} />
+                  <div className="w-8 md:w-14 h-px mx-3 bg-[#e3e1e6]" />
                 )}
               </div>
               );
@@ -1228,531 +1316,16 @@ export default function ProviderDashboard() {
           >
             {/* Step 1: Basic Info */}
             {currentStep === 1 && (
-              <div className="space-y-8">
-                {/* Box 1: Basic Information */}
-                <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
-                  <h3 className="text-2xl font-bold text-[#832161] mb-6">Basic Information</h3>
-                  
-                  <div className="flex flex-col gap-4">
-                    <div>
-                      <label className="input-label">
-                        {profileData.account_type === 'agency' ? 'Agency name' : 'Display name'}
-                      </label>
-                      <input
-                        type="text"
-                        value={profileData.display_name}
-                        onChange={(e) => setProfileData({ ...profileData, display_name: e.target.value })}
-                        className="input-premium w-full"
-                        placeholder={profileData.account_type === 'agency' ? 'Your agency name' : 'Your display name'}
-                        data-testid="display-name-input"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="input-label">Age</label>
-                      <input
-                        type="number"
-                        value={profileData.age}
-                        onChange={(e) => setProfileData({ ...profileData, age: e.target.value })}
-                        className="input-premium w-full"
-                        placeholder="Your age"
-                        min="18"
-                        data-testid="age-input"
-                      />
-                    </div>
-                    <div>
-                      <label className="input-label">Gender</label>
-                      <div className="grid grid-cols-3 gap-2 max-w-md" data-testid="gender-input">
-                        {[
-                          { value: 'female', label: 'Female' },
-                          { value: 'male', label: 'Male' },
-                          { value: 'trans', label: 'Trans' }
-                        ].map((opt) => (
-                          <button
-                            key={opt.value}
-                            type="button"
-                            onClick={() => setProfileData({ ...profileData, gender: profileData.gender === opt.value ? '' : opt.value })}
-                            className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
-                              profileData.gender === opt.value
-                                ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                                : 'border-[#898989] text-[#898989] hover:border-[#832161]'
-                            }`}
-                            data-testid={`gender-${opt.value}`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="input-label">Orientation</label>
-                      <div className="grid grid-cols-4 gap-2 max-w-md" data-testid="orientation-input">
-                        {['Straight', 'Bi', 'Lesbian', 'Gay'].map((opt) => (
-                          <button
-                            key={opt}
-                            type="button"
-                            onClick={() => setProfileData({ ...profileData, characteristics: { ...profileData.characteristics, orientation: profileData.characteristics?.orientation === opt ? '' : opt } })}
-                            className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
-                              profileData.characteristics?.orientation === opt
-                                ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                                : 'border-[#898989] text-[#898989] hover:border-[#832161]'
-                            }`}
-                            data-testid={`orientation-${opt.toLowerCase()}`}
-                          >
-                            {opt}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-
-                    {!isAgencyScoped && (
-                    <div>
-                      <label className="input-label">City</label>
-                      <input
-                        type="text"
-                        value={profileData.location.city}
-                        onChange={(e) => setProfileData({ ...profileData, location: { ...profileData.location, city: e.target.value } })}
-                        className="input-premium w-full"
-                        placeholder="Your city"
-                        data-testid="city-input"
-                      />
-                    </div>
-                    )}
-                    {!isAgencyScoped && (
-                    <div>
-                      <label className="input-label">Country</label>
-                      <select
-                        value={profileData.location.country}
-                        onChange={(e) => setProfileData({ ...profileData, location: { ...profileData.location, country: e.target.value } })}
-                        className="input-premium w-full"
-                        data-testid="country-input"
-                      >
-                          <option value="">Select country</option>
-                          <option value="Belgium">Belgium</option>
-                          <option value="Netherlands">Netherlands</option>
-                          <option value="Luxembourg">Luxembourg</option>
-                          <option value="France">France</option>
-                          <option value="Germany">Germany</option>
-                          <option value="United Kingdom">United Kingdom</option>
-                          <option value="Spain">Spain</option>
-                          <option value="Italy">Italy</option>
-                          <option value="Portugal">Portugal</option>
-                          <option value="Switzerland">Switzerland</option>
-                          <option value="Austria">Austria</option>
-                          <option value="Ireland">Ireland</option>
-                          <option value="Denmark">Denmark</option>
-                          <option value="Sweden">Sweden</option>
-                          <option value="Norway">Norway</option>
-                          <option value="Finland">Finland</option>
-                          <option value="Poland">Poland</option>
-                          <option value="Czech Republic">Czech Republic</option>
-                          <option value="Greece">Greece</option>
-                          <option value="Croatia">Croatia</option>
-                          <option value="Hungary">Hungary</option>
-                          <option value="Romania">Romania</option>
-                          <option value="Bulgaria">Bulgaria</option>
-                          <option value="Slovenia">Slovenia</option>
-                          <option value="Slovakia">Slovakia</option>
-                          <option value="Estonia">Estonia</option>
-                          <option value="Latvia">Latvia</option>
-                          <option value="Lithuania">Lithuania</option>
-                          <option value="Cyprus">Cyprus</option>
-                          <option value="Malta">Malta</option>
-                          <option value="Monaco">Monaco</option>
-                          <option value="Andorra">Andorra</option>
-                          <option value="United States">United States</option>
-                          <option value="Canada">Canada</option>
-                          <option value="Australia">Australia</option>
-                          <option value="New Zealand">New Zealand</option>
-                          <option value="Brazil">Brazil</option>
-                          <option value="Argentina">Argentina</option>
-                          <option value="Mexico">Mexico</option>
-                          <option value="United Arab Emirates">United Arab Emirates</option>
-                          <option value="Singapore">Singapore</option>
-                          <option value="Japan">Japan</option>
-                          <option value="South Korea">South Korea</option>
-                          <option value="Thailand">Thailand</option>
-                          <option value="Other">Other</option>
-                        </select>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Describe yourself */}
-                  <div className="mt-8 pt-8 border-t border-[#dbdadd]">
-                    <label className="input-label">Describe yourself</label>
-                    <textarea
-                      value={profileData.bio}
-                      onChange={(e) => setProfileData({ ...profileData, bio: e.target.value.slice(0, 1500) })}
-                      className="input-premium w-full h-32 resize-none"
-                      placeholder="Share what makes you unique. This will be displayed in 'My Essence' on your profile..."
-                      maxLength={1500}
-                      data-testid="essence-input"
-                    />
-                    <div className="flex justify-end mt-2">
-                      <span className="text-xs text-[#000000]">{(profileData.bio || '').length}/1500</span>
-                    </div>
-                  </div>
-
-                  {/* Languages */}
-                  <div className="mt-8 pt-8 border-t border-[#dbdadd]">
-                    <div className="flex items-end justify-between mb-3">
-                      <label className="input-label !mb-0">Languages</label>
-                      <span className="text-xs text-[#000000]">
-                        {(profileData.characteristics?.languages || []).length} selected
-                      </span>
-                    </div>
-                    {(() => {
-                      const PRESETS = ['English', 'Dutch', 'French', 'German', 'Russian'];
-                      const current = profileData.characteristics?.languages || [];
-                      const customs = current.filter((l) => !PRESETS.includes(l));
-
-                      const toggle = (lang) => {
-                        const next = current.includes(lang)
-                          ? current.filter((l) => l !== lang)
-                          : [...current, lang];
-                        setProfileData({
-                          ...profileData,
-                          characteristics: { ...(profileData.characteristics || {}), languages: next }
-                        });
-                      };
-                      const addCustom = () => {
-                        const v = newLanguage.trim();
-                        if (!v) return;
-                        // case-insensitive duplicate guard
-                        if (current.some((l) => l.toLowerCase() === v.toLowerCase())) {
-                          setNewLanguage('');
-                          return;
-                        }
-                        setProfileData({
-                          ...profileData,
-                          characteristics: {
-                            ...(profileData.characteristics || {}),
-                            languages: [...current, v]
-                          }
-                        });
-                        setNewLanguage('');
-                      };
-
-                      return (
-                        <>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                            {PRESETS.map((lang) => {
-                              const selected = current.includes(lang);
-                              return (
-                                <button
-                                  key={lang}
-                                  type="button"
-                                  onClick={() => toggle(lang)}
-                                  className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
-                                    selected
-                                      ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                                      : 'border-[#898989] text-[#898989] hover:border-[#832161]'
-                                  }`}
-                                  data-testid={`basic-lang-${lang.toLowerCase()}`}
-                                >
-                                  {lang}
-                                </button>
-                              );
-                            })}
-                            {customs.map((lang) => (
-                              <div
-                                key={lang}
-                                className="relative py-2.5 pl-3 pr-8 border border-[#832161] text-[#832161] text-sm uppercase tracking-wider flex items-center"
-                                data-testid={`basic-lang-custom-${lang.toLowerCase()}`}
-                              >
-                                <span className="truncate">{lang}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => toggle(lang)}
-                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#832161] hover:text-red-400 transition-colors"
-                                  aria-label={`Remove ${lang}`}
-                                  data-testid={`basic-lang-remove-${lang.toLowerCase()}`}
-                                >
-                                  <X size={14} />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Add language CTA → reveals input */}
-                          {showAddLanguage ? (
-                            <div className="mt-4 flex items-center gap-2">
-                              <input
-                                type="text"
-                                value={newLanguage}
-                                onChange={(e) => setNewLanguage(e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    addCustom();
-                                    setShowAddLanguage(false);
-                                  } else if (e.key === 'Escape') {
-                                    setNewLanguage('');
-                                    setShowAddLanguage(false);
-                                  }
-                                }}
-                                autoFocus
-                                placeholder="e.g. Italian"
-                                className="input-premium flex-1"
-                                data-testid="add-language-input"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => { addCustom(); setShowAddLanguage(false); }}
-                                disabled={!newLanguage.trim()}
-                                className="px-4 py-3 border border-[#832161] text-[#832161] hover:bg-[#832161]/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm uppercase tracking-wider whitespace-nowrap"
-                                data-testid="add-language-confirm"
-                              >
-                                Add
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => { setNewLanguage(''); setShowAddLanguage(false); }}
-                                className="px-3 py-3 border border-[#dbdadd] text-[#000000] hover:border-red-400 hover:text-red-400 transition-colors"
-                                aria-label="Cancel"
-                                data-testid="add-language-cancel"
-                              >
-                                <X size={16} />
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => setShowAddLanguage(true)}
-                              className="mt-4 inline-flex items-center gap-2 px-4 py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#DA4167] transition-colors text-sm uppercase tracking-wider"
-                              data-testid="add-language-button"
-                            >
-                              <Plus size={16} /> Add language
-                            </button>
-                          )}
-                        </>
-                      );
-                    })()}
-                  </div>
-                </div>
-
-                {/* Box 2: Contact Information */}
-                {!isAgencyScoped && (
-                <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
-                  <h3 className="text-2xl font-bold text-[#832161] mb-6">Contact information</h3>
-                  <div className="flex flex-col gap-4">
-                    <div>
-                      <label className="input-label">Mobile phone</label>
-                      {(() => {
-                        const dial = COUNTRY_DIAL_CODES[profileData.location.country] || '';
-                        const raw = profileData.contact.phone || '';
-                        // Strip leading dial code from displayed value so the prefix doesn't double
-                        const localValue = dial && raw.startsWith(dial)
-                          ? raw.slice(dial.length).replace(/^\s+/, '')
-                          : raw;
-                        return (
-                          <div className="flex items-stretch border border-[#dbdadd] focus-within:border-[#832161] transition-colors">
-                            {dial && (
-                              <span className="px-3 py-3 bg-white text-[#832161] text-[13px] border-r border-[#dbdadd] select-none whitespace-nowrap" data-testid="phone-dial-code">
-                                {dial}
-                              </span>
-                            )}
-                            <input
-                              type="tel"
-                              value={localValue}
-                              onChange={(e) => {
-                                const next = e.target.value.replace(/^\+\d+\s?/, '');
-                                setProfileData({
-                                  ...profileData,
-                                  contact: {
-                                    ...profileData.contact,
-                                    phone: dial ? `${dial} ${next}`.trim() : next
-                                  }
-                                });
-                              }}
-                              className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-3 text-[13px] text-[#000000] placeholder:text-[#000000] placeholder:italic"
-                              placeholder={dial ? 'XXX XX XX XX' : 'Select country first or enter full number'}
-                              data-testid="phone-input"
-                            />
-                          </div>
-                        );
-                      })()}
-                    </div>
-                    <div>
-                      <label className="input-label">E-mail</label>
-                      <input
-                        type="email"
-                        value={profileData.contact.email}
-                        onChange={(e) => setProfileData({ ...profileData, contact: { ...profileData.contact, email: e.target.value } })}
-                        className="input-premium w-full"
-                        placeholder="your@email.com"
-                        data-testid="email-input"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="input-label mb-4">Available on</label>
-                      <div className="flex gap-6 flex-wrap">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={profileData.contact.hasWhatsapp || false}
-                            onChange={(e) => setProfileData({
-                              ...profileData,
-                              contact: { ...profileData.contact, hasWhatsapp: e.target.checked }
-                            })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#25D366] checked:border-[#25D366]"
-                          />
-                          <span className="text-[#000000]">WhatsApp</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={profileData.contact.hasTelegram || false}
-                            onChange={(e) => setProfileData({
-                              ...profileData,
-                              contact: { ...profileData.contact, hasTelegram: e.target.checked }
-                            })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#0088cc] checked:border-[#0088cc]"
-                          />
-                          <span className="text-[#000000]">Telegram</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={profileData.contact.hasSignal || false}
-                            onChange={(e) => setProfileData({
-                              ...profileData,
-                              contact: { ...profileData.contact, hasSignal: e.target.checked }
-                            })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#3A76F0] checked:border-[#3A76F0]"
-                          />
-                          <span className="text-[#000000]">Signal</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={profileData.contact.hasSms || false}
-                            onChange={(e) => setProfileData({
-                              ...profileData,
-                              contact: { ...profileData.contact, hasSms: e.target.checked }
-                            })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
-                            data-testid="contact-sms"
-                          />
-                          <span className="text-[#000000]">SMS</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={profileData.contact.hasViber || false}
-                            onChange={(e) => setProfileData({
-                              ...profileData,
-                              contact: { ...profileData.contact, hasViber: e.target.checked }
-                            })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7360F2] checked:border-[#7360F2]"
-                            data-testid="contact-viber"
-                          />
-                          <span className="text-[#000000]">Viber</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={profileData.contact.hasLine || false}
-                            onChange={(e) => setProfileData({
-                              ...profileData,
-                              contact: { ...profileData.contact, hasLine: e.target.checked }
-                            })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#00C300] checked:border-[#00C300]"
-                            data-testid="contact-line"
-                          />
-                          <span className="text-[#000000]">Line</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={profileData.contact.hasWechat || false}
-                            onChange={(e) => setProfileData({
-                              ...profileData,
-                              contact: { ...profileData.contact, hasWechat: e.target.checked }
-                            })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#09B83E] checked:border-[#09B83E]"
-                            data-testid="contact-wechat"
-                          />
-                          <span className="text-[#000000]">WeChat</span>
-                        </label>
-                      </div>
-
-                      {/* ID inputs for username-based platforms */}
-                      {(profileData.contact.hasTelegram || profileData.contact.hasLine || profileData.contact.hasWechat) && (
-                        <div className="mt-4 flex flex-col gap-4">
-                          {profileData.contact.hasTelegram && (
-                            <div>
-                              <label className="input-label" htmlFor="telegram-id">Telegram ID</label>
-                              <input
-                                id="telegram-id"
-                                type="text"
-                                value={profileData.contact.telegramId || ''}
-                                onChange={(e) => setProfileData({
-                                  ...profileData,
-                                  contact: { ...profileData.contact, telegramId: e.target.value }
-                                })}
-                                className="input-premium w-full"
-                                placeholder="@username"
-                                data-testid="telegram-id-input"
-                              />
-                            </div>
-                          )}
-                          {profileData.contact.hasLine && (
-                            <div>
-                              <label className="input-label" htmlFor="line-id">Line ID</label>
-                              <input
-                                id="line-id"
-                                type="text"
-                                value={profileData.contact.lineId || ''}
-                                onChange={(e) => setProfileData({
-                                  ...profileData,
-                                  contact: { ...profileData.contact, lineId: e.target.value }
-                                })}
-                                className="input-premium w-full"
-                                placeholder="your-line-id"
-                                data-testid="line-id-input"
-                              />
-                            </div>
-                          )}
-                          {profileData.contact.hasWechat && (
-                            <div>
-                              <label className="input-label" htmlFor="wechat-id">WeChat ID</label>
-                              <input
-                                id="wechat-id"
-                                type="text"
-                                value={profileData.contact.wechatId || ''}
-                                onChange={(e) => setProfileData({
-                                  ...profileData,
-                                  contact: { ...profileData.contact, wechatId: e.target.value }
-                                })}
-                                className="input-premium w-full"
-                                placeholder="your-wechat-id"
-                                data-testid="wechat-id-input"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                )}
-
-                {/* Box 2: Physical Characteristics (optional) */}
-                <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
-                  <h3 className="text-2xl font-bold text-[#832161] mb-1">Physical Characteristics</h3>
-                  <p className="text-[#000000] text-sm mb-6">All fields are optional — fill what you want shown on your profile.</p>
-
-                  <CharacteristicsForm
-                    characteristics={profileData.characteristics}
-                    onChange={(c) => setProfileData({ ...profileData, characteristics: c })}
-                  />
-                </div>
-              </div>
+              <BasicInfoStep
+                profileData={profileData}
+                setProfileData={setProfileData}
+                isAgencyScoped={isAgencyScoped}
+                newLanguage={newLanguage}
+                setNewLanguage={setNewLanguage}
+                showAddLanguage={showAddLanguage}
+                setShowAddLanguage={setShowAddLanguage}
+                countryDialCodes={COUNTRY_DIAL_CODES}
+              />
             )}
 
             {/* Step 2: Photos & Video's */}
@@ -2598,7 +2171,13 @@ export default function ProviderDashboard() {
                 </div>
               </div>
             )}
-            <div className={`flex ${mode !== 'edit' && currentStep === 1 ? 'justify-end' : 'justify-between'} mt-8 pt-6 border-t border-[#dbdadd]`}>
+          </motion.div>
+
+          {/* Action bar */}
+          <div className="mt-6 bg-white border border-[#ece9ee] rounded-2xl shadow-[0_1px_3px_rgba(20,20,22,0.04)] px-5 md:px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
+              {mode !== 'edit' && currentStep === 1 && (
+                <p className="text-sm text-[#898989]">Physical characteristics are optional.</p>
+              )}
               {mode === 'edit' ? (
                 <>
                   <button
@@ -2659,11 +2238,13 @@ export default function ProviderDashboard() {
                   ) : currentStep < 4 ? (
                     <button
                       type="button"
-                      onClick={nextStep}
+                      onClick={currentStep === 1
+                        ? async () => { await saveDraft({ allowCreate: true }); nextStep(); }
+                        : nextStep}
                       className="btn-primary flex items-center gap-2"
                       data-testid="next-button"
                     >
-                      Next
+                      {currentStep === 1 ? 'Save & continue' : 'Next'}
                       <CaretRight size={20} />
                     </button>
                   ) : currentStep === 4 ? (
@@ -2694,8 +2275,7 @@ export default function ProviderDashboard() {
                   )}
                 </>
               )}
-            </div>
-          </motion.div>
+          </div>
         </div>
       </div>
       <VerificationModal

@@ -1,0 +1,443 @@
+import { MapPin, CaretDown, EnvelopeSimple, Check, Plus, X } from 'phosphor-react';
+import CharacteristicsForm from '@/components/CharacteristicsForm';
+
+const COUNTRIES = [
+  'Belgium', 'Netherlands', 'Luxembourg', 'France', 'Germany', 'United Kingdom',
+  'Spain', 'Italy', 'Portugal', 'Switzerland', 'Austria', 'Ireland', 'Denmark',
+  'Sweden', 'Norway', 'Finland', 'Poland', 'Czech Republic', 'Greece', 'Croatia',
+  'Hungary', 'Romania', 'Bulgaria', 'Slovenia', 'Slovakia', 'Estonia', 'Latvia',
+  'Lithuania', 'Cyprus', 'Malta', 'Monaco', 'Andorra', 'United States', 'Canada',
+  'Australia', 'New Zealand', 'Brazil', 'Argentina', 'Mexico',
+  'United Arab Emirates', 'Singapore', 'Japan', 'South Korea', 'Thailand', 'Other'
+];
+
+const LANGUAGE_PRESETS = ['English', 'Dutch', 'French', 'German', 'Russian'];
+
+const MESSAGING_APPS = [
+  { key: 'hasWhatsapp', label: 'WhatsApp' },
+  { key: 'hasTelegram', label: 'Telegram' },
+  { key: 'hasSignal', label: 'Signal' },
+  { key: 'hasSms', label: 'SMS' },
+  { key: 'hasViber', label: 'Viber' },
+  { key: 'hasLine', label: 'Line' },
+  { key: 'hasWechat', label: 'WeChat' },
+];
+
+const inputCls =
+  'w-full bg-white border border-[#dcdade] rounded-lg px-4 py-3 text-[15px] text-[#141416] placeholder:text-[#b7b5bb] focus:border-[#832161] focus:ring-0 focus:outline-none transition-colors';
+
+const Label = ({ children, htmlFor }) => (
+  <label htmlFor={htmlFor} className="block text-[13px] font-semibold text-[#141416] mb-2">{children}</label>
+);
+
+const Card = ({ title, subtitle, tag, children, testId }) => (
+  <div className="bg-white border border-[#ece9ee] rounded-2xl p-6 md:p-8 shadow-[0_1px_3px_rgba(20,20,22,0.04)]" data-testid={testId}>
+    <div className="mb-6">
+      <div className="flex items-center gap-3">
+        <h3 className="text-[24px] md:text-[28px] font-bold text-[#141416] leading-tight">{title}</h3>
+        {tag && (
+          <span className="uppercase tracking-wider text-[10px] font-semibold text-[#9a9a9f] border border-[#e3e1e6] rounded px-2 py-0.5">{tag}</span>
+        )}
+      </div>
+      {subtitle && <p className="text-sm text-[#898989] mt-1.5">{subtitle}</p>}
+    </div>
+    {children}
+  </div>
+);
+
+// Inline segmented pills: selected = wine filled, unselected = plain text
+const PillToggle = ({ options, value, onChange, testId, idKey = (o) => o.toLowerCase() }) => (
+  <div className="flex flex-wrap items-center gap-1" data-testid={testId}>
+    {options.map((opt) => {
+      const v = typeof opt === 'string' ? opt : opt.value;
+      const label = typeof opt === 'string' ? opt : opt.label;
+      const active = value === v;
+      return (
+        <button
+          key={v}
+          type="button"
+          onClick={() => onChange(active ? '' : v)}
+          className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+            active ? 'bg-[#832161] text-white' : 'text-[#52525B] hover:text-[#832161]'
+          }`}
+          data-testid={`${testId}-${idKey(v)}`}
+        >
+          {label}
+        </button>
+      );
+    })}
+  </div>
+);
+
+export default function BasicInfoStep({
+  profileData,
+  setProfileData,
+  isAgencyScoped,
+  newLanguage,
+  setNewLanguage,
+  showAddLanguage,
+  setShowAddLanguage,
+  countryDialCodes = {},
+}) {
+  const isAgency = profileData.account_type === 'agency';
+  const bioLen = (profileData.bio || '').length;
+  const nameLen = (profileData.display_name || '').length;
+  const languages = profileData.characteristics?.languages || [];
+  const customLangs = languages.filter((l) => !LANGUAGE_PRESETS.includes(l));
+
+  const setContact = (patch) => setProfileData({ ...profileData, contact: { ...profileData.contact, ...patch } });
+
+  const toggleLang = (lang) => {
+    const next = languages.includes(lang) ? languages.filter((l) => l !== lang) : [...languages, lang];
+    setProfileData({ ...profileData, characteristics: { ...(profileData.characteristics || {}), languages: next } });
+  };
+  const addCustomLang = () => {
+    const v = newLanguage.trim();
+    if (!v) return;
+    if (languages.some((l) => l.toLowerCase() === v.toLowerCase())) { setNewLanguage(''); return; }
+    setProfileData({ ...profileData, characteristics: { ...(profileData.characteristics || {}), languages: [...languages, v] } });
+    setNewLanguage('');
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Basic information */}
+      <Card
+        title="Basic information"
+        subtitle="This is what clients see first. You can change it any time."
+        testId="basic-info-card"
+      >
+        <div className="space-y-6">
+          {/* Display name */}
+          <div>
+            <Label htmlFor="display-name">{isAgency ? 'Agency name' : 'Display name'}</Label>
+            <div className="relative">
+              <input
+                id="display-name"
+                type="text"
+                value={profileData.display_name}
+                onChange={(e) => setProfileData({ ...profileData, display_name: e.target.value.slice(0, 30) })}
+                className={`${inputCls} pr-16`}
+                placeholder={isAgency ? 'Your agency name' : 'Mila'}
+                maxLength={30}
+                data-testid="display-name-input"
+              />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#b7b5bb]">{nameLen}/30</span>
+            </div>
+            <p className="text-xs text-[#9a9a9f] mt-1.5">No real name needed.</p>
+          </div>
+
+          {/* Age */}
+          <div>
+            <Label htmlFor="age">Age</Label>
+            <div className="relative max-w-[200px]">
+              <input
+                id="age"
+                type="number"
+                value={profileData.age}
+                onChange={(e) => setProfileData({ ...profileData, age: e.target.value })}
+                className={`${inputCls} pr-16`}
+                placeholder="27"
+                min="18"
+                data-testid="age-input"
+              />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#b7b5bb]">years</span>
+            </div>
+            <p className="text-xs text-[#9a9a9f] mt-1.5">18 or older.</p>
+          </div>
+
+          {/* Gender */}
+          <div>
+            <Label>Gender</Label>
+            <PillToggle
+              options={[{ value: 'female', label: 'Female' }, { value: 'male', label: 'Male' }, { value: 'trans', label: 'Trans' }]}
+              value={profileData.gender}
+              onChange={(v) => setProfileData({ ...profileData, gender: v })}
+              testId="gender-input"
+              idKey={(v) => v}
+            />
+          </div>
+
+          {/* Orientation */}
+          <div>
+            <Label>Orientation</Label>
+            <PillToggle
+              options={['Straight', 'Bi', 'Lesbian', 'Gay']}
+              value={profileData.characteristics?.orientation}
+              onChange={(v) => setProfileData({ ...profileData, characteristics: { ...profileData.characteristics, orientation: v } })}
+              testId="orientation-input"
+            />
+          </div>
+
+          {!isAgencyScoped && (
+            <div className="pt-6 border-t border-[#ece9ee] space-y-6">
+              {/* City */}
+              <div>
+                <Label htmlFor="city">City</Label>
+                <div className="relative">
+                  <MapPin size={18} weight="fill" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#832161]" />
+                  <input
+                    id="city"
+                    type="text"
+                    value={profileData.location.city}
+                    onChange={(e) => setProfileData({ ...profileData, location: { ...profileData.location, city: e.target.value } })}
+                    className={`${inputCls} pl-10`}
+                    placeholder="Brussels"
+                    data-testid="city-input"
+                  />
+                </div>
+                <p className="text-xs text-[#9a9a9f] mt-1.5">Clients only see your city, never your address.</p>
+              </div>
+
+              {/* Country */}
+              <div>
+                <Label htmlFor="country">Country</Label>
+                <div className="relative">
+                  <select
+                    id="country"
+                    value={profileData.location.country}
+                    onChange={(e) => setProfileData({ ...profileData, location: { ...profileData.location, country: e.target.value } })}
+                    className={`${inputCls} appearance-none pr-10 cursor-pointer`}
+                    data-testid="country-input"
+                  >
+                    <option value="">Select country</option>
+                    {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <CaretDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#52525B] pointer-events-none" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Describe yourself */}
+          <div className="pt-6 border-t border-[#ece9ee]">
+            <div className="flex items-end justify-between mb-2">
+              <Label>Describe yourself</Label>
+              <span className="text-xs text-[#b7b5bb]">{bioLen} / 1500</span>
+            </div>
+            <p className="text-xs text-[#9a9a9f] -mt-1 mb-2">Shown as "My Essence" on your profile. Tell clients what makes you unique.</p>
+            <textarea
+              value={profileData.bio}
+              onChange={(e) => setProfileData({ ...profileData, bio: e.target.value.slice(0, 1500) })}
+              className={`${inputCls} h-32 resize-none`}
+              placeholder="Warm, curious and easy to talk to. I love good food, art galleries and long conversations over a glass of wine."
+              maxLength={1500}
+              data-testid="essence-input"
+            />
+            <div className="h-1 bg-[#efedf1] rounded-full mt-2 overflow-hidden">
+              <div className="h-full bg-[#832161] rounded-full transition-all" style={{ width: `${Math.min(100, (bioLen / 1500) * 100)}%` }} />
+            </div>
+          </div>
+
+          {/* Languages */}
+          <div className="pt-6 border-t border-[#ece9ee]">
+            <div className="flex items-end justify-between mb-3">
+              <Label>Languages you speak</Label>
+              <span className="text-xs font-semibold text-[#832161]">{languages.length} selected</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {LANGUAGE_PRESETS.map((lang) => {
+                const selected = languages.includes(lang);
+                return (
+                  <button
+                    key={lang}
+                    type="button"
+                    onClick={() => toggleLang(lang)}
+                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                      selected
+                        ? 'bg-[#832161]/5 border-[#832161] text-[#832161]'
+                        : 'bg-white border-[#dcdade] text-[#52525B] hover:border-[#832161]'
+                    }`}
+                    data-testid={`basic-lang-${lang.toLowerCase()}`}
+                  >
+                    {selected && <Check size={14} weight="bold" />}
+                    {lang}
+                  </button>
+                );
+              })}
+              {customLangs.map((lang) => (
+                <span
+                  key={lang}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border bg-[#832161]/5 border-[#832161] text-[#832161]"
+                  data-testid={`basic-lang-custom-${lang.toLowerCase()}`}
+                >
+                  <Check size={14} weight="bold" />
+                  {lang}
+                  <button type="button" onClick={() => toggleLang(lang)} className="hover:text-red-500" aria-label={`Remove ${lang}`}>
+                    <X size={13} weight="bold" />
+                  </button>
+                </span>
+              ))}
+              {showAddLanguage ? (
+                <span className="inline-flex items-center gap-1 border border-[#832161] rounded-full pl-3 pr-1 py-1">
+                  <input
+                    type="text"
+                    value={newLanguage}
+                    onChange={(e) => setNewLanguage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') { e.preventDefault(); addCustomLang(); setShowAddLanguage(false); }
+                      else if (e.key === 'Escape') { setNewLanguage(''); setShowAddLanguage(false); }
+                    }}
+                    autoFocus
+                    placeholder="Italian"
+                    className="bg-transparent border-0 focus:ring-0 focus:outline-none text-sm text-[#141416] w-24"
+                    data-testid="add-language-input"
+                  />
+                  <button type="button" onClick={() => { addCustomLang(); setShowAddLanguage(false); }} className="p-1.5 rounded-full bg-[#832161] text-white" data-testid="add-language-confirm">
+                    <Check size={13} weight="bold" />
+                  </button>
+                  <button type="button" onClick={() => { setNewLanguage(''); setShowAddLanguage(false); }} className="p-1.5 text-[#898989] hover:text-red-500" data-testid="add-language-cancel">
+                    <X size={13} weight="bold" />
+                  </button>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowAddLanguage(true)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border border-dashed border-[#c9c7cc] text-[#52525B] hover:border-[#832161] hover:text-[#832161] transition-colors"
+                  data-testid="add-language-button"
+                >
+                  <Plus size={14} weight="bold" /> Add language
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Contact information */}
+      {!isAgencyScoped && (
+        <Card
+          title="Contact information"
+          subtitle="How clients reach you to make an enquiry."
+          testId="contact-info-card"
+        >
+          <div className="space-y-6">
+            {/* Mobile phone */}
+            <div>
+              <Label>Mobile phone</Label>
+              {(() => {
+                const dial = countryDialCodes[profileData.location.country] || '';
+                const raw = profileData.contact.phone || '';
+                const localValue = dial && raw.startsWith(dial) ? raw.slice(dial.length).replace(/^\s+/, '') : raw;
+                return (
+                  <div className="flex items-stretch bg-white border border-[#dcdade] rounded-lg focus-within:border-[#832161] transition-colors overflow-hidden">
+                    {dial && (
+                      <span className="px-4 flex items-center bg-[#f7f5f8] text-[#141416] text-sm font-medium border-r border-[#dcdade] select-none whitespace-nowrap" data-testid="phone-dial-code">
+                        {dial}
+                      </span>
+                    )}
+                    <input
+                      type="tel"
+                      value={localValue}
+                      onChange={(e) => {
+                        const next = e.target.value.replace(/^\+\d+\s?/, '');
+                        setContact({ phone: dial ? `${dial} ${next}`.trim() : next });
+                      }}
+                      className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-3 text-[15px] text-[#141416] placeholder:text-[#b7b5bb]"
+                      placeholder={dial ? '470 12 34 56' : 'Select country first or enter full number'}
+                      data-testid="phone-input"
+                    />
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Email */}
+            <div>
+              <Label htmlFor="email">E-mail</Label>
+              <div className="relative">
+                <EnvelopeSimple size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#898989]" />
+                <input
+                  id="email"
+                  type="email"
+                  value={profileData.contact.email}
+                  onChange={(e) => setContact({ email: e.target.value })}
+                  className={`${inputCls} pl-10`}
+                  placeholder="mila@example.com"
+                  data-testid="email-input"
+                />
+              </div>
+            </div>
+
+            {/* Messaging apps */}
+            <div>
+              <Label>Clients can also reach you on</Label>
+              <p className="text-xs text-[#9a9a9f] -mt-1 mb-3">Shown as buttons on your profile. WhatsApp, Signal, SMS and Viber use the number above. Telegram, Line and WeChat need your ID.</p>
+              <div className="flex flex-wrap gap-2">
+                {MESSAGING_APPS.map((app) => {
+                  const selected = profileData.contact[app.key] || false;
+                  return (
+                    <button
+                      key={app.key}
+                      type="button"
+                      onClick={() => setContact({ [app.key]: !selected })}
+                      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+                        selected ? 'bg-[#832161]/5 border-[#832161] text-[#832161]' : 'bg-white border-[#dcdade] text-[#52525B] hover:border-[#832161]'
+                      }`}
+                      data-testid={`contact-${app.label.toLowerCase()}`}
+                    >
+                      {selected && <Check size={14} weight="bold" />}
+                      {app.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Username-based platform IDs */}
+              {(profileData.contact.hasTelegram || profileData.contact.hasLine || profileData.contact.hasWechat) && (
+                <div className="mt-4 space-y-4 bg-[#f7f5f8] border border-[#ece9ee] rounded-xl p-4">
+                  {profileData.contact.hasTelegram && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[13px] font-semibold text-[#141416]">Telegram username</span>
+                        <span className="uppercase tracking-wider text-[10px] font-semibold text-[#DA4167]">Required</span>
+                      </div>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#898989]">@</span>
+                        <input
+                          type="text"
+                          value={(profileData.contact.telegramId || '').replace(/^@/, '')}
+                          onChange={(e) => setContact({ telegramId: e.target.value })}
+                          className={`${inputCls} pl-8`}
+                          placeholder="mila.brussels"
+                          data-testid="telegram-id-input"
+                        />
+                      </div>
+                      <p className="text-xs text-[#9a9a9f] mt-1.5">Find it in Telegram &rsaquo; Settings &rsaquo; Username</p>
+                    </div>
+                  )}
+                  {profileData.contact.hasLine && (
+                    <div>
+                      <Label htmlFor="line-id">Line ID</Label>
+                      <input id="line-id" type="text" value={profileData.contact.lineId || ''} onChange={(e) => setContact({ lineId: e.target.value })} className={inputCls} placeholder="your-line-id" data-testid="line-id-input" />
+                    </div>
+                  )}
+                  {profileData.contact.hasWechat && (
+                    <div>
+                      <Label htmlFor="wechat-id">WeChat ID</Label>
+                      <input id="wechat-id" type="text" value={profileData.contact.wechatId || ''} onChange={(e) => setContact({ wechatId: e.target.value })} className={inputCls} placeholder="your-wechat-id" data-testid="wechat-id-input" />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Physical characteristics */}
+      <Card
+        title="Physical characteristics"
+        subtitle="Fill in only what you want on your profile. These details power the search filters."
+        tag="Optional"
+        testId="physical-characteristics-card"
+      >
+        <CharacteristicsForm
+          characteristics={profileData.characteristics}
+          onChange={(c) => setProfileData({ ...profileData, characteristics: c })}
+        />
+      </Card>
+    </div>
+  );
+}

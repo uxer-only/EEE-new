@@ -1,20 +1,11 @@
 /**
- * Form for provider physical characteristics, shown in the Basic Info step.
- * All fields are optional; changes call onChange with the updated object.
- *
- * Layout (max 2 fields per row to keep things readable):
- *   1. Nationality
- *   2. Ethnicity
- *   3. Orientation
- *   4. Height / Weight        (paired)
- *   5. Breast size / Breast type (paired)
- *   6. Languages (chip group, full row)
- *   7. Tattoos
- *   8. Piercings
- *   9. Smoker
+ * Physical characteristics form (Basic Info step). All fields optional.
  */
+import { CaretDown } from 'phosphor-react';
 
 const ETHNICITIES = ['European', 'Asian', 'Latin', 'African', 'Middle Eastern', 'Mixed', 'Other'];
+const BREAST_SIZES = ['A', 'B', 'C', 'D', 'DD+'];
+const BREAST_TYPES = ['Natural', 'Enhanced'];
 
 const NATIONALITIES = [
   'Albanian', 'Algerian', 'American', 'Argentinian', 'Australian', 'Austrian',
@@ -37,184 +28,130 @@ const NATIONALITIES = [
   'Thai', 'Tunisian', 'Turkish',
   'Ukrainian', 'Uzbek',
   'Venezuelan', 'Vietnamese',
-  // Catch-all
   'Other'
 ];
 
-const YES_NO = [
-  { value: 'yes', label: 'Yes' },
-  { value: 'no', label: 'No' }
-];
+const inputCls =
+  'w-full bg-white border border-[#dcdade] rounded-lg px-4 py-3 text-[15px] text-[#141416] placeholder:text-[#b7b5bb] focus:border-[#832161] focus:ring-0 focus:outline-none transition-colors';
 
-const SelectField = ({ label, value, options, onChange, testId }) => (
-  <div>
-    <label className="input-label">{label}</label>
-    <select
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
-      className="input-premium w-full"
-      data-testid={testId}
-    >
-      <option value="">—</option>
-      {options.map((o) => (
-        <option key={o} value={o}>{o}</option>
-      ))}
-    </select>
-  </div>
+const Label = ({ children }) => (
+  <label className="block text-[13px] font-semibold text-[#141416] mb-2">{children}</label>
 );
 
-const YesNoField = ({ label, value, onChange, testIdBase }) => (
-  <div>
-    <label className="input-label">{label}</label>
-    <div className="grid grid-cols-2 gap-2 max-w-xs">
-      {YES_NO.map((opt) => (
-        <button
-          key={opt.value}
-          type="button"
-          onClick={() => onChange(value === opt.value ? '' : opt.value)}
-          className={`py-2 border text-sm uppercase tracking-wider transition-all ${
-            value === opt.value
-              ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-              : 'border-[#898989] text-[#898989] hover:border-[#832161]'
-          }`}
-          data-testid={`${testIdBase}-${opt.value}`}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
-  </div>
-);
-
-const ButtonSelectField = ({ label, value, options, onChange, testId }) => (
-  <div>
-    <label className="input-label">{label}</label>
-    <div className="flex flex-wrap gap-2" data-testid={testId}>
-      {options.map((o) => (
+// Pills: unselected = white bordered, selected = wine light
+const PillGroup = ({ options, value, onChange, testId }) => (
+  <div className="flex flex-wrap gap-2" data-testid={testId}>
+    {options.map((o) => {
+      const active = value === o;
+      return (
         <button
           key={o}
           type="button"
-          onClick={() => onChange(value === o ? '' : o)}
-          className={`py-2 px-3 border text-sm uppercase tracking-wider transition-all ${
-            value === o
-              ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-              : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+          onClick={() => onChange(active ? '' : o)}
+          className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+            active ? 'bg-[#832161]/5 border-[#832161] text-[#832161]' : 'bg-white border-[#dcdade] text-[#52525B] hover:border-[#832161]'
           }`}
-          data-testid={`${testId}-${o.toLowerCase().replace(/\s+/g, '-')}`}
+          data-testid={`${testId}-${o.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
         >
           {o}
         </button>
-      ))}
-    </div>
+      );
+    })}
+  </div>
+);
+
+// Segmented control on a light track
+const Segmented = ({ options, value, onChange, testId }) => (
+  <div className="inline-flex bg-[#f3f1f5] rounded-lg p-1 gap-1" data-testid={testId}>
+    {options.map((o) => {
+      const active = value === o;
+      return (
+        <button
+          key={o}
+          type="button"
+          onClick={() => onChange(active ? '' : o)}
+          className={`px-5 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            active ? 'bg-white text-[#141416] shadow-sm' : 'text-[#898989] hover:text-[#141416]'
+          }`}
+          data-testid={`${testId}-${o.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+        >
+          {o}
+        </button>
+      );
+    })}
+  </div>
+);
+
+const YesNo = ({ label, value, onChange, testIdBase }) => (
+  <div>
+    <Label>{label}</Label>
+    <Segmented options={['Yes', 'No']} value={value === 'yes' ? 'Yes' : value === 'no' ? 'No' : ''} onChange={(v) => onChange(v === 'Yes' ? 'yes' : v === 'No' ? 'no' : '')} testId={testIdBase} />
   </div>
 );
 
 export default function CharacteristicsForm({ characteristics, onChange }) {
-  const update = (key, value) => onChange({ ...characteristics, [key]: value });
+  const c = characteristics || {};
+  const update = (key, value) => onChange({ ...c, [key]: value });
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="space-y-6">
       {/* Nationality */}
-      <SelectField
-        label="Nationality"
-        value={characteristics.nationality}
-        options={NATIONALITIES}
-        onChange={(v) => update('nationality', v)}
-        testId="char-nationality"
-      />
-
-      {/* Ethnicity */}
-      <ButtonSelectField
-        label="Ethnicity"
-        value={characteristics.ethnicity}
-        options={ETHNICITIES}
-        onChange={(v) => update('ethnicity', v)}
-        testId="char-ethnicity"
-      />
-
-      {/* Height */}
       <div>
-        <label className="input-label">Height (cm)</label>
-        <input
-          type="number"
-          value={characteristics.height || ''}
-          onChange={(e) => update('height', e.target.value)}
-          className="input-premium w-full"
-          placeholder="e.g. 170"
-          min="100"
-          max="230"
-          data-testid="char-height"
-        />
+        <Label>Nationality</Label>
+        <div className="relative">
+          <select
+            value={c.nationality || ''}
+            onChange={(e) => update('nationality', e.target.value)}
+            className={`${inputCls} appearance-none pr-10 cursor-pointer`}
+            data-testid="char-nationality"
+          >
+            <option value="">Select nationality</option>
+            {NATIONALITIES.map((o) => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <CaretDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#52525B] pointer-events-none" />
+        </div>
       </div>
 
-      {/* Weight */}
+      {/* Height / Weight */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Height</Label>
+          <div className="relative">
+            <input type="number" value={c.height || ''} onChange={(e) => update('height', e.target.value)} className={`${inputCls} pr-12`} placeholder="170" min="100" max="230" data-testid="char-height" />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#b7b5bb]">cm</span>
+          </div>
+        </div>
+        <div>
+          <Label>Weight</Label>
+          <div className="relative">
+            <input type="number" value={c.weight || ''} onChange={(e) => update('weight', e.target.value)} className={`${inputCls} pr-12`} placeholder="58" min="35" max="200" data-testid="char-weight" />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#b7b5bb]">kg</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Ethnicity */}
       <div>
-        <label className="input-label">Weight (kg)</label>
-        <input
-          type="number"
-          value={characteristics.weight || ''}
-          onChange={(e) => update('weight', e.target.value)}
-          className="input-premium w-full"
-          placeholder="e.g. 58"
-          min="35"
-          max="200"
-          data-testid="char-weight"
-        />
+        <Label>Ethnicity</Label>
+        <PillGroup options={ETHNICITIES} value={c.ethnicity} onChange={(v) => update('ethnicity', v)} testId="char-ethnicity" />
       </div>
 
       {/* Breast size */}
       <div>
-        <label className="input-label">Breast size</label>
-        <input
-          type="text"
-          value={characteristics.breast_size || ''}
-          onChange={(e) => update('breast_size', e.target.value)}
-          className="input-premium w-full"
-          placeholder="e.g. C"
-          data-testid="char-breast_size"
-        />
+        <Label>Breast size</Label>
+        <Segmented options={BREAST_SIZES} value={c.breast_size} onChange={(v) => update('breast_size', v)} testId="char-breast_size" />
       </div>
 
-      {/* Breast type — Implants checkbox */}
+      {/* Breast type */}
       <div>
-        <label className="input-label">Breast type</label>
-        <label className="flex items-center gap-3 cursor-pointer py-3 select-none">
-          <input
-            type="checkbox"
-            checked={characteristics.breast_type === 'Implants'}
-            onChange={(e) =>
-              update('breast_type', e.target.checked ? 'Implants' : '')
-            }
-            className="w-5 h-5 rounded border-[#52525B] bg-transparent checked:bg-[#832161] checked:border-[#832161]"
-            data-testid="char-breast_type-implants"
-          />
-          <span className="text-[#A1A1AA]">Implants</span>
-        </label>
+        <Label>Breast type</Label>
+        <Segmented options={BREAST_TYPES} value={c.breast_type} onChange={(v) => update('breast_type', v)} testId="char-breast_type" />
       </div>
 
-      {/* Tattoos */}
-      <YesNoField
-        label="Tattoos"
-        value={characteristics.tattoos}
-        onChange={(v) => update('tattoos', v)}
-        testIdBase="char-tattoos"
-      />
-
-      {/* Piercings */}
-      <YesNoField
-        label="Piercings"
-        value={characteristics.piercings}
-        onChange={(v) => update('piercings', v)}
-        testIdBase="char-piercings"
-      />
-
-      {/* Smoker */}
-      <YesNoField
-        label="Smoker"
-        value={characteristics.smoker}
-        onChange={(v) => update('smoker', v)}
-        testIdBase="char-smoker"
-      />
+      {/* Tattoos / Piercings / Smoker */}
+      <YesNo label="Tattoos" value={c.tattoos} onChange={(v) => update('tattoos', v)} testIdBase="char-tattoos" />
+      <YesNo label="Piercings" value={c.piercings} onChange={(v) => update('piercings', v)} testIdBase="char-piercings" />
+      <YesNo label="Smoker" value={c.smoker} onChange={(v) => update('smoker', v)} testIdBase="char-smoker" />
     </div>
   );
 }
