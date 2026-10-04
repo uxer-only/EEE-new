@@ -147,7 +147,7 @@ export default function BasicInfoStep({
           </div>
 
           {/* Gender */}
-          <div>
+          <div className="pt-6 border-t border-[#ECE8EF]">
             <Label>Gender</Label>
             <PillToggle
               options={[{ value: 'female', label: 'Female' }, { value: 'male', label: 'Male' }, { value: 'trans', label: 'Trans' }]}
@@ -170,7 +170,7 @@ export default function BasicInfoStep({
           </div>
 
           {!isAgencyScoped && (
-            <div className="pt-6 border-t border-[#ECE8EF] space-y-4">
+            <div className="!mt-6 pt-6 border-t border-[#ECE8EF] space-y-4">
               {/* City */}
               <div className="w-full sm:max-w-[380px]">
                 <Label htmlFor="city">City</Label>
