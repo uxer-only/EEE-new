@@ -197,7 +197,7 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
                 <button
                   type="button"
                   onClick={() => setOpenCats((o) => ({ ...o, [cat.id]: !o[cat.id] }))}
-                  className="w-full flex items-center justify-between gap-3 px-5 py-4 bg-[#F7F5F9] hover:bg-[#F1ECF1] transition-colors"
+                  className="w-full flex items-center justify-between gap-3 px-5 py-4 bg-[#EBE0EA] transition-colors"
                   data-testid={`service-category-header-${cat.id}`}
                 >
                   <span className="flex items-center gap-3 font-bold text-[#1B1820]">
