@@ -49,13 +49,13 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
   const massageOn = ct === 'erotic-massage' || ct === 'both';
   const setCompanion = (e, m) => update({ companionshipType: e && m ? 'both' : e ? 'escort' : m ? 'erotic-massage' : '' });
 
-  const Checkbox = ({ on }) => (
+  const checkbox = (on) => (
     <span className={`flex-shrink-0 w-5 h-5 rounded-[5px] border-2 flex items-center justify-center transition-colors ${on ? 'bg-[#7A2357] border-[#7A2357]' : 'bg-white border-[#898989]'}`}>
       {on && <Check size={13} weight="bold" className="text-white" />}
     </span>
   );
 
-  const PricingToggle = ({ name }) => {
+  const pricingToggle = (name) => {
     const enabled = isSel(name);
     const t = typeOf(name);
     const seg = (active) => `px-3 py-1.5 rounded-md text-sm transition-colors ${active ? 'bg-[#EBE0EA] text-[#7A2357] font-semibold' : enabled ? 'text-[#5F5966] hover:text-[#7A2357]' : 'text-[#C9C3CE] cursor-not-allowed'}`;
@@ -67,15 +67,15 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
     );
   };
 
-  const ServiceRow = ({ name }) => {
+  const serviceRow = (name) => {
     const sel = isSel(name);
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_130px] gap-3 sm:gap-6 items-center px-5 py-3 border-t border-[#F1ECF1]">
+      <div key={name} className="grid grid-cols-1 sm:grid-cols-[1fr_auto_130px] gap-3 sm:gap-6 items-center px-5 py-3 border-t border-[#F1ECF1]">
         <button type="button" onClick={() => toggleSel(name)} className="flex items-center gap-3 text-left" data-testid={`service-toggle-${name}`}>
-          <Checkbox on={sel} />
+          {checkbox(sel)}
           <span className="text-[15px] text-[#1B1820]">{name}</span>
         </button>
-        <div><PricingToggle name={name} /></div>
+        <div>{pricingToggle(name)}</div>
         <div className="sm:text-right">
           {sel && typeOf(name) === 'extra' ? (
             <div className="relative inline-block w-[110px]">
@@ -99,7 +99,7 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
   };
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <div>
         <h3 className="text-[24px] md:text-[28px] font-bold text-[#1B1820] mb-1">Services</h3>
         <p className="text-sm text-[#5F5966]">Tick what you offer. For each one, say whether it's included in your rate or costs extra.</p>
@@ -118,7 +118,7 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
               className={`flex items-start gap-3 text-left rounded-xl border p-5 transition-colors ${escortOn ? 'border-[#7A2357] bg-[#7A2357]/5' : 'border-[#DFDAE4] bg-white hover:border-[#7A2357]'}`}
               data-testid="companionship-escort"
             >
-              <Checkbox on={escortOn} />
+              {checkbox(escortOn)}
               <span>
                 <span className="block font-semibold text-[#1B1820]">Escort</span>
                 <span className="block text-sm text-[#5F5966]">Dates and companionship, at your place or theirs.</span>
@@ -130,7 +130,7 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
               className={`flex items-start gap-3 text-left rounded-xl border p-5 transition-colors ${massageOn ? 'border-[#7A2357] bg-[#7A2357]/5' : 'border-[#DFDAE4] bg-white hover:border-[#7A2357]'}`}
               data-testid="companionship-massage"
             >
-              <Checkbox on={massageOn} />
+              {checkbox(massageOn)}
               <span>
                 <span className="block font-semibold text-[#1B1820]">Erotic massage</span>
                 <span className="block text-sm text-[#5F5966]">Massage-focused sessions.</span>
@@ -181,7 +181,7 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
         </div>
         <p className="text-sm text-[#5F5966] mb-4">Tick the services you offer. Unticked services are not shown on your profile.</p>
 
-        <div className="space-y-3">
+        <div className="flex flex-col gap-2">
           {SERVICE_CATEGORIES.map((cat) => {
             const selCount = cat.services.filter(isSel).length;
             if (selectedOnly && selCount === 0) return null;
@@ -210,7 +210,7 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
                       <span>Pricing</span>
                       <span className="text-right">Extra cost</span>
                     </div>
-                    {rows.map((name) => <ServiceRow key={name} name={name} />)}
+                    {rows.map((name) => serviceRow(name))}
                   </div>
                 )}
               </div>

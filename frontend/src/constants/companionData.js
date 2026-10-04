@@ -65,10 +65,12 @@ export const SERVICE_CATEGORIES = [
 export const ALL_CATALOG_SERVICES = SERVICE_CATEGORIES.flatMap((c) => c.services);
 
 // Returns the category label a service name belongs to (or 'Other' for custom services).
-export const categoryForService = (name) => {
-  const cat = SERVICE_CATEGORIES.find((c) => c.services.includes(name));
-  return cat ? cat.label : 'Other';
-};
+const _norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+const _CATEGORY_BY_NORM = SERVICE_CATEGORIES.reduce((map, c) => {
+  c.services.forEach((s) => { map[_norm(s)] = c.label; });
+  return map;
+}, {});
+export const categoryForService = (name) => _CATEGORY_BY_NORM[_norm(name)] || 'Other';
 
 export const defaultSchedule = () => ({
   monday: { available: true, start: '10:00', end: '22:00' },

@@ -1,0 +1,31 @@
+{
+  "summary": "Tested the Step 3 Services redesign (ServicesStep.jsx) end-to-end plus the public-profile categorisation bug fix. Backend persistence of services dict / companionshipType / accepts_disabilities confirmed via pytest. Frontend wizard flow confirmed in UI: companionship cards toggle independently (both can be on), disabilities switch works, Massage category open by default, other categories expand on click, service checkbox + Included/Extra pricing toggle + € input work and persist, 'X of 41 selected' and per-category counters update, 'Selected only' filter hides empty categories, custom service chip add/remove works, autosave + Next advances to Step 4, and after a full reload the saved services (GFE inclusive, Erotic massage · €75 extra) are shown on the management dashboard. Public /providers/:id page now groups services by category heading (service-group-* data-testids) instead of a flat Inclusive/Extra list.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Public provider profile (Sophia / provider1@lumiere.com)", "issues": ["Seeded services such as 'Body to Body', 'Erotic Massage', 'Escort Service', 'Jacuzzi', 'Overnight', 'Role Game' use TitleCase/unknown labels that do not match the SERVICE_CATEGORIES catalog (which has 'Body to body', 'Erotic massage', etc.). categoryForService() in /app/frontend/src/constants/companionData.js does an exact-case Array.includes() lookup, so 6 of Sophia's 7 services collapse into the 'OTHER' group. The bug-fix grouping works, but visually most services end up under 'OTHER' instead of 'Massage'/'Intimate'. Suggest making categoryForService case-insensitive (and ideally normalising punctuation) OR re-seeding provider1 with catalog-exact names."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_services_step.py",
+    "/app/test_reports/pytest/services_step.xml"
+  ],
+  "action_items": [
+    "(Minor polish) Make categoryForService() case-insensitive so legacy/seeded providers also render under proper category groups on their public profile instead of all falling into 'Other'."
+  ],
+  "critical_code_review_comments": [
+    "Step 3 save flow depends on debounced autosave: the step-3 Next button is just nextStep(); no explicit saveDraft before navigating to Step 4. Autosave is debounced 2s and only runs when a provider record already exists (createdProviderId OR dashboard.profile). This works in practice because Step 1's Save & continue creates the record, but if a user manages to open the wizard without a persisted record and clicks Next quickly, Step 3 state could be lost. Consider awaiting saveDraft() in the Next handler for steps 2-3 the same way Step 1 does.",
+    "ProviderDetail.js: categoryForService uses exact string match (case-sensitive), which causes seeded/legacy providers whose services have inconsistent casing to fall into 'Other'. Make it case-insensitive.",
+    "ServicesStep component defines Checkbox / PricingToggle / ServiceRow as inline functional components inside the render body — this recreates component types on every render and can cause unnecessary remounts (minor perf). Consider hoisting them."
+  ],
+  "updated_files": ["/app/backend/tests/test_services_step.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "Freshly registered via /api/auth/register (independent provider) + provider1@lumiere.com / sophia123 for the published-profile check.",
+  "seed_data_creation": "Created ad-hoc test providers via POST /api/auth/register during the run (prefixed email with 'testp_' / 'testp2_' / 'testp3_'); their profiles contain TEST* display names and will not interfere with existing data.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Public provider detail route is /providers/:id (plural). The ServicesStep testids (companionship-escort, companionship-massage, accepts-disabilities-checkbox, services-selected-count, selected-only-toggle, service-category-header-<id>, service-toggle-<name>, pricing-included-<name>, pricing-extra-<name>, extra-cost-<name>, custom-service-input, add-service-button, custom-services-list) all work. ProviderDashboard Next button on step 3 relies on debounced autosave (useEffect delay 2s) for persistence — give it ~3s before navigating in tests. On the dashboard summary tile services are still shown flat (Inclusive/Extra) which is intentional — the category grouping only applies to the public /providers/:id profile.",
+  "rca of the issue": "Services on the public profile previously rendered as a flat Inclusive/Extra list. Fix in /app/frontend/src/pages/ProviderDetail.js (~line 509) now groups by categoryForService(name) in the order SERVICE_CATEGORIES labels + 'Other'. Verified visually: service-group-companionship-role-play and service-group-other appear with distinct chip rows (Extra services render as 'NAME · €PRICE'). Caveat: categoryForService is case-sensitive, so legacy data with different casing is classified as 'Other'."
+}

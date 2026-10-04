@@ -2055,7 +2055,7 @@ export default function ProviderDashboard() {
                       type="button"
                       onClick={currentStep === 1
                         ? async () => { await saveDraft({ allowCreate: true }); nextStep(); }
-                        : nextStep}
+                        : async () => { await saveDraft(); nextStep(); }}
                       className="btn-primary flex items-center gap-2"
                       data-testid="next-button"
                     >
