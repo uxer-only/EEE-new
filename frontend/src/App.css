@@ -57,7 +57,7 @@ select.input-premium option {
 }
 
 .input-helper {
-  @apply text-xs text-[#A3243B] mt-1 block;
+  @apply text-xs text-[#A3243B] mt-0.5 block;
 }
 
 /* Global checkbox styles: transparent background inheriting parent, grey border matching inputs */

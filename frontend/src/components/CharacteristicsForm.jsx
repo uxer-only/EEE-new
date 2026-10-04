@@ -35,7 +35,7 @@ const inputCls =
   'w-full bg-white border border-[#898989] rounded-lg px-4 py-3 text-[15px] text-[#1B1820] placeholder:text-[#BDB4C5] focus:border-[#7A2357] focus:ring-0 focus:outline-none focus:shadow-[0_0_0_3px_rgba(122,35,87,0.14)] transition-all';
 
 const Label = ({ children }) => (
-  <label className="block text-[13px] font-semibold text-[#1B1820] mb-2">{children}</label>
+  <label className="block text-[13px] font-semibold text-[#1B1820] mb-1">{children}</label>
 );
 
 // Pills: unselected = white bordered, selected = wine light
@@ -94,7 +94,7 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
   const update = (key, value) => onChange({ ...c, [key]: value });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Nationality */}
       <div className="w-full sm:max-w-[380px]">
         <Label>Nationality</Label>
@@ -113,7 +113,7 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
       </div>
 
       {/* Height / Weight */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="w-full sm:max-w-[380px]">
           <Label>Height</Label>
           <div className="relative">

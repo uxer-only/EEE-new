@@ -27,7 +27,7 @@ const inputCls =
   'w-full bg-white border border-[#898989] rounded-lg px-4 py-3 text-[15px] text-[#1B1820] placeholder:text-[#BDB4C5] focus:border-[#7A2357] focus:ring-0 focus:outline-none focus:shadow-[0_0_0_3px_rgba(122,35,87,0.14)] transition-all';
 
 const Label = ({ children, htmlFor }) => (
-  <label htmlFor={htmlFor} className="block text-[13px] font-semibold text-[#1B1820] mb-2">{children}</label>
+  <label htmlFor={htmlFor} className="block text-[13px] font-semibold text-[#1B1820] mb-1">{children}</label>
 );
 
 const Card = ({ title, subtitle, tag, children, testId }) => (
@@ -39,7 +39,7 @@ const Card = ({ title, subtitle, tag, children, testId }) => (
           <span className="uppercase tracking-wider text-[10px] font-semibold text-[#8E8597] border border-[#e3e1e6] rounded px-2 py-0.5">{tag}</span>
         )}
       </div>
-      {subtitle && <p className="text-sm text-[#5F5966] mt-1.5">{subtitle}</p>}
+      {subtitle && <p className="text-sm text-[#5F5966] mt-0.5">{subtitle}</p>}
     </div>
     {children}
   </div>
@@ -100,14 +100,14 @@ export default function BasicInfoStep({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Basic information */}
       <Card
         title="Basic information"
         subtitle="This is what clients see first. You can change it any time."
         testId="basic-info-card"
       >
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Display name */}
           <div className="w-full sm:max-w-[380px]">
             <Label htmlFor="display-name">{isAgency ? 'Agency name' : 'Display name'}</Label>
@@ -124,7 +124,7 @@ export default function BasicInfoStep({
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#BDB4C5]">{nameLen}/30</span>
             </div>
-            <p className="text-xs text-[#8E8597] mt-1.5">No real name needed.</p>
+            <p className="text-xs text-[#8E8597] mt-0.5">No real name needed.</p>
           </div>
 
           {/* Age */}
@@ -143,7 +143,7 @@ export default function BasicInfoStep({
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#BDB4C5]">years</span>
             </div>
-            <p className="text-xs text-[#8E8597] mt-1.5">18 or older.</p>
+            <p className="text-xs text-[#8E8597] mt-0.5">18 or older.</p>
           </div>
 
           {/* Gender */}
@@ -170,7 +170,7 @@ export default function BasicInfoStep({
           </div>
 
           {!isAgencyScoped && (
-            <div className="pt-6 border-t border-[#ECE8EF] space-y-6">
+            <div className="pt-6 border-t border-[#ECE8EF] space-y-4">
               {/* City */}
               <div className="w-full sm:max-w-[380px]">
                 <Label htmlFor="city">City</Label>
@@ -186,7 +186,7 @@ export default function BasicInfoStep({
                     data-testid="city-input"
                   />
                 </div>
-                <p className="text-xs text-[#8E8597] mt-1.5">Clients only see your city, never your address.</p>
+                <p className="text-xs text-[#8E8597] mt-0.5">Clients only see your city, never your address.</p>
               </div>
 
               {/* Country */}
@@ -211,11 +211,11 @@ export default function BasicInfoStep({
 
           {/* Describe yourself */}
           <div className="pt-6 border-t border-[#ECE8EF]">
-            <div className="flex items-end justify-between mb-2">
+            <div className="flex items-end justify-between mb-1">
               <Label>Describe yourself</Label>
               <span className="text-xs text-[#BDB4C5]">{bioLen} / 1500</span>
             </div>
-            <p className="text-xs text-[#8E8597] -mt-1 mb-2">Shown as "My Essence" on your profile. Tell clients what makes you unique.</p>
+            <p className="text-xs text-[#8E8597] -mt-1 mb-0.5">Shown as "My Essence" on your profile. Tell clients what makes you unique.</p>
             <textarea
               value={profileData.bio}
               onChange={(e) => setProfileData({ ...profileData, bio: e.target.value.slice(0, 1500) })}
@@ -231,7 +231,7 @@ export default function BasicInfoStep({
 
           {/* Languages */}
           <div className="pt-6 border-t border-[#ECE8EF]">
-            <div className="flex items-end justify-between mb-3">
+            <div className="flex items-end justify-between mb-1">
               <Label>Languages you speak</Label>
               <span className="text-xs font-semibold text-[#7A2357]">{languages.length} selected</span>
             </div>
@@ -312,7 +312,7 @@ export default function BasicInfoStep({
           subtitle="How clients reach you to make an enquiry."
           testId="contact-info-card"
         >
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Mobile phone */}
             <div className="w-full sm:max-w-[380px]">
               <Label>Mobile phone</Label>
@@ -363,7 +363,7 @@ export default function BasicInfoStep({
             {/* Messaging apps */}
             <div>
               <Label>Clients can also reach you on</Label>
-              <p className="text-xs text-[#8E8597] -mt-1 mb-3">Shown as buttons on your profile. WhatsApp, Signal, SMS and Viber use the number above. Telegram, Line and WeChat need your ID.</p>
+              <p className="text-xs text-[#8E8597] -mt-1 mb-0.5">Shown as buttons on your profile. WhatsApp, Signal, SMS and Viber use the number above. Telegram, Line and WeChat need your ID.</p>
               <div className="flex flex-wrap gap-2">
                 {MESSAGING_APPS.map((app) => {
                   const selected = profileData.contact[app.key] || false;
@@ -404,7 +404,7 @@ export default function BasicInfoStep({
                           data-testid="telegram-id-input"
                         />
                       </div>
-                      <p className="text-xs text-[#8E8597] mt-1.5">Find it in Telegram &rsaquo; Settings &rsaquo; Username</p>
+                      <p className="text-xs text-[#8E8597] mt-0.5">Find it in Telegram &rsaquo; Settings &rsaquo; Username</p>
                     </div>
                   )}
                   {profileData.contact.hasLine && (
