@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout, updateAutoRenew, listMyEnquiries, markEnquiryRead, deleteEnquiry, replyToEnquiry, listMyInvoices, invoicePdfUrl, invoiceViewUrl, getAgencyProfile } from '@/services/api';
@@ -1275,34 +1275,37 @@ export default function ProviderDashboard() {
 
           {/* Progress Steps - only for creation flow */}
           {mode !== 'edit' && (
-          <div className="flex items-center mb-8 overflow-x-auto pb-2">
-            {steps.map((step, index) => {
-              const active = currentStep === step.id;
-              const done = currentStep > step.id;
-              return (
-              <div key={step.id} className="flex items-center flex-shrink-0">
-                <button
-                  onClick={() => setCurrentStep(step.id)}
-                  className="flex items-center gap-2 transition-colors"
-                  data-testid={`step-${step.id}`}
-                >
-                  <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-semibold border-2 transition-colors ${
-                    active ? 'border-[#7A2357] text-[#7A2357] bg-white'
-                    : done ? 'border-[#7A2357] bg-[#7A2357] text-white'
-                    : 'border-[#DFDAE4] text-[#BDB4C5] bg-white'
-                  }`}>
-                    {done ? <Check size={14} weight="bold" /> : step.id}
-                  </span>
-                  <span className={`text-sm whitespace-nowrap ${
-                    active ? 'font-semibold text-[#1B1820]' : done ? 'text-[#1B1820]' : 'text-[#BDB4C5]'
-                  }`}>{step.title}</span>
-                </button>
-                {index < steps.length - 1 && (
-                  <div className="w-8 md:w-14 h-px mx-3 bg-[#DFDAE4]" />
-                )}
-              </div>
-              );
-            })}
+          <div className="mb-8 bg-white rounded-2xl shadow-[0_6px_20px_rgba(52,24,60,0.06)] px-5 md:px-7 py-4 overflow-x-auto">
+            <div className="flex items-center">
+              {steps.map((step, index) => {
+                const active = currentStep === step.id;
+                const done = currentStep > step.id;
+                const label = ({ 1: 'Basic info', 2: 'Photos & videos', 3: 'Services', 4: 'Rates & availability', 5: 'Activate' })[step.id] || step.title;
+                return (
+                  <Fragment key={step.id}>
+                    <button
+                      onClick={() => setCurrentStep(step.id)}
+                      className="flex items-center gap-2.5 flex-shrink-0 transition-colors"
+                      data-testid={`step-${step.id}`}
+                    >
+                      <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-semibold transition-colors ${
+                        active ? 'border-2 border-[#7A2357] text-[#7A2357] bg-white'
+                        : done ? 'bg-[#7A2357] text-white'
+                        : 'bg-[#F5F2F7] text-[#8E8597]'
+                      }`}>
+                        {done ? <Check size={14} weight="bold" /> : step.id}
+                      </span>
+                      <span className={`text-[15px] whitespace-nowrap ${
+                        active ? 'font-bold text-[#1B1820]' : done ? 'text-[#1B1820]' : 'text-[#5F5966]'
+                      }`}>{label}</span>
+                    </button>
+                    {index < steps.length - 1 && (
+                      <div className="flex-1 h-px bg-[#DFDAE4] mx-3 md:mx-5 min-w-[20px]" />
+                    )}
+                  </Fragment>
+                );
+              })}
+            </div>
           </div>
           )}
 
