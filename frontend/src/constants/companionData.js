@@ -52,6 +52,24 @@ export const massageServices = [
 export const serviceOptionsFor = (companionshipType) =>
   companionshipType === 'erotic-massage' ? massageServices : escortServices;
 
+// Categorised service catalog (41 services) for the Services step + profile grouping.
+export const SERVICE_CATEGORIES = [
+  { id: 'massage', label: 'Massage', services: ['Relaxing massage', 'Erotic massage', 'Couple massage', 'Body to body', 'Shower together'] },
+  { id: 'companionship', label: 'Companionship & role-play', services: ['GFE', 'Dirty talk', 'French kissing', 'Role-play', 'Uniform', 'Striptease', 'Travel', 'Duo with girl'] },
+  { id: 'intimate', label: 'Intimate', services: ['Classic sex', '69 position', 'Cunnilingus', 'Fingering', 'Handjob', 'Masturbation', 'Oral without condom', 'Rimming', 'Greek', 'Sex toys', 'Squirting', 'Cum on face', 'Cum in mouth', 'Deepthroat', 'Facefuck', 'Swallowing', 'Facesitting', 'Porn star experience'] },
+  { id: 'couples', label: 'Couples & groups', services: ['Couples', 'With 2 men', 'Group sex', 'Double penetration'] },
+  { id: 'photos', label: 'Photos & filming', services: ['Casual photos', 'Erotic photos', 'Filming'] },
+  { id: 'fetish', label: 'Fetish & BDSM', services: ['Findom', 'BDSM - Femdom', 'Strapon service'] },
+];
+
+export const ALL_CATALOG_SERVICES = SERVICE_CATEGORIES.flatMap((c) => c.services);
+
+// Returns the category label a service name belongs to (or 'Other' for custom services).
+export const categoryForService = (name) => {
+  const cat = SERVICE_CATEGORIES.find((c) => c.services.includes(name));
+  return cat ? cat.label : 'Other';
+};
+
 export const defaultSchedule = () => ({
   monday: { available: true, start: '10:00', end: '22:00' },
   tuesday: { available: true, start: '10:00', end: '22:00' },

@@ -370,7 +370,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
 
             {step === 2 && (
               <div className="space-y-6">
-                <ServicesStep data={data} update={update} />
+                <ServicesStep data={data} update={update} showDisabilities={false} />
                 <div className="rounded-lg border border-[#7A2357]/30 bg-[#7A2357]/5 p-4">
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input

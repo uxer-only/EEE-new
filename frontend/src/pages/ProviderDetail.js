@@ -9,6 +9,7 @@ import {
   Phone, WhatsappLogo, TelegramLogo, ChatCircle, EnvelopeSimple, X, Flag, UploadSimple
 } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
+import { SERVICE_CATEGORIES, categoryForService } from '@/constants/companionData';
 import SiteHeader from '@/components/SiteHeader';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -505,7 +506,7 @@ export default function ProviderDetail() {
                 })()}
               </div>
 
-              {/* Services */}
+              {/* Services (grouped by category) */}
               {(() => {
                 const services = provider.services;
                 let serviceList = [];
@@ -517,45 +518,36 @@ export default function ProviderDetail() {
                     .map(([name, v]) => ({ name, type: v.type, price: v.price }));
                 }
                 if (serviceList.length === 0) return null;
-                const inclusive = serviceList.filter(s => s.type === 'inclusive');
-                const extras = serviceList.filter(s => s.type === 'extra');
+                const order = [...SERVICE_CATEGORIES.map(c => c.label), 'Other'];
+                const groups = {};
+                serviceList.forEach(s => {
+                  const cat = categoryForService(s.name);
+                  (groups[cat] = groups[cat] || []).push(s);
+                });
+                const groupedLabels = order.filter(l => groups[l] && groups[l].length);
                 return (
                   <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
                     <h3 className="text-xl font-bold text-[#7A2357] mb-6">What we can share together...</h3>
-                    {inclusive.length > 0 && (
-                      <div className="mb-4">
-                        {extras.length > 0 && (
-                          <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-3">Inclusive</p>
-                        )}
-                        <div className="flex flex-wrap gap-3">
-                          {inclusive.map((s, i) => (
-                            <span
-                              key={`inc-${i}`}
-                              className="px-4 py-2 border border-[#dbdadd] text-[#000000] text-sm uppercase tracking-wider"
-                              data-testid={`service-${i}`}
-                            >
-                              {s.name}
-                            </span>
-                          ))}
+                    <div className="space-y-6">
+                      {groupedLabels.map((label) => (
+                        <div key={label} data-testid={`service-group-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}>
+                          <p className="text-[10px] uppercase tracking-[0.2em] text-[#8E8597] mb-3">{label}</p>
+                          <div className="flex flex-wrap gap-3">
+                            {groups[label].map((s, i) => (
+                              <span
+                                key={`${label}-${i}`}
+                                className={s.type === 'extra'
+                                  ? 'px-4 py-2 border border-[#7A2357]/40 bg-[#7A2357]/10 text-[#7A2357] text-sm uppercase tracking-wider'
+                                  : 'px-4 py-2 border border-[#dbdadd] text-[#000000] text-sm uppercase tracking-wider'}
+                                data-testid={`service-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${i}`}
+                              >
+                                {s.name}{s.type === 'extra' && s.price ? ` · €${s.price}` : ''}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {extras.length > 0 && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-3">Extra</p>
-                        <div className="flex flex-wrap gap-3">
-                          {extras.map((s, i) => (
-                            <span
-                              key={`ext-${i}`}
-                              className="px-4 py-2 border border-[#7A2357]/40 bg-[#7A2357]/10 text-[#7A2357] text-sm uppercase tracking-wider"
-                              data-testid={`service-extra-${i}`}
-                            >
-                              {s.name}{s.price && ` · €${s.price}`}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                      ))}
+                    </div>
                   </div>
                 );
               })()}
