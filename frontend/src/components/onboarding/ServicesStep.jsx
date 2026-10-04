@@ -145,7 +145,7 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
 
       {/* Accepts disabilities */}
       {showDisabilities && (
-        <div className="flex items-center justify-between gap-4 rounded-xl bg-[#F7F5F9] px-5 py-4">
+        <div className="flex items-center justify-between gap-4 rounded-xl bg-[#EBE0EA] px-5 py-4">
           <div className="flex items-center gap-3">
             <span className="flex items-center justify-center w-10 h-10 rounded-lg bg-white text-[#7A2357]"><Wheelchair size={22} weight="fill" /></span>
             <div>
