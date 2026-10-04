@@ -32,7 +32,7 @@ const NATIONALITIES = [
 ];
 
 const inputCls =
-  'w-full bg-white border border-[#DFDAE4] rounded-lg px-4 py-3 text-[15px] text-[#1B1820] placeholder:text-[#BDB4C5] focus:border-[#7A2357] focus:ring-0 focus:outline-none focus:shadow-[0_0_0_3px_rgba(122,35,87,0.14)] transition-all';
+  'w-full bg-white border border-[#898989] rounded-lg px-4 py-3 text-[15px] text-[#1B1820] placeholder:text-[#BDB4C5] focus:border-[#7A2357] focus:ring-0 focus:outline-none focus:shadow-[0_0_0_3px_rgba(122,35,87,0.14)] transition-all';
 
 const Label = ({ children }) => (
   <label className="block text-[13px] font-semibold text-[#1B1820] mb-2">{children}</label>
@@ -49,7 +49,7 @@ const PillGroup = ({ options, value, onChange, testId }) => (
           type="button"
           onClick={() => onChange(active ? '' : o)}
           className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
-            active ? 'bg-[#7A2357]/5 border-[#7A2357] text-[#7A2357]' : 'bg-white border-[#DFDAE4] text-[#5F5966] hover:border-[#7A2357]'
+            active ? 'bg-[#7A2357]/5 border-[#7A2357] text-[#7A2357]' : 'bg-white border-[#898989] text-[#5F5966] hover:border-[#7A2357]'
           }`}
           data-testid={`${testId}-${o.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
         >
@@ -96,7 +96,7 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
   return (
     <div className="space-y-6">
       {/* Nationality */}
-      <div>
+      <div className="w-full sm:max-w-[380px]">
         <Label>Nationality</Label>
         <div className="relative">
           <select
@@ -113,15 +113,15 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
       </div>
 
       {/* Height / Weight */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
+      <div className="space-y-6">
+        <div className="w-full sm:max-w-[380px]">
           <Label>Height</Label>
           <div className="relative">
             <input type="number" value={c.height || ''} onChange={(e) => update('height', e.target.value)} className={`${inputCls} pr-12`} placeholder="170" min="100" max="230" data-testid="char-height" />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#BDB4C5]">cm</span>
           </div>
         </div>
-        <div>
+        <div className="w-full sm:max-w-[380px]">
           <Label>Weight</Label>
           <div className="relative">
             <input type="number" value={c.weight || ''} onChange={(e) => update('weight', e.target.value)} className={`${inputCls} pr-12`} placeholder="58" min="35" max="200" data-testid="char-weight" />

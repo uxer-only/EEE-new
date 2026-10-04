@@ -24,7 +24,7 @@ const MESSAGING_APPS = [
 ];
 
 const inputCls =
-  'w-full bg-white border border-[#DFDAE4] rounded-lg px-4 py-3 text-[15px] text-[#1B1820] placeholder:text-[#BDB4C5] focus:border-[#7A2357] focus:ring-0 focus:outline-none focus:shadow-[0_0_0_3px_rgba(122,35,87,0.14)] transition-all';
+  'w-full bg-white border border-[#898989] rounded-lg px-4 py-3 text-[15px] text-[#1B1820] placeholder:text-[#BDB4C5] focus:border-[#7A2357] focus:ring-0 focus:outline-none focus:shadow-[0_0_0_3px_rgba(122,35,87,0.14)] transition-all';
 
 const Label = ({ children, htmlFor }) => (
   <label htmlFor={htmlFor} className="block text-[13px] font-semibold text-[#1B1820] mb-2">{children}</label>
@@ -109,7 +109,7 @@ export default function BasicInfoStep({
       >
         <div className="space-y-6">
           {/* Display name */}
-          <div>
+          <div className="w-full sm:max-w-[380px]">
             <Label htmlFor="display-name">{isAgency ? 'Agency name' : 'Display name'}</Label>
             <div className="relative">
               <input
@@ -172,7 +172,7 @@ export default function BasicInfoStep({
           {!isAgencyScoped && (
             <div className="pt-6 border-t border-[#ECE8EF] space-y-6">
               {/* City */}
-              <div>
+              <div className="w-full sm:max-w-[380px]">
                 <Label htmlFor="city">City</Label>
                 <div className="relative">
                   <MapPin size={18} weight="fill" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7A2357]" />
@@ -190,7 +190,7 @@ export default function BasicInfoStep({
               </div>
 
               {/* Country */}
-              <div>
+              <div className="w-full sm:max-w-[380px]">
                 <Label htmlFor="country">Country</Label>
                 <div className="relative">
                   <select
@@ -246,7 +246,7 @@ export default function BasicInfoStep({
                     className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
                       selected
                         ? 'bg-[#7A2357]/5 border-[#7A2357] text-[#7A2357]'
-                        : 'bg-white border-[#DFDAE4] text-[#5F5966] hover:border-[#7A2357]'
+                        : 'bg-white border-[#898989] text-[#5F5966] hover:border-[#7A2357]'
                     }`}
                     data-testid={`basic-lang-${lang.toLowerCase()}`}
                   >
@@ -294,7 +294,7 @@ export default function BasicInfoStep({
                 <button
                   type="button"
                   onClick={() => setShowAddLanguage(true)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border border-dashed border-[#c9c7cc] text-[#5F5966] hover:border-[#7A2357] hover:text-[#7A2357] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border border-dashed border-[#898989] text-[#5F5966] hover:border-[#7A2357] hover:text-[#7A2357] transition-colors"
                   data-testid="add-language-button"
                 >
                   <Plus size={14} weight="bold" /> Add language
@@ -314,16 +314,16 @@ export default function BasicInfoStep({
         >
           <div className="space-y-6">
             {/* Mobile phone */}
-            <div>
+            <div className="w-full sm:max-w-[380px]">
               <Label>Mobile phone</Label>
               {(() => {
                 const dial = countryDialCodes[profileData.location.country] || '';
                 const raw = profileData.contact.phone || '';
                 const localValue = dial && raw.startsWith(dial) ? raw.slice(dial.length).replace(/^\s+/, '') : raw;
                 return (
-                  <div className="flex items-stretch bg-white border border-[#DFDAE4] rounded-lg focus-within:border-[#7A2357] transition-colors overflow-hidden">
+                  <div className="flex items-stretch bg-white border border-[#898989] rounded-lg focus-within:border-[#7A2357] transition-colors overflow-hidden">
                     {dial && (
-                      <span className="px-4 flex items-center bg-[#F7F5F9] text-[#1B1820] text-sm font-medium border-r border-[#DFDAE4] select-none whitespace-nowrap" data-testid="phone-dial-code">
+                      <span className="px-4 flex items-center bg-[#F7F5F9] text-[#1B1820] text-sm font-medium border-r border-[#898989] select-none whitespace-nowrap" data-testid="phone-dial-code">
                         {dial}
                       </span>
                     )}
@@ -344,7 +344,7 @@ export default function BasicInfoStep({
             </div>
 
             {/* Email */}
-            <div>
+            <div className="w-full sm:max-w-[380px]">
               <Label htmlFor="email">E-mail</Label>
               <div className="relative">
                 <EnvelopeSimple size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5F5966]" />
@@ -373,7 +373,7 @@ export default function BasicInfoStep({
                       type="button"
                       onClick={() => setContact({ [app.key]: !selected })}
                       className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
-                        selected ? 'bg-[#7A2357]/5 border-[#7A2357] text-[#7A2357]' : 'bg-white border-[#DFDAE4] text-[#5F5966] hover:border-[#7A2357]'
+                        selected ? 'bg-[#7A2357]/5 border-[#7A2357] text-[#7A2357]' : 'bg-white border-[#898989] text-[#5F5966] hover:border-[#7A2357]'
                       }`}
                       data-testid={`contact-${app.label.toLowerCase()}`}
                     >
