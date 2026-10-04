@@ -105,6 +105,9 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
         <p className="text-sm text-[#5F5966]">Tick what you offer. For each one, say whether it's included in your rate or costs extra.</p>
       </div>
 
+      {/* Companionship + accessibility group — 16px gap between the two */}
+      {(showCompanionshipType || showDisabilities) && (
+      <div className="flex flex-col gap-4">
       {/* Type of companionship */}
       {showCompanionshipType && (
         <div>
@@ -161,6 +164,8 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
             <span className={`block w-6 h-6 rounded-full bg-white transition-transform ${data.accepts_disabilities ? 'translate-x-5' : 'translate-x-0'}`} />
           </button>
         </div>
+      )}
+      </div>
       )}
 
       {/* What you offer */}
