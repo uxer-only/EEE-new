@@ -363,8 +363,7 @@ export default function BasicInfoStep({
             {/* Messaging apps */}
             <div>
               <Label>Clients can also reach you on</Label>
-              <p className="text-xs text-[#8E8597] -mt-1 mb-0.5">Shown as buttons on your profile. WhatsApp, Signal, SMS and Viber use the number above. Telegram, Line and WeChat need your ID.</p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mt-4">
                 {MESSAGING_APPS.map((app) => {
                   const selected = profileData.contact[app.key] || false;
                   return (
