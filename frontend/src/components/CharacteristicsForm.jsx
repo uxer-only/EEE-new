@@ -62,7 +62,7 @@ const PillGroup = ({ options, value, onChange, testId }) => (
 
 // Segmented control on a light track
 const Segmented = ({ options, value, onChange, testId }) => (
-  <div className="inline-flex bg-[#F5F2F7] rounded-lg p-1 gap-1" data-testid={testId}>
+  <div className="inline-flex bg-[#EBE0EA] rounded-lg p-1 gap-1" data-testid={testId}>
     {options.map((o) => {
       const active = value === o;
       return (

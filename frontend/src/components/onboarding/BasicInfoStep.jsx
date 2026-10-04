@@ -47,7 +47,7 @@ const Card = ({ title, subtitle, tag, children, testId }) => (
 
 // Segmented control on a light track: selected = wine filled, unselected = plain text
 const PillToggle = ({ options, value, onChange, testId, idKey = (o) => o.toLowerCase() }) => (
-  <div className="inline-flex flex-wrap bg-[#F5F2F7] rounded-lg p-1 gap-1" data-testid={testId}>
+  <div className="inline-flex flex-wrap bg-[#EBE0EA] rounded-lg p-1 gap-1" data-testid={testId}>
     {options.map((opt) => {
       const v = typeof opt === 'string' ? opt : opt.value;
       const label = typeof opt === 'string' ? opt : opt.label;
