@@ -61,17 +61,18 @@ const PillGroup = ({ options, value, onChange, testId }) => (
 );
 
 // Segmented control on a light track
-const Segmented = ({ options, value, onChange, testId }) => (
+const Segmented = ({ options, value, onChange, testId, variant = 'light' }) => (
   <div className="inline-flex bg-[#EBE0EA] rounded-lg p-1 gap-1" data-testid={testId}>
     {options.map((o) => {
       const active = value === o;
+      const activeCls = variant === 'wine' ? 'bg-[#7A2357] text-white' : 'bg-white text-[#1B1820] shadow-sm';
       return (
         <button
           key={o}
           type="button"
           onClick={() => onChange(active ? '' : o)}
           className={`px-5 py-1.5 rounded-md text-sm font-medium transition-colors ${
-            active ? 'bg-white text-[#1B1820] shadow-sm' : 'text-[#5F5966] hover:text-[#1B1820]'
+            active ? activeCls : 'text-[#5F5966] hover:text-[#1B1820]'
           }`}
           data-testid={`${testId}-${o.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
         >
@@ -85,7 +86,7 @@ const Segmented = ({ options, value, onChange, testId }) => (
 const YesNo = ({ label, value, onChange, testIdBase }) => (
   <div>
     <Label>{label}</Label>
-    <Segmented options={['Yes', 'No']} value={value === 'yes' ? 'Yes' : value === 'no' ? 'No' : ''} onChange={(v) => onChange(v === 'Yes' ? 'yes' : v === 'No' ? 'no' : '')} testId={testIdBase} />
+    <Segmented options={['Yes', 'No']} value={value === 'yes' ? 'Yes' : value === 'no' ? 'No' : ''} onChange={(v) => onChange(v === 'Yes' ? 'yes' : v === 'No' ? 'no' : '')} testId={testIdBase} variant="wine" />
   </div>
 );
 
@@ -145,7 +146,7 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
       {/* Breast type */}
       <div>
         <Label>Breast type</Label>
-        <Segmented options={BREAST_TYPES} value={c.breast_type} onChange={(v) => update('breast_type', v)} testId="char-breast_type" />
+        <Segmented options={BREAST_TYPES} value={c.breast_type} onChange={(v) => update('breast_type', v)} testId="char-breast_type" variant="wine" />
       </div>
 
       {/* Tattoos / Piercings / Smoker */}
