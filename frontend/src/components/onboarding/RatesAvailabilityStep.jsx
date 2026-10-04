@@ -16,7 +16,7 @@ export const RatesAvailabilityStep = ({ data, update }) => {
       {/* Availability */}
       <div id="availability-section" className="flex flex-col gap-4 scroll-mt-24">
         <div>
-          <h3 className="text-2xl font-bold text-[#832161] mb-1">Availability</h3>
+          <h3 className="text-2xl font-bold text-[#7A2357] mb-1">Availability</h3>
           <p className="text-[#000000] text-sm">Set your availability for each day</p>
         </div>
 
@@ -34,8 +34,8 @@ export const RatesAvailabilityStep = ({ data, update }) => {
                 onClick={() => update({ availability_type: opt.value })}
                 className={`py-3 px-4 border text-sm uppercase tracking-wider transition-all ${
                   data.availability_type === opt.value
-                    ? 'border-[#DA4167] bg-[#DA4167] text-white shadow-sm'
-                    : 'border-[#DA4167]/50 text-[#DA4167] bg-white hover:bg-[#DA4167]/10 hover:border-[#DA4167]'
+                    ? 'border-[#A3243B] bg-[#A3243B] text-white shadow-sm'
+                    : 'border-[#A3243B]/50 text-[#A3243B] bg-white hover:bg-[#A3243B]/10 hover:border-[#A3243B]'
                 }`}
                 data-testid={`availability-type-${opt.value}`}
               >
@@ -58,7 +58,7 @@ export const RatesAvailabilityStep = ({ data, update }) => {
                 });
                 update({ available247: is247, schedule: updatedSchedule });
               }}
-              className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+              className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7A2357] checked:border-[#7A2357]"
             />
             <span className="text-[#000000]">Available 24/7</span>
           </label>
@@ -68,7 +68,7 @@ export const RatesAvailabilityStep = ({ data, update }) => {
               type="checkbox"
               checked={data.booking_advance || false}
               onChange={(e) => update({ booking_advance: e.target.checked })}
-              className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+              className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7A2357] checked:border-[#7A2357]"
               data-testid="booking-advance-checkbox"
             />
             <span className="text-[#000000]">Booking in advance necessary</span>
@@ -83,7 +83,7 @@ export const RatesAvailabilityStep = ({ data, update }) => {
                   type="checkbox"
                   checked={sched.available}
                   onChange={(e) => update({ schedule: { ...schedule, [day]: { ...sched, available: e.target.checked } } })}
-                  className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+                  className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7A2357] checked:border-[#7A2357]"
                 />
                 <span className="text-[#000000] capitalize">{day}</span>
               </label>
@@ -114,7 +114,7 @@ export const RatesAvailabilityStep = ({ data, update }) => {
       {/* Rates */}
       <div id="rates-section" className="flex flex-col gap-4 scroll-mt-24">
         <div>
-          <h3 className="text-2xl font-bold text-[#832161] mb-1">Rates</h3>
+          <h3 className="text-2xl font-bold text-[#7A2357] mb-1">Rates</h3>
         </div>
 
         <div>
@@ -157,7 +157,7 @@ export const RatesAvailabilityStep = ({ data, update }) => {
 
               return (
                 <div key={kind} className="flex flex-col gap-4">
-                  <h4 className="text-[#832161] uppercase tracking-[0.2em] text-sm">{kind === 'incall' ? 'Incall' : 'Outcall'}</h4>
+                  <h4 className="text-[#7A2357] uppercase tracking-[0.2em] text-sm">{kind === 'incall' ? 'Incall' : 'Outcall'}</h4>
 
                   {[
                     { key: '1hour', label: '1 hour' },
@@ -226,7 +226,7 @@ export const RatesAvailabilityStep = ({ data, update }) => {
                   <button
                     type="button"
                     onClick={addExtra}
-                    className="w-full py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#DA4167] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
+                    className="w-full py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#7A2357] hover:text-[#A3243B] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
                     data-testid={`rate-${kind}-add-hour`}
                   >
                     <Plus size={16} />
@@ -246,7 +246,7 @@ export const RatesAvailabilityStep = ({ data, update }) => {
                               setCol({ ...col, taxiEnabled: false, taxi: '' });
                             }
                           }}
-                          className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#DA4167] checked:border-[#DA4167]"
+                          className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#A3243B] checked:border-[#A3243B]"
                           data-testid={`rate-${kind}-taxi-toggle`}
                         />
                         <span className="text-[#000000] text-sm">Taxi not included</span>

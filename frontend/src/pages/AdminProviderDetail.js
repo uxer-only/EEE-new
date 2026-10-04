@@ -126,7 +126,7 @@ export default function AdminProviderDetail() {
         leftSlot={
           <Link
             to="/admin"
-            className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
+            className="flex items-center gap-2 text-[#A1A1AA] hover:text-[#A3243B] transition-colors"
             data-testid="back-to-admin-dashboard"
           >
             <CaretLeft size={18} />

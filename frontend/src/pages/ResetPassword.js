@@ -71,8 +71,8 @@ export default function ResetPassword() {
             </div>
           ) : success ? (
             <div data-testid="reset-success">
-              <div className="w-14 h-14 rounded-full bg-[#832161]/10 border border-[#832161]/30 flex items-center justify-center mb-8">
-                <CheckCircle size={28} className="text-[#832161]" weight="thin" />
+              <div className="w-14 h-14 rounded-full bg-[#7A2357]/10 border border-[#7A2357]/30 flex items-center justify-center mb-8">
+                <CheckCircle size={28} className="text-[#7A2357]" weight="thin" />
               </div>
               <h2 className="text-4xl text-[#F2F0ED] mb-4">
  Password updated

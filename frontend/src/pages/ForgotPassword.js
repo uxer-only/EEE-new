@@ -43,7 +43,7 @@ export default function ForgotPassword() {
         <div className="w-full max-w-md">
           <Link
             to="/login"
-            className="inline-flex items-center gap-2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors mb-10"
+            className="inline-flex items-center gap-2 text-[#A1A1AA] hover:text-[#A3243B] transition-colors mb-10"
             data-testid="back-to-login-link"
           >
             <CaretLeft size={18} />
@@ -88,15 +88,15 @@ export default function ForgotPassword() {
 
               <p className="text-center text-[#A1A1AA] text-sm mt-8">
                 Remembered it?{' '}
-                <Link to="/login" className="text-[#DA4167] hover:opacity-80">
+                <Link to="/login" className="text-[#A3243B] hover:opacity-80">
                   Sign in
                 </Link>
               </p>
             </>
           ) : (
             <div data-testid="forgot-success">
-              <div className="w-14 h-14 rounded-full bg-[#832161]/10 border border-[#832161]/30 flex items-center justify-center mb-8">
-                <EnvelopeSimple size={26} className="text-[#832161]" weight="thin" />
+              <div className="w-14 h-14 rounded-full bg-[#7A2357]/10 border border-[#7A2357]/30 flex items-center justify-center mb-8">
+                <EnvelopeSimple size={26} className="text-[#7A2357]" weight="thin" />
               </div>
               <h2 className="text-4xl text-[#F2F0ED] mb-4">
  Check your email

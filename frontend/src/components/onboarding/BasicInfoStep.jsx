@@ -24,22 +24,22 @@ const MESSAGING_APPS = [
 ];
 
 const inputCls =
-  'w-full bg-white border border-[#dcdade] rounded-lg px-4 py-3 text-[15px] text-[#141416] placeholder:text-[#b7b5bb] focus:border-[#832161] focus:ring-0 focus:outline-none transition-colors';
+  'w-full bg-white border border-[#DFDAE4] rounded-lg px-4 py-3 text-[15px] text-[#1B1820] placeholder:text-[#BDB4C5] focus:border-[#7A2357] focus:ring-0 focus:outline-none focus:shadow-[0_0_0_3px_rgba(122,35,87,0.14)] transition-all';
 
 const Label = ({ children, htmlFor }) => (
-  <label htmlFor={htmlFor} className="block text-[13px] font-semibold text-[#141416] mb-2">{children}</label>
+  <label htmlFor={htmlFor} className="block text-[13px] font-semibold text-[#1B1820] mb-2">{children}</label>
 );
 
 const Card = ({ title, subtitle, tag, children, testId }) => (
-  <div className="bg-white border border-[#ece9ee] rounded-2xl p-6 md:p-8 shadow-[0_1px_3px_rgba(20,20,22,0.04)]" data-testid={testId}>
+  <div className="bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8 shadow-[0_6px_20px_rgba(52,24,60,0.06)]" data-testid={testId}>
     <div className="mb-6">
       <div className="flex items-center gap-3">
-        <h3 className="text-[24px] md:text-[28px] font-bold text-[#141416] leading-tight">{title}</h3>
+        <h3 className="text-[24px] md:text-[28px] font-bold text-[#1B1820] leading-tight">{title}</h3>
         {tag && (
-          <span className="uppercase tracking-wider text-[10px] font-semibold text-[#9a9a9f] border border-[#e3e1e6] rounded px-2 py-0.5">{tag}</span>
+          <span className="uppercase tracking-wider text-[10px] font-semibold text-[#8E8597] border border-[#e3e1e6] rounded px-2 py-0.5">{tag}</span>
         )}
       </div>
-      {subtitle && <p className="text-sm text-[#898989] mt-1.5">{subtitle}</p>}
+      {subtitle && <p className="text-sm text-[#5F5966] mt-1.5">{subtitle}</p>}
     </div>
     {children}
   </div>
@@ -58,7 +58,7 @@ const PillToggle = ({ options, value, onChange, testId, idKey = (o) => o.toLower
           type="button"
           onClick={() => onChange(active ? '' : v)}
           className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
-            active ? 'bg-[#832161] text-white' : 'text-[#52525B] hover:text-[#832161]'
+            active ? 'bg-[#7A2357] text-white' : 'text-[#5F5966] hover:text-[#7A2357]'
           }`}
           data-testid={`${testId}-${idKey(v)}`}
         >
@@ -122,9 +122,9 @@ export default function BasicInfoStep({
                 maxLength={30}
                 data-testid="display-name-input"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#b7b5bb]">{nameLen}/30</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#BDB4C5]">{nameLen}/30</span>
             </div>
-            <p className="text-xs text-[#9a9a9f] mt-1.5">No real name needed.</p>
+            <p className="text-xs text-[#8E8597] mt-1.5">No real name needed.</p>
           </div>
 
           {/* Age */}
@@ -141,9 +141,9 @@ export default function BasicInfoStep({
                 min="18"
                 data-testid="age-input"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#b7b5bb]">years</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#BDB4C5]">years</span>
             </div>
-            <p className="text-xs text-[#9a9a9f] mt-1.5">18 or older.</p>
+            <p className="text-xs text-[#8E8597] mt-1.5">18 or older.</p>
           </div>
 
           {/* Gender */}
@@ -170,12 +170,12 @@ export default function BasicInfoStep({
           </div>
 
           {!isAgencyScoped && (
-            <div className="pt-6 border-t border-[#ece9ee] space-y-6">
+            <div className="pt-6 border-t border-[#ECE8EF] space-y-6">
               {/* City */}
               <div>
                 <Label htmlFor="city">City</Label>
                 <div className="relative">
-                  <MapPin size={18} weight="fill" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#832161]" />
+                  <MapPin size={18} weight="fill" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7A2357]" />
                   <input
                     id="city"
                     type="text"
@@ -186,7 +186,7 @@ export default function BasicInfoStep({
                     data-testid="city-input"
                   />
                 </div>
-                <p className="text-xs text-[#9a9a9f] mt-1.5">Clients only see your city, never your address.</p>
+                <p className="text-xs text-[#8E8597] mt-1.5">Clients only see your city, never your address.</p>
               </div>
 
               {/* Country */}
@@ -203,19 +203,19 @@ export default function BasicInfoStep({
                     <option value="">Select country</option>
                     {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
-                  <CaretDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#52525B] pointer-events-none" />
+                  <CaretDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#5F5966] pointer-events-none" />
                 </div>
               </div>
             </div>
           )}
 
           {/* Describe yourself */}
-          <div className="pt-6 border-t border-[#ece9ee]">
+          <div className="pt-6 border-t border-[#ECE8EF]">
             <div className="flex items-end justify-between mb-2">
               <Label>Describe yourself</Label>
-              <span className="text-xs text-[#b7b5bb]">{bioLen} / 1500</span>
+              <span className="text-xs text-[#BDB4C5]">{bioLen} / 1500</span>
             </div>
-            <p className="text-xs text-[#9a9a9f] -mt-1 mb-2">Shown as "My Essence" on your profile. Tell clients what makes you unique.</p>
+            <p className="text-xs text-[#8E8597] -mt-1 mb-2">Shown as "My Essence" on your profile. Tell clients what makes you unique.</p>
             <textarea
               value={profileData.bio}
               onChange={(e) => setProfileData({ ...profileData, bio: e.target.value.slice(0, 1500) })}
@@ -224,16 +224,16 @@ export default function BasicInfoStep({
               maxLength={1500}
               data-testid="essence-input"
             />
-            <div className="h-1 bg-[#efedf1] rounded-full mt-2 overflow-hidden">
-              <div className="h-full bg-[#832161] rounded-full transition-all" style={{ width: `${Math.min(100, (bioLen / 1500) * 100)}%` }} />
+            <div className="h-1 bg-[#ECE8EF] rounded-full mt-2 overflow-hidden">
+              <div className="h-full bg-[#7A2357] rounded-full transition-all" style={{ width: `${Math.min(100, (bioLen / 1500) * 100)}%` }} />
             </div>
           </div>
 
           {/* Languages */}
-          <div className="pt-6 border-t border-[#ece9ee]">
+          <div className="pt-6 border-t border-[#ECE8EF]">
             <div className="flex items-end justify-between mb-3">
               <Label>Languages you speak</Label>
-              <span className="text-xs font-semibold text-[#832161]">{languages.length} selected</span>
+              <span className="text-xs font-semibold text-[#7A2357]">{languages.length} selected</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {LANGUAGE_PRESETS.map((lang) => {
@@ -245,8 +245,8 @@ export default function BasicInfoStep({
                     onClick={() => toggleLang(lang)}
                     className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
                       selected
-                        ? 'bg-[#832161]/5 border-[#832161] text-[#832161]'
-                        : 'bg-white border-[#dcdade] text-[#52525B] hover:border-[#832161]'
+                        ? 'bg-[#7A2357]/5 border-[#7A2357] text-[#7A2357]'
+                        : 'bg-white border-[#DFDAE4] text-[#5F5966] hover:border-[#7A2357]'
                     }`}
                     data-testid={`basic-lang-${lang.toLowerCase()}`}
                   >
@@ -258,7 +258,7 @@ export default function BasicInfoStep({
               {customLangs.map((lang) => (
                 <span
                   key={lang}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border bg-[#832161]/5 border-[#832161] text-[#832161]"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border bg-[#7A2357]/5 border-[#7A2357] text-[#7A2357]"
                   data-testid={`basic-lang-custom-${lang.toLowerCase()}`}
                 >
                   <Check size={14} weight="bold" />
@@ -269,7 +269,7 @@ export default function BasicInfoStep({
                 </span>
               ))}
               {showAddLanguage ? (
-                <span className="inline-flex items-center gap-1 border border-[#832161] rounded-full pl-3 pr-1 py-1">
+                <span className="inline-flex items-center gap-1 border border-[#7A2357] rounded-full pl-3 pr-1 py-1">
                   <input
                     type="text"
                     value={newLanguage}
@@ -280,13 +280,13 @@ export default function BasicInfoStep({
                     }}
                     autoFocus
                     placeholder="Italian"
-                    className="bg-transparent border-0 focus:ring-0 focus:outline-none text-sm text-[#141416] w-24"
+                    className="bg-transparent border-0 focus:ring-0 focus:outline-none text-sm text-[#1B1820] w-24"
                     data-testid="add-language-input"
                   />
-                  <button type="button" onClick={() => { addCustomLang(); setShowAddLanguage(false); }} className="p-1.5 rounded-full bg-[#832161] text-white" data-testid="add-language-confirm">
+                  <button type="button" onClick={() => { addCustomLang(); setShowAddLanguage(false); }} className="p-1.5 rounded-full bg-[#7A2357] text-white" data-testid="add-language-confirm">
                     <Check size={13} weight="bold" />
                   </button>
-                  <button type="button" onClick={() => { setNewLanguage(''); setShowAddLanguage(false); }} className="p-1.5 text-[#898989] hover:text-red-500" data-testid="add-language-cancel">
+                  <button type="button" onClick={() => { setNewLanguage(''); setShowAddLanguage(false); }} className="p-1.5 text-[#5F5966] hover:text-red-500" data-testid="add-language-cancel">
                     <X size={13} weight="bold" />
                   </button>
                 </span>
@@ -294,7 +294,7 @@ export default function BasicInfoStep({
                 <button
                   type="button"
                   onClick={() => setShowAddLanguage(true)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border border-dashed border-[#c9c7cc] text-[#52525B] hover:border-[#832161] hover:text-[#832161] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border border-dashed border-[#c9c7cc] text-[#5F5966] hover:border-[#7A2357] hover:text-[#7A2357] transition-colors"
                   data-testid="add-language-button"
                 >
                   <Plus size={14} weight="bold" /> Add language
@@ -321,9 +321,9 @@ export default function BasicInfoStep({
                 const raw = profileData.contact.phone || '';
                 const localValue = dial && raw.startsWith(dial) ? raw.slice(dial.length).replace(/^\s+/, '') : raw;
                 return (
-                  <div className="flex items-stretch bg-white border border-[#dcdade] rounded-lg focus-within:border-[#832161] transition-colors overflow-hidden">
+                  <div className="flex items-stretch bg-white border border-[#DFDAE4] rounded-lg focus-within:border-[#7A2357] transition-colors overflow-hidden">
                     {dial && (
-                      <span className="px-4 flex items-center bg-[#f7f5f8] text-[#141416] text-sm font-medium border-r border-[#dcdade] select-none whitespace-nowrap" data-testid="phone-dial-code">
+                      <span className="px-4 flex items-center bg-[#F7F5F9] text-[#1B1820] text-sm font-medium border-r border-[#DFDAE4] select-none whitespace-nowrap" data-testid="phone-dial-code">
                         {dial}
                       </span>
                     )}
@@ -334,7 +334,7 @@ export default function BasicInfoStep({
                         const next = e.target.value.replace(/^\+\d+\s?/, '');
                         setContact({ phone: dial ? `${dial} ${next}`.trim() : next });
                       }}
-                      className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-3 text-[15px] text-[#141416] placeholder:text-[#b7b5bb]"
+                      className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-3 text-[15px] text-[#1B1820] placeholder:text-[#BDB4C5]"
                       placeholder={dial ? '470 12 34 56' : 'Select country first or enter full number'}
                       data-testid="phone-input"
                     />
@@ -347,7 +347,7 @@ export default function BasicInfoStep({
             <div>
               <Label htmlFor="email">E-mail</Label>
               <div className="relative">
-                <EnvelopeSimple size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#898989]" />
+                <EnvelopeSimple size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5F5966]" />
                 <input
                   id="email"
                   type="email"
@@ -363,7 +363,7 @@ export default function BasicInfoStep({
             {/* Messaging apps */}
             <div>
               <Label>Clients can also reach you on</Label>
-              <p className="text-xs text-[#9a9a9f] -mt-1 mb-3">Shown as buttons on your profile. WhatsApp, Signal, SMS and Viber use the number above. Telegram, Line and WeChat need your ID.</p>
+              <p className="text-xs text-[#8E8597] -mt-1 mb-3">Shown as buttons on your profile. WhatsApp, Signal, SMS and Viber use the number above. Telegram, Line and WeChat need your ID.</p>
               <div className="flex flex-wrap gap-2">
                 {MESSAGING_APPS.map((app) => {
                   const selected = profileData.contact[app.key] || false;
@@ -373,7 +373,7 @@ export default function BasicInfoStep({
                       type="button"
                       onClick={() => setContact({ [app.key]: !selected })}
                       className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
-                        selected ? 'bg-[#832161]/5 border-[#832161] text-[#832161]' : 'bg-white border-[#dcdade] text-[#52525B] hover:border-[#832161]'
+                        selected ? 'bg-[#7A2357]/5 border-[#7A2357] text-[#7A2357]' : 'bg-white border-[#DFDAE4] text-[#5F5966] hover:border-[#7A2357]'
                       }`}
                       data-testid={`contact-${app.label.toLowerCase()}`}
                     >
@@ -386,15 +386,15 @@ export default function BasicInfoStep({
 
               {/* Username-based platform IDs */}
               {(profileData.contact.hasTelegram || profileData.contact.hasLine || profileData.contact.hasWechat) && (
-                <div className="mt-4 space-y-4 bg-[#f7f5f8] border border-[#ece9ee] rounded-xl p-4">
+                <div className="mt-4 space-y-4 bg-[#F7F5F9] border border-[#ECE8EF] rounded-xl p-4">
                   {profileData.contact.hasTelegram && (
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[13px] font-semibold text-[#141416]">Telegram username</span>
-                        <span className="uppercase tracking-wider text-[10px] font-semibold text-[#DA4167]">Required</span>
+                        <span className="text-[13px] font-semibold text-[#1B1820]">Telegram username</span>
+                        <span className="uppercase tracking-wider text-[10px] font-semibold text-[#A3243B]">Required</span>
                       </div>
                       <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#898989]">@</span>
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5F5966]">@</span>
                         <input
                           type="text"
                           value={(profileData.contact.telegramId || '').replace(/^@/, '')}
@@ -404,7 +404,7 @@ export default function BasicInfoStep({
                           data-testid="telegram-id-input"
                         />
                       </div>
-                      <p className="text-xs text-[#9a9a9f] mt-1.5">Find it in Telegram &rsaquo; Settings &rsaquo; Username</p>
+                      <p className="text-xs text-[#8E8597] mt-1.5">Find it in Telegram &rsaquo; Settings &rsaquo; Username</p>
                     </div>
                   )}
                   {profileData.contact.hasLine && (

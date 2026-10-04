@@ -11,11 +11,15 @@ Providers pay to list via Subscriptions (Featured listing + optional VIP boost).
 - Backend: FastAPI + MongoDB (Motor) + Pydantic
 - Integrations: Stripe (payments), Resend (email), ipgeolocation.io (IP geo-sort), Google Sign-in (Emergent-managed)
 
-## Theme tokens
-- Primary/CTA & headings: `#DA4167`
-- Secondary: `#832161`
-- Borders: `#dbdadd`
-- Selected (wizard/filters): `bg-[#832161]/5` with `#832161` border
+## Theme tokens (updated 2026-06 to match design mockup)
+- Primary/CTA & headings (wine): `#7A2357` (hover `#5C1A41`)
+- Crimson accent (primary buttons, "Required", focus ring rgba(122,35,87,.14)): `#A3243B` (hover `#7A1A2E`)
+- Primary text: `#1B1820`; secondary text: `#5F5966`; muted/placeholder: `#BDB4C5`
+- Borders: `#DFDAE4`; card border: `#ECE8EF`; surfaces: `#F5F2F7` / `#F7F5F9`
+- Card shadow: `0 6px 20px rgba(52,24,60,0.06)`
+- Font: Manrope (300–800)
+- Selected (filters/pills): `bg-[#7A2357]/5` with `#7A2357` border
+- (Legacy `#832161`/`#DA4167` fully migrated to `#7A2357`/`#A3243B` across all files.)
 
 ## Credentials
 See `/app/memory/test_credentials.md`.

@@ -20,7 +20,7 @@ function Slot({ label, helper, k, required, doc, onRemove, onFile }) {
     <div className="border border-[#27272A] rounded-lg p-4" data-testid={`slot-${k}`}>
       <div className="flex items-baseline justify-between mb-2">
         <p className="text-[#F2F0ED] text-sm font-medium">
-          {label} {required && <span className="text-[#832161]">*</span>}
+          {label} {required && <span className="text-[#7A2357]">*</span>}
         </p>
         {doc && (
           <button
@@ -39,7 +39,7 @@ function Slot({ label, helper, k, required, doc, onRemove, onFile }) {
         </div>
       ) : (
         <label
-          className="flex flex-col items-center justify-center aspect-[4/3] border border-dashed border-[#3F3F46] rounded cursor-pointer hover:border-[#832161] transition-colors"
+          className="flex flex-col items-center justify-center aspect-[4/3] border border-dashed border-[#3F3F46] rounded cursor-pointer hover:border-[#7A2357] transition-colors"
           data-testid={`upload-${k}`}
         >
           <UploadSimple size={28} weight="thin" className="text-[#A1A1AA] mb-2" />
@@ -121,7 +121,7 @@ export default function VerificationModal({ open, onClose, onSubmitted, provider
 
         <div className="p-6 md:p-8">
           <div className="flex items-center gap-3 mb-2">
-            <ShieldCheck size={24} className="text-[#832161]" weight="thin" />
+            <ShieldCheck size={24} className="text-[#7A2357]" weight="thin" />
             <h2 className="text-2xl text-[#F2F0ED]">Verify your identity</h2>
           </div>
           <p className="text-[#A1A1AA] text-sm leading-relaxed mb-6">
@@ -158,9 +158,9 @@ export default function VerificationModal({ open, onClose, onSubmitted, provider
             />
           </div>
 
-          <div className="rounded border border-[#27272A] bg-[#832161]/5 p-4 mb-6">
+          <div className="rounded border border-[#27272A] bg-[#7A2357]/5 p-4 mb-6">
             <div className="flex items-start gap-3">
-              <CheckCircle size={18} weight="fill" className="text-[#832161] mt-0.5 shrink-0" />
+              <CheckCircle size={18} weight="fill" className="text-[#7A2357] mt-0.5 shrink-0" />
               <div className="text-[#A1A1AA] text-xs leading-relaxed">
                 <p className="text-[#F2F0ED] font-medium mb-1">Your privacy is protected</p>
                 <p>Documents are only used for verification and are never shown on your public profile.</p>

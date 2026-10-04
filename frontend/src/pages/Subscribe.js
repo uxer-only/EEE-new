@@ -92,7 +92,7 @@ export default function Subscribe() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <p className="text-[10px] uppercase tracking-[0.3em] text-[#832161] mb-3">Final step</p>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[#7A2357] mb-3">Final step</p>
           <h1 className="text-4xl md:text-5xl text-[#000000] mb-4">
  Activate your profile
  </h1>
@@ -126,7 +126,7 @@ export default function Subscribe() {
         {/* Featured Listing */}
         <section className="card-premium p-6 md:p-8 mb-6" data-testid="featured-section">
           <div className="flex items-start gap-3 mb-6">
-            <Sparkle size={22} weight="fill" className="text-[#832161] mt-1 flex-shrink-0" />
+            <Sparkle size={22} weight="fill" className="text-[#7A2357] mt-1 flex-shrink-0" />
             <div>
               <h2 className="text-2xl text-[#000000]">Featured Listing</h2>
               <p className="text-[#666666] text-sm mt-1">
@@ -143,13 +143,13 @@ export default function Subscribe() {
                 onClick={() => setFeaturedPlan(opt.id)}
                 className={`relative text-left p-6 border-2 transition-all ${
                   featuredPlan === opt.id
-                    ? 'border-[#832161] bg-[#832161]/5'
+                    ? 'border-[#7A2357] bg-[#7A2357]/5'
                     : 'border-[#dbdadd] hover:border-[#898989]'
                 }`}
                 data-testid={`featured-option-${opt.id}`}
               >
                 {opt.badge && (
-                  <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#832161] text-white font-medium">
+                  <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#7A2357] text-white font-medium">
                     {opt.badge}
                   </span>
                 )}
@@ -157,7 +157,7 @@ export default function Subscribe() {
                 <p className="text-4xl text-[#000000] mb-1">€{opt.price}</p>
                 <p className="text-[#898989] text-xs">{opt.perDay}</p>
                 {featuredPlan === opt.id && (
-                  <CheckCircle size={20} weight="fill" className="absolute bottom-4 right-4 text-[#832161]" />
+                  <CheckCircle size={20} weight="fill" className="absolute bottom-4 right-4 text-[#7A2357]" />
                 )}
               </button>
             ))}
@@ -168,7 +168,7 @@ export default function Subscribe() {
         <section className="card-premium p-6 md:p-8 mb-6" data-testid="vip-section">
           <div className="flex items-start justify-between mb-6 gap-4">
             <div className="flex items-start gap-3">
-              <Crown size={22} weight="fill" className="text-[#832161] mt-1 flex-shrink-0" />
+              <Crown size={22} weight="fill" className="text-[#7A2357] mt-1 flex-shrink-0" />
               <div>
                 <h2 className="text-2xl text-[#000000]">
  VIP Boost <span className="text-sm uppercase tracking-[0.2em] text-[#898989] ml-2">Optional</span>
@@ -184,7 +184,7 @@ export default function Subscribe() {
               aria-checked={vipEnabled}
               onClick={() => setVipEnabled(!vipEnabled)}
               className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
-                vipEnabled ? 'bg-[#832161]' : 'bg-[#dbdadd]'
+                vipEnabled ? 'bg-[#7A2357]' : 'bg-[#dbdadd]'
               }`}
               data-testid="vip-toggle"
             >
@@ -205,20 +205,20 @@ export default function Subscribe() {
                   onClick={() => setVipPlan(opt.id)}
                   className={`relative text-left p-5 border-2 transition-all ${
                     vipPlan === opt.id
-                      ? 'border-[#832161] bg-[#832161]/5'
+                      ? 'border-[#7A2357] bg-[#7A2357]/5'
                       : 'border-[#dbdadd] hover:border-[#898989]'
                   }`}
                   data-testid={`vip-option-${opt.id}`}
                 >
                   {opt.badge && (
-                    <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#832161] text-white font-medium">
+                    <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#7A2357] text-white font-medium">
                       {opt.badge}
                     </span>
                   )}
                   <p className="text-[#666666] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
                   <p className="text-3xl text-[#000000]">€{opt.price}</p>
                   {vipPlan === opt.id && (
-                    <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#832161]" />
+                    <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#7A2357]" />
                   )}
                 </button>
               ))}
@@ -262,7 +262,7 @@ export default function Subscribe() {
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
-            className="text-[#898989] text-xs uppercase tracking-[0.2em] hover:text-[#832161]"
+            className="text-[#898989] text-xs uppercase tracking-[0.2em] hover:text-[#7A2357]"
             data-testid="skip-link"
           >
             Back to dashboard

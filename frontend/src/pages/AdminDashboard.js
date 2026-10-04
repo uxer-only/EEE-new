@@ -13,7 +13,7 @@ import TablePagination from '@/components/TablePagination';
 
 const PER_PAGE = 15;
 
-const StatCard = ({ icon: Icon, label, value, accent = '#832161', delay = 0, testId }) => (
+const StatCard = ({ icon: Icon, label, value, accent = '#7A2357', delay = 0, testId }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -27,7 +27,7 @@ const StatCard = ({ icon: Icon, label, value, accent = '#832161', delay = 0, tes
       </div>
       <div>
         <p className="text-[#898989] text-sm">{label}</p>
-        <p className="text-2xl" style={{ color: accent === '#832161' ? '#000000' : accent }}>{value}</p>
+        <p className="text-2xl" style={{ color: accent === '#7A2357' ? '#000000' : accent }}>{value}</p>
       </div>
     </div>
   </motion.div>
@@ -41,9 +41,9 @@ const TabNav = ({ active }) => (
       { to: '/admin/verifications', label: 'Verifications', id: 'verifications' },
     ].map((t) =>
       t.id === active ? (
-        <span key={t.id} className="px-4 py-2 text-sm uppercase tracking-wider border border-[#832161] text-[#832161] rounded" data-testid={`tab-${t.id}`}>{t.label}</span>
+        <span key={t.id} className="px-4 py-2 text-sm uppercase tracking-wider border border-[#7A2357] text-[#7A2357] rounded" data-testid={`tab-${t.id}`}>{t.label}</span>
       ) : (
-        <Link key={t.id} to={t.to} className="px-4 py-2 text-sm uppercase tracking-wider border border-[#dbdadd] text-[#898989] hover:border-[#832161] hover:text-[#832161] rounded transition-colors" data-testid={`tab-${t.id}`}>{t.label}</Link>
+        <Link key={t.id} to={t.to} className="px-4 py-2 text-sm uppercase tracking-wider border border-[#dbdadd] text-[#898989] hover:border-[#7A2357] hover:text-[#7A2357] rounded transition-colors" data-testid={`tab-${t.id}`}>{t.label}</Link>
       )
     )}
   </div>
@@ -121,7 +121,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-[#F0EFF4] dashboard-light">
       <SiteHeader
         leftSlot={
-          <Link to="/" className="flex items-center gap-2 text-[#898989] hover:text-[#832161] transition-colors" data-testid="back-to-site-link">
+          <Link to="/" className="flex items-center gap-2 text-[#898989] hover:text-[#7A2357] transition-colors" data-testid="back-to-site-link">
             <CaretLeft size={18} />
             <span className="uppercase tracking-wider text-xs md:text-sm">Back to Site</span>
           </Link>
@@ -157,8 +157,8 @@ export default function AdminDashboard() {
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <ChartLine size={22} className="text-[#832161]" />
-                <h3 className="text-xl font-bold text-[#832161]">Website Traffic</h3>
+                <ChartLine size={22} className="text-[#7A2357]" />
+                <h3 className="text-xl font-bold text-[#7A2357]">Website Traffic</h3>
               </div>
               <select
                 value={trafficDays}
@@ -174,15 +174,15 @@ export default function AdminDashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="text-center p-4 border border-[#dbdadd] rounded-lg">
-                <p className="text-3xl text-[#832161]">{traffic?.total_views || 0}</p>
+                <p className="text-3xl text-[#7A2357]">{traffic?.total_views || 0}</p>
                 <p className="text-[#898989] text-sm mt-1">Total Page Views</p>
               </div>
               <div className="text-center p-4 border border-[#dbdadd] rounded-lg">
-                <p className="text-3xl text-[#832161]">{traffic?.total_unique_visitors || 0}</p>
+                <p className="text-3xl text-[#7A2357]">{traffic?.total_unique_visitors || 0}</p>
                 <p className="text-[#898989] text-sm mt-1">Unique Visitors</p>
               </div>
               <div className="text-center p-4 border border-[#dbdadd] rounded-lg">
-                <p className="text-3xl text-[#832161]">
+                <p className="text-3xl text-[#7A2357]">
                   {traffic?.daily_stats?.length > 0 ? Math.round(traffic.total_views / traffic.daily_stats.length) : 0}
                 </p>
                 <p className="text-[#898989] text-sm mt-1">Avg. Daily Views</p>
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
                     return (
                       <div key={day.date} className="flex-1 flex flex-col items-center gap-2" data-testid={`traffic-bar-${index}`}>
                         <div
-                          className="w-full bg-[#832161]/70 rounded-t transition-all hover:bg-[#832161]"
+                          className="w-full bg-[#7A2357]/70 rounded-t transition-all hover:bg-[#7A2357]"
                           style={{ height: `${Math.max(height, 5)}%` }}
                           title={`${day.views} views`}
                         ></div>
@@ -218,7 +218,7 @@ export default function AdminDashboard() {
                   {Object.entries(traffic.page_stats).slice(0, 5).map(([pageName, views]) => (
                     <div key={pageName} className="flex justify-between items-center py-2 border-b border-[#dbdadd]">
                       <span className="text-[#000000] text-sm truncate max-w-md">{pageName}</span>
-                      <span className="text-[#832161] font-medium">{views} views</span>
+                      <span className="text-[#7A2357] font-medium">{views} views</span>
                     </div>
                   ))}
                 </div>
@@ -236,8 +236,8 @@ export default function AdminDashboard() {
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
-                <Users size={22} className="text-[#832161]" />
-                <h3 className="text-xl font-bold text-[#832161]">Advertisers</h3>
+                <Users size={22} className="text-[#7A2357]" />
+                <h3 className="text-xl font-bold text-[#7A2357]">Advertisers</h3>
               </div>
               <div className="relative">
                 <MagnifyingGlass size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#898989]" />

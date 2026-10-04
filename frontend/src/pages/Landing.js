@@ -50,8 +50,8 @@ export default function Landing() {
       <Dialog open={showAgeModal} onOpenChange={() => {}}>
         <DialogContent className="bg-[#141416] border-[#27272A] text-[#F2F0ED] max-w-md p-0 overflow-hidden" hideClose>
           <div className="p-6 md:p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#832161]/10 flex items-center justify-center">
-              <Warning size={32} className="text-[#832161]" weight="fill" />
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#7A2357]/10 flex items-center justify-center">
+              <Warning size={32} className="text-[#7A2357]" weight="fill" />
             </div>
             <h2 className="text-2xl text-[#F2F0ED] mb-4">
  Attention
@@ -76,7 +76,7 @@ export default function Landing() {
               </button>
             </div>
             <div className="mt-6 pt-6 border-t border-[#27272A] flex justify-center gap-6 text-xs text-[#52525B]">
-              <Link to="/terms" className="hover:text-[#DA4167] transition-colors">
+              <Link to="/terms" className="hover:text-[#A3243B] transition-colors">
                 Terms, Privacy &amp; Cookies
               </Link>
             </div>

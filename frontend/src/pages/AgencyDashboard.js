@@ -19,7 +19,7 @@ import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import { currencySymbol } from '@/constants/companionData';
 
 const DAY_LABELS = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' };
-const EDIT_BTN = 'inline-flex items-center gap-1.5 text-xs uppercase tracking-wider px-3 py-1.5 border border-[#832161] text-[#832161] hover:bg-[#832161]/10 rounded transition-colors';
+const EDIT_BTN = 'inline-flex items-center gap-1.5 text-xs uppercase tracking-wider px-3 py-1.5 border border-[#7A2357] text-[#7A2357] hover:bg-[#7A2357]/10 rounded transition-colors';
 
 // Agency per-profile plan catalogue (mirrors backend PLANS allowlist)
 const FEATURED = {
@@ -43,12 +43,12 @@ const StatusPill = ({ profile }) => (
       <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" /> Renew · {Math.ceil(profile.grace_days_left)}d left
     </span>
   ) : profile.pending_plan ? (
-    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-[#DA4167]/10 text-[#DA4167]">
-      <span className="w-1.5 h-1.5 rounded-full bg-[#DA4167]" /> Ready to pay
+    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-[#A3243B]/10 text-[#A3243B]">
+      <span className="w-1.5 h-1.5 rounded-full bg-[#A3243B]" /> Ready to pay
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-[#832161]/10 text-[#832161]">
-      <span className="w-1.5 h-1.5 rounded-full bg-[#832161]" /> Draft
+    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-[#7A2357]/10 text-[#7A2357]">
+      <span className="w-1.5 h-1.5 rounded-full bg-[#7A2357]" /> Draft
     </span>
   )
 );
@@ -221,7 +221,7 @@ export default function AgencyDashboard() {
           <div className="flex flex-wrap items-center gap-3 mb-8" data-testid="agency-actions">
             <button
               onClick={() => openEdit(1)}
-              className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#832161] rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-[#dbdadd] text-[#000000] hover:border-[#7A2357] hover:text-[#7A2357] rounded-lg transition-colors"
               data-testid="agency-settings-btn"
             >
               <Gear size={16} /> Agency settings
@@ -229,7 +229,7 @@ export default function AgencyDashboard() {
             <button
               onClick={handleSyncDefaults}
               disabled={syncing}
-              className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-[#dbdadd] text-[#000000] hover:border-[#DA4167] hover:text-[#DA4167] rounded-lg transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-[#dbdadd] text-[#000000] hover:border-[#A3243B] hover:text-[#A3243B] rounded-lg transition-colors disabled:opacity-50"
               data-testid="sync-defaults-btn"
             >
               <ArrowsClockwise size={16} className={syncing ? 'animate-spin' : ''} /> {syncing ? 'Syncing…' : 'Sync defaults to all'}
@@ -239,7 +239,7 @@ export default function AgencyDashboard() {
           {/* Agency profile & defaults — Basic info / Services / Rates / Availability */}
           <div className="mb-10 mt-10 order-1" data-testid="agency-profile-summary">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-[#832161]">Agency profile</h3>
+              <h3 className="text-xl font-bold text-[#7A2357]">Agency profile</h3>
               <span className="text-xs text-[#898989]">Used as the starting point for every new companion profile</span>
             </div>
             <div className="flex flex-col gap-6">
@@ -247,7 +247,7 @@ export default function AgencyDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-basic-info">
                 <div className="flex items-center justify-between gap-3 mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><User size={18} className="text-[#832161]" /></div>
+                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><User size={18} className="text-[#7A2357]" /></div>
                     <h3 className="text-lg font-bold text-[#000000]">Basic Information</h3>
                   </div>
                   <button onClick={() => openEdit(1)} className={EDIT_BTN} data-testid="agency-edit-basic-info-btn"><PencilSimple size={14} /> Edit</button>
@@ -267,7 +267,7 @@ export default function AgencyDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-services">
                 <div className="flex items-center justify-between gap-3 mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><FileText size={18} className="text-[#832161]" /></div>
+                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><FileText size={18} className="text-[#7A2357]" /></div>
                     <h3 className="text-lg font-bold text-[#000000]">Services</h3>
                   </div>
                   <button onClick={() => openEdit(2)} className={EDIT_BTN} data-testid="agency-edit-services-btn"><PencilSimple size={14} /> Edit</button>
@@ -278,7 +278,7 @@ export default function AgencyDashboard() {
                   <div>
                     {inclusiveSvc.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#832161] mb-2">Inclusive ({inclusiveSvc.length})</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#7A2357] mb-2">Inclusive ({inclusiveSvc.length})</p>
                         <div className="flex flex-wrap gap-2">
                           {inclusiveSvc.slice(0, 10).map(([name]) => (<span key={name} className="px-3 py-1 text-xs border border-[#dbdadd] text-[#000000] rounded-full">{name}</span>))}
                           {inclusiveSvc.length > 10 && <span className="px-3 py-1 text-xs text-[#000000]">+{inclusiveSvc.length - 10} more</span>}
@@ -287,9 +287,9 @@ export default function AgencyDashboard() {
                     )}
                     {extraSvc.length > 0 && (
                       <div className={inclusiveSvc.length > 0 ? 'mt-10' : ''}>
-                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#832161] mb-2">Extra ({extraSvc.length})</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#7A2357] mb-2">Extra ({extraSvc.length})</p>
                         <div className="flex flex-wrap gap-2">
-                          {extraSvc.slice(0, 8).map(([name, v]) => (<span key={name} className="px-3 py-1 text-xs border border-[#832161]/40 bg-[#832161]/10 text-[#832161] rounded-full">{name}{v.price && ` · €${v.price}`}</span>))}
+                          {extraSvc.slice(0, 8).map(([name, v]) => (<span key={name} className="px-3 py-1 text-xs border border-[#7A2357]/40 bg-[#7A2357]/10 text-[#7A2357] rounded-full">{name}{v.price && ` · €${v.price}`}</span>))}
                           {extraSvc.length > 8 && <span className="px-3 py-1 text-xs text-[#000000]">+{extraSvc.length - 8} more</span>}
                         </div>
                       </div>
@@ -302,7 +302,7 @@ export default function AgencyDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-rates">
                 <div className="flex items-center justify-between gap-3 mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><CurrencyDollar size={18} className="text-[#832161]" /></div>
+                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><CurrencyDollar size={18} className="text-[#7A2357]" /></div>
                     <h3 className="text-lg font-bold text-[#000000]">Rates</h3>
                   </div>
                   <button onClick={() => openEdit(3)} className={EDIT_BTN} data-testid="agency-edit-rates-btn"><PencilSimple size={14} /> Edit</button>
@@ -313,24 +313,24 @@ export default function AgencyDashboard() {
                     const extras = (Array.isArray(col.extras) ? col.extras : []).slice().sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0));
                     return (
                       <div key={kind}>
-                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#832161] mb-3">{kind}</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#7A2357] mb-3">{kind}</p>
                         <div className="space-y-2">
                           {[{ key: '1hour', label: '1 hour' }, { key: '2hours', label: '2 hours' }, { key: '3hours', label: '3 hours' }].map(({ key, label }) => (
                             <div key={key} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
                               <span className="text-[#000000] text-sm">{label}</span>
-                              <span className="text-[#832161]">{col[key] ? `${sym}${col[key]}` : <span className="text-[#898989] text-sm italic">Not set</span>}</span>
+                              <span className="text-[#7A2357]">{col[key] ? `${sym}${col[key]}` : <span className="text-[#898989] text-sm italic">Not set</span>}</span>
                             </div>
                           ))}
                           {extras.map((extra, i) => (
                             <div key={`e-${i}`} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
                               <span className="text-[#000000] text-sm">{extra.hours} hours</span>
-                              <span className="text-[#832161]">{extra.price ? `${sym}${extra.price}` : <span className="text-[#898989] text-sm italic">Not set</span>}</span>
+                              <span className="text-[#7A2357]">{extra.price ? `${sym}${extra.price}` : <span className="text-[#898989] text-sm italic">Not set</span>}</span>
                             </div>
                           ))}
                           {col.overnight !== undefined && col.overnight !== '' && (
                             <div className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
                               <span className="text-[#000000] text-sm">Overnight</span>
-                              <span className="text-[#832161]">{sym}{col.overnight}</span>
+                              <span className="text-[#7A2357]">{sym}{col.overnight}</span>
                             </div>
                           )}
                         </div>
@@ -344,7 +344,7 @@ export default function AgencyDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-availability">
                 <div className="flex items-center justify-between gap-3 mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><Clock size={18} className="text-[#832161]" /></div>
+                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><Clock size={18} className="text-[#7A2357]" /></div>
                     <div>
                       <h3 className="text-lg font-bold text-[#000000]">Availability</h3>
                       <p className="text-[#000000] text-xs mt-1">{availableDays} of 7 days available</p>
@@ -357,7 +357,7 @@ export default function AgencyDashboard() {
                 ) : (
                   <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
                     {scheduleDays.map(([day, sched]) => (
-                      <div key={day} className={`border p-3 text-center transition-colors ${sched?.available ? 'border-[#832161]/40 bg-[#832161]/5' : 'border-[#dbdadd] opacity-50'}`}>
+                      <div key={day} className={`border p-3 text-center transition-colors ${sched?.available ? 'border-[#7A2357]/40 bg-[#7A2357]/5' : 'border-[#dbdadd] opacity-50'}`}>
                         <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">{DAY_LABELS[day] || day.slice(0, 3)}</p>
                         {sched?.available ? (<><p className="text-[#000000] text-sm">{sched.start}</p><p className="text-[#000000] text-xs">to</p><p className="text-[#000000] text-sm">{sched.end}</p></>) : (<p className="text-[#000000] text-xs italic">Closed</p>)}
                       </div>
@@ -369,11 +369,11 @@ export default function AgencyDashboard() {
           </div>
 
           {/* Companion profiles */}
-          <h3 className="text-xl font-bold text-[#832161] mb-4" data-testid="companion-profiles-heading">Companion profiles</h3>
+          <h3 className="text-xl font-bold text-[#7A2357] mb-4" data-testid="companion-profiles-heading">Companion profiles</h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex items-center gap-4" data-testid="stat-total">
-              <div className="w-11 h-11 rounded-full bg-[#832161]/10 flex items-center justify-center"><Users size={20} className="text-[#832161]" /></div>
+              <div className="w-11 h-11 rounded-full bg-[#7A2357]/10 flex items-center justify-center"><Users size={20} className="text-[#7A2357]" /></div>
               <div><p className="text-2xl font-bold text-[#000000]">{profiles.length}</p><p className="text-xs text-[#898989] uppercase tracking-wider">Total profiles</p></div>
             </div>
             <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex items-center gap-4" data-testid="stat-live">
@@ -381,7 +381,7 @@ export default function AgencyDashboard() {
               <div><p className="text-2xl font-bold text-[#000000]">{activeCount}</p><p className="text-xs text-[#898989] uppercase tracking-wider">Live on Browse</p></div>
             </div>
             <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex items-center gap-4" data-testid="stat-enquiries">
-              <div className="w-11 h-11 rounded-full bg-[#DA4167]/10 flex items-center justify-center"><ChatCircle size={20} className="text-[#DA4167]" /></div>
+              <div className="w-11 h-11 rounded-full bg-[#A3243B]/10 flex items-center justify-center"><ChatCircle size={20} className="text-[#A3243B]" /></div>
               <div><p className="text-2xl font-bold text-[#000000]">{totalUnread}</p><p className="text-xs text-[#898989] uppercase tracking-wider">Unread enquiries</p></div>
             </div>
           </div>
@@ -390,7 +390,7 @@ export default function AgencyDashboard() {
           <div data-testid="agency-profiles-table">
             {profiles.length === 0 ? (
               <div className="rounded-lg border border-[#dbdadd] bg-white p-12 text-center" data-testid="agency-empty-state">
-                <div className="w-14 h-14 rounded-full bg-[#832161]/10 flex items-center justify-center mx-auto mb-4"><Users size={26} className="text-[#832161]" /></div>
+                <div className="w-14 h-14 rounded-full bg-[#7A2357]/10 flex items-center justify-center mx-auto mb-4"><Users size={26} className="text-[#7A2357]" /></div>
                 <h3 className="text-lg font-bold text-[#000000] mb-2">No profiles yet</h3>
                 <p className="text-sm text-[#898989] mb-6 max-w-md mx-auto">Add your first companion profile. It inherits your agency defaults, and you can tailor it individually.</p>
                 <button onClick={() => navigate('/dashboard/profile/new')} className="btn-primary inline-flex items-center gap-2" data-testid="add-first-profile-btn">
@@ -426,7 +426,7 @@ export default function AgencyDashboard() {
                               <div className="flex items-center gap-2">
                                 <p className="font-medium text-[#000000]">{p.display_name}</p>
                                 {p.verified && <CheckCircle size={14} weight="fill" className="text-[#22C55E]" />}
-                                {p.unread_enquiries > 0 && <span className="text-[10px] font-medium px-1.5 py-0.5 bg-[#DA4167] text-white rounded-full">{p.unread_enquiries}</span>}
+                                {p.unread_enquiries > 0 && <span className="text-[10px] font-medium px-1.5 py-0.5 bg-[#A3243B] text-white rounded-full">{p.unread_enquiries}</span>}
                               </div>
                               <div className="lg:hidden mt-1 text-xs text-[#898989] line-clamp-1 max-w-xs">{p.bio || '—'}</div>
                             </div>
@@ -457,10 +457,10 @@ export default function AgencyDashboard() {
                                   type="checkbox"
                                   checked={!!pp.vip_plan}
                                   onChange={(e) => changePlan(p, pp.featured_plan, e.target.checked)}
-                                  className="w-4 h-4 rounded border-[#dbdadd] checked:bg-[#832161] checked:border-[#832161]"
+                                  className="w-4 h-4 rounded border-[#dbdadd] checked:bg-[#7A2357] checked:border-[#7A2357]"
                                   data-testid={`vip-toggle-${p.provider_id}`}
                                 />
-                                <Crown size={13} className="text-[#832161]" /> VIP Boost (+€{FEATURED[pp.featured_plan]?.vip === 'vip_4w' ? 25 : 15})
+                                <Crown size={13} className="text-[#7A2357]" /> VIP Boost (+€{FEATURED[pp.featured_plan]?.vip === 'vip_4w' ? 25 : 15})
                               </label>
                             )}
                           </div>
@@ -535,7 +535,7 @@ export default function AgencyDashboard() {
           <div className="max-w-6xl mx-auto section-padding py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <p className="text-[#000000] font-medium">{queued.length} profile{queued.length === 1 ? '' : 's'} ready to publish</p>
-              <p className="text-sm text-[#898989]">Total due: <span className="font-bold text-[#832161]">€{payableTotal}</span></p>
+              <p className="text-sm text-[#898989]">Total due: <span className="font-bold text-[#7A2357]">€{payableTotal}</span></p>
             </div>
             <button onClick={handleFinishPay} disabled={paying} className="btn-primary flex items-center justify-center gap-2 disabled:opacity-50" data-testid="finish-pay-btn">
               {paying ? 'Redirecting…' : (<>Finish &amp; pay €{payableTotal} <ArrowRight size={18} /></>)}

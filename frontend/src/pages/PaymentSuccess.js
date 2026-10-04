@@ -70,7 +70,7 @@ export default function PaymentSuccess() {
         >
           {state.status === 'pending' && (
             <>
-              <div className="w-12 h-12 border-2 border-[#832161] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+              <div className="w-12 h-12 border-2 border-[#7A2357] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
               <h1 className="text-3xl text-[#F2F0ED] mb-3">Confirming payment…</h1>
               <p className="text-[#A1A1AA] text-sm">Please don't close this window.</p>
             </>

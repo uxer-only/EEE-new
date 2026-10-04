@@ -33,7 +33,7 @@ export const TablePagination = ({ page, perPage, totalItems, onPageChange, testI
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page === 1}
-          className={`${btn} border border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#832161] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-[#dbdadd] disabled:hover:text-[#000000]`}
+          className={`${btn} border border-[#dbdadd] text-[#000000] hover:border-[#7A2357] hover:text-[#7A2357] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-[#dbdadd] disabled:hover:text-[#000000]`}
           data-testid={`${testId}-prev`}
         >
           <CaretLeft size={16} />
@@ -47,8 +47,8 @@ export const TablePagination = ({ page, perPage, totalItems, onPageChange, testI
               onClick={() => onPageChange(p)}
               className={`${btn} border ${
                 p === page
-                  ? 'border-[#832161] bg-[#832161] text-white'
-                  : 'border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#832161]'
+                  ? 'border-[#7A2357] bg-[#7A2357] text-white'
+                  : 'border-[#dbdadd] text-[#000000] hover:border-[#7A2357] hover:text-[#7A2357]'
               }`}
               data-testid={`${testId}-page-${p}`}
             >
@@ -59,7 +59,7 @@ export const TablePagination = ({ page, perPage, totalItems, onPageChange, testI
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page === totalPages}
-          className={`${btn} border border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#832161] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-[#dbdadd] disabled:hover:text-[#000000]`}
+          className={`${btn} border border-[#dbdadd] text-[#000000] hover:border-[#7A2357] hover:text-[#7A2357] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-[#dbdadd] disabled:hover:text-[#000000]`}
           data-testid={`${testId}-next`}
         >
           <CaretRight size={16} />

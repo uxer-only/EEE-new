@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Manrope:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -67,7 +67,7 @@ body::before {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #832161;
+  background: #7A2357;
   border-radius: 3px;
 }
 

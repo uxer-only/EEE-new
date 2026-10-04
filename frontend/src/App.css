@@ -10,7 +10,7 @@
 
 /* Button styles */
 .btn-primary {
-  @apply inline-flex items-center justify-center h-[50px] rounded-[8px] bg-[#DA4167] text-[#FFFFFF] hover:bg-[#c33658] px-8 uppercase tracking-widest text-sm font-semibold transition-all duration-300 ease-out;
+  @apply inline-flex items-center justify-center h-[50px] rounded-[8px] bg-[#A3243B] text-[#FFFFFF] hover:bg-[#7A1A2E] px-8 uppercase tracking-widest text-sm font-semibold transition-all duration-300 ease-out;
 }
 
 .btn-secondary {
@@ -18,16 +18,16 @@
 }
 
 .dashboard-light .btn-secondary {
-  @apply border-[#832161] text-[#832161] hover:bg-[#832161]/10;
+  @apply border-[#7A2357] text-[#7A2357] hover:bg-[#7A2357]/10;
 }
 
 .btn-ghost {
-  @apply text-[#F0EFF4] hover:text-[#DA4167] uppercase tracking-wider text-xs transition-colors;
+  @apply text-[#F0EFF4] hover:text-[#A3243B] uppercase tracking-wider text-xs transition-colors;
 }
 
 /* Input styles */
 .input-premium {
-  @apply bg-transparent border border-[#52525B] focus:border-[#DA4167] px-4 py-3 text-[13px] text-[#A1A1AA] placeholder:text-[#9CA3AF] placeholder:italic focus:ring-0 focus:outline-none transition-colors;
+  @apply bg-transparent border border-[#52525B] focus:border-[#A3243B] px-4 py-3 text-[13px] text-[#A1A1AA] placeholder:text-[#9CA3AF] placeholder:italic focus:ring-0 focus:outline-none transition-colors;
 }
 
 select.input-premium {
@@ -50,14 +50,14 @@ select.input-premium option {
   @apply bg-white text-[#000000] border-[#898989] placeholder:text-gray-400;
 }
 .dashboard-light .input-premium:focus {
-  @apply border-[#DA4167];
+  @apply border-[#A3243B];
 }
 .dashboard-light select.input-premium option {
   @apply bg-white text-[#000000];
 }
 
 .input-helper {
-  @apply text-xs text-[#DA4167] mt-1 block;
+  @apply text-xs text-[#A3243B] mt-1 block;
 }
 
 /* Global checkbox styles: transparent background inheriting parent, grey border matching inputs */
@@ -77,11 +77,11 @@ input[type="checkbox"] {
   transition: background-color 0.2s ease, border-color 0.2s ease !important;
 }
 input[type="checkbox"]:hover {
-  border-color: #DA4167 !important;
+  border-color: #A3243B !important;
 }
 input[type="checkbox"]:checked {
-  background-color: #DA4167 !important;
-  border-color: #DA4167 !important;
+  background-color: #A3243B !important;
+  border-color: #A3243B !important;
 }
 input[type="checkbox"]:checked::after {
   content: '';
@@ -102,16 +102,16 @@ input[type="checkbox"]:focus {
   border-color: #898989 !important;
 }
 .dashboard-light input[type="checkbox"]:hover {
-  border-color: #DA4167 !important;
+  border-color: #A3243B !important;
 }
 
 /* Card styles */
 .card-premium {
-  @apply bg-[#141416] border border-[#27272A] hover:border-[#832161] transition-all duration-300;
+  @apply bg-[#141416] border border-[#27272A] hover:border-[#7A2357] transition-all duration-300;
 }
 
 .dashboard-light .card-premium {
-  @apply bg-[#FFFFFF] border-[#dbdadd] hover:border-[#832161];
+  @apply bg-[#FFFFFF] border-[#dbdadd] hover:border-[#7A2357];
 }
 
 /* Provider card hover effect */
@@ -165,7 +165,7 @@ input[type="checkbox"]:focus {
 }
 
 .message-bubble.sent {
-  @apply bg-[#832161] text-[#0A0A0C] ml-auto;
+  @apply bg-[#7A2357] text-[#0A0A0C] ml-auto;
 }
 
 .message-bubble.received {
@@ -186,7 +186,7 @@ input[type="checkbox"]:focus {
 }
 
 .status-completed {
-  @apply bg-[#832161] text-[#0A0A0C];
+  @apply bg-[#7A2357] text-[#0A0A0C];
 }
 
 .status-cancelled {

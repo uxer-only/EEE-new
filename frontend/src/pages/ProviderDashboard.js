@@ -690,7 +690,7 @@ export default function ProviderDashboard() {
                 {isAgencyScoped && (
                   <button
                     onClick={() => navigate('/dashboard')}
-                    className="flex items-center gap-1 text-sm text-[#832161] hover:text-[#DA4167] transition-colors mb-3"
+                    className="flex items-center gap-1 text-sm text-[#7A2357] hover:text-[#A3243B] transition-colors mb-3"
                     data-testid="back-to-agency-btn"
                   >
                     <CaretLeft size={16} /> Back to all profiles
@@ -735,9 +735,9 @@ export default function ProviderDashboard() {
                     </Link>
                   </div>
                 ) : !subscription?.featured_active ? (
-                  <div className="rounded-lg border border-[#832161]/40 bg-gradient-to-r from-[#832161]/10 to-transparent p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="rounded-lg border border-[#7A2357]/40 bg-gradient-to-r from-[#7A2357]/10 to-transparent p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-start gap-3">
-                      <Crown size={22} weight="fill" className="text-[#832161] mt-0.5 shrink-0" />
+                      <Crown size={22} weight="fill" className="text-[#7A2357] mt-0.5 shrink-0" />
                       <div>
                         <p className="text-[#000000] font-medium mb-1">Activate your profile</p>
                         <p className="text-[#000000] text-sm">
@@ -753,7 +753,7 @@ export default function ProviderDashboard() {
                   <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-start gap-3">
                       {subscription.vip_active ? (
-                        <Crown size={22} weight="fill" className="text-[#832161] mt-0.5 shrink-0" />
+                        <Crown size={22} weight="fill" className="text-[#7A2357] mt-0.5 shrink-0" />
                       ) : (
                         <CheckCircle size={22} weight="fill" className="text-[#22C55E] mt-0.5 shrink-0" />
                       )}
@@ -785,7 +785,7 @@ export default function ProviderDashboard() {
                               }
                             }}
                             className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${
-                              subscription.auto_renew !== false ? 'bg-[#DA4167]' : 'bg-[#dbdadd]'
+                              subscription.auto_renew !== false ? 'bg-[#A3243B]' : 'bg-[#dbdadd]'
                             }`}
                             data-testid="auto-renew-summary-toggle"
                           >
@@ -839,10 +839,10 @@ export default function ProviderDashboard() {
               if (s === 'submitted') {
                 return (
                   <div
-                    className="mb-8 rounded-lg border border-[#832161]/30 bg-[#832161]/5 p-5 flex items-start gap-4"
+                    className="mb-8 rounded-lg border border-[#7A2357]/30 bg-[#7A2357]/5 p-5 flex items-start gap-4"
                     data-testid="verification-banner-submitted"
                   >
-                    <ShieldCheck size={22} weight="thin" className="text-[#832161] mt-0.5 shrink-0" />
+                    <ShieldCheck size={22} weight="thin" className="text-[#7A2357] mt-0.5 shrink-0" />
                     <div>
                       <p className="text-[#000000] font-medium mb-1">Verification under review</p>
                       <p className="text-[#000000] text-sm">We&apos;re reviewing your documents — you&apos;ll receive an email within 24 hours. Your profile becomes visible to clients once approved.</p>
@@ -880,11 +880,11 @@ export default function ProviderDashboard() {
               // pending (not submitted)
               return (
                 <div
-                  className="mb-8 rounded-lg border border-[#832161]/40 bg-gradient-to-br from-[#832161]/10 to-transparent p-6"
+                  className="mb-8 rounded-lg border border-[#7A2357]/40 bg-gradient-to-br from-[#7A2357]/10 to-transparent p-6"
                   data-testid="verification-banner-pending"
                 >
                   <div className="flex items-start gap-4">
-                    <ShieldCheck size={24} weight="thin" className="text-[#832161] mt-1 shrink-0" />
+                    <ShieldCheck size={24} weight="thin" className="text-[#7A2357] mt-1 shrink-0" />
                     <div className="flex-1">
                       <p className="text-[#000000] font-medium mb-1">Unlock the Verified badge</p>
                       <p className="text-[#000000] text-sm mb-4 leading-relaxed">
@@ -909,7 +909,7 @@ export default function ProviderDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-basic-info">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <User size={18} className="text-[#832161]" />
+                    <User size={18} className="text-[#7A2357]" />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 1</p>
@@ -951,7 +951,7 @@ export default function ProviderDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-photos">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <Camera size={18} className="text-[#832161]" />
+                    <Camera size={18} className="text-[#7A2357]" />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 2</p>
@@ -988,7 +988,7 @@ export default function ProviderDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-services">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <FileText size={18} className="text-[#832161]" />
+                    <FileText size={18} className="text-[#7A2357]" />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 3</p>
@@ -1012,7 +1012,7 @@ export default function ProviderDashboard() {
                     )}
                     {inclusiveServices.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#832161] mb-2">Inclusive ({inclusiveServices.length})</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#7A2357] mb-2">Inclusive ({inclusiveServices.length})</p>
                         <div className="flex flex-wrap gap-2">
                           {inclusiveServices.slice(0, 8).map(([name]) => (
                             <span key={name} className="px-3 py-1 text-xs border border-[#dbdadd] text-[#000000] rounded-full">{name}</span>
@@ -1023,10 +1023,10 @@ export default function ProviderDashboard() {
                     )}
                     {extraServices.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#832161] mb-2">Extra ({extraServices.length})</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#7A2357] mb-2">Extra ({extraServices.length})</p>
                         <div className="flex flex-wrap gap-2">
                           {extraServices.slice(0, 6).map(([name, v]) => (
-                            <span key={name} className="px-3 py-1 text-xs border border-[#832161]/40 bg-[#832161]/10 text-[#832161] rounded-full">
+                            <span key={name} className="px-3 py-1 text-xs border border-[#7A2357]/40 bg-[#7A2357]/10 text-[#7A2357] rounded-full">
                               {name} {v.price && `· €${v.price}`}
                             </span>
                           ))}
@@ -1051,7 +1051,7 @@ export default function ProviderDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-rates">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <CurrencyDollar size={18} className="text-[#832161]" />
+                    <CurrencyDollar size={18} className="text-[#7A2357]" />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 4</p>
@@ -1068,7 +1068,7 @@ export default function ProviderDashboard() {
                       .sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0));
                     return (
                       <div key={kind}>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#832161] mb-3">{kind}</p>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#7A2357] mb-3">{kind}</p>
                         <div className="space-y-2">
                           {[
                             { key: '1hour', label: '1 hour' },
@@ -1079,7 +1079,7 @@ export default function ProviderDashboard() {
                             return (
                               <div key={key} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
                                 <span className="text-[#000000] text-sm">{label}</span>
-                                <span className="text-[#832161]">
+                                <span className="text-[#7A2357]">
                                   {v ? `${sym}${v}` : <span className="text-[#000000] text-sm italic">Not set</span>}
                                 </span>
                               </div>
@@ -1088,7 +1088,7 @@ export default function ProviderDashboard() {
                           {extras.map((extra, i) => (
                             <div key={`extra-${i}`} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
                               <span className="text-[#000000] text-sm">{extra.hours} hours</span>
-                              <span className="text-[#832161]">
+                              <span className="text-[#7A2357]">
                                 {extra.price ? `${sym}${extra.price}` : <span className="text-[#000000] text-sm italic">Not set</span>}
                               </span>
                             </div>
@@ -1096,7 +1096,7 @@ export default function ProviderDashboard() {
                           {col.overnight !== undefined && col.overnight !== '' && (
                             <div className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
                               <span className="text-[#000000] text-sm">Overnight</span>
-                              <span className="text-[#832161]">{sym}{col.overnight}</span>
+                              <span className="text-[#7A2357]">{sym}{col.overnight}</span>
                             </div>
                           )}
                         </div>
@@ -1119,7 +1119,7 @@ export default function ProviderDashboard() {
               <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-availability">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <Clock size={18} className="text-[#832161]" />
+                    <Clock size={18} className="text-[#7A2357]" />
                   </div>
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 4</p>
@@ -1132,7 +1132,7 @@ export default function ProviderDashboard() {
                     <div
                       key={day}
                       className={`border p-3 text-center transition-colors ${
-                        sched?.available ? 'border-[#832161]/40 bg-[#832161]/5' : 'border-[#dbdadd] opacity-50'
+                        sched?.available ? 'border-[#7A2357]/40 bg-[#7A2357]/5' : 'border-[#dbdadd] opacity-50'
                       }`}
                     >
                       <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">{dayLabels[day] || day.slice(0, 3)}</p>
@@ -1212,7 +1212,7 @@ export default function ProviderDashboard() {
           mode === 'edit' ? (
             <button
               onClick={cancelEdit}
-              className="flex items-center gap-2 text-[#000000] hover:text-[#DA4167] transition-colors"
+              className="flex items-center gap-2 text-[#000000] hover:text-[#A3243B] transition-colors"
               data-testid="back-to-overview-btn"
             >
               <CaretLeft size={18} />
@@ -1221,7 +1221,7 @@ export default function ProviderDashboard() {
           ) : isAgencyScoped ? (
             <button
               onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-2 text-[#000000] hover:text-[#DA4167] transition-colors"
+              className="flex items-center gap-2 text-[#000000] hover:text-[#A3243B] transition-colors"
               data-testid="back-to-agency-btn"
             >
               <CaretLeft size={18} />
@@ -1237,34 +1237,34 @@ export default function ProviderDashboard() {
           {/* Page header */}
           {mode === 'edit' ? (
             <div className="text-center mb-10">
-              <h2 className="text-4xl font-bold text-[#141416] mb-2">Edit {steps[currentStep - 1]?.title}</h2>
-              <p className="text-[#898989]">Update this section of your profile</p>
+              <h2 className="text-4xl font-bold text-[#1B1820] mb-2">Edit {steps[currentStep - 1]?.title}</h2>
+              <p className="text-[#5F5966]">Update this section of your profile</p>
             </div>
           ) : (
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#832161] mb-2" data-testid="step-indicator-label">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7A2357] mb-2" data-testid="step-indicator-label">
                   Step {currentStep} of {steps.length} · About 6 minutes left
                 </p>
-                <h2 className="text-[30px] md:text-4xl font-bold text-[#141416] leading-tight mb-1">Complete your profile</h2>
-                <p className="text-[#898989]">Set up your provider profile to start receiving enquiries.</p>
+                <h2 className="text-[30px] md:text-4xl font-bold text-[#1B1820] leading-tight mb-1">Complete your profile</h2>
+                <p className="text-[#5F5966]">Set up your provider profile to start receiving enquiries.</p>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
                 {draftStatus !== 'idle' && (
-                  <span className="flex items-center gap-1.5 text-sm text-[#898989]" data-testid="draft-status">
+                  <span className="flex items-center gap-1.5 text-sm text-[#5F5966]" data-testid="draft-status">
                     {draftStatus === 'saving' ? (
                       <><CircleNotch size={16} className="animate-spin" /> Saving…</>
                     ) : draftStatus === 'error' ? (
-                      <span className="text-[#DA4167]">Couldn't save</span>
+                      <span className="text-[#A3243B]">Couldn't save</span>
                     ) : (
-                      <><CheckCircle size={16} weight="fill" className="text-[#832161]" /> Draft saved</>
+                      <><CheckCircle size={16} weight="fill" className="text-[#7A2357]" /> Draft saved</>
                     )}
                   </span>
                 )}
                 <button
                   type="button"
                   onClick={handleSaveExit}
-                  className="px-5 py-2.5 rounded-lg border border-[#dcdade] bg-white text-sm font-semibold text-[#141416] hover:border-[#832161] hover:text-[#832161] transition-colors"
+                  className="px-5 py-2.5 rounded-lg border border-[#DFDAE4] bg-white text-sm font-semibold text-[#1B1820] hover:border-[#7A2357] hover:text-[#7A2357] transition-colors"
                   data-testid="save-exit-button"
                 >
                   Save &amp; exit
@@ -1287,18 +1287,18 @@ export default function ProviderDashboard() {
                   data-testid={`step-${step.id}`}
                 >
                   <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-semibold border-2 transition-colors ${
-                    active ? 'border-[#832161] text-[#832161] bg-white'
-                    : done ? 'border-[#832161] bg-[#832161] text-white'
-                    : 'border-[#dcdade] text-[#b7b5bb] bg-white'
+                    active ? 'border-[#7A2357] text-[#7A2357] bg-white'
+                    : done ? 'border-[#7A2357] bg-[#7A2357] text-white'
+                    : 'border-[#DFDAE4] text-[#BDB4C5] bg-white'
                   }`}>
                     {done ? <Check size={14} weight="bold" /> : step.id}
                   </span>
                   <span className={`text-sm whitespace-nowrap ${
-                    active ? 'font-semibold text-[#141416]' : done ? 'text-[#141416]' : 'text-[#b7b5bb]'
+                    active ? 'font-semibold text-[#1B1820]' : done ? 'text-[#1B1820]' : 'text-[#BDB4C5]'
                   }`}>{step.title}</span>
                 </button>
                 {index < steps.length - 1 && (
-                  <div className="w-8 md:w-14 h-px mx-3 bg-[#e3e1e6]" />
+                  <div className="w-8 md:w-14 h-px mx-3 bg-[#DFDAE4]" />
                 )}
               </div>
               );
@@ -1331,7 +1331,7 @@ export default function ProviderDashboard() {
             {/* Step 2: Photos & Video's */}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <h3 className="text-2xl font-bold text-[#832161] mb-6">Photos & Video&apos;s</h3>
+                <h3 className="text-2xl font-bold text-[#7A2357] mb-6">Photos & Video&apos;s</h3>
                 <p className="text-[#000000] text-sm mb-6">Add photos and videos to your profile. Media will be reviewed before being published.</p>
 
                 {/* Upload Zone */}
@@ -1341,8 +1341,8 @@ export default function ProviderDashboard() {
                   onDrop={handleDrop}
                   className={`border-2 border-dashed rounded-lg p-12 text-center transition-all cursor-pointer ${
                     isDragging 
-                      ? 'border-[#832161] bg-[#832161]/5' 
-                      : 'border-[#dbdadd] hover:border-[#832161]'
+                      ? 'border-[#7A2357] bg-[#7A2357]/5' 
+                      : 'border-[#dbdadd] hover:border-[#7A2357]'
                   }`}
                   onClick={() => document.getElementById('file-upload').click()}
                   data-testid="upload-zone"
@@ -1355,7 +1355,7 @@ export default function ProviderDashboard() {
                     onChange={handleFileInput}
                     className="hidden"
                   />
-                  <UploadSimple size={48} className={`mx-auto mb-4 transition-colors ${isDragging ? 'text-[#832161]' : 'text-[#000000]'}`} />
+                  <UploadSimple size={48} className={`mx-auto mb-4 transition-colors ${isDragging ? 'text-[#7A2357]' : 'text-[#000000]'}`} />
                   <p className="text-[#000000] text-lg mb-2">
                     {isDragging ? 'Drop files here' : 'Drag & drop your files here'}
                   </p>
@@ -1394,7 +1394,7 @@ export default function ProviderDashboard() {
 
                           {/* Cover badge */}
                           {idx === 0 && (
-                            <span className="absolute top-2 left-2 px-2 py-1 bg-[#832161] text-[#0A0A0C] text-[10px] uppercase tracking-wider font-medium rounded-sm">
+                            <span className="absolute top-2 left-2 px-2 py-1 bg-[#7A2357] text-[#0A0A0C] text-[10px] uppercase tracking-wider font-medium rounded-sm">
                               Cover
                             </span>
                           )}
@@ -1427,7 +1427,7 @@ export default function ProviderDashboard() {
                               type="button"
                               onClick={(e) => { e.stopPropagation(); movePhoto(idx, idx - 1); }}
                               disabled={idx === 0}
-                              className="w-7 h-7 bg-black/70 hover:bg-[#832161] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
+                              className="w-7 h-7 bg-black/70 hover:bg-[#7A2357] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
                               data-testid={`photo-move-left-${idx}`}
                               aria-label="Move left"
                             >
@@ -1437,7 +1437,7 @@ export default function ProviderDashboard() {
                               type="button"
                               onClick={(e) => { e.stopPropagation(); movePhoto(idx, idx + 1); }}
                               disabled={idx === profileData.photos.length - 1}
-                              className="w-7 h-7 bg-black/70 hover:bg-[#832161] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
+                              className="w-7 h-7 bg-black/70 hover:bg-[#7A2357] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
                               data-testid={`photo-move-right-${idx}`}
                               aria-label="Move right"
                             >
@@ -1508,7 +1508,7 @@ export default function ProviderDashboard() {
             {/* Step 3: Services */}
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h3 className="text-2xl font-bold text-[#832161] mb-6">Services</h3>
+                <h3 className="text-2xl font-bold text-[#7A2357] mb-6">Services</h3>
                 
                 {/* Type of Companionship */}
                 <div className="mb-8">
@@ -1519,8 +1519,8 @@ export default function ProviderDashboard() {
                       onClick={() => setProfileData({ ...profileData, companionshipType: 'escort' })}
                       className={`px-6 py-3 border text-sm transition-all ${
                         profileData.companionshipType === 'escort'
-                          ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                          : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                          ? 'border-[#7A2357] bg-[#7A2357]/5 text-[#7A2357]'
+                          : 'border-[#898989] text-[#898989] hover:border-[#7A2357]'
                       }`}
                     >
                       Escort
@@ -1530,8 +1530,8 @@ export default function ProviderDashboard() {
                       onClick={() => setProfileData({ ...profileData, companionshipType: 'erotic-massage' })}
                       className={`px-6 py-3 border text-sm transition-all ${
                         profileData.companionshipType === 'erotic-massage'
-                          ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                          : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                          ? 'border-[#7A2357] bg-[#7A2357]/5 text-[#7A2357]'
+                          : 'border-[#898989] text-[#898989] hover:border-[#7A2357]'
                       }`}
                     >
                       Erotic Massage
@@ -1540,13 +1540,13 @@ export default function ProviderDashboard() {
                 </div>
 
                 {/* Accepts people with disabilities */}
-                <div className="rounded-lg border border-[#832161]/30 bg-[#832161]/5 p-4">
+                <div className="rounded-lg border border-[#7A2357]/30 bg-[#7A2357]/5 p-4">
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={!!profileData.accepts_disabilities}
                       onChange={(e) => setProfileData({ ...profileData, accepts_disabilities: e.target.checked })}
-                      className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+                      className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7A2357] checked:border-[#7A2357]"
                       data-testid="accepts-disabilities-checkbox"
                     />
                     <span className="text-[#000000] font-medium">We accept people with disabilities</span>
@@ -1576,7 +1576,7 @@ export default function ProviderDashboard() {
                           key={service} 
                           className={`grid grid-cols-12 gap-4 px-4 py-3 items-center ${
                             index !== serviceOptions.length - 1 ? 'border-b border-[#dbdadd]' : ''
-                          } ${serviceData.type ? 'bg-[#832161]/5' : ''}`}
+                          } ${serviceData.type ? 'bg-[#7A2357]/5' : ''}`}
                         >
                           {/* Service Name */}
                           <div className="col-span-5 text-[#000000] text-sm">{service}</div>
@@ -1597,8 +1597,8 @@ export default function ProviderDashboard() {
                               })}
                               className={`px-3 h-9 text-xs border transition-all ${
                                 serviceData.type === 'inclusive'
-                                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                                  : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                                  ? 'border-[#7A2357] bg-[#7A2357]/5 text-[#7A2357]'
+                                  : 'border-[#898989] text-[#898989] hover:border-[#7A2357]'
                               }`}
                             >
                               Inclusive
@@ -1617,8 +1617,8 @@ export default function ProviderDashboard() {
                               })}
                               className={`px-3 h-9 text-xs border transition-all ${
                                 serviceData.type === 'extra'
-                                  ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                                  : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                                  ? 'border-[#7A2357] bg-[#7A2357]/5 text-[#7A2357]'
+                                  : 'border-[#898989] text-[#898989] hover:border-[#7A2357]'
                               }`}
                             >
                               Extra
@@ -1709,7 +1709,7 @@ export default function ProviderDashboard() {
                 {/* Availability */}
                 <div id="availability-section" className="flex flex-col gap-4 scroll-mt-24">
                   <div>
-                    <h3 className="text-2xl font-bold text-[#832161] mb-1">Availability</h3>
+                    <h3 className="text-2xl font-bold text-[#7A2357] mb-1">Availability</h3>
                     <p className="text-[#000000] text-sm">Set your availability for each day</p>
                   </div>
 
@@ -1728,8 +1728,8 @@ export default function ProviderDashboard() {
                           onClick={() => setProfileData({ ...profileData, availability_type: opt.value })}
                           className={`py-3 px-4 border text-sm uppercase tracking-wider transition-all ${
                             profileData.availability_type === opt.value
-                              ? 'border-[#832161] bg-[#832161]/5 text-[#832161]'
-                              : 'border-[#898989] text-[#898989] hover:border-[#832161]'
+                              ? 'border-[#7A2357] bg-[#7A2357]/5 text-[#7A2357]'
+                              : 'border-[#898989] text-[#898989] hover:border-[#7A2357]'
                           }`}
                           data-testid={`availability-type-${opt.value}`}
                         >
@@ -1761,7 +1761,7 @@ export default function ProviderDashboard() {
                           schedule: updatedSchedule
                         });
                       }}
-                      className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+                      className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7A2357] checked:border-[#7A2357]"
                     />
                     <span className="text-[#000000]">Available 24/7</span>
                   </label>
@@ -1775,7 +1775,7 @@ export default function ProviderDashboard() {
                         ...profileData,
                         booking_advance: e.target.checked
                       })}
-                      className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+                      className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7A2357] checked:border-[#7A2357]"
                       data-testid="booking-advance-checkbox"
                     />
                     <span className="text-[#000000]">Booking in advance necessary</span>
@@ -1796,7 +1796,7 @@ export default function ProviderDashboard() {
                                 [day]: { ...schedule, available: e.target.checked }
                               }
                             })}
-                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+                            className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7A2357] checked:border-[#7A2357]"
                           />
                           <span className="text-[#000000] capitalize">{day}</span>
                         </label>
@@ -1840,7 +1840,7 @@ export default function ProviderDashboard() {
                 {/* Rates */}
                 <div id="rates-section" className="flex flex-col gap-4 scroll-mt-24">
                   <div>
-                    <h3 className="text-2xl font-bold text-[#832161] mb-1">Rates</h3>
+                    <h3 className="text-2xl font-bold text-[#7A2357] mb-1">Rates</h3>
                   </div>
 
                   {/* Currency selector */}
@@ -1893,7 +1893,7 @@ export default function ProviderDashboard() {
 
                       return (
                         <div key={kind} className="flex flex-col gap-4">
-                          <h4 className="text-[#832161] uppercase tracking-[0.2em] text-sm">
+                          <h4 className="text-[#7A2357] uppercase tracking-[0.2em] text-sm">
  {kind === 'incall' ? 'Incall' : 'Outcall'}
  </h4>
 
@@ -1966,7 +1966,7 @@ export default function ProviderDashboard() {
                           <button
                             type="button"
                             onClick={addExtra}
-                            className="w-full py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#DA4167] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
+                            className="w-full py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#7A2357] hover:text-[#A3243B] transition-colors flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
                             data-testid={`rate-${kind}-add-hour`}
                           >
                             <Plus size={16} />
@@ -1988,7 +1988,7 @@ export default function ProviderDashboard() {
                                       setKey('taxi', '');
                                     }
                                   }}
-                                  className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#DA4167] checked:border-[#DA4167]"
+                                  className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#A3243B] checked:border-[#A3243B]"
                                   data-testid={`rate-${kind}-taxi-toggle`}
                                 />
                                 <span className="text-[#000000] text-sm">Taxi not included</span>
@@ -2023,8 +2023,8 @@ export default function ProviderDashboard() {
             {currentStep === 5 && (
               <div className="space-y-8">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#832161] mb-3">Final step</p>
-                  <h3 className="text-2xl text-[#832161] mb-2">Activate your profile</h3>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#7A2357] mb-3">Final step</p>
+                  <h3 className="text-2xl text-[#7A2357] mb-2">Activate your profile</h3>
                   <p className="text-[#000000] text-sm max-w-xl">
                     Your profile is saved. A Featured listing makes you visible to clients on Browse. Add VIP Boost to appear at the top of every search.
                   </p>
@@ -2033,7 +2033,7 @@ export default function ProviderDashboard() {
                 {/* Featured */}
                 <div className="card-premium p-6">
                   <div className="flex items-start gap-3 mb-5">
-                    <Sparkle size={20} weight="fill" className="text-[#832161] mt-1 flex-shrink-0" />
+                    <Sparkle size={20} weight="fill" className="text-[#7A2357] mt-1 flex-shrink-0" />
                     <div>
                       <h4 className="text-xl text-[#000000]">Featured listing</h4>
                       <p className="text-[#000000] text-sm">Required to be visible on Browse.</p>
@@ -2047,13 +2047,13 @@ export default function ProviderDashboard() {
                         onClick={() => setPlanFeatured(opt.id)}
                         className={`relative text-left p-5 border-2 transition-all ${
                           planFeatured === opt.id
-                            ? 'border-[#832161] bg-[#832161]/5'
-                            : 'border-[#dbdadd] hover:border-[#832161]'
+                            ? 'border-[#7A2357] bg-[#7A2357]/5'
+                            : 'border-[#dbdadd] hover:border-[#7A2357]'
                         }`}
                         data-testid={`featured-option-${opt.id}`}
                       >
                         {opt.badge && (
-                          <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#832161] text-[#FFFFFF] font-medium">
+                          <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#7A2357] text-[#FFFFFF] font-medium">
                             {opt.badge}
                           </span>
                         )}
@@ -2061,7 +2061,7 @@ export default function ProviderDashboard() {
                         <p className="text-3xl text-[#000000] mb-1">€{opt.price}</p>
                         <p className="text-[#000000] text-xs">{opt.perDay}</p>
                         {planFeatured === opt.id && (
-                          <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#832161]" />
+                          <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#7A2357]" />
                         )}
                       </button>
                     ))}
@@ -2072,7 +2072,7 @@ export default function ProviderDashboard() {
                 <div className="card-premium p-6">
                   <div className="flex items-start justify-between mb-5 gap-4">
                     <div className="flex items-start gap-3">
-                      <Crown size={20} weight="fill" className="text-[#832161] mt-1 flex-shrink-0" />
+                      <Crown size={20} weight="fill" className="text-[#7A2357] mt-1 flex-shrink-0" />
                       <div>
                         <h4 className="text-xl text-[#000000]">
  VIP Boost <span className="text-xs uppercase tracking-[0.2em] text-[#000000] ml-2">Optional</span>
@@ -2086,7 +2086,7 @@ export default function ProviderDashboard() {
                       aria-checked={planVipOn}
                       onClick={() => setPlanVipOn(!planVipOn)}
                       className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
-                        planVipOn ? 'bg-[#832161]' : 'bg-[#dbdadd]'
+                        planVipOn ? 'bg-[#7A2357]' : 'bg-[#dbdadd]'
                       }`}
                       data-testid="vip-toggle"
                     >
@@ -2110,20 +2110,20 @@ export default function ProviderDashboard() {
                         }}
                         className={`relative text-left p-4 border-2 transition-all ${
                           planVipOn && planVip === opt.id
-                            ? 'border-[#832161] bg-[#832161]/5'
-                            : 'border-[#dbdadd] hover:border-[#832161]'
+                            ? 'border-[#7A2357] bg-[#7A2357]/5'
+                            : 'border-[#dbdadd] hover:border-[#7A2357]'
                         }`}
                         data-testid={`vip-option-${opt.id}`}
                       >
                         {opt.badge && (
-                          <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#832161] text-[#FFFFFF] font-medium">
+                          <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#7A2357] text-[#FFFFFF] font-medium">
                             {opt.badge}
                           </span>
                         )}
                         <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
                         <p className="text-2xl text-[#000000]">€{opt.price}</p>
                         {planVipOn && planVip === opt.id && (
-                          <CheckCircle size={16} weight="fill" className="absolute bottom-3 right-3 text-[#832161]" />
+                          <CheckCircle size={16} weight="fill" className="absolute bottom-3 right-3 text-[#7A2357]" />
                         )}
                       </button>
                     ))}
@@ -2144,7 +2144,7 @@ export default function ProviderDashboard() {
                     aria-checked={autoRenew}
                     onClick={() => setAutoRenew(!autoRenew)}
                     className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
-                      autoRenew ? 'bg-[#832161]' : 'bg-[#dbdadd]'
+                      autoRenew ? 'bg-[#7A2357]' : 'bg-[#dbdadd]'
                     }`}
                     data-testid="auto-renew-toggle"
                   >
@@ -2174,9 +2174,9 @@ export default function ProviderDashboard() {
           </motion.div>
 
           {/* Action bar */}
-          <div className="mt-6 bg-white border border-[#ece9ee] rounded-2xl shadow-[0_1px_3px_rgba(20,20,22,0.04)] px-5 md:px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
+          <div className="mt-6 bg-white border border-[#ECE8EF] rounded-2xl shadow-[0_6px_20px_rgba(52,24,60,0.06)] px-5 md:px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
               {mode !== 'edit' && currentStep === 1 && (
-                <p className="text-sm text-[#898989]">Physical characteristics are optional.</p>
+                <p className="text-sm text-[#5F5966]">Physical characteristics are optional.</p>
               )}
               {mode === 'edit' ? (
                 <>
@@ -2363,9 +2363,9 @@ function MessagesBox({ providerId }) {
   return (
     <div className="rounded-lg border border-[#dbdadd] bg-white p-5" data-testid="messages-box">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-[#832161]">Received messages</h3>
+        <h3 className="text-lg font-bold text-[#7A2357]">Received messages</h3>
         {unread > 0 && (
-          <span className="text-xs font-medium px-2 py-1 bg-[#DA4167] text-white rounded-full" data-testid="messages-unread-count">
+          <span className="text-xs font-medium px-2 py-1 bg-[#A3243B] text-white rounded-full" data-testid="messages-unread-count">
             {unread} new
           </span>
         )}
@@ -2381,7 +2381,7 @@ function MessagesBox({ providerId }) {
             return (
               <div
                 key={enq.enquiry_id}
-                className={`border rounded-lg transition-colors ${enq.read ? 'border-[#dbdadd] bg-white' : 'border-[#DA4167]/40 bg-[#DA4167]/5'}`}
+                className={`border rounded-lg transition-colors ${enq.read ? 'border-[#dbdadd] bg-white' : 'border-[#A3243B]/40 bg-[#A3243B]/5'}`}
                 data-testid={`message-item-${enq.enquiry_id}`}
               >
                 <div className="p-3">
@@ -2419,7 +2419,7 @@ function MessagesBox({ providerId }) {
 
                   {isOpen && enq.email && (
                     <div className="mt-3 pt-3 border-t border-[#dbdadd]">
-                      <p className="text-xs text-[#832161] mb-2">
+                      <p className="text-xs text-[#7A2357] mb-2">
                         Reply to <span className="text-[#000000] font-medium">{enq.email}</span>
                       </p>
                       <textarea
@@ -2493,7 +2493,7 @@ function InvoicesBox({ providerId }) {
   return (
     <div className="rounded-lg border border-[#dbdadd] bg-white p-5" data-testid="invoices-box">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-[#832161]">Invoices</h3>
+        <h3 className="text-lg font-bold text-[#7A2357]">Invoices</h3>
         {items.length > 0 && (
           <span className="text-xs text-[#898989]">{items.length} total</span>
         )}
@@ -2521,7 +2521,7 @@ function InvoicesBox({ providerId }) {
                   href={invoiceViewUrl(inv.invoice_id)}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-xs uppercase tracking-wider text-[#832161] hover:text-[#DA4167] flex items-center gap-1"
+                  className="text-xs uppercase tracking-wider text-[#7A2357] hover:text-[#A3243B] flex items-center gap-1"
                   data-testid={`invoice-view-${inv.invoice_id}`}
                   title="View invoice in a new tab"
                 >
@@ -2530,7 +2530,7 @@ function InvoicesBox({ providerId }) {
                 </a>
                 <a
                   href={invoicePdfUrl(inv.invoice_id)}
-                  className="text-xs uppercase tracking-wider text-[#832161] hover:text-[#DA4167] flex items-center gap-1"
+                  className="text-xs uppercase tracking-wider text-[#7A2357] hover:text-[#A3243B] flex items-center gap-1"
                   data-testid={`invoice-pdf-${inv.invoice_id}`}
                   title="Download PDF"
                 >

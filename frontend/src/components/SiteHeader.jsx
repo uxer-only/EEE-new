@@ -78,7 +78,7 @@ export default function SiteHeader({ leftSlot = null, links = null }) {
           leftSlot
         ) : (
           <Link to="/" data-testid="logo-link" onClick={() => setOpen(false)}>
-            <h1 className="text-xl md:text-2xl font-playfair font-bold text-[#DA4167] whitespace-nowrap">
+            <h1 className="text-xl md:text-2xl font-playfair font-bold text-[#A3243B] whitespace-nowrap">
               Elite Escorts Europe
             </h1>
           </Link>

@@ -88,13 +88,13 @@ export default function Messages() {
                 {conversations.map((conv, index) => {
                   const otherPerson = user?.role === 'client' ? conv.provider : conv.client;
                   return (
-                    <button key={conv.conversation_id} onClick={() => setSelectedConv(conv)} className={`w-full text-left p-4 border transition-all ${ selectedConv?.conversation_id === conv.conversation_id ? 'border-[#832161] bg-[#832161]/10' : 'border-[#27272A] hover:border-[#832161]' }`} data-testid={`conversation-${index}`}>
+                    <button key={conv.conversation_id} onClick={() => setSelectedConv(conv)} className={`w-full text-left p-4 border transition-all ${ selectedConv?.conversation_id === conv.conversation_id ? 'border-[#7A2357] bg-[#7A2357]/10' : 'border-[#27272A] hover:border-[#7A2357]' }`} data-testid={`conversation-${index}`}>
                       <div className="flex items-center gap-4">
                         <img src={otherPerson?.picture || otherPerson?.photos?.[0] || 'https://via.placeholder.com/50'} alt={otherPerson?.name || otherPerson?.display_name} className="w-12 h-12 rounded-full object-cover" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
                             <p className="text-[#F2F0ED] font-medium truncate">{otherPerson?.name || otherPerson?.display_name}</p>
-                            {conv.unread_count > 0 && <span className="bg-[#832161] text-[#0A0A0C] text-xs px-2 py-1 rounded-full font-medium">{conv.unread_count}</span>}
+                            {conv.unread_count > 0 && <span className="bg-[#7A2357] text-[#0A0A0C] text-xs px-2 py-1 rounded-full font-medium">{conv.unread_count}</span>}
                           </div>
                           <p className="text-[#A1A1AA] text-sm truncate">{conv.last_message || 'No messages yet'}</p>
                         </div>

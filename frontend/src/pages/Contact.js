@@ -5,7 +5,7 @@ import { Envelope, Clock, ShieldCheck } from 'phosphor-react';
 const Card = ({ icon: Icon, title, children, testId }) => (
   <div className="bg-white/[0.03] border border-[#27272A] rounded-[8px] p-6" data-testid={testId}>
     <div className="flex items-center gap-3 mb-3">
-      <span className="flex items-center justify-center w-10 h-10 rounded-[8px] bg-[#DA4167]/10 text-[#DA4167]">
+      <span className="flex items-center justify-center w-10 h-10 rounded-[8px] bg-[#A3243B]/10 text-[#A3243B]">
         <Icon size={20} weight="fill" />
       </span>
       <h3 className="font-manrope font-semibold text-lg text-[#F2F0ED]">{title}</h3>
@@ -32,7 +32,7 @@ export default function Contact() {
             For all enquiries, email us at{' '}
             <a
               href="mailto:info@eliteescortseurope.eu"
-              className="text-[#DA4167] hover:underline break-all"
+              className="text-[#A3243B] hover:underline break-all"
               data-testid="contact-email-link"
             >
               info@eliteescortseurope.eu

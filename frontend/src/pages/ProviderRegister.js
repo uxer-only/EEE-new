@@ -91,8 +91,8 @@ export default function ProviderRegister() {
                   onClick={() => setFormData({ ...formData, accountType: 'independent' })}
                   className={`py-3 px-6 border transition-all ${
                     formData.accountType === 'independent'
-                      ? 'border-[#DA4167] text-[#DA4167]'
-                      : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#DA4167]'
+                      ? 'border-[#A3243B] text-[#A3243B]'
+                      : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#A3243B]'
                   }`}
                   data-testid="account-type-independent"
                 >
@@ -103,8 +103,8 @@ export default function ProviderRegister() {
                   onClick={() => setFormData({ ...formData, accountType: 'agency' })}
                   className={`py-3 px-6 border transition-all ${
                     formData.accountType === 'agency'
-                      ? 'border-[#DA4167] text-[#DA4167]'
-                      : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#DA4167]'
+                      ? 'border-[#A3243B] text-[#A3243B]'
+                      : 'border-[#3F3F46] text-[#A1A1AA] hover:border-[#A3243B]'
                   }`}
                   data-testid="account-type-agency"
                 >
@@ -142,7 +142,7 @@ export default function ProviderRegister() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#A3243B] transition-colors"
                   data-testid="toggle-password-button"
                 >
                   {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
@@ -162,11 +162,11 @@ export default function ProviderRegister() {
               />
               <label htmlFor="agreeTerms" className="text-[#A1A1AA] text-sm leading-relaxed">
                 I agree to the{' '}
-                <a href="#" className="text-[#DA4167] hover:opacity-80 transition-opacity">
+                <a href="#" className="text-[#A3243B] hover:opacity-80 transition-opacity">
                   Terms & Conditions
                 </a>
                 {' '}and{' '}
-                <a href="#" className="text-[#DA4167] hover:opacity-80 transition-opacity">
+                <a href="#" className="text-[#A3243B] hover:opacity-80 transition-opacity">
                   Privacy Policy
                 </a>
               </label>
@@ -208,7 +208,7 @@ export default function ProviderRegister() {
             Already have an account?{' '}
             <Link
               to="/login"
-              className="text-[#DA4167] hover:opacity-80 transition-opacity"
+              className="text-[#A3243B] hover:opacity-80 transition-opacity"
               data-testid="login-link"
             >
               Sign in here

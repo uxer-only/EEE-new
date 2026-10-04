@@ -53,7 +53,7 @@ export default function AdminLogin() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 pt-28 md:pt-32">
         <div className="w-full max-w-md">
           <div className="mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-[#DA4167]/10 text-[#DA4167] text-xs font-semibold uppercase tracking-widest mb-4" data-testid="admin-login-badge">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-[#A3243B]/10 text-[#A3243B] text-xs font-semibold uppercase tracking-widest mb-4" data-testid="admin-login-badge">
               <ShieldCheck size={16} weight="fill" />
               Administrator
             </div>
@@ -94,7 +94,7 @@ export default function AdminLogin() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#A3243B] transition-colors"
                   data-testid="toggle-password-button"
                 >
                   {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
@@ -103,7 +103,7 @@ export default function AdminLogin() {
               <div className="mt-2 text-right">
                 <Link
                   to="/forgot-password"
-                  className="text-sm text-[#A1A1AA] hover:text-[#DA4167] transition-colors"
+                  className="text-sm text-[#A1A1AA] hover:text-[#A3243B] transition-colors"
                   data-testid="forgot-password-link"
                 >
                   Forgot password?

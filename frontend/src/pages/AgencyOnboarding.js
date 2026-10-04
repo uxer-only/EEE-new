@@ -116,7 +116,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
       <div className="pt-32 pb-20 section-padding">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
-            <p className="text-[10px] uppercase tracking-[0.3em] text-[#832161] mb-3">Agency setup</p>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-[#7A2357] mb-3">Agency setup</p>
             <h2 className="text-4xl text-[#000000] mb-3">Set up your agency</h2>
             <p className="text-[#898989]">These details become the defaults for every companion profile you add.</p>
           </div>
@@ -127,8 +127,8 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
               const Icon = s.icon;
               const active = step === s.id;
               const done = step > s.id;
-              const textCls = active ? 'text-[#832161]' : done ? 'text-green-600' : 'text-[#000000]';
-              const borderCls = active ? 'border-[#832161] bg-white' : done ? 'border-green-600 bg-white' : 'border-[#dbdadd] bg-white';
+              const textCls = active ? 'text-[#7A2357]' : done ? 'text-green-600' : 'text-[#000000]';
+              const borderCls = active ? 'border-[#7A2357] bg-white' : done ? 'border-green-600 bg-white' : 'border-[#dbdadd] bg-white';
               return (
                 <div key={s.id} className="flex items-center">
                   <div className={`flex flex-col items-center gap-2 transition-all ${textCls}`} data-testid={`step-${s.id}`}>
@@ -155,7 +155,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
               <div className="space-y-8">
                 {/* Box 1: Basic Information */}
                 <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
-                  <h3 className="text-2xl font-bold text-[#832161] mb-6">Basic Information</h3>
+                  <h3 className="text-2xl font-bold text-[#7A2357] mb-6">Basic Information</h3>
                   <div className="flex flex-col gap-4">
                     <div>
                       <label className="input-label">Agency name</label>
@@ -223,8 +223,8 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                             onClick={() => toggleLang(lang)}
                             className={`py-2.5 px-3 border text-sm uppercase tracking-wider transition-all ${
                               selected
-                                ? 'border-[#DA4167] bg-[#DA4167] text-white shadow-sm'
-                                : 'border-[#DA4167]/50 text-[#DA4167] bg-white hover:bg-[#DA4167]/10 hover:border-[#DA4167]'
+                                ? 'border-[#A3243B] bg-[#A3243B] text-white shadow-sm'
+                                : 'border-[#A3243B]/50 text-[#A3243B] bg-white hover:bg-[#A3243B]/10 hover:border-[#A3243B]'
                             }`}
                             data-testid={`agency-lang-${lang.toLowerCase()}`}
                           >
@@ -233,7 +233,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                         );
                       })}
                       {customLangs.map((lang) => (
-                        <div key={lang} className="relative py-2.5 pl-3 pr-8 border border-[#DA4167] bg-[#DA4167] text-white text-sm uppercase tracking-wider flex items-center shadow-sm">
+                        <div key={lang} className="relative py-2.5 pl-3 pr-8 border border-[#A3243B] bg-[#A3243B] text-white text-sm uppercase tracking-wider flex items-center shadow-sm">
                           <span className="truncate">{lang}</span>
                           <button type="button" onClick={() => toggleLang(lang)} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/80 hover:text-white transition-colors" aria-label={`Remove ${lang}`}>
                             <X size={14} />
@@ -258,7 +258,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                           className="input-premium flex-1"
                           data-testid="agency-add-language-input"
                         />
-                        <button type="button" onClick={() => { addCustomLang(); setShowAddLanguage(false); }} disabled={!newLanguage.trim()} className="px-4 py-3 border border-[#832161] text-[#832161] hover:bg-[#832161]/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm uppercase tracking-wider whitespace-nowrap" data-testid="agency-add-language-confirm">
+                        <button type="button" onClick={() => { addCustomLang(); setShowAddLanguage(false); }} disabled={!newLanguage.trim()} className="px-4 py-3 border border-[#7A2357] text-[#7A2357] hover:bg-[#7A2357]/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm uppercase tracking-wider whitespace-nowrap" data-testid="agency-add-language-confirm">
                           Add
                         </button>
                         <button type="button" onClick={() => { setNewLanguage(''); setShowAddLanguage(false); }} className="px-3 py-3 border border-[#dbdadd] text-[#000000] hover:border-red-400 hover:text-red-400 transition-colors" aria-label="Cancel">
@@ -266,7 +266,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                         </button>
                       </div>
                     ) : (
-                      <button type="button" onClick={() => setShowAddLanguage(true)} className="mt-4 inline-flex items-center gap-2 px-4 py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#832161] hover:text-[#DA4167] transition-colors text-sm uppercase tracking-wider" data-testid="agency-add-language-button">
+                      <button type="button" onClick={() => setShowAddLanguage(true)} className="mt-4 inline-flex items-center gap-2 px-4 py-3 border border-dashed border-[#dbdadd] text-[#000000] hover:border-[#7A2357] hover:text-[#A3243B] transition-colors text-sm uppercase tracking-wider" data-testid="agency-add-language-button">
                         <Plus size={16} /> Add language
                       </button>
                     )}
@@ -275,12 +275,12 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
 
                 {/* Box 2: Contact Information */}
                 <div className="bg-white border border-[#dbdadd] rounded-lg p-6">
-                  <h3 className="text-2xl font-bold text-[#832161] mb-6">Contact information</h3>
+                  <h3 className="text-2xl font-bold text-[#7A2357] mb-6">Contact information</h3>
                   <div className="flex flex-col gap-4">
                     <div>
                       <label className="input-label">Mobile phone</label>
-                      <div className="flex items-stretch border border-[#898989] focus-within:border-[#DA4167] transition-colors">
-                        {dial && <span className="px-3 py-3 bg-white text-[#832161] text-[13px] border-r border-[#898989] select-none whitespace-nowrap" data-testid="agency-phone-dial-code">{dial}</span>}
+                      <div className="flex items-stretch border border-[#898989] focus-within:border-[#A3243B] transition-colors">
+                        {dial && <span className="px-3 py-3 bg-white text-[#7A2357] text-[13px] border-r border-[#898989] select-none whitespace-nowrap" data-testid="agency-phone-dial-code">{dial}</span>}
                         <input
                           type="tel"
                           value={localPhone}
@@ -322,7 +322,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                           <span className="text-[#000000]">Signal</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" checked={data.contact.hasSms || false} onChange={(e) => setContact({ hasSms: e.target.checked })} className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]" data-testid="agency-contact-sms" />
+                          <input type="checkbox" checked={data.contact.hasSms || false} onChange={(e) => setContact({ hasSms: e.target.checked })} className="w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7A2357] checked:border-[#7A2357]" data-testid="agency-contact-sms" />
                           <span className="text-[#000000]">SMS</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
@@ -371,19 +371,19 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
             {step === 2 && (
               <div className="space-y-6">
                 <ServicesStep data={data} update={update} />
-                <div className="rounded-lg border border-[#832161]/30 bg-[#832161]/5 p-4">
+                <div className="rounded-lg border border-[#7A2357]/30 bg-[#7A2357]/5 p-4">
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={data.apply_services_to_all}
                       onChange={(e) => update({ apply_services_to_all: e.target.checked })}
-                      className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+                      className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7A2357] checked:border-[#7A2357]"
                       data-testid="apply-services-to-all"
                     />
                     <span className="text-[#000000] font-medium">Apply these services to all profiles</span>
                   </label>
                   <div className="flex items-start gap-2 mt-2 pl-8">
-                    <Info size={15} className="text-[#832161] mt-0.5 shrink-0" />
+                    <Info size={15} className="text-[#7A2357] mt-0.5 shrink-0" />
                     <p className="text-sm text-[#898989]">You can also set services individually in each profile itself.</p>
                   </div>
                 </div>
@@ -393,19 +393,19 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
             {step === 3 && (
               <div className="space-y-6">
                 <RatesAvailabilityStep data={data} update={update} />
-                <div className="rounded-lg border border-[#832161]/30 bg-[#832161]/5 p-4">
+                <div className="rounded-lg border border-[#7A2357]/30 bg-[#7A2357]/5 p-4">
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={data.apply_rates_to_all}
                       onChange={(e) => update({ apply_rates_to_all: e.target.checked })}
-                      className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+                      className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7A2357] checked:border-[#7A2357]"
                       data-testid="apply-rates-to-all"
                     />
                     <span className="text-[#000000] font-medium">Apply these rates &amp; availability to all profiles</span>
                   </label>
                   <div className="flex items-start gap-2 mt-2 pl-8">
-                    <Info size={15} className="text-[#832161] mt-0.5 shrink-0" />
+                    <Info size={15} className="text-[#7A2357] mt-0.5 shrink-0" />
                     <p className="text-sm text-[#898989]">You can also set rates &amp; availability individually in each profile itself.</p>
                   </div>
                 </div>

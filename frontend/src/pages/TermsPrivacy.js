@@ -76,7 +76,7 @@ export default function TermsPrivacy() {
         <div className="overflow-x-auto mb-6">
           <table className="w-full text-sm border border-[#27272A]" data-testid="price-table-independent">
             <thead>
-              <tr className="bg-[#DA4167]/15 text-[#F2F0ED]">
+              <tr className="bg-[#A3243B]/15 text-[#F2F0ED]">
                 <th className="text-left px-4 py-2 border border-[#27272A]">7 days</th>
                 <th className="text-left px-4 py-2 border border-[#27272A]">15 days</th>
                 <th className="text-left px-4 py-2 border border-[#27272A]">1 month</th>
@@ -96,7 +96,7 @@ export default function TermsPrivacy() {
         <div className="overflow-x-auto mb-6">
           <table className="w-full text-sm border border-[#27272A]" data-testid="price-table-agency">
             <thead>
-              <tr className="bg-[#DA4167]/15 text-[#F2F0ED]">
+              <tr className="bg-[#A3243B]/15 text-[#F2F0ED]">
                 <th className="text-left px-4 py-2 border border-[#27272A]">Profiles</th>
                 <th className="text-left px-4 py-2 border border-[#27272A]">7 days</th>
                 <th className="text-left px-4 py-2 border border-[#27272A]">15 days</th>

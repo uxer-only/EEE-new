@@ -196,7 +196,7 @@ export default function ProviderDetail() {
         <button
           type="button"
           onClick={() => navigate(`/providers/${neighbors.prev}`)}
-          className="hidden md:flex fixed left-4 lg:left-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full items-center justify-center bg-white/90 backdrop-blur-sm shadow-md border border-[#DA4167] text-[#DA4167] hover:bg-[#DA4167] hover:text-white transition-colors"
+          className="hidden md:flex fixed left-4 lg:left-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full items-center justify-center bg-white/90 backdrop-blur-sm shadow-md border border-[#A3243B] text-[#A3243B] hover:bg-[#A3243B] hover:text-white transition-colors"
           data-testid="prev-profile-btn"
           aria-label="Previous profile"
           title="Previous profile (←)"
@@ -208,7 +208,7 @@ export default function ProviderDetail() {
         <button
           type="button"
           onClick={() => navigate(`/providers/${neighbors.next}`)}
-          className="hidden md:flex fixed right-4 lg:right-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full items-center justify-center bg-white/90 backdrop-blur-sm shadow-md border border-[#DA4167] text-[#DA4167] hover:bg-[#DA4167] hover:text-white transition-colors"
+          className="hidden md:flex fixed right-4 lg:right-8 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full items-center justify-center bg-white/90 backdrop-blur-sm shadow-md border border-[#A3243B] text-[#A3243B] hover:bg-[#A3243B] hover:text-white transition-colors"
           data-testid="next-profile-btn"
           aria-label="Next profile"
           title="Next profile (→)"
@@ -262,7 +262,7 @@ export default function ProviderDetail() {
                         key={`${index}-${photo.slice(-40)}`}
                         onClick={() => carouselApi && carouselApi.scrollTo(index)}
                         className={`aspect-[3/4] overflow-hidden border transition-all cursor-pointer group ${
-                          activePhotoIdx === index ? 'border-[#832161]' : 'border-[#27272A] hover:border-[#832161]'
+                          activePhotoIdx === index ? 'border-[#7A2357]' : 'border-[#27272A] hover:border-[#7A2357]'
                         }`}
                         data-testid={`thumbnail-${index}`}
                         aria-label={`Show photo ${index + 1}`}
@@ -320,7 +320,7 @@ export default function ProviderDetail() {
               {/* Rating */}
               {provider.avg_rating > 0 && (
                 <div className="flex items-center gap-2 mb-8" data-testid="rating">
-                  <Star size={20} weight="fill" className="text-[#832161]" />
+                  <Star size={20} weight="fill" className="text-[#7A2357]" />
                   <span className="text-[#3D2645] font-medium">{provider.avg_rating}</span>
                   <span className="text-[#3D2645]">({provider.review_count} reviews)</span>
                 </div>
@@ -365,7 +365,7 @@ export default function ProviderDetail() {
                 if (rows.length === 0) return null;
                 return (
                   <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
-                    <h3 className="text-xl font-bold text-[#832161] mb-6">My appearance</h3>
+                    <h3 className="text-xl font-bold text-[#7A2357] mb-6">My appearance</h3>
                     <dl
                       className="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-10 gap-y-3"
                       data-testid="provider-characteristics"
@@ -387,7 +387,7 @@ export default function ProviderDetail() {
 
               {/* Let's Connect */}
               <div className="mb-8 bg-white rounded-lg p-6 md:p-8" data-testid="contact-section">
-                <h3 className="text-xl font-bold text-[#832161] mb-6">Let&apos;s connect</h3>
+                <h3 className="text-xl font-bold text-[#7A2357] mb-6">Let&apos;s connect</h3>
                 {(() => {
                   const phone = provider.contact?.phone || '+32 XXX XX XX XX';
                   const maskPhone = (raw) => {
@@ -403,7 +403,7 @@ export default function ProviderDetail() {
                     {
                       key: 'sms', enabled: c.hasSms,
                       href: `sms:${phone}`, label: 'SMS',
-                      bg: '#dbdadd', fg: '#832161',
+                      bg: '#dbdadd', fg: '#7A2357',
                       icon: <ChatCircle size={20} weight="fill" />
                     },
                     {
@@ -445,8 +445,8 @@ export default function ProviderDetail() {
                       {/* Mobile + channel icons */}
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4" data-testid="contact-phone">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-[#832161]/10 flex items-center justify-center">
-                            <Phone size={20} className="text-[#832161]" />
+                          <div className="w-10 h-10 rounded-full bg-[#7A2357]/10 flex items-center justify-center">
+                            <Phone size={20} className="text-[#7A2357]" />
                           </div>
                           <div>
                             <p className="text-[#000000] text-sm">Mobile</p>
@@ -459,7 +459,7 @@ export default function ProviderDetail() {
                                 data-testid="show-phone-btn"
                               >
                                 <span className="text-[#000000]">{maskPhone(phone)}</span>
-                                <span className="text-xs uppercase tracking-wider text-[#DA4167] border border-[#DA4167] rounded px-2 py-0.5 hover:bg-[#DA4167]/10 transition-colors">
+                                <span className="text-xs uppercase tracking-wider text-[#A3243B] border border-[#A3243B] rounded px-2 py-0.5 hover:bg-[#A3243B]/10 transition-colors">
                                   Show number
                                 </span>
                               </button>
@@ -492,8 +492,8 @@ export default function ProviderDetail() {
                         className="flex items-center gap-4"
                         data-testid="contact-email"
                       >
-                        <div className="w-10 h-10 rounded-full bg-[#832161]/10 flex items-center justify-center">
-                          <EnvelopeSimple size={20} className="text-[#832161]" />
+                        <div className="w-10 h-10 rounded-full bg-[#7A2357]/10 flex items-center justify-center">
+                          <EnvelopeSimple size={20} className="text-[#7A2357]" />
                         </div>
                         <div>
                           <p className="text-[#000000] text-sm">E-mail</p>
@@ -521,7 +521,7 @@ export default function ProviderDetail() {
                 const extras = serviceList.filter(s => s.type === 'extra');
                 return (
                   <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
-                    <h3 className="text-xl font-bold text-[#832161] mb-6">What we can share together...</h3>
+                    <h3 className="text-xl font-bold text-[#7A2357] mb-6">What we can share together...</h3>
                     {inclusive.length > 0 && (
                       <div className="mb-4">
                         {extras.length > 0 && (
@@ -547,7 +547,7 @@ export default function ProviderDetail() {
                           {extras.map((s, i) => (
                             <span
                               key={`ext-${i}`}
-                              className="px-4 py-2 border border-[#832161]/40 bg-[#832161]/10 text-[#832161] text-sm uppercase tracking-wider"
+                              className="px-4 py-2 border border-[#7A2357]/40 bg-[#7A2357]/10 text-[#7A2357] text-sm uppercase tracking-wider"
                               data-testid={`service-extra-${i}`}
                             >
                               {s.name}{s.price && ` · €${s.price}`}
@@ -573,11 +573,11 @@ export default function ProviderDetail() {
                 if (!is247 && availableDays.length === 0) return null;
                 return (
                   <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
-                    <h3 className="text-xl font-bold text-[#832161] mb-6">My schedule</h3>
+                    <h3 className="text-xl font-bold text-[#7A2357] mb-6">My schedule</h3>
                     {is247 ? (
                       <div className="flex items-center justify-between py-2" data-testid="schedule-247">
                         <span className="text-[#000000] font-medium">All week</span>
-                        <span className="text-[#832161]">Available 24/7</span>
+                        <span className="text-[#7A2357]">Available 24/7</span>
                       </div>
                     ) : (
                       <div className="space-y-3">
@@ -593,7 +593,7 @@ export default function ProviderDetail() {
                       </div>
                     )}
                     {provider.booking_advance && (
-                      <p className="mt-6 pt-4 border-t border-[#27272A] text-[#832161] text-sm" data-testid="schedule-advance">
+                      <p className="mt-6 pt-4 border-t border-[#27272A] text-[#7A2357] text-sm" data-testid="schedule-advance">
                         Booking in advance necessary
                       </p>
                     )}
@@ -660,11 +660,11 @@ export default function ProviderDetail() {
 
                 const renderColumn = (kind) => (
                   <div key={kind}>
-                    <p className="text-lg tracking-[0.3em] text-[#832161] mb-4 capitalize">{kind}</p>
+                    <p className="text-lg tracking-[0.3em] text-[#7A2357] mb-4 capitalize">{kind}</p>
                     {unifiedRows.map((row) => (
                       <div key={row.key} className="flex justify-between items-center py-3 border-b border-[#dbdadd] last:border-b-0" data-testid={`rate-${kind}-${row.key}`}>
                         <span className="text-[#000000] text-base">{row.label}</span>
-                        <span className={`text-base ${row[kind] !== null ? 'text-[#832161]' : 'text-[#9CA3AF]'}`}>
+                        <span className={`text-base ${row[kind] !== null ? 'text-[#7A2357]' : 'text-[#9CA3AF]'}`}>
                           {row[kind] !== null ? `${sym}${row[kind]}` : '—'}
                         </span>
                       </div>
@@ -674,7 +674,7 @@ export default function ProviderDetail() {
 
                 return (
                   <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
-                    <h3 className="text-xl font-bold text-[#832161] mb-6">Time & investment</h3>
+                    <h3 className="text-xl font-bold text-[#7A2357] mb-6">Time & investment</h3>
                     {isNested ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {renderColumn('incall')}
@@ -685,7 +685,7 @@ export default function ProviderDetail() {
                         {Object.entries(r).map(([type, rate]) => (
                           <div key={type} className="flex justify-between items-center pb-4 border-b border-[#dbdadd] last:border-b-0 last:pb-0" data-testid={`rate-${type}`}>
                             <span className="text-[#000000] capitalize text-base">{DURATION_LABELS[type] || type}</span>
-                            <span className="text-[#832161] text-base">{sym}{rate}</span>
+                            <span className="text-[#7A2357] text-base">{sym}{rate}</span>
                           </div>
                         ))}
                       </div>
@@ -696,7 +696,7 @@ export default function ProviderDetail() {
 
               {/* Extra Requests */}
               <div className="mb-8 bg-white rounded-lg p-6 md:p-8">
-                <h3 className="text-xl font-bold text-[#832161] mb-6">Do you have extra requests?</h3>
+                <h3 className="text-xl font-bold text-[#7A2357] mb-6">Do you have extra requests?</h3>
                 <div className="space-y-4">
                   <div>
                     <label className="input-label !text-[#000000]">Your name</label>
@@ -781,7 +781,7 @@ export default function ProviderDetail() {
           <div className="mt-8 flex justify-center" data-testid="report-profile-cta-wrap">
             <button
               onClick={() => setShowReport(true)}
-              className="inline-flex items-center gap-2 text-sm text-[#52525B] hover:text-[#DA4167] transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-[#52525B] hover:text-[#A3243B] transition-colors"
               data-testid="report-profile-button"
             >
               <Flag size={16} weight="fill" />
@@ -793,7 +793,7 @@ export default function ProviderDetail() {
           <Dialog open={showReport} onOpenChange={setShowReport}>
             <DialogContent className="bg-white text-[#000000] border-[#dbdadd] max-w-lg" data-testid="report-profile-modal">
               <DialogHeader>
-                <DialogTitle className="text-xl font-bold text-[#832161]">Report this profile</DialogTitle>
+                <DialogTitle className="text-xl font-bold text-[#7A2357]">Report this profile</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <p className="text-[#52525B] text-sm">
@@ -838,7 +838,7 @@ export default function ProviderDetail() {
                 <div>
                   <label className="input-label !text-[#000000]">Upload pictures (optional)</label>
                   <label
-                    className="flex items-center justify-center gap-2 w-full h-24 border border-dashed border-[#dbdadd] rounded-lg cursor-pointer text-[#52525B] hover:border-[#832161] hover:text-[#832161] transition-colors"
+                    className="flex items-center justify-center gap-2 w-full h-24 border border-dashed border-[#dbdadd] rounded-lg cursor-pointer text-[#52525B] hover:border-[#7A2357] hover:text-[#7A2357] transition-colors"
                     data-testid="report-upload-label"
                   >
                     <UploadSimple size={20} />
@@ -918,7 +918,7 @@ export default function ProviderDetail() {
                               key={i}
                               size={16}
                               weight={i < review.rating ? 'fill' : 'regular'}
-                              className={i < review.rating ? 'text-[#832161]' : 'text-[#52525B]'}
+                              className={i < review.rating ? 'text-[#7A2357]' : 'text-[#52525B]'}
                             />
                           ))}
                         </div>
@@ -954,7 +954,7 @@ export default function ProviderDetail() {
           </button>
 
           {/* Counter */}
-          <div className="absolute top-4 left-4 md:top-6 md:left-6 text-[#832161] text-sm tracking-wider" data-testid="lightbox-counter">
+          <div className="absolute top-4 left-4 md:top-6 md:left-6 text-[#7A2357] text-sm tracking-wider" data-testid="lightbox-counter">
             {lightboxIdx + 1} / {provider.photos.length}
           </div>
 

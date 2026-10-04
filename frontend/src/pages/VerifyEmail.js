@@ -41,15 +41,15 @@ export default function VerifyEmail() {
       <div className="max-w-md mx-auto px-6 pt-40 pb-20 text-center">
         {status === 'verifying' && (
           <div data-testid="verify-status-verifying">
-            <CircleNotch size={48} className="mx-auto text-[#832161] animate-spin" />
-            <h1 className="font-playfair text-3xl text-[#832161] mt-6 mb-2">Confirming your email…</h1>
+            <CircleNotch size={48} className="mx-auto text-[#7A2357] animate-spin" />
+            <h1 className="font-playfair text-3xl text-[#7A2357] mt-6 mb-2">Confirming your email…</h1>
             <p className="text-[#A1A1AA] text-sm">Just a moment.</p>
           </div>
         )}
         {status === 'success' && (
           <div data-testid="verify-status-success">
             <CheckCircle size={56} weight="fill" className="mx-auto text-[#4ade80]" />
-            <h1 className="font-playfair text-3xl text-[#832161] mt-6 mb-2">Email confirmed</h1>
+            <h1 className="font-playfair text-3xl text-[#7A2357] mt-6 mb-2">Email confirmed</h1>
             <p className="text-[#A1A1AA] text-sm mb-8">{message}</p>
             <Link to="/dashboard" className="btn-primary inline-block px-8" data-testid="verify-go-dashboard">
               Go to my dashboard
@@ -58,8 +58,8 @@ export default function VerifyEmail() {
         )}
         {status === 'error' && (
           <div data-testid="verify-status-error">
-            <XCircle size={56} weight="fill" className="mx-auto text-[#DA4167]" />
-            <h1 className="font-playfair text-3xl text-[#832161] mt-6 mb-2">Confirmation failed</h1>
+            <XCircle size={56} weight="fill" className="mx-auto text-[#A3243B]" />
+            <h1 className="font-playfair text-3xl text-[#7A2357] mt-6 mb-2">Confirmation failed</h1>
             <p className="text-[#A1A1AA] text-sm mb-8">{message}</p>
             <Link to="/dashboard" className="btn-primary inline-block px-8" data-testid="verify-go-dashboard">
               Go to my dashboard

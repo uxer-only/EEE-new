@@ -32,10 +32,10 @@ const NATIONALITIES = [
 ];
 
 const inputCls =
-  'w-full bg-white border border-[#dcdade] rounded-lg px-4 py-3 text-[15px] text-[#141416] placeholder:text-[#b7b5bb] focus:border-[#832161] focus:ring-0 focus:outline-none transition-colors';
+  'w-full bg-white border border-[#DFDAE4] rounded-lg px-4 py-3 text-[15px] text-[#1B1820] placeholder:text-[#BDB4C5] focus:border-[#7A2357] focus:ring-0 focus:outline-none focus:shadow-[0_0_0_3px_rgba(122,35,87,0.14)] transition-all';
 
 const Label = ({ children }) => (
-  <label className="block text-[13px] font-semibold text-[#141416] mb-2">{children}</label>
+  <label className="block text-[13px] font-semibold text-[#1B1820] mb-2">{children}</label>
 );
 
 // Pills: unselected = white bordered, selected = wine light
@@ -49,7 +49,7 @@ const PillGroup = ({ options, value, onChange, testId }) => (
           type="button"
           onClick={() => onChange(active ? '' : o)}
           className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
-            active ? 'bg-[#832161]/5 border-[#832161] text-[#832161]' : 'bg-white border-[#dcdade] text-[#52525B] hover:border-[#832161]'
+            active ? 'bg-[#7A2357]/5 border-[#7A2357] text-[#7A2357]' : 'bg-white border-[#DFDAE4] text-[#5F5966] hover:border-[#7A2357]'
           }`}
           data-testid={`${testId}-${o.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
         >
@@ -62,7 +62,7 @@ const PillGroup = ({ options, value, onChange, testId }) => (
 
 // Segmented control on a light track
 const Segmented = ({ options, value, onChange, testId }) => (
-  <div className="inline-flex bg-[#f3f1f5] rounded-lg p-1 gap-1" data-testid={testId}>
+  <div className="inline-flex bg-[#F5F2F7] rounded-lg p-1 gap-1" data-testid={testId}>
     {options.map((o) => {
       const active = value === o;
       return (
@@ -71,7 +71,7 @@ const Segmented = ({ options, value, onChange, testId }) => (
           type="button"
           onClick={() => onChange(active ? '' : o)}
           className={`px-5 py-1.5 rounded-md text-sm font-medium transition-colors ${
-            active ? 'bg-white text-[#141416] shadow-sm' : 'text-[#898989] hover:text-[#141416]'
+            active ? 'bg-white text-[#1B1820] shadow-sm' : 'text-[#5F5966] hover:text-[#1B1820]'
           }`}
           data-testid={`${testId}-${o.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
         >
@@ -108,7 +108,7 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
             <option value="">Select nationality</option>
             {NATIONALITIES.map((o) => <option key={o} value={o}>{o}</option>)}
           </select>
-          <CaretDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#52525B] pointer-events-none" />
+          <CaretDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#5F5966] pointer-events-none" />
         </div>
       </div>
 
@@ -118,14 +118,14 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
           <Label>Height</Label>
           <div className="relative">
             <input type="number" value={c.height || ''} onChange={(e) => update('height', e.target.value)} className={`${inputCls} pr-12`} placeholder="170" min="100" max="230" data-testid="char-height" />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#b7b5bb]">cm</span>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#BDB4C5]">cm</span>
           </div>
         </div>
         <div>
           <Label>Weight</Label>
           <div className="relative">
             <input type="number" value={c.weight || ''} onChange={(e) => update('weight', e.target.value)} className={`${inputCls} pr-12`} placeholder="58" min="35" max="200" data-testid="char-weight" />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#b7b5bb]">kg</span>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#BDB4C5]">kg</span>
           </div>
         </div>
       </div>

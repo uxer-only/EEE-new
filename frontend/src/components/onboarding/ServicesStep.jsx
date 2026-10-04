@@ -16,7 +16,7 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true }) => 
 
   return (
     <div className="space-y-6">
-      <h3 className="text-2xl font-bold text-[#832161] mb-6">Services</h3>
+      <h3 className="text-2xl font-bold text-[#7A2357] mb-6">Services</h3>
 
       {showCompanionshipType && (
         <div className="mb-8">
@@ -27,8 +27,8 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true }) => 
               onClick={() => update({ companionshipType: 'escort' })}
               className={`px-6 py-3 border text-sm transition-all ${
                 data.companionshipType === 'escort'
-                  ? 'border-[#DA4167] bg-[#DA4167] text-white shadow-sm'
-                  : 'border-[#DA4167]/50 text-[#DA4167] bg-white hover:bg-[#DA4167]/10 hover:border-[#DA4167]'
+                  ? 'border-[#A3243B] bg-[#A3243B] text-white shadow-sm'
+                  : 'border-[#A3243B]/50 text-[#A3243B] bg-white hover:bg-[#A3243B]/10 hover:border-[#A3243B]'
               }`}
             >
               Escort
@@ -38,8 +38,8 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true }) => 
               onClick={() => update({ companionshipType: 'erotic-massage' })}
               className={`px-6 py-3 border text-sm transition-all ${
                 data.companionshipType === 'erotic-massage'
-                  ? 'border-[#DA4167] bg-[#DA4167] text-white shadow-sm'
-                  : 'border-[#DA4167]/50 text-[#DA4167] bg-white hover:bg-[#DA4167]/10 hover:border-[#DA4167]'
+                  ? 'border-[#A3243B] bg-[#A3243B] text-white shadow-sm'
+                  : 'border-[#A3243B]/50 text-[#A3243B] bg-white hover:bg-[#A3243B]/10 hover:border-[#A3243B]'
               }`}
             >
               Erotic Massage
@@ -51,13 +51,13 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true }) => 
       <div className="border-t border-[#dbdadd] my-4"></div>
 
       {/* Accepts people with disabilities */}
-      <div className="rounded-lg border border-[#832161]/30 bg-[#832161]/5 p-4">
+      <div className="rounded-lg border border-[#7A2357]/30 bg-[#7A2357]/5 p-4">
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={!!data.accepts_disabilities}
             onChange={(e) => update({ accepts_disabilities: e.target.checked })}
-            className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#832161] checked:border-[#832161]"
+            className="mt-0.5 w-5 h-5 rounded border-[#dbdadd] bg-white checked:bg-[#7A2357] checked:border-[#7A2357]"
             data-testid="accepts-disabilities-checkbox"
           />
           <span className="text-[#000000] font-medium">We accept people with disabilities</span>
@@ -80,7 +80,7 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true }) => 
                 key={service}
                 className={`grid grid-cols-12 gap-4 px-4 py-3 items-center ${
                   index !== serviceOptions.length - 1 ? 'border-b border-[#dbdadd]' : ''
-                } ${serviceData.type ? 'bg-[#832161]/5' : ''}`}
+                } ${serviceData.type ? 'bg-[#7A2357]/5' : ''}`}
               >
                 <div className="col-span-5 text-[#000000] text-sm">{service}</div>
                 <div className="col-span-3 flex gap-2">
@@ -89,8 +89,8 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true }) => 
                     onClick={() => update({ services: { ...services, [service]: { type: serviceData.type === 'inclusive' ? null : 'inclusive', price: '' } } })}
                     className={`px-3 h-9 text-xs border transition-all ${
                       serviceData.type === 'inclusive'
-                        ? 'border-[#DA4167] bg-[#DA4167] text-white shadow-sm'
-                        : 'border-[#DA4167]/50 text-[#DA4167] bg-white hover:bg-[#DA4167]/10 hover:border-[#DA4167]'
+                        ? 'border-[#A3243B] bg-[#A3243B] text-white shadow-sm'
+                        : 'border-[#A3243B]/50 text-[#A3243B] bg-white hover:bg-[#A3243B]/10 hover:border-[#A3243B]'
                     }`}
                   >
                     Inclusive
@@ -100,8 +100,8 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true }) => 
                     onClick={() => update({ services: { ...services, [service]: { type: serviceData.type === 'extra' ? null : 'extra', price: serviceData.price } } })}
                     className={`px-3 h-9 text-xs border transition-all ${
                       serviceData.type === 'extra'
-                        ? 'border-[#DA4167] bg-[#DA4167] text-white shadow-sm'
-                        : 'border-[#DA4167]/50 text-[#DA4167] bg-white hover:bg-[#DA4167]/10 hover:border-[#DA4167]'
+                        ? 'border-[#A3243B] bg-[#A3243B] text-white shadow-sm'
+                        : 'border-[#A3243B]/50 text-[#A3243B] bg-white hover:bg-[#A3243B]/10 hover:border-[#A3243B]'
                     }`}
                   >
                     Extra

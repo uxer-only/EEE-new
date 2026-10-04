@@ -34,7 +34,7 @@ const Select = ({ label, value, options, onChange, testId }) => (
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         style={{ borderRadius: '8px' }}
-        className="w-full appearance-none bg-white border border-[#dbdadd] text-[15px] text-[#141416] pl-4 pr-10 py-3 focus:border-[#832161] focus:ring-0 focus:outline-none transition-colors cursor-pointer"
+        className="w-full appearance-none bg-white border border-[#dbdadd] text-[15px] text-[#141416] pl-4 pr-10 py-3 focus:border-[#7A2357] focus:ring-0 focus:outline-none transition-colors cursor-pointer"
         data-testid={testId}
       >
         <option value="">Any</option>

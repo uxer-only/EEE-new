@@ -150,10 +150,10 @@ export default function Browse() {
       <div className="pt-24 md:pt-32 pb-20 section-padding">
         {offlineMode && (
           <div
-            className="max-w-4xl mx-auto mb-6 px-4 py-3 rounded border border-[#832161]/30 bg-[#832161]/5 text-center"
+            className="max-w-4xl mx-auto mb-6 px-4 py-3 rounded border border-[#7A2357]/30 bg-[#7A2357]/5 text-center"
             data-testid="offline-banner"
           >
-            <p className="text-[#832161] text-sm">
+            <p className="text-[#7A2357] text-sm">
               You're offline — showing profiles you've recently viewed
             </p>
           </div>
@@ -179,8 +179,8 @@ export default function Browse() {
                   onClick={() => setFilters({ ...filters, gender: g.value })}
                   className={`px-2 md:px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors ${
                     filters.gender === g.value
-                      ? 'bg-[#832161] text-white'
-                      : 'text-[#52525B] hover:text-[#832161]'
+                      ? 'bg-[#7A2357] text-white'
+                      : 'text-[#52525B] hover:text-[#7A2357]'
                   }`}
                   data-testid={g.testId}
                 >
@@ -193,8 +193,8 @@ export default function Browse() {
                 onClick={() => setShowFilters(!showFilters)}
                 className={`relative p-2 md:p-2.5 rounded-xl transition-colors ${
                   showFilters || activeExtraCount > 0
-                    ? 'text-[#832161] bg-[#832161]/5'
-                    : 'text-[#52525B] hover:text-[#832161]'
+                    ? 'text-[#7A2357] bg-[#7A2357]/5'
+                    : 'text-[#52525B] hover:text-[#7A2357]'
                 }`}
                 data-testid="filters-button"
                 aria-label="Extra filters"
@@ -202,7 +202,7 @@ export default function Browse() {
                 <Faders size={20} />
                 {activeExtraCount > 0 && (
                   <span
-                    className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-[#832161] text-white text-[10px] font-semibold leading-none"
+                    className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-[#7A2357] text-white text-[10px] font-semibold leading-none"
                     data-testid="extra-filters-count"
                   >
                     {activeExtraCount}
@@ -215,13 +215,13 @@ export default function Browse() {
               type="button"
               onClick={() => setShowLocationSearch((v) => !v)}
               className={`lg:hidden flex-shrink-0 w-14 flex items-center justify-center rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] border-2 transition-colors ${
-                showLocationSearch ? 'bg-[#832161]/5 border-[#832161]' : 'bg-white border-transparent'
+                showLocationSearch ? 'bg-[#7A2357]/5 border-[#7A2357]' : 'bg-white border-transparent'
               }`}
               data-testid="mobile-location-toggle"
               aria-label="Toggle location and search"
               aria-pressed={showLocationSearch}
             >
-              <MapPin size={24} className="text-[#832161]" />
+              <MapPin size={24} className="text-[#7A2357]" />
             </button>
           </div>
 
@@ -235,7 +235,7 @@ export default function Browse() {
             >
               <span
                 className={`flex-shrink-0 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
-                  closeToMe ? 'bg-[#832161] border-[#832161]' : 'border-[#c9c7cc] bg-white'
+                  closeToMe ? 'bg-[#7A2357] border-[#7A2357]' : 'border-[#c9c7cc] bg-white'
                 }`}
               >
                 {closeToMe && <Check size={14} weight="bold" className="text-white" />}
@@ -244,7 +244,7 @@ export default function Browse() {
                 <span className="block text-sm font-semibold text-[#141416] leading-tight">Show escorts close to me</span>
                 <span className="block text-xs text-[#898989] leading-tight">Uses your device location</span>
               </span>
-              <MapPin size={22} weight="fill" className="text-[#832161] flex-shrink-0" />
+              <MapPin size={22} weight="fill" className="text-[#7A2357] flex-shrink-0" />
             </button>
 
             {/* City / name search */}
@@ -263,7 +263,7 @@ export default function Browse() {
               <button
                 type="submit"
                 style={{ borderRadius: '8px' }}
-                className="flex-shrink-0 w-11 h-11 bg-[#832161] hover:bg-[#6d1b51] text-white flex items-center justify-center transition-colors"
+                className="flex-shrink-0 w-11 h-11 bg-[#7A2357] hover:bg-[#5C1A41] text-white flex items-center justify-center transition-colors"
                 data-testid="search-button"
                 aria-label="Search"
               >
@@ -306,7 +306,7 @@ export default function Browse() {
                   <button
                     type="button"
                     onClick={handleClearExtraFilters}
-                    className="flex-shrink-0 text-sm font-medium text-[#832161] underline underline-offset-4 hover:text-[#6d1b51] transition-colors"
+                    className="flex-shrink-0 text-sm font-medium text-[#7A2357] underline underline-offset-4 hover:text-[#5C1A41] transition-colors"
                     data-testid="extra-filters-clear"
                   >
                     Clear all
@@ -315,7 +315,7 @@ export default function Browse() {
                     type="button"
                     onClick={() => { fetchProviders(); setShowFilters(false); }}
                     style={{ borderRadius: '8px' }}
-                    className="flex-1 lg:flex-none bg-[#832161] hover:bg-[#6d1b51] text-white font-semibold px-6 py-3.5 lg:py-3 transition-colors"
+                    className="flex-1 lg:flex-none bg-[#7A2357] hover:bg-[#5C1A41] text-white font-semibold px-6 py-3.5 lg:py-3 transition-colors"
                     data-testid="apply-filters-button"
                   >
                     Apply filters
@@ -352,7 +352,7 @@ export default function Browse() {
                     to={`/providers/${provider.provider_id}`}
                     className="block group"
                   >
-                    <div className="relative w-full aspect-[3/4] overflow-hidden bg-[#141416] border border-[#dbdadd] hover:border-[#832161] transition-all duration-300">
+                    <div className="relative w-full aspect-[3/4] overflow-hidden bg-[#141416] border border-[#dbdadd] hover:border-[#7A2357] transition-all duration-300">
                       <img
                         src={provider.photos?.[0] || 'https://images.unsplash.com/photo-1768609957045-591c79431f48?crop=entropy&cs=srgb&fm=jpg&q=85'}
                         alt={provider.display_name}
@@ -365,7 +365,7 @@ export default function Browse() {
                       {/* VIP pill - top left */}
                       {provider.vip_active && (
                         <div
-                          className="absolute top-2 left-2 px-2 py-1 bg-[#832161] text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm flex items-center gap-1 shadow-lg"
+                          className="absolute top-2 left-2 px-2 py-1 bg-[#7A2357] text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm flex items-center gap-1 shadow-lg"
                           data-testid={`vip-pill-${index}`}
                         >
                           <Crown size={11} weight="fill" />

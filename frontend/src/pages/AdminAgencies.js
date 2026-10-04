@@ -15,7 +15,7 @@ import TablePagination from '@/components/TablePagination';
 
 const PER_PAGE = 15;
 
-const StatCard = ({ icon: Icon, label, value, accent = '#832161', testId }) => (
+const StatCard = ({ icon: Icon, label, value, accent = '#7A2357', testId }) => (
   <div className="bg-white border border-[#dbdadd] rounded-lg p-6" data-testid={testId}>
     <div className="flex items-center gap-4">
       <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: `${accent}1a` }}>
@@ -23,7 +23,7 @@ const StatCard = ({ icon: Icon, label, value, accent = '#832161', testId }) => (
       </div>
       <div>
         <p className="text-[#898989] text-sm">{label}</p>
-        <p className="text-2xl" style={{ color: accent === '#832161' ? '#000000' : accent }}>{value}</p>
+        <p className="text-2xl" style={{ color: accent === '#7A2357' ? '#000000' : accent }}>{value}</p>
       </div>
     </div>
   </div>
@@ -37,9 +37,9 @@ const TabNav = ({ active }) => (
       { to: '/admin/verifications', label: 'Verifications', id: 'verifications' },
     ].map((t) =>
       t.id === active ? (
-        <span key={t.id} className="px-4 py-2 text-sm uppercase tracking-wider border border-[#832161] text-[#832161] rounded" data-testid={`tab-${t.id}`}>{t.label}</span>
+        <span key={t.id} className="px-4 py-2 text-sm uppercase tracking-wider border border-[#7A2357] text-[#7A2357] rounded" data-testid={`tab-${t.id}`}>{t.label}</span>
       ) : (
-        <Link key={t.id} to={t.to} className="px-4 py-2 text-sm uppercase tracking-wider border border-[#dbdadd] text-[#898989] hover:border-[#832161] hover:text-[#832161] rounded transition-colors" data-testid={`tab-${t.id}`}>{t.label}</Link>
+        <Link key={t.id} to={t.to} className="px-4 py-2 text-sm uppercase tracking-wider border border-[#dbdadd] text-[#898989] hover:border-[#7A2357] hover:text-[#7A2357] rounded transition-colors" data-testid={`tab-${t.id}`}>{t.label}</Link>
       )
     )}
   </div>
@@ -147,7 +147,7 @@ export default function AdminAgencies() {
     <div className="min-h-screen bg-[#F0EFF4] dashboard-light">
       <SiteHeader
         leftSlot={
-          <Link to="/admin" className="flex items-center gap-2 text-[#898989] hover:text-[#832161] transition-colors" data-testid="back-to-admin-link">
+          <Link to="/admin" className="flex items-center gap-2 text-[#898989] hover:text-[#7A2357] transition-colors" data-testid="back-to-admin-link">
             <CaretLeft size={18} />
             <span className="uppercase tracking-wider text-xs md:text-sm">Admin</span>
           </Link>
@@ -174,8 +174,8 @@ export default function AdminAgencies() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agencies-section">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
-                <Buildings size={22} className="text-[#832161]" />
-                <h3 className="text-xl font-bold text-[#832161]">Agencies</h3>
+                <Buildings size={22} className="text-[#7A2357]" />
+                <h3 className="text-xl font-bold text-[#7A2357]">Agencies</h3>
               </div>
               <div className="relative">
                 <MagnifyingGlass size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#898989]" />
@@ -209,7 +209,7 @@ export default function AdminAgencies() {
                         <td className="py-4 px-4 border-l rounded-l-lg">
                           <button onClick={() => toggleRoster(a)} className="flex items-center gap-2 text-left group" data-testid={`agency-expand-${a.user_id}`}>
                             {expanded === a.user_id ? <CaretDown size={16} className="text-[#898989]" /> : <CaretRight size={16} className="text-[#898989]" />}
-                            <span className="text-[#000000] group-hover:text-[#832161] transition-colors font-medium">{a.agency_name}</span>
+                            <span className="text-[#000000] group-hover:text-[#7A2357] transition-colors font-medium">{a.agency_name}</span>
                           </button>
                         </td>
                         <td className="py-4 px-4 text-[#898989] hidden md:table-cell">{[a.location?.city, a.location?.country].filter(Boolean).join(', ') || '—'}</td>
