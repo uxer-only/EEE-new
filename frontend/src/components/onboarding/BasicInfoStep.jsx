@@ -111,19 +111,16 @@ export default function BasicInfoStep({
           {/* Display name */}
           <div className="w-full sm:max-w-[380px]">
             <Label htmlFor="display-name">{isAgency ? 'Agency name' : 'Display name'}</Label>
-            <div className="relative">
-              <input
-                id="display-name"
-                type="text"
-                value={profileData.display_name}
-                onChange={(e) => setProfileData({ ...profileData, display_name: e.target.value.slice(0, 30) })}
-                className={`${inputCls} pr-16`}
-                placeholder={isAgency ? 'Your agency name' : 'Mila'}
-                maxLength={30}
-                data-testid="display-name-input"
-              />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#BDB4C5]">{nameLen}/30</span>
-            </div>
+            <input
+              id="display-name"
+              type="text"
+              value={profileData.display_name}
+              onChange={(e) => setProfileData({ ...profileData, display_name: e.target.value.slice(0, 30) })}
+              className={inputCls}
+              placeholder={isAgency ? 'Your agency name' : 'Mila'}
+              maxLength={30}
+              data-testid="display-name-input"
+            />
             <p className="text-xs text-[#8E8597] mt-0.5">No real name needed.</p>
           </div>
 
@@ -136,12 +133,11 @@ export default function BasicInfoStep({
                 type="number"
                 value={profileData.age}
                 onChange={(e) => setProfileData({ ...profileData, age: e.target.value })}
-                className={`${inputCls} pr-16`}
+                className={inputCls}
                 placeholder="27"
                 min="18"
                 data-testid="age-input"
               />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#BDB4C5]">years</span>
             </div>
             <p className="text-xs text-[#8E8597] mt-0.5">18 or older.</p>
           </div>
