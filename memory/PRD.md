@@ -32,6 +32,7 @@ See `/app/memory/test_credentials.md`.
 - `reports`: {provider_id, reporter_name, reporter_email, description, attachments, created_at}
 
 ## Implemented (recent)
+- 2026-06: **Provider onboarding Step 1 redesign** — extracted step 1 into `components/onboarding/BasicInfoStep.jsx` (3 light cards: Basic information, Contact information, Physical characteristics). New shared header ("Step X of 5 · About 6 minutes left", "Complete your profile", functional **Draft saved** indicator + **Save & exit**), numbered horizontal stepper, and standalone action-bar footer ("…optional." helper + "Save & continue"). Added functional draft autosave (debounced PUT once a draft exists; explicit Save & continue creates on first save, no duplicates). Rewrote `CharacteristicsForm.jsx` with real **Breast size** (A/B/C/D/DD+) and **Breast type** (Natural/Enhanced) fields, plus ethnicity pills, cm/kg inputs, Yes/No segmented toggles. `ExtraFilters` breast_type options updated to Natural/Enhanced. Verified end-to-end by testing agent (backend 7/7, frontend 100%, iteration_17).
 - 2026-06: **Manual Location Override on Browse** — `origin_city`/`origin_country` params override IP-based geo-sort; frontend `/browse` has a "Showing results nearest to [city ▼]" dropdown (28 EU cities + Auto-detect), persisted in localStorage (`ee-origin-city`). Verified desktop + mobile.
 - Browse search box + SEARCH button width now matches the filter buttons row (shared `w-fit` wrapper).
 - IP-based geo-sorting (ipgeolocation.io + Haversine + Nominatim geocode).
