@@ -140,7 +140,7 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
       {/* Breast size */}
       <div>
         <Label>Breast size</Label>
-        <Segmented options={BREAST_SIZES} value={c.breast_size} onChange={(v) => update('breast_size', v)} testId="char-breast_size" />
+        <Segmented options={BREAST_SIZES} value={c.breast_size} onChange={(v) => update('breast_size', v)} testId="char-breast_size" variant="wine" />
       </div>
 
       {/* Breast type */}
