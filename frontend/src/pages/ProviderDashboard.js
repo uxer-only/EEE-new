@@ -8,7 +8,7 @@ import {
   ChatCircle, CheckCircle, User, MapPin, Camera, Clock, 
   CurrencyDollar, FileText, Phone, EnvelopeSimple, WhatsappLogo,
   Plus, Trash, CaretRight, CaretLeft, UploadSimple, X, VideoCamera, ShieldCheck, Crown, Sparkle, ArrowRight, DotsSixVertical,
-  PaperPlaneTilt, DownloadSimple, Eye, Check, CircleNotch
+  PaperPlaneTilt, DownloadSimple, Eye, Check, CircleNotch, Lock
 } from 'phosphor-react';
 import { toast } from 'sonner';
 import { notifyError, notifyProblem } from '../lib/notify';
@@ -173,6 +173,15 @@ export default function ProviderDashboard() {
   const planTotal =
     (FEATURED_OPTIONS.find((o) => o.id === planFeatured)?.price || 0) +
     (planVipOn ? VIP_OPTIONS.find((o) => o.id === planVip)?.price || 0 : 0);
+
+  // Step 5 order summary — VIP duration always mirrors the chosen Featured duration
+  const featuredOpt = FEATURED_OPTIONS.find((o) => o.id === planFeatured);
+  const featuredWeeks = planFeatured === 'featured_2w' ? '2 weeks' : '4 weeks';
+  const vipPrice = VIP_OPTIONS.find((o) => o.id === (planFeatured === 'featured_2w' ? 'vip_2w' : 'vip_4w'))?.price || 0;
+  const stepTotal = (featuredOpt?.price || 0) + (planVipOn ? vipPrice : 0);
+  useEffect(() => {
+    setPlanVip(planFeatured === 'featured_2w' ? 'vip_2w' : 'vip_4w');
+  }, [planFeatured]);
 
   const handlePayAndActivate = async () => {
     if (user && user.email_verified === false) {
@@ -1246,7 +1255,7 @@ export default function ProviderDashboard() {
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7A2357] mb-2" data-testid="step-indicator-label">
-                  Step {currentStep} of {steps.length} · About 6 minutes left
+                  Step {currentStep} of {steps.length} · {currentStep === steps.length ? 'Final step' : 'About 6 minutes left'}
                 </p>
                 <h2 className="text-[30px] md:text-4xl font-bold text-[#1B1820] leading-tight mb-1">Complete your profile</h2>
                 <p className="text-[#5F5966]">Set up your provider profile to start receiving enquiries.</p>
@@ -1317,7 +1326,7 @@ export default function ProviderDashboard() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className={currentStep === 1 || currentStep === 4 ? 'p-0' : 'bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8 shadow-[0_6px_20px_rgba(52,24,60,0.06)] transition-none'}
+            className={currentStep === 1 || currentStep === 4 || currentStep === 5 ? 'p-0' : 'bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8 shadow-[0_6px_20px_rgba(52,24,60,0.06)] transition-none'}
           >
             {/* Step 1: Basic Info */}
             {currentStep === 1 && (
@@ -1529,152 +1538,111 @@ export default function ProviderDashboard() {
 
             {/* Step 5: Activate (paid advertising) */}
             {currentStep === 5 && (
-              <div className="space-y-8">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#7A2357] mb-3">Final step</p>
-                  <h3 className="text-2xl text-[#7A2357] mb-2">Activate your profile</h3>
-                  <p className="text-[#000000] text-sm max-w-xl">
-                    Your profile is saved. A Featured listing makes you visible to clients on Browse. Add VIP Boost to appear at the top of every search.
-                  </p>
-                </div>
+              <div className="flex flex-col gap-6">
+                {/* Card 1: Activate your profile */}
+                <div className="bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8 shadow-[0_6px_20px_rgba(52,24,60,0.06)]">
+                  <div className="mb-6">
+                    <h3 className="text-[24px] md:text-[28px] font-bold text-[#1B1820] mb-1">Activate your profile</h3>
+                    <p className="text-sm text-[#5F5966]">Your profile is saved. Pick how long it stays visible on Browse.</p>
+                  </div>
 
-                {/* Featured */}
-                <div className="card-premium p-6">
-                  <div className="flex items-start gap-3 mb-5">
-                    <Sparkle size={20} weight="fill" className="text-[#7A2357] mt-1 flex-shrink-0" />
+                  <div className="flex flex-col gap-6">
+                    {/* Featured listing */}
                     <div>
-                      <h4 className="text-xl text-[#000000]">Featured listing</h4>
-                      <p className="text-[#000000] text-sm">Required to be visible on Browse.</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {FEATURED_OPTIONS.map((opt) => (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() => setPlanFeatured(opt.id)}
-                        className={`relative text-left p-5 border-2 transition-all ${
-                          planFeatured === opt.id
-                            ? 'border-[#7A2357] bg-[#7A2357]/5'
-                            : 'border-[#dbdadd] hover:border-[#7A2357]'
-                        }`}
-                        data-testid={`featured-option-${opt.id}`}
-                      >
-                        {opt.badge && (
-                          <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#7A2357] text-[#FFFFFF] font-medium">
-                            {opt.badge}
-                          </span>
-                        )}
-                        <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
-                        <p className="text-3xl text-[#000000] mb-1">€{opt.price}</p>
-                        <p className="text-[#000000] text-xs">{opt.perDay}</p>
-                        {planFeatured === opt.id && (
-                          <CheckCircle size={18} weight="fill" className="absolute bottom-3 right-3 text-[#7A2357]" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* VIP Boost */}
-                <div className="card-premium p-6">
-                  <div className="flex items-start justify-between mb-5 gap-4">
-                    <div className="flex items-start gap-3">
-                      <Crown size={20} weight="fill" className="text-[#7A2357] mt-1 flex-shrink-0" />
-                      <div>
-                        <h4 className="text-xl text-[#000000]">
- VIP Boost <span className="text-xs uppercase tracking-[0.2em] text-[#000000] ml-2">Optional</span>
- </h4>
-                        <p className="text-[#000000] text-sm">Be displayed at the very top of Browse.</p>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-3">
+                        <Sparkle size={18} weight="fill" className="text-[#7A2357]" />
+                        <span className="font-bold text-[#1B1820]">Featured listing</span>
+                        <span className="text-sm text-[#8E8597]">· required to appear on Browse</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {FEATURED_OPTIONS.map((opt) => {
+                          const on = planFeatured === opt.id;
+                          return (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              onClick={() => setPlanFeatured(opt.id)}
+                              className={`relative text-left rounded-xl border p-5 transition-colors ${on ? 'border-[#7A2357] bg-[#7A2357]/5' : 'border-[#DFDAE4] bg-white hover:border-[#7A2357]'}`}
+                              data-testid={`featured-option-${opt.id}`}
+                            >
+                              <span className={`absolute top-4 right-4 w-5 h-5 rounded-full border-2 flex items-center justify-center ${on ? 'border-[#7A2357]' : 'border-[#C9C3CE]'}`}>
+                                {on && <span className="w-2.5 h-2.5 rounded-full bg-[#7A2357]" />}
+                              </span>
+                              <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8E8597] mb-2">{opt.label}</p>
+                              <p className="text-[34px] leading-none font-bold text-[#1B1820] mb-2">€{opt.price}</p>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-[#8E8597]">{opt.perDay}</span>
+                                {opt.badge && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#7A2357] text-white">{opt.badge}</span>}
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
+
+                    {/* VIP Boost add-on */}
                     <button
                       type="button"
-                      role="switch"
-                      aria-checked={planVipOn}
                       onClick={() => setPlanVipOn(!planVipOn)}
-                      className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
-                        planVipOn ? 'bg-[#7A2357]' : 'bg-[#dbdadd]'
-                      }`}
+                      className={`flex items-center gap-3 sm:gap-4 text-left rounded-xl border p-4 transition-colors ${planVipOn ? 'border-[#7A2357] bg-[#7A2357]/5' : 'border-[#ECE8EF] bg-white hover:border-[#7A2357]'}`}
                       data-testid="vip-toggle"
                     >
-                      <span
-                        className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-[#FFFFFF] transition-transform ${
-                          planVipOn ? 'translate-x-5' : ''
-                        }`}
-                      />
+                      <span className={`flex-shrink-0 w-5 h-5 rounded-[5px] border-2 flex items-center justify-center ${planVipOn ? 'bg-[#7A2357] border-[#7A2357]' : 'bg-white border-[#898989]'}`}>
+                        {planVipOn && <Check size={13} weight="bold" className="text-white" />}
+                      </span>
+                      <span className="flex-shrink-0 w-10 h-10 rounded-full bg-[#EBE0EA] flex items-center justify-center text-[#7A2357]"><Crown size={20} weight="fill" /></span>
+                      <span className="flex-1 min-w-0">
+                        <span className="flex flex-wrap items-center gap-2">
+                          <span className="font-semibold text-[#1B1820]">Add VIP Boost</span>
+                          <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#F0ECF2] text-[#8E8597]">Optional</span>
+                        </span>
+                        <span className="block text-sm text-[#5F5966]">Show at the very top of Browse for the same {featuredWeeks}.</span>
+                      </span>
+                      <span className="flex-shrink-0 font-bold text-[#1B1820]">+ €{vipPrice}</span>
                     </button>
-                  </div>
-                  {/* VIP cards: always visible (prices shown upfront), dimmed when toggle is OFF */}
-                  <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 transition-opacity ${planVipOn ? 'opacity-100' : 'opacity-50'}`}>
-                    {VIP_OPTIONS.map((opt) => (
+
+                    {/* Auto-renew */}
+                    <div className="flex items-center justify-between gap-4 rounded-xl bg-[#EBE0EA] px-5 py-4">
+                      <div>
+                        <div className="font-semibold text-[#1B1820]">Auto-renew</div>
+                        <div className="text-sm text-[#5F5966]">Renew automatically when your plan ends. Cancel any time from your dashboard.</div>
+                      </div>
                       <button
-                        key={opt.id}
                         type="button"
-                        onClick={() => {
-                          // First click selects + auto-enables VIP toggle; subsequent click just switches option
-                          if (!planVipOn) setPlanVipOn(true);
-                          setPlanVip(opt.id);
-                        }}
-                        className={`relative text-left p-4 border-2 transition-all ${
-                          planVipOn && planVip === opt.id
-                            ? 'border-[#7A2357] bg-[#7A2357]/5'
-                            : 'border-[#dbdadd] hover:border-[#7A2357]'
-                        }`}
-                        data-testid={`vip-option-${opt.id}`}
+                        role="switch"
+                        aria-checked={autoRenew}
+                        onClick={() => setAutoRenew(!autoRenew)}
+                        className={`flex-shrink-0 w-12 h-7 rounded-full p-0.5 transition-colors ${autoRenew ? 'bg-[#7A2357]' : 'bg-[#D8D2DC]'}`}
+                        data-testid="auto-renew-toggle"
                       >
-                        {opt.badge && (
-                          <span className="absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2 py-1 bg-[#7A2357] text-[#FFFFFF] font-medium">
-                            {opt.badge}
-                          </span>
-                        )}
-                        <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-2">{opt.label}</p>
-                        <p className="text-2xl text-[#000000]">€{opt.price}</p>
-                        {planVipOn && planVip === opt.id && (
-                          <CheckCircle size={16} weight="fill" className="absolute bottom-3 right-3 text-[#7A2357]" />
-                        )}
+                        <span className={`block w-6 h-6 rounded-full bg-white transition-transform ${autoRenew ? 'translate-x-5' : 'translate-x-0'}`} />
                       </button>
-                    ))}
+                    </div>
                   </div>
                 </div>
 
-                {/* Auto-renew */}
-                <div className="card-premium p-6 flex items-center justify-between gap-4 flex-wrap">
-                  <div>
-                    <h4 className="text-lg text-[#000000] mb-1">Auto-renew</h4>
-                    <p className="text-[#000000] text-sm">
-                      Automatically renew your plan when it expires. Cancel any time from your dashboard.
-                    </p>
+                {/* Card 2: Your order */}
+                <div className="bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8 shadow-[0_6px_20px_rgba(52,24,60,0.06)]">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8E8597] mb-4">Your order</p>
+                  <div className="flex items-center justify-between gap-4 pb-4">
+                    <span className="text-[#1B1820]">Featured listing · {featuredWeeks}</span>
+                    <span className="text-[#1B1820] font-medium">€{featuredOpt?.price || 0}</span>
                   </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={autoRenew}
-                    onClick={() => setAutoRenew(!autoRenew)}
-                    className={`relative w-12 h-7 rounded-full transition-colors flex-shrink-0 ${
-                      autoRenew ? 'bg-[#7A2357]' : 'bg-[#dbdadd]'
-                    }`}
-                    data-testid="auto-renew-toggle"
-                  >
-                    <span
-                      className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-[#FFFFFF] transition-transform ${
-                        autoRenew ? 'translate-x-5' : ''
-                      }`}
-                    />
-                  </button>
-                </div>
-
-                {/* Total */}
-                <div className="card-premium p-6 flex items-end justify-between flex-wrap gap-4">
-                  <div>
-                    <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-1">Total today</p>
-                    <p className="text-4xl text-[#000000]" data-testid="total-amount">€{planTotal}</p>
+                  {planVipOn && (
+                    <div className="flex items-center justify-between gap-4 pb-4">
+                      <span className="text-[#1B1820]">VIP Boost · {featuredWeeks}</span>
+                      <span className="text-[#1B1820] font-medium">€{vipPrice}</span>
+                    </div>
+                  )}
+                  <div className="border-t border-[#ECE8EF] pt-4 flex items-center justify-between gap-4">
+                    <span className="text-lg font-bold text-[#1B1820]">Total today</span>
+                    <span className="text-[28px] font-bold text-[#1B1820]" data-testid="total-amount">€{stepTotal}</span>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[#000000] text-xs">
-                      {autoRenew ? `Then €${planTotal} per period until cancelled` : 'One-time payment'}
-                    </p>
-                    <p className="text-[#000000] text-xs">Visa, Mastercard, Apple Pay, PayPal & more</p>
+                  <p className="text-sm text-[#8E8597] mt-3">
+                    {autoRenew ? `Then €${stepTotal} every ${featuredWeeks} until cancelled. Cancel any time from your dashboard.` : 'One-time payment. No auto-renew.'}
+                  </p>
+                  <div className="flex items-center justify-center gap-2 mt-5 text-sm text-[#8E8597]">
+                    <Lock size={15} weight="fill" /> Visa, Mastercard, Apple Pay, PayPal &amp; more
                   </div>
                 </div>
               </div>
@@ -1769,17 +1737,20 @@ export default function ProviderDashboard() {
                       <CaretRight size={20} />
                     </button>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={handlePayAndActivate}
-                      disabled={payRedirecting}
-                      className="btn-primary flex items-center gap-2 disabled:opacity-50"
-                      data-testid="pay-and-activate-button"
-                    >
-                      {payRedirecting ? 'Redirecting…' : (
-                        <>Pay €{planTotal} & activate <ArrowRight size={18} /></>
-                      )}
-                    </button>
+                    <>
+                      <p className="hidden sm:block text-sm text-[#8E8597]">Not ready? Your profile stays saved as a draft.</p>
+                      <button
+                        type="button"
+                        onClick={handlePayAndActivate}
+                        disabled={payRedirecting}
+                        className="btn-primary flex items-center gap-2 disabled:opacity-50"
+                        data-testid="pay-and-activate-button"
+                      >
+                        {payRedirecting ? 'Redirecting…' : (
+                          <>Pay €{stepTotal} & activate <ArrowRight size={18} /></>
+                        )}
+                      </button>
+                    </>
                   )}
                 </>
               )}
