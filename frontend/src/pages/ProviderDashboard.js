@@ -161,32 +161,32 @@ export default function ProviderDashboard() {
     ...(isAgencyScoped ? [] : [{ id: 5, title: 'Activate', icon: Crown }])
   ];
 
-  // Plan options for Step 5 (mirrors Subscribe.js / backend PLANS allowlist)
+  // Plan options for Step 5 (mirrors backend PLANS allowlist)
   const FEATURED_OPTIONS = [
-    { id: 'featured_2w', label: '2 weeks', price: 30, perDay: '€2.14 / day' },
-    { id: 'featured_4w', label: '4 weeks', price: 55, perDay: '€1.96 / day', badge: 'Save €5' }
+    { id: 'featured_7d',  label: '7 days',   days: 7,  price: 30,  perDay: '€4.29 / day', vip: 'vip_7d' },
+    { id: 'featured_15d', label: '15 days',  days: 15, price: 50,  perDay: '€3.33 / day', vip: 'vip_15d' },
+    { id: 'featured_1m',  label: '1 month',  days: 30, price: 90,  perDay: '€3.00 / day', vip: 'vip_1m' },
+    { id: 'featured_3m',  label: '3 months', days: 90, price: 240, perDay: '€2.67 / day', vip: 'vip_3m', badge: 'Best value' },
   ];
   const VIP_OPTIONS = [
-    { id: 'vip_2w', label: '2 weeks', price: 15 },
-    { id: 'vip_4w', label: '4 weeks', price: 25, badge: 'Save €5' }
+    { id: 'vip_7d',  price: 10 },
+    { id: 'vip_15d', price: 15 },
+    { id: 'vip_1m',  price: 25 },
+    { id: 'vip_3m',  price: 60 },
   ];
-  const [planFeatured, setPlanFeatured] = useState('featured_4w');
+  const [planFeatured, setPlanFeatured] = useState('featured_1m');
   const [planVipOn, setPlanVipOn] = useState(false);
-  const [planVip, setPlanVip] = useState('vip_4w');
+  const [planVip, setPlanVip] = useState('vip_1m');
   const [autoRenew, setAutoRenew] = useState(true);
   const [payRedirecting, setPayRedirecting] = useState(false);
 
-  const planTotal =
-    (FEATURED_OPTIONS.find((o) => o.id === planFeatured)?.price || 0) +
-    (planVipOn ? VIP_OPTIONS.find((o) => o.id === planVip)?.price || 0 : 0);
-
   // Step 5 order summary — VIP duration always mirrors the chosen Featured duration
   const featuredOpt = FEATURED_OPTIONS.find((o) => o.id === planFeatured);
-  const featuredWeeks = planFeatured === 'featured_2w' ? '2 weeks' : '4 weeks';
-  const vipPrice = VIP_OPTIONS.find((o) => o.id === (planFeatured === 'featured_2w' ? 'vip_2w' : 'vip_4w'))?.price || 0;
+  const featuredLabel = featuredOpt?.label || '';
+  const vipPrice = VIP_OPTIONS.find((o) => o.id === featuredOpt?.vip)?.price || 0;
   const stepTotal = (featuredOpt?.price || 0) + (planVipOn ? vipPrice : 0);
   useEffect(() => {
-    setPlanVip(planFeatured === 'featured_2w' ? 'vip_2w' : 'vip_4w');
+    if (featuredOpt?.vip) setPlanVip(featuredOpt.vip);
   }, [planFeatured]);
 
   const handlePayAndActivate = async () => {
@@ -1597,7 +1597,7 @@ export default function ProviderDashboard() {
                           <span className="font-semibold text-[#1B1820]">Add VIP Boost</span>
                           <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#F0ECF2] text-[#8E8597]">Optional</span>
                         </span>
-                        <span className="block text-sm text-[#5F5966]">Show at the very top of Browse for the same {featuredWeeks}.</span>
+                        <span className="block text-sm text-[#5F5966]">Show at the very top of Browse for the same {featuredLabel}.</span>
                       </span>
                       <span className="flex-shrink-0 font-bold text-[#1B1820]">+ €{vipPrice}</span>
                     </button>
@@ -1626,12 +1626,12 @@ export default function ProviderDashboard() {
                 <div className="bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8 shadow-[0_6px_20px_rgba(52,24,60,0.06)]">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8E8597] mb-4">Your order</p>
                   <div className="flex items-center justify-between gap-4 pb-4">
-                    <span className="text-[#1B1820]">Featured listing · {featuredWeeks}</span>
+                    <span className="text-[#1B1820]">Featured listing · {featuredLabel}</span>
                     <span className="text-[#1B1820] font-medium">€{featuredOpt?.price || 0}</span>
                   </div>
                   {planVipOn && (
                     <div className="flex items-center justify-between gap-4 pb-4">
-                      <span className="text-[#1B1820]">VIP Boost · {featuredWeeks}</span>
+                      <span className="text-[#1B1820]">VIP Boost · {featuredLabel}</span>
                       <span className="text-[#1B1820] font-medium">€{vipPrice}</span>
                     </div>
                   )}
@@ -1640,7 +1640,7 @@ export default function ProviderDashboard() {
                     <span className="text-[28px] font-bold text-[#1B1820]" data-testid="total-amount">€{stepTotal}</span>
                   </div>
                   <p className="text-sm text-[#8E8597] mt-3">
-                    {autoRenew ? `Then €${stepTotal} every ${featuredWeeks} until cancelled. Cancel any time from your dashboard.` : 'One-time payment. No auto-renew.'}
+                    {autoRenew ? `Then €${stepTotal} every ${featuredLabel} until cancelled. Cancel any time from your dashboard.` : 'One-time payment. No auto-renew.'}
                   </p>
                   <div className="flex items-center justify-center gap-2 mt-5 text-sm text-[#8E8597]">
                     <Lock size={15} weight="fill" /> Visa, Mastercard, Apple Pay, PayPal &amp; more

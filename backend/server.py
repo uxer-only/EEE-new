@@ -739,6 +739,15 @@ PLANS = {
     "featured_4w": {"label": "Featured · 4 weeks", "amount": 55.00, "duration_days": 28, "kind": "featured"},
     "vip_2w":      {"label": "VIP Boost · 2 weeks", "amount": 15.00, "duration_days": 14, "kind": "vip"},
     "vip_4w":      {"label": "VIP Boost · 4 weeks", "amount": 25.00, "duration_days": 28, "kind": "vip"},
+    # Independent advertiser plans (per profile)
+    "featured_7d":  {"label": "Featured · 7 days",   "amount": 30.00,  "duration_days": 7,  "kind": "featured"},
+    "featured_15d": {"label": "Featured · 15 days",  "amount": 50.00,  "duration_days": 15, "kind": "featured"},
+    "featured_1m":  {"label": "Featured · 1 month",  "amount": 90.00,  "duration_days": 30, "kind": "featured"},
+    "featured_3m":  {"label": "Featured · 3 months", "amount": 240.00, "duration_days": 90, "kind": "featured"},
+    "vip_7d":  {"label": "VIP Boost · 7 days",   "amount": 10.00, "duration_days": 7,  "kind": "vip"},
+    "vip_15d": {"label": "VIP Boost · 15 days",  "amount": 15.00, "duration_days": 15, "kind": "vip"},
+    "vip_1m":  {"label": "VIP Boost · 1 month",  "amount": 25.00, "duration_days": 30, "kind": "vip"},
+    "vip_3m":  {"label": "VIP Boost · 3 months", "amount": 60.00, "duration_days": 90, "kind": "vip"},
     # Agency per-profile pricing (€30 / 2wk, €50 / 4wk)
     "agency_featured_2w": {"label": "Featured · 2 weeks", "amount": 30.00, "duration_days": 14, "kind": "featured"},
     "agency_featured_4w": {"label": "Featured · 4 weeks", "amount": 50.00, "duration_days": 28, "kind": "featured"},
