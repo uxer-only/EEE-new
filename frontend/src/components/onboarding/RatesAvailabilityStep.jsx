@@ -233,7 +233,7 @@ export const RatesAvailabilityStep = ({ data, update }) => {
           </div>
 
           {/* Booking in advance */}
-          <div className="flex items-center justify-between gap-4 rounded-xl bg-[#F7F5F9] px-5 py-4">
+          <div className="flex items-center justify-between gap-4 rounded-xl bg-[#EBE0EA] px-5 py-4">
             <div>
               <div className="font-semibold text-[#1B1820]">Booking in advance required</div>
               <div className="text-sm text-[#5F5966]">Clients see &ldquo;Book ahead&rdquo; instead of &ldquo;Available now&rdquo;.</div>
@@ -414,7 +414,7 @@ export const RatesAvailabilityStep = ({ data, update }) => {
 
         {/* Taxi (outcall) */}
         {kinds.includes('outcall') && (
-          <div className="mt-6 rounded-xl bg-[#F7F5F9] px-5 py-4">
+          <div className="mt-6 rounded-xl bg-[#EBE0EA] px-5 py-4">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="font-semibold text-[#1B1820]">Taxi costs charged extra for outcall</div>
