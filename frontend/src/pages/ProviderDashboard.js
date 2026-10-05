@@ -873,15 +873,15 @@ export default function ProviderDashboard() {
                 ) : (
                   <div className="flex flex-col gap-3 flex-1">
                     {previewEnquiries.map((e) => (
-                      <div key={e.enquiry_id} className="flex items-start gap-2">
-                        <span className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${e.read ? 'bg-transparent' : 'bg-[#7A2357]'}`} />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-2">
+                      <div key={e.enquiry_id} className="rounded-xl border border-[#F1ECF1] p-3">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${e.read ? 'bg-transparent' : 'bg-[#7A2357]'}`} />
                             <span className="text-sm font-semibold text-[#1B1820] truncate">{e.name}</span>
-                            <span className="text-xs text-[#8E8597] flex-shrink-0">{e.created_at ? fmtDate(e.created_at) : ''}</span>
                           </div>
-                          <p className="text-xs text-[#5F5966] truncate">{e.message}</p>
+                          <span className="text-xs text-[#8E8597] flex-shrink-0">{e.created_at ? fmtDate(e.created_at) : ''}</span>
                         </div>
+                        <p className="text-xs text-[#5F5966] truncate">{e.message}</p>
                       </div>
                     ))}
                   </div>
