@@ -263,26 +263,17 @@ export default function AgencyDashboard() {
 
           {/* Companion profiles */}
           <div className={`${CARD} p-6 md:p-8 mb-10`} data-testid="companion-profiles-card">
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+            <div className={`flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 ${profiles.length === 0 ? '' : 'mb-6'}`}>
               <div>
                 <h3 className="text-xl font-bold text-[#1B1820]" data-testid="companion-profiles-heading">Companion profiles</h3>
-                <p className="text-sm text-[#8E8597] mt-1">{profiles.length} profile{profiles.length === 1 ? '' : 's'} · {liveCount} live · choose a plan per profile and pay for all at once</p>
+                <p className="text-sm text-[#8E8597] mt-1">{profiles.length === 0 ? 'No profiles yet' : `${profiles.length} profile${profiles.length === 1 ? '' : 's'} · ${liveCount} live · choose a plan per profile and pay for all at once`}</p>
               </div>
               <button onClick={() => navigate('/dashboard/profile/new')} className={WINE_BTN} data-testid="add-profile-btn">
                 <Plus size={18} weight="bold" /> Add profile
               </button>
             </div>
 
-            {profiles.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-[#D9D2E0] py-12 px-6 text-center" data-testid="agency-empty-state">
-                <div className="w-14 h-14 rounded-full bg-[#F3E6EF] flex items-center justify-center mx-auto mb-4"><Users size={26} weight="fill" className="text-[#7A2357]" /></div>
-                <h4 className="text-lg font-bold text-[#1B1820] mb-2">No profiles yet</h4>
-                <p className="text-sm text-[#8E8597] mb-6 max-w-md mx-auto">Add your first companion. The profile starts from your agency defaults below, and you can tailor everything per companion.</p>
-                <button onClick={() => navigate('/dashboard/profile/new')} className={`${WINE_BTN} !px-5 !py-3`} data-testid="add-first-profile-btn">
-                  <Plus size={18} weight="bold" /> Add your first profile
-                </button>
-              </div>
-            ) : (
+            {profiles.length > 0 && (
               <div data-testid="agency-profiles-table">
                 {/* Column header */}
                 <div className="hidden md:grid md:grid-cols-[2.5fr_3fr_3fr_2.5fr_1fr] gap-4 bg-[#F4F1F7] rounded-lg px-5 py-3 mb-3">
