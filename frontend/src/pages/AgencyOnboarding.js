@@ -2,7 +2,7 @@ import { useState, Fragment } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { notifyError, notifyProblem } from '../lib/notify';
-import { User, FileText, CurrencyDollar, CaretLeft, CaretRight, CaretDown, Plus, X, Check, CheckCircle, Info } from 'phosphor-react';
+import { User, FileText, CurrencyDollar, CaretLeft, CaretRight, CaretDown, Plus, X, Check, CheckCircle, Info, ArrowRight } from 'phosphor-react';
 import { saveAgencyProfile } from '@/services/api';
 import SiteHeader from '@/components/SiteHeader';
 import ServicesStep from '@/components/onboarding/ServicesStep';
@@ -348,20 +348,19 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
           </motion.div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between gap-4 mt-6">
+          <div className="mt-6 bg-white border border-[#ECE8EF] rounded-2xl shadow-[0_6px_20px_rgba(52,24,60,0.06)] px-5 md:px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
             {step > 1 ? (
               <button onClick={back} className="px-5 py-2.5 rounded-lg border border-[#DFDAE4] bg-white text-sm font-semibold text-[#1B1820] hover:border-[#7A2357] hover:text-[#7A2357] transition-colors flex items-center gap-2" data-testid="agency-wizard-back">
                 <CaretLeft size={16} /> Back
               </button>
             ) : <span />}
-            <span className="hidden sm:block text-sm text-[#8E8597]">Step {step} of 3</span>
             {step < 3 ? (
-              <button onClick={next} className="btn-primary flex items-center gap-2" data-testid="agency-wizard-next">
-                Save &amp; continue <CaretRight size={16} />
+              <button onClick={next} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#7A2357] text-white text-sm font-semibold hover:bg-[#631c47] transition-colors" data-testid="agency-wizard-next">
+                Save &amp; continue <ArrowRight size={18} weight="bold" />
               </button>
             ) : (
-              <button onClick={handleFinish} disabled={saving} className="btn-primary flex items-center gap-2 disabled:opacity-50" data-testid="agency-wizard-finish">
-                {saving ? 'Saving…' : (<>Finish setup <Check size={16} weight="bold" /></>)}
+              <button onClick={handleFinish} disabled={saving} className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#7A2357] text-white text-sm font-semibold hover:bg-[#631c47] transition-colors disabled:opacity-50" data-testid="agency-wizard-finish">
+                {saving ? 'Saving…' : (<>Finish setup <Check size={18} weight="bold" /></>)}
               </button>
             )}
           </div>
