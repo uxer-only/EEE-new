@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { notifyError, notifyProblem } from '../lib/notify';
 import {
-  Plus, PencilSimple, Trash, CheckCircle, Crown, ChatCircle, Users, ArrowRight,
-  ShieldCheck, Gear, ArrowsClockwise
+  Plus, PencilSimple, Trash, Crown, ChatCircle, Users,
+  ShieldCheck, Gear, ArrowsClockwise, User, CaretDown
 } from 'phosphor-react';
 import {
   getAgencyProfiles, getAgencyProfile, deleteProviderProfile, setProfilePlan, createBulkCheckout, syncAgencyDefaults, deleteAgencyProfile
@@ -36,25 +36,36 @@ const planCost = (pp) => {
   return (FEATURED[pp.featured_plan]?.price || 0) + (pp.vip_plan ? (VIP_PRICE[pp.vip_plan] || 0) : 0);
 };
 
-const StatusPill = ({ profile }) => (
-  profile.featured_active ? (
-    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-[#22C55E]/10 text-[#15803D]">
-      <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" /> Live
-    </span>
-  ) : profile.in_grace ? (
-    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-[#F59E0B]/15 text-[#B45309]" title="Listing expired — still visible during the grace period" data-testid={`grace-pill-${profile.provider_id}`}>
-      <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" /> Renew · {Math.ceil(profile.grace_days_left)}d left
-    </span>
-  ) : profile.pending_plan ? (
-    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-[#A3243B]/10 text-[#A3243B]">
-      <span className="w-1.5 h-1.5 rounded-full bg-[#A3243B]" /> Ready to pay
-    </span>
+const fmtDate = (iso) => {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); } catch { return ''; }
+};
+
+const Avatar = ({ photo }) => (
+  photo ? (
+    <img src={photo} alt="" className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
   ) : (
-    <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-[#7A2357]/10 text-[#7A2357]">
-      <span className="w-1.5 h-1.5 rounded-full bg-[#7A2357]" /> Draft
-    </span>
+    <div className="w-14 h-14 rounded-xl bg-[#EFEAF2] flex items-center justify-center flex-shrink-0"><User size={24} className="text-[#B9AEC4]" /></div>
   )
 );
+
+const StatusPill = ({ profile: p }) => {
+  const base = 'inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap';
+  if (p.featured_active) {
+    return <span className={`${base} bg-[#E6F4EA] text-[#15803D]`} data-testid={`status-${p.provider_id}`}><span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" /> Live · {Math.max(0, Math.round(p.featured_days_left))} days left</span>;
+  }
+  if (p.in_grace) {
+    return <span className={`${base} bg-[#FDF3E3] text-[#B45309]`} data-testid={`status-${p.provider_id}`}><span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" /> Renew · {Math.ceil(p.grace_days_left)} days left</span>;
+  }
+  if (p.pending_plan && p.pending_plan.featured_plan) {
+    return <span className={`${base} bg-[#F7E9F1] text-[#7A2357]`} data-testid={`status-${p.provider_id}`}><span className="w-1.5 h-1.5 rounded-full bg-[#7A2357]" /> Ready to go live</span>;
+  }
+  if (p.featured_until) {
+    return <span className={`${base} bg-[#FBE9ED] text-[#A3243B]`} data-testid={`status-${p.provider_id}`}><span className="w-1.5 h-1.5 rounded-full bg-[#A3243B]" /> Expired {fmtDate(p.featured_until)}</span>;
+  }
+  const steps = (p.completed_steps != null && p.completed_steps < (p.total_steps || 5)) ? ` · ${p.completed_steps} of ${p.total_steps} steps` : '';
+  return <span className={`${base} bg-[#F0EEF3] text-[#6B6673]`} data-testid={`status-${p.provider_id}`}><span className="w-1.5 h-1.5 rounded-full bg-[#9A93A3]" /> Draft{steps}</span>;
+};
 
 export default function AgencyDashboard() {
   const { user, logout } = useAuth();
@@ -186,6 +197,7 @@ export default function AgencyDashboard() {
   const openEdit = (stepNo) => { setEditStep(stepNo); setEditing(true); };
 
   const activeCount = profiles.filter((p) => p.featured_active || p.in_grace).length;
+  const liveCount = profiles.filter((p) => p.featured_active).length;
   const totalUnread = profiles.reduce((s, p) => s + (p.unread_enquiries || 0), 0);
   const queued = profiles.filter((p) => p.pending_plan && p.pending_plan.featured_plan);
   const payableTotal = queued.reduce((s, p) => s + planCost(p.pending_plan), 0);
@@ -233,9 +245,6 @@ export default function AgencyDashboard() {
               <button onClick={() => openEdit(1)} className={GHOST_BTN} data-testid="agency-settings-btn">
                 <Gear size={18} /> Agency settings
               </button>
-              <button onClick={() => navigate('/dashboard/profile/new')} className={WINE_BTN} data-testid="add-profile-btn">
-                <Plus size={18} weight="bold" /> Add profile
-              </button>
             </div>
           </motion.div>
 
@@ -254,10 +263,16 @@ export default function AgencyDashboard() {
 
           {/* Companion profiles */}
           <div className={`${CARD} p-6 md:p-8 mb-10`} data-testid="companion-profiles-card">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-xl font-bold text-[#1B1820]" data-testid="companion-profiles-heading">Companion profiles</h3>
-              <span className="text-sm text-[#8E8597]">{profiles.length} profile{profiles.length === 1 ? '' : 's'}</span>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+              <div>
+                <h3 className="text-xl font-bold text-[#1B1820]" data-testid="companion-profiles-heading">Companion profiles</h3>
+                <p className="text-sm text-[#8E8597] mt-1">{profiles.length} profile{profiles.length === 1 ? '' : 's'} · {liveCount} live · choose a plan per profile and pay for all at once</p>
+              </div>
+              <button onClick={() => navigate('/dashboard/profile/new')} className={WINE_BTN} data-testid="add-profile-btn">
+                <Plus size={18} weight="bold" /> Add profile
+              </button>
             </div>
+
             {profiles.length === 0 ? (
               <div className="rounded-xl border border-dashed border-[#D9D2E0] py-12 px-6 text-center" data-testid="agency-empty-state">
                 <div className="w-14 h-14 rounded-full bg-[#F3E6EF] flex items-center justify-center mx-auto mb-4"><Users size={26} weight="fill" className="text-[#7A2357]" /></div>
@@ -268,82 +283,91 @@ export default function AgencyDashboard() {
                 </button>
               </div>
             ) : (
-              <div className="overflow-x-auto" data-testid="agency-profiles-table">
-                <table className="w-full text-left border-separate border-spacing-y-[6px]">
-                  <thead>
-                    <tr className="bg-[#F4F1F7]">
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#8E8597] font-semibold rounded-l-lg">Profile</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#8E8597] font-semibold hidden lg:table-cell">Description</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#8E8597] font-semibold">Plan</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#8E8597] font-semibold">Status</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#8E8597] font-semibold text-right rounded-r-lg">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {profiles.map((p) => {
-                      const pp = p.pending_plan || {};
-                      const vipSpacer = pp.featured_plan ? (
-                        <span aria-hidden="true" className="invisible flex items-center gap-2 text-xs">
-                          <span className="w-4 h-4" />
-                          <Crown size={13} /> VIP Boost
-                        </span>
-                      ) : null;
-                      return (
-                      <tr key={p.provider_id} className="[&>td]:align-middle [&>td]:bg-white [&>td]:border-y [&>td]:border-[#ECE8EF] transition-colors" data-testid={`agency-profile-row-${p.provider_id}`}>
-                        <td className="px-5 py-4 border-l rounded-l-lg">
-                          <div className="flex flex-col gap-2">
-                            <div className="min-h-[50px] flex flex-col justify-center">
+              <div data-testid="agency-profiles-table">
+                {/* Column header */}
+                <div className="hidden md:grid grid-cols-12 gap-4 bg-[#F4F1F7] rounded-lg px-5 py-3 mb-3">
+                  <div className="col-span-3 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Profile</div>
+                  <div className="col-span-3 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Description</div>
+                  <div className="col-span-3 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Plan</div>
+                  <div className="col-span-2 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Status</div>
+                  <div className="col-span-1 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold text-right">Actions</div>
+                </div>
+
+                {/* Rows */}
+                <div className="flex flex-col gap-3">
+                  {profiles.map((p) => {
+                    const pp = p.pending_plan || {};
+                    const selected = !!pp.featured_plan;
+                    const showDropdown = !p.featured_active && p.plan_selectable;
+                    return (
+                      <div
+                        key={p.provider_id}
+                        className={`rounded-xl bg-white px-4 md:px-5 py-4 transition-colors ${selected ? 'border border-l-4 border-[#7A2357]' : 'border border-[#ECE8EF]'}`}
+                        data-testid={`agency-profile-row-${p.provider_id}`}
+                      >
+                        <div className="grid grid-cols-12 gap-4 items-center">
+                          {/* Profile */}
+                          <div className="col-span-12 md:col-span-3 flex items-center gap-3">
+                            <Avatar photo={p.photo} />
+                            <div className="min-w-0">
                               <div className="flex items-center gap-2">
-                                <p className="font-medium text-[#1B1820]">{p.display_name}</p>
-                                {p.verified && <CheckCircle size={14} weight="fill" className="text-[#22C55E]" />}
-                                {p.unread_enquiries > 0 && <span className="text-[10px] font-medium px-1.5 py-0.5 bg-[#A3243B] text-white rounded-full">{p.unread_enquiries}</span>}
+                                <p className="font-bold text-[#1B1820] truncate">{p.display_name}</p>
+                                {p.unread_enquiries > 0 && <span className="text-[10px] font-medium px-1.5 py-0.5 bg-[#A3243B] text-white rounded-full flex-shrink-0">{p.unread_enquiries}</span>}
                               </div>
-                              <div className="lg:hidden mt-1 text-xs text-[#8E8597] line-clamp-1 max-w-xs">{p.bio || '—'}</div>
+                              <p className="text-sm text-[#8E8597]">{[p.age, p.city].filter(Boolean).join(' · ') || '—'}</p>
                             </div>
-                            {vipSpacer}
                           </div>
-                        </td>
-                        <td className="px-5 py-4 hidden lg:table-cell">
-                          <div className="flex flex-col gap-2">
-                            <div className="min-h-[50px] flex items-center"><p className="text-sm text-[#8E8597] line-clamp-1 max-w-xs">{p.bio || '—'}</p></div>
-                            {vipSpacer}
+
+                          {/* Description */}
+                          <div className="col-span-12 md:col-span-3">
+                            <p className="text-sm text-[#5F5966] line-clamp-2">{p.bio || <span className="italic text-[#A79FB0]">New profile — description not added yet.</span>}</p>
                           </div>
-                        </td>
-                        <td className="px-5 py-4">
-                          <div className="flex flex-col gap-2">
-                            <select
-                              value={pp.featured_plan || ''}
-                              onChange={(e) => changePlan(p, e.target.value, !!pp.vip_plan)}
-                              className="input-premium !py-2 text-sm min-w-[150px]"
-                              data-testid={`plan-select-${p.provider_id}`}
-                            >
-                              <option value="">No plan</option>
-                              <option value="agency_featured_2w">Featured · 2 weeks · €30</option>
-                              <option value="agency_featured_4w">Featured · 4 weeks · €50</option>
-                            </select>
-                            {pp.featured_plan && (
-                              <label className="flex items-center gap-2 cursor-pointer text-xs text-[#1B1820]">
-                                <input
-                                  type="checkbox"
-                                  checked={!!pp.vip_plan}
-                                  onChange={(e) => changePlan(p, pp.featured_plan, e.target.checked)}
-                                  className="w-4 h-4 rounded border-[#dbdadd] checked:bg-[#7A2357] checked:border-[#7A2357]"
-                                  data-testid={`vip-toggle-${p.provider_id}`}
-                                />
-                                <Crown size={13} className="text-[#7A2357]" /> VIP Boost (+€{FEATURED[pp.featured_plan]?.vip === 'vip_4w' ? 25 : 15})
-                              </label>
+
+                          {/* Plan */}
+                          <div className="col-span-12 md:col-span-3">
+                            {p.featured_active ? (
+                              <div>
+                                <p className="text-sm font-semibold text-[#1B1820]">{p.active_plan_label || 'Featured'}</p>
+                                <p className="text-xs text-[#8E8597] mt-0.5">Until {fmtDate(p.featured_until)} · auto-renew {p.auto_renew ? 'on' : 'off'}</p>
+                              </div>
+                            ) : showDropdown ? (
+                              <div className="flex flex-col gap-2">
+                                <div className="relative">
+                                  <select
+                                    value={pp.featured_plan || ''}
+                                    onChange={(e) => changePlan(p, e.target.value, !!pp.vip_plan)}
+                                    className="w-full appearance-none bg-white border border-[#D9D2E0] rounded-lg pl-3.5 pr-9 py-2.5 text-sm text-[#1B1820] cursor-pointer focus:border-[#7A2357] focus:outline-none"
+                                    data-testid={`plan-select-${p.provider_id}`}
+                                  >
+                                    <option value="">No plan</option>
+                                    <option value="agency_featured_2w">Featured · 2 weeks · €30</option>
+                                    <option value="agency_featured_4w">Featured · 4 weeks · €50</option>
+                                  </select>
+                                  <CaretDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5F5966] pointer-events-none" />
+                                </div>
+                                {pp.featured_plan && (
+                                  <label className="flex items-center gap-2 cursor-pointer text-sm text-[#1B1820]">
+                                    <input
+                                      type="checkbox"
+                                      checked={!!pp.vip_plan}
+                                      onChange={(e) => changePlan(p, pp.featured_plan, e.target.checked)}
+                                      className="w-4 h-4 rounded border-[#D9D2E0] accent-[#7A2357]"
+                                      data-testid={`vip-toggle-${p.provider_id}`}
+                                    />
+                                    <Crown size={15} weight="fill" className="text-[#7A2357]" /> VIP Boost (+€{FEATURED[pp.featured_plan]?.vip === 'vip_4w' ? 25 : 15})
+                                  </label>
+                                )}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-[#8E8597]">Complete the profile to choose a plan</p>
                             )}
                           </div>
-                        </td>
-                        <td className="px-5 py-4">
-                          <div className="flex flex-col gap-2">
-                            <div className="min-h-[50px] flex items-center"><StatusPill profile={p} /></div>
-                            {vipSpacer}
-                          </div>
-                        </td>
-                        <td className="px-5 py-4 border-r rounded-r-lg">
-                          <div className="flex flex-col gap-2">
-                            <div className="min-h-[50px] flex items-center justify-end gap-1">
+
+                          {/* Status */}
+                          <div className="col-span-6 md:col-span-2"><StatusPill profile={p} /></div>
+
+                          {/* Actions */}
+                          <div className="col-span-6 md:col-span-1 flex items-center justify-end gap-1">
                             <button
                               onClick={() => setVerifyFor(p.provider_id)}
                               title={p.verified ? 'Verified' : (p.verification_status === 'submitted' ? 'Review verification' : 'Verify identity')}
@@ -372,15 +396,31 @@ export default function AgencyDashboard() {
                             >
                               <Trash size={18} />
                             </button>
-                            </div>
-                            {vipSpacer}
                           </div>
-                        </td>
-                      </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Pay summary */}
+                {queued.length > 0 && (
+                  <div className="mt-6 rounded-xl bg-[#F7F2F7] border border-[#ECE3EE] px-5 md:px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4" data-testid="pay-summary-panel">
+                    <div>
+                      <p className="text-base font-bold text-[#1B1820]">{queued.length} plan{queued.length === 1 ? '' : 's'} selected</p>
+                      <p className="text-sm text-[#8E8597] mt-0.5">{queued.map((p) => `${p.display_name} €${planCost(p.pending_plan)}`).join(' · ')}</p>
+                    </div>
+                    <div className="flex items-center gap-5">
+                      <div className="text-right">
+                        <p className="text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Total</p>
+                        <p className="text-2xl font-bold text-[#1B1820] leading-none">€{payableTotal}</p>
+                      </div>
+                      <button onClick={handleFinishPay} disabled={paying} className={`${WINE_BTN} !px-6 !py-3.5`} data-testid="finish-pay-btn">
+                        {paying ? 'Redirecting…' : `Pay €${payableTotal} & activate`}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -548,20 +588,7 @@ export default function AgencyDashboard() {
         </div>
       </div>
 
-      {/* Sticky Finish & Pay bar */}
-      {queued.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#dbdadd] shadow-[0_-4px_20px_rgba(0,0,0,0.06)]" data-testid="finish-pay-bar">
-          <div className="max-w-5xl mx-auto section-padding py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <p className="text-[#1B1820] font-medium">{queued.length} profile{queued.length === 1 ? '' : 's'} ready to publish</p>
-              <p className="text-sm text-[#8E8597]">Total due: <span className="font-bold text-[#7A2357]">€{payableTotal}</span></p>
-            </div>
-            <button onClick={handleFinishPay} disabled={paying} className={`${WINE_BTN} justify-center disabled:opacity-50`} data-testid="finish-pay-btn">
-              {paying ? 'Redirecting…' : (<>Finish &amp; pay €{payableTotal} <ArrowRight size={18} /></>)}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Sticky Finish & Pay bar replaced by the inline pay summary panel inside the companion card */}
       <ConfirmDeleteModal
         open={confirmAgencyDelete}
         onClose={() => setConfirmAgencyDelete(false)}

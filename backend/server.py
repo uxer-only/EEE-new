@@ -849,6 +849,51 @@ def _grace_state(featured_until, now: datetime) -> Dict[str, Any]:
     return {"in_grace": True, "grace_days_left": max(0, round((grace_end - now).total_seconds() / 86400, 2))}
 
 
+def _days_left_dt(dt, now: datetime) -> float:
+    if not dt:
+        return 0
+    return max(0, round((dt - now).total_seconds() / 86400, 2))
+
+
+def _rates_set(rates) -> bool:
+    if not isinstance(rates, dict):
+        return bool(rates)
+    def _col(c):
+        if not isinstance(c, dict):
+            return bool(c)
+        if any(c.get(k) for k in ("1hour", "2hours", "3hours", "overnight")):
+            return True
+        ex = c.get("extras")
+        return isinstance(ex, list) and any((e or {}).get("price") for e in ex)
+    if "incall" in rates or "outcall" in rates:
+        return _col(rates.get("incall")) or _col(rates.get("outcall"))
+    return _col(rates)
+
+
+def _avail_set(p) -> bool:
+    if p.get("available247"):
+        return True
+    sched = p.get("schedule") or {}
+    if isinstance(sched, dict) and isinstance(sched.get("schedule"), dict):
+        sched = sched["schedule"]
+    if isinstance(sched, dict):
+        return any(isinstance(d, dict) and (d.get("available") or d.get("start")) for d in sched.values())
+    return False
+
+
+def _profile_completion(p):
+    """Returns (completed_steps, total_steps, plan_selectable) for a provider profile."""
+    loc = p.get("location") or {}
+    basic = bool(p.get("display_name") and p.get("age") and loc.get("city") and (p.get("bio") or p.get("essence")))
+    services = bool(p.get("services"))
+    rates = _rates_set(p.get("rates"))
+    avail = _avail_set(p)
+    photos = bool(p.get("photos"))
+    done = sum([basic, services, rates, avail, photos])
+    selectable = basic and services and rates
+    return done, 5, selectable
+
+
 def _renewal_email_html(display_name: str, grace_end: datetime, renew_url: str) -> str:
     when = grace_end.strftime("%d %B %Y")
     return f"""
@@ -925,12 +970,14 @@ async def _apply_plan_to_profile(provider_id: str, featured_plan: Optional[str],
         current = profile.get("featured_until")
         base = current if (current and current > now) else now
         set_fields["featured_until"] = base + timedelta(days=feat["duration_days"])
+        set_fields["active_featured_plan"] = featured_plan
     if vip_plan:
         vp = PLANS.get(vip_plan)
         if vp:
             current = profile.get("vip_until")
             base = current if (current and current > now) else now
             set_fields["vip_until"] = base + timedelta(days=vp["duration_days"])
+            set_fields["active_vip_plan"] = vip_plan
     # Clear the pending plan now that it is paid
     set_fields["pending_plan"] = None
     await db.provider_profiles.update_one({"provider_id": provider_id}, {"$set": set_fields})
@@ -1981,20 +2028,48 @@ async def list_agency_profiles(current_user: User = Depends(get_current_user)):
     profiles = []
     async for p in cursor:
         featured_until = p.get("featured_until")
+        vip_until = p.get("vip_until")
+        featured_active = bool(featured_until and featured_until > now)
+        vip_active = bool(vip_until and vip_until > now)
+        done, total, selectable = _profile_completion(p)
+        loc = p.get("location") or {}
+        photos = p.get("photos") or []
         # count unread enquiries for this profile
         unread = await db.enquiries.count_documents(
             {"provider_id": p["provider_id"], "read": False}
         )
+        active_plan_label = None
+        auto_renew_pref = True
+        if featured_active:
+            lbl = PLANS.get(p.get("active_featured_plan") or "", {}).get("label")
+            active_plan_label = lbl or "Featured"
+            if vip_active:
+                active_plan_label += " + VIP"
+            sub = await db.subscriptions.find_one(
+                {"provider_id": p["provider_id"]}, sort=[("created_at", -1)]
+            )
+            auto_renew_pref = bool(sub.get("auto_renew", True)) if sub else True
         profiles.append({
             "provider_id": p["provider_id"],
             "display_name": p.get("display_name") or "Untitled profile",
             "bio": p.get("bio") or p.get("essence") or "",
-            "location": p.get("location") or {},
+            "location": loc,
+            "city": loc.get("city"),
+            "age": p.get("age"),
+            "photo": photos[0] if photos else None,
             "verification_status": p.get("verification_status", "pending"),
             "verified": p.get("verified", False),
-            "featured_active": bool(featured_until and featured_until > now),
+            "featured_active": featured_active,
+            "featured_until": featured_until.isoformat() if featured_until else None,
+            "featured_days_left": _days_left_dt(featured_until, now),
+            "vip_active": vip_active,
+            "active_plan_label": active_plan_label,
+            "auto_renew": auto_renew_pref,
             **_grace_state(featured_until, now),
             "pending_plan": p.get("pending_plan"),
+            "completed_steps": done,
+            "total_steps": total,
+            "plan_selectable": selectable,
             "unread_enquiries": unread,
         })
     return {"profiles": profiles, "account_type": current_user.account_type}
