@@ -745,6 +745,31 @@ PLANS = {
 }
 CURRENCY = "eur"
 
+# Agency volume-tiered plans. Per-profile price depends on how many profiles are being paid for:
+#   t1 = 3–6 selected profiles, t2 = 7+ selected profiles (discounted).
+AGENCY_PLANS = {
+    "agency_7d":  {"label": "7 days",   "duration_days": 7,  "kind": "featured", "price": {"t1": 25.00, "t2": 20.00}},
+    "agency_15d": {"label": "15 days",  "duration_days": 15, "kind": "featured", "price": {"t1": 45.00, "t2": 35.00}},
+    "agency_1m":  {"label": "1 month",  "duration_days": 30, "kind": "featured", "price": {"t1": 80.00, "t2": 65.00}},
+    "agency_3m":  {"label": "3 months", "duration_days": 90, "kind": "featured", "price": {"t1": 220.00, "t2": 180.00}},
+    "agency_vip_7d":  {"label": "VIP · 7 days",   "duration_days": 7,  "kind": "vip", "price": {"t1": 10.00, "t2": 8.00}},
+    "agency_vip_15d": {"label": "VIP · 15 days",  "duration_days": 15, "kind": "vip", "price": {"t1": 15.00, "t2": 12.00}},
+    "agency_vip_1m":  {"label": "VIP · 1 month",  "duration_days": 30, "kind": "vip", "price": {"t1": 25.00, "t2": 20.00}},
+    "agency_vip_3m":  {"label": "VIP · 3 months", "duration_days": 90, "kind": "vip", "price": {"t1": 60.00, "t2": 48.00}},
+}
+AGENCY_TIER_THRESHOLD = 7  # 7+ selected profiles → discounted tier (t2)
+
+
+def _agency_tier(selected_count: int) -> str:
+    return "t2" if selected_count >= AGENCY_TIER_THRESHOLD else "t1"
+
+
+def _agency_amount(plan_key: str, tier: str) -> float:
+    p = AGENCY_PLANS.get(plan_key or "")
+    if not p:
+        return 0.0
+    return float(p["price"].get(tier, p["price"]["t1"]))
+
 
 def _stripe_checkout(http_request: "Request"):
     """Lazy-build a StripeCheckout instance pinned to this request's host."""
@@ -965,14 +990,14 @@ async def _apply_plan_to_profile(provider_id: str, featured_plan: Optional[str],
     if not profile:
         return
     set_fields: Dict[str, Any] = {}
-    feat = PLANS.get(featured_plan or "")
+    feat = PLANS.get(featured_plan or "") or AGENCY_PLANS.get(featured_plan or "")
     if feat:
         current = profile.get("featured_until")
         base = current if (current and current > now) else now
         set_fields["featured_until"] = base + timedelta(days=feat["duration_days"])
         set_fields["active_featured_plan"] = featured_plan
     if vip_plan:
-        vp = PLANS.get(vip_plan)
+        vp = PLANS.get(vip_plan) or AGENCY_PLANS.get(vip_plan)
         if vp:
             current = profile.get("vip_until")
             base = current if (current and current > now) else now
@@ -2041,8 +2066,9 @@ async def list_agency_profiles(current_user: User = Depends(get_current_user)):
         active_plan_label = None
         auto_renew_pref = True
         if featured_active:
-            lbl = PLANS.get(p.get("active_featured_plan") or "", {}).get("label")
-            active_plan_label = lbl or "Featured"
+            afp = p.get("active_featured_plan") or ""
+            meta = AGENCY_PLANS.get(afp) or PLANS.get(afp)
+            active_plan_label = meta["label"] if meta else "Featured"
             if vip_active:
                 active_plan_label += " + VIP"
             sub = await db.subscriptions.find_one(
@@ -2226,12 +2252,12 @@ async def set_profile_plan(
 
     pending = None
     if body.featured_plan:
-        feat = PLANS.get(body.featured_plan)
+        feat = AGENCY_PLANS.get(body.featured_plan)
         if not feat or feat["kind"] != "featured":
-            raise HTTPException(status_code=400, detail="Invalid featured plan")
+            raise HTTPException(status_code=400, detail="Invalid plan")
         vip_plan = None
         if body.vip_plan:
-            vp = PLANS.get(body.vip_plan)
+            vp = AGENCY_PLANS.get(body.vip_plan)
             if not vp or vp["kind"] != "vip":
                 raise HTTPException(status_code=400, detail="Invalid VIP plan")
             vip_plan = body.vip_plan
@@ -2262,20 +2288,23 @@ async def create_bulk_checkout(
         {"user_id": current_user.user_id, "pending_plan": {"$ne": None}},
         {"_id": 0, "provider_id": 1, "pending_plan": 1, "display_name": 1},
     )
-    provider_plans = []
-    total_amount = 0.0
+    raw = []
     async for p in cursor:
         pp = p.get("pending_plan") or {}
-        feat = PLANS.get(pp.get("featured_plan") or "")
-        if not feat:
+        if not AGENCY_PLANS.get(pp.get("featured_plan") or ""):
             continue
-        amt = feat["amount"]
-        vip = PLANS.get(pp.get("vip_plan") or "") if pp.get("vip_plan") else None
-        if vip:
-            amt += vip["amount"]
+        raw.append((p["provider_id"], pp))
+
+    tier = _agency_tier(len(raw))
+    provider_plans = []
+    total_amount = 0.0
+    for provider_id, pp in raw:
+        amt = _agency_amount(pp.get("featured_plan"), tier)
+        if pp.get("vip_plan"):
+            amt += _agency_amount(pp.get("vip_plan"), tier)
         total_amount += amt
         provider_plans.append({
-            "provider_id": p["provider_id"],
+            "provider_id": provider_id,
             "featured_plan": pp.get("featured_plan"),
             "vip_plan": pp.get("vip_plan"),
         })
@@ -2288,6 +2317,7 @@ async def create_bulk_checkout(
         "user_id": current_user.user_id,
         "kind": "agency_bulk",
         "profile_count": str(len(provider_plans)),
+        "tier": tier,
     }
     origin = body.origin_url.rstrip("/")
     success_url = f"{origin}/payment-success?session_id={{CHECKOUT_SESSION_ID}}&agency=1"

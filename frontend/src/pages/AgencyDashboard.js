@@ -24,16 +24,29 @@ const EDIT_BTN = 'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border
 const GHOST_BTN = 'inline-flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-xl border border-[#E2DEE8] bg-white text-[#1B1820] hover:border-[#7A2357] hover:text-[#7A2357] transition-colors';
 const WINE_BTN = 'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#7A2357] text-white text-sm font-semibold hover:bg-[#631c47] transition-colors whitespace-nowrap';
 
-// Agency per-profile plan catalogue (mirrors backend PLANS allowlist)
-const FEATURED = {
-  agency_featured_2w: { label: '2 weeks · €30', price: 30, vip: 'vip_2w' },
-  agency_featured_4w: { label: '4 weeks · €50', price: 50, vip: 'vip_4w' }
+// Agency volume-tiered plans (mirrors backend AGENCY_PLANS). t1 = 3–6 selected profiles, t2 = 7+ (discounted).
+const AGENCY_PLANS = [
+  { key: 'agency_7d',  label: '7 days',   vip: 'agency_vip_7d',  price: { t1: 25, t2: 20 } },
+  { key: 'agency_15d', label: '15 days',  vip: 'agency_vip_15d', price: { t1: 45, t2: 35 } },
+  { key: 'agency_1m',  label: '1 month',  vip: 'agency_vip_1m',  price: { t1: 80, t2: 65 } },
+  { key: 'agency_3m',  label: '3 months', vip: 'agency_vip_3m',  price: { t1: 220, t2: 180 } },
+];
+const AGENCY_PLAN_MAP = Object.fromEntries(AGENCY_PLANS.map((p) => [p.key, p]));
+const VIP_PRICE = {
+  agency_vip_7d:  { t1: 10, t2: 8 },
+  agency_vip_15d: { t1: 15, t2: 12 },
+  agency_vip_1m:  { t1: 25, t2: 20 },
+  agency_vip_3m:  { t1: 60, t2: 48 },
 };
-const VIP_PRICE = { vip_2w: 15, vip_4w: 25 };
+const AGENCY_TIER_THRESHOLD = 7;
+const tierFor = (selectedCount) => (selectedCount >= AGENCY_TIER_THRESHOLD ? 't2' : 't1');
 
-const planCost = (pp) => {
+const planCost = (pp, tier) => {
   if (!pp || !pp.featured_plan) return 0;
-  return (FEATURED[pp.featured_plan]?.price || 0) + (pp.vip_plan ? (VIP_PRICE[pp.vip_plan] || 0) : 0);
+  const f = AGENCY_PLAN_MAP[pp.featured_plan];
+  const base = f ? (f.price[tier] || 0) : 0;
+  const vip = pp.vip_plan && VIP_PRICE[pp.vip_plan] ? (VIP_PRICE[pp.vip_plan][tier] || 0) : 0;
+  return base + vip;
 };
 
 const fmtDate = (iso) => {
@@ -128,7 +141,7 @@ export default function AgencyDashboard() {
   };
 
   const changePlan = async (profile, featured_plan, vip_on) => {
-    const vip_plan = featured_plan && vip_on ? FEATURED[featured_plan]?.vip : null;
+    const vip_plan = featured_plan && vip_on ? (AGENCY_PLAN_MAP[featured_plan]?.vip || null) : null;
     const pending = featured_plan ? { featured_plan, vip_plan } : null;
     // optimistic
     setProfiles((prev) => prev.map((p) => p.provider_id === profile.provider_id ? { ...p, pending_plan: pending } : p));
@@ -200,7 +213,8 @@ export default function AgencyDashboard() {
   const liveCount = profiles.filter((p) => p.featured_active).length;
   const totalUnread = profiles.reduce((s, p) => s + (p.unread_enquiries || 0), 0);
   const queued = profiles.filter((p) => p.pending_plan && p.pending_plan.featured_plan);
-  const payableTotal = queued.reduce((s, p) => s + planCost(p.pending_plan), 0);
+  const tier = tierFor(queued.length);
+  const payableTotal = queued.reduce((s, p) => s + planCost(p.pending_plan, tier), 0);
 
   // ----- Agency master-profile defaults (from the setup wizard) -----
   const svc = agency.default_services || {};
@@ -331,8 +345,9 @@ export default function AgencyDashboard() {
                                     data-testid={`plan-select-${p.provider_id}`}
                                   >
                                     <option value="">No plan</option>
-                                    <option value="agency_featured_2w">Featured · 2 weeks · €30</option>
-                                    <option value="agency_featured_4w">Featured · 4 weeks · €50</option>
+                                    {AGENCY_PLANS.map((pl) => (
+                                      <option key={pl.key} value={pl.key}>{pl.label} · €{pl.price[tier]}/pp</option>
+                                    ))}
                                   </select>
                                   <CaretDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5F5966] pointer-events-none" />
                                 </div>
@@ -345,7 +360,7 @@ export default function AgencyDashboard() {
                                       className="w-4 h-4 rounded border-[#D9D2E0] accent-[#7A2357]"
                                       data-testid={`vip-toggle-${p.provider_id}`}
                                     />
-                                    <Crown size={15} weight="fill" className="text-[#7A2357]" /> VIP Boost (+€{FEATURED[pp.featured_plan]?.vip === 'vip_4w' ? 25 : 15})
+                                    <Crown size={15} weight="fill" className="text-[#7A2357]" /> VIP Boost (+€{VIP_PRICE[AGENCY_PLAN_MAP[pp.featured_plan]?.vip]?.[tier] ?? 0}/pp)
                                   </label>
                                 )}
                               </div>
@@ -399,7 +414,7 @@ export default function AgencyDashboard() {
                   <div className="mt-6 rounded-xl bg-[#F7F2F7] border border-[#ECE3EE] px-5 md:px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4" data-testid="pay-summary-panel">
                     <div>
                       <p className="text-base font-bold text-[#1B1820]">{queued.length} plan{queued.length === 1 ? '' : 's'} selected</p>
-                      <p className="text-sm text-[#8E8597] mt-0.5">{queued.map((p) => `${p.display_name} €${planCost(p.pending_plan)}`).join(' · ')}</p>
+                      <p className="text-sm text-[#8E8597] mt-0.5">{queued.map((p) => `${p.display_name} €${planCost(p.pending_plan, tier)}`).join(' · ')}</p>
                     </div>
                     <div className="flex items-center gap-5">
                       <div className="text-right">
