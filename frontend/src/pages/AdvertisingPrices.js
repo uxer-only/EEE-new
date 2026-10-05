@@ -56,8 +56,8 @@ export default function AdvertisingPrices() {
             </thead>
             <tbody className="text-[#B8B8BE]">
               {[
-                ['3 – 6', '€ 25 /pp', '€ 52 /pp', '€ 77 /pp', '€ 205 /pp'],
-                ['7 – …', '€ 20 /pp', '€ 35 /pp', '€ 60 /pp', '€ 150 /pp'],
+                ['3 – 6', '€ 25 /pp', '€ 45 /pp', '€ 77 /pp', '€ 205 /pp'],
+                ['7 – …', '€ 20 /pp', '€ 35 /pp', '€ 65 /pp', '€ 180 /pp'],
               ].map((r, i) => (
                 <tr key={i}>
                   {r.map((c, j) => <td key={j} className="px-4 py-2 border border-[#27272A]">{c}</td>)}
