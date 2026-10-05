@@ -771,7 +771,7 @@ export default function ProviderDashboard() {
     const coverUrl = approvedPhotos[0]?.url;
     const photoItems = displayMedia.filter((m) => m.media_type !== 'video');
     const videoItems = displayMedia.filter((m) => m.media_type === 'video');
-    const previewEnquiries = (enquiries || []).slice(0, 3);
+    const previewEnquiries = (enquiries || []).slice(0, 2);
     const handleAutoRenewToggle = async () => {
       const next = !autoRenewOn;
       try {
@@ -884,6 +884,12 @@ export default function ProviderDashboard() {
                         <p className="text-xs text-[#5F5966] truncate">{e.message}</p>
                       </div>
                     ))}
+                    {enquiriesUnread > 0 && (
+                      <div className="flex items-center gap-2 pt-0.5" data-testid="new-messages-line">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#7A2357]" />
+                        <span className="text-xs font-semibold text-[#7A2357]">{enquiriesUnread} new message{enquiriesUnread === 1 ? '' : 's'}</span>
+                      </div>
+                    )}
                   </div>
                 )}
                 <button onClick={() => setShowMessagesModal(true)} className="mt-4 text-sm font-semibold text-[#7A2357] hover:text-[#A3243B] text-left" data-testid="view-all-messages-btn">View all messages</button>
