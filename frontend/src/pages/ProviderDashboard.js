@@ -1008,7 +1008,7 @@ export default function ProviderDashboard() {
                 {displayMedia.length === 0 ? (
                   <div className="h-32 flex items-center justify-center border border-dashed border-[#DFDAE4] rounded-xl"><p className="text-sm text-[#8E8597] italic">No photos yet</p></div>
                 ) : (
-                  <div className="space-y-6">
+                  <div className="flex flex-col gap-4">
                     {photoItems.length > 0 && (
                       <div>
                         <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8E8597] mb-2">Photos · {photoItems.length}</p>
