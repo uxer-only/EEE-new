@@ -1,0 +1,59 @@
+{
+  "summary": "Tested the redesigned ProviderDashboard OVERVIEW page end-to-end for both independent (Sophia) and agency (Elite Agency Demo managing Sofia) flows plus the new GET /api/providers/media/mine backend endpoint. 9/11 backend tests pass; 21/21 overview testids render; modals, edit navigation, invoice download, public-profile link, media video+pending badges all work. Found 1 real functional bug: the auto-renew toggle on Sophia's overview is a no-op because PUT /api/subscriptions/auto-renew returns 404 (no row in db.subscriptions for seeded providers whose featured/vip were written directly to the profile).",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "PUT /api/subscriptions/auto-renew",
+        "issue": "Returns 404 'No subscription found' for provider_024900f536dd (Sophia). GET /subscriptions/me returns auto_renew=true (default fallback when no row exists), but PUT fails because the handler requires a document in db.subscriptions and Sophia has 0 rows there (featured_until/vip_until were seeded directly onto the provider profile; db.subscriptions is empty, db.payment_transactions has 8). Net effect: clicking auto-renew-summary-toggle in the UI appears to do nothing (aria-checked stays 'true' after click, console shows 404).",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": [
+      {
+        "endpoint": "GET /api/providers/media/mine?provider_id=<other-provider>",
+        "issue": "When an agency account passes a provider_id it does NOT own, the endpoint silently returns 200 {\"media\":[]} instead of 403/404. _resolve_owned_profile returns None → handler short-circuits with empty media. Not a data leak (returns empty) but inconsistent with every other owned-profile endpoint that raises 404/403."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Auto-renew summary toggle",
+        "issue": "Click fires PUT /subscriptions/auto-renew which 404s; aria-checked does not flip and no error toast is shown to the user — toggle appears broken. Needs backend fix (see above) or a UI error toast when the PUT fails.",
+        "selector": "[data-testid='auto-renew-summary-toggle']",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Edit wizard (Step 1 BasicInfo, Step 4 Rates/Availability)",
+        "issues": ["Recurring dev-only console warning: 'In HTML, <span> cannot be a child of <select>/<option>' injected by the Visual-Edits wrapper around <option> and <select> elements in BasicInfoStep.jsx and RatesAvailabilityStep.jsx. Same preview artifact as iteration_19. Dropdowns still function. No action required unless it reproduces in production build."]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_overview_media.py",
+    "/app/test_reports/pytest/overview_media.xml"
+  ],
+  "action_items": [
+    "FIX HIGH: Make PUT /api/subscriptions/auto-renew work for providers without a db.subscriptions row — either upsert on toggle (preferred: write {provider_id, auto_renew, created_at} on first toggle) OR fall back to a provider_profiles.auto_renew flag that GET /subscriptions/me already reads. Current behavior breaks the toggle for every seeded/legacy provider whose plan was granted outside the Stripe subscription flow.",
+    "MINOR: Return 403 (not 200 empty) from GET /providers/media/mine when provider_id is passed but not owned by current_user, to match the pattern used by other _resolve_owned_profile endpoints.",
+    "OPTIONAL: Add a UI error toast when auto-renew PUT fails so users get feedback instead of a silent no-op."
+  ],
+  "critical_code_review_comments": [
+    "server.py list_my_media (L1425-1471) silently returns {'media':[]} when _resolve_owned_profile returns None. Prefer raising 404 for consistency with the agency-ownership pattern used elsewhere in the file.",
+    "server.py update_auto_renew (L1064-1088) assumes a db.subscriptions row exists. Seed scripts/admin flows that write featured_until directly onto provider_profiles bypass this collection, leaving the handler unusable. Either upsert here or stop reading from db.subscriptions in GET /subscriptions/me and co-locate auto_renew on provider_profiles.",
+    "server.py L1042: auto_renew_pref defaults to True when no sub row exists — this gives a misleading initial UI state (toggle shows ON) that cannot be changed."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_overview_media.py (new)"
+  ],
+  "success_rate": {"backend": "82% (9/11 — 1 real bug, 1 minor API-shape issue)", "frontend": "95% (all overview render + modal + edit-nav + agency flow pass; only auto-renew toggle fails due to backend 404)"},
+  "test_credentials": "provider1@lumiere.com / sophia123; agency@test.com / agency123 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "No new data created. Attempted auto-renew flip was rejected by backend; no state change.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All overview testids verified present and interactions working for Sophia (independent) and agency-managed Sofia (provider_1df45169a379): manage-header, dashboard-top-row, subscription-banner, messages-card, invoices-card, card-basic-info, card-photos (with Cover badge + In review badges + video play icon), card-services, card-rates, card-availability, card-danger-zone, view-all-messages-btn/view-all-invoices-btn (open messages-modal/invoices-modal; close-messages-modal/close-invoices-modal dismiss), edit-basic-info-btn→step1, edit-photos-btn→step2, edit-rates-btn→step4 rates-section, edit-availability-btn→step4 availability-section, invoice-download-btn href to /api/invoices/{id}/pdf, view-public-profile-btn→/providers/{id}, back-to-agency-btn→/dashboard. Media endpoint GET /api/providers/media/mine returns correct merged result (approved+pending+video) with proper ordering. Auto-renew summary toggle is RENDERED for Sophia (aria-checked initially 'true') but PUT returns 404 — this is the only remaining bug.",
+  "rca_of_the_issue": "RCA: Sophia (provider_024900f536dd) has her featured_until and vip_until seeded directly onto the provider_profiles document (via admin/seed), without a corresponding row in the db.subscriptions collection. GET /subscriptions/me falls back to auto_renew=True when latest_sub is None (server.py:1042). PUT /subscriptions/auto-renew (server.py:1082) does NOT have the same fallback — it raises 404. Reproduce: login provider1@lumiere.com, open /dashboard, click [data-testid='auto-renew-summary-toggle'] → network tab shows PUT /api/subscriptions/auto-renew returning 404 'No subscription found'. Mitigation (one-liner): change update_auto_renew to upsert — await db.subscriptions.update_one({'provider_id': pid}, {'$set':{'auto_renew': body.auto_renew, 'provider_id': pid, 'created_at': datetime.utcnow()}}, upsert=True) and drop the latest_sub existence check."
+}

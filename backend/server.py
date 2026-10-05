@@ -1079,12 +1079,22 @@ async def update_auto_renew(
         {"provider_id": profile["provider_id"]},
         sort=[("created_at", -1)],
     )
-    if not latest_sub:
-        raise HTTPException(status_code=404, detail="No subscription found")
-    await db.subscriptions.update_one(
-        {"_id": latest_sub["_id"]},
-        {"$set": {"auto_renew": body.auto_renew}},
-    )
+    if latest_sub:
+        await db.subscriptions.update_one(
+            {"_id": latest_sub["_id"]},
+            {"$set": {"auto_renew": body.auto_renew}},
+        )
+    else:
+        # Providers whose plan was granted outside the Stripe flow (seed/admin) have no
+        # subscriptions row yet — upsert one so the preference persists.
+        await db.subscriptions.update_one(
+            {"provider_id": profile["provider_id"]},
+            {
+                "$set": {"auto_renew": body.auto_renew, "provider_id": profile["provider_id"]},
+                "$setOnInsert": {"created_at": datetime.now(timezone.utc)},
+            },
+            upsert=True,
+        )
     return {"auto_renew": body.auto_renew}
 
 
@@ -1434,7 +1444,7 @@ async def list_my_media(
         raise HTTPException(status_code=403, detail="Provider access only")
     profile = await _resolve_owned_profile(current_user, provider_id, {"_id": 0, "provider_id": 1, "photos": 1})
     if not profile:
-        return {"media": []}
+        raise HTTPException(status_code=404, detail="Profile not found")
     pid = profile["provider_id"]
     photos = profile.get("photos") or []
     docs = await db.provider_media.find({"provider_id": pid}, {"_id": 0}).sort("uploaded_at", 1).to_list(200)

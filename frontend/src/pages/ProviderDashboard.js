@@ -769,6 +769,8 @@ export default function ProviderDashboard() {
       reviewCount ? `${reviewCount} in review` : null,
     ].filter(Boolean).join(' · ') || 'No media yet';
     const coverUrl = approvedPhotos[0]?.url;
+    const photoItems = displayMedia.filter((m) => m.media_type !== 'video');
+    const videoItems = displayMedia.filter((m) => m.media_type === 'video');
     const previewEnquiries = (enquiries || []).slice(0, 3);
     const handleAutoRenewToggle = async () => {
       const next = !autoRenewOn;
@@ -1006,23 +1008,41 @@ export default function ProviderDashboard() {
                 {displayMedia.length === 0 ? (
                   <div className="h-32 flex items-center justify-center border border-dashed border-[#DFDAE4] rounded-xl"><p className="text-sm text-[#8E8597] italic">No photos yet</p></div>
                 ) : (
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                    {displayMedia.slice(0, 12).map((m, i) => {
-                      const isCover = m.url && m.url === coverUrl;
-                      return (
-                        <div key={m.media_id || i} className={`relative aspect-[3/4] rounded-xl overflow-hidden bg-[#EFE9F0] ${isCover ? 'ring-2 ring-[#7A2357]' : ''}`}>
-                          {m.media_type === 'video' ? (
-                            <div className="w-full h-full flex items-center justify-center bg-[#2A2230]"><span className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center text-[#2A2230]"><Play size={16} weight="fill" /></span></div>
-                          ) : m.url ? (
-                            <img src={m.url} alt="" className={`w-full h-full object-cover ${m.status === 'pending' ? 'opacity-70' : ''}`} />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-[#C9BED0]"><Camera size={20} /></div>
-                          )}
-                          {isCover && <span className="absolute top-1.5 left-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#7A2357] text-white">Cover</span>}
-                          {m.status === 'pending' && <span className="absolute top-1.5 right-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#FACC15] text-[#5A4600]">In review</span>}
+                  <div className="space-y-6">
+                    {photoItems.length > 0 && (
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8E8597] mb-2">Photos · {photoItems.length}</p>
+                        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                          {photoItems.slice(0, 12).map((m, i) => {
+                            const isCover = m.url && m.url === coverUrl;
+                            return (
+                              <div key={m.media_id || i} className={`relative aspect-[3/4] rounded-xl overflow-hidden bg-[#EFE9F0] ${isCover ? 'ring-2 ring-[#7A2357]' : ''}`}>
+                                {m.url ? (
+                                  <img src={m.url} alt="" className={`w-full h-full object-cover ${m.status === 'pending' ? 'opacity-70' : ''}`} />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-[#C9BED0]"><Camera size={20} /></div>
+                                )}
+                                {isCover && <span className="absolute top-1.5 left-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#7A2357] text-white">Cover</span>}
+                                {m.status === 'pending' && <span className="absolute top-1.5 right-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#FACC15] text-[#5A4600]">In review</span>}
+                              </div>
+                            );
+                          })}
                         </div>
-                      );
-                    })}
+                      </div>
+                    )}
+                    {videoItems.length > 0 && (
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8E8597] mb-2">Videos · {videoItems.length}</p>
+                        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                          {videoItems.slice(0, 12).map((m, i) => (
+                            <div key={m.media_id || i} className="relative aspect-[3/4] rounded-xl overflow-hidden bg-[#2A2230]">
+                              <div className="w-full h-full flex items-center justify-center"><span className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center text-[#2A2230]"><Play size={16} weight="fill" /></span></div>
+                              {m.status === 'pending' && <span className="absolute top-1.5 right-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#FACC15] text-[#5A4600]">In review</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
