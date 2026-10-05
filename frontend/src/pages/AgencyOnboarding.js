@@ -275,33 +275,51 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                       <input type="email" value={data.contact.email} onChange={(e) => setContact({ email: e.target.value })} className={INPUT} placeholder="info@agency.com" data-testid="agency-email-input" />
                     </div>
                     <div>
-                      <label className={`${LABEL} mb-2`}>Available on</label>
+                      <label className={`${LABEL} mb-2`}>Clients can also reach you on</label>
                       <div className="flex flex-wrap gap-2">
                         {MESSAGING.map((m) => {
                           const on = !!data.contact[m.key];
                           return (
-                            <button key={m.key} type="button" onClick={() => setContact({ [m.key]: !on })} className={`px-3 py-2 rounded-lg border text-sm transition-colors ${on ? 'border-[#7A2357] bg-[#7A2357] text-white' : 'border-[#DFDAE4] bg-white text-[#1B1820] hover:border-[#7A2357]'}`} data-testid={`agency-contact-${m.label.toLowerCase()}`}>
+                            <button
+                              key={m.key}
+                              type="button"
+                              onClick={() => setContact({ [m.key]: !on })}
+                              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm border transition-colors ${
+                                on
+                                  ? 'bg-[#FBEEF5] border-[#7A2357] text-[#7A2357] font-semibold'
+                                  : 'bg-white border-[#CFC9D6] text-[#1B1820] font-medium hover:border-[#7A2357]'
+                              }`}
+                              data-testid={`agency-contact-${m.label.toLowerCase()}`}
+                            >
+                              {on && <Check size={14} weight="bold" />}
                               {m.label}
                             </button>
                           );
                         })}
                       </div>
                       {(data.contact.hasTelegram || data.contact.hasLine || data.contact.hasWechat) && (
-                        <div className="mt-4 flex flex-col gap-4">
+                        <div className="mt-4 flex flex-col gap-4 bg-[#F7F5F9] border border-[#ECE8EF] rounded-xl p-4">
                           {data.contact.hasTelegram && (
-                            <div className="w-full sm:max-w-[380px]">
-                              <label className={LABEL} htmlFor="agency-telegram-id">Telegram ID</label>
-                              <input id="agency-telegram-id" type="text" value={data.contact.telegramId || ''} onChange={(e) => setContact({ telegramId: e.target.value })} className={INPUT} placeholder="@username" data-testid="agency-telegram-id-input" />
+                            <div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-[13px] font-semibold text-[#1B1820]">Telegram username</span>
+                                <span className="uppercase tracking-wider text-[10px] font-semibold text-[#7A2357] bg-[#FBEEF5] rounded px-1.5 py-0.5">Required</span>
+                              </div>
+                              <div className="relative">
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5F5966]">@</span>
+                                <input id="agency-telegram-id" type="text" value={(data.contact.telegramId || '').replace(/^@/, '')} onChange={(e) => setContact({ telegramId: e.target.value })} className={`${INPUT} pl-8`} placeholder="mila.brussels" data-testid="agency-telegram-id-input" />
+                              </div>
+                              <p className="text-xs text-[#8E8597] mt-1">Find it in Telegram &rsaquo; Settings &rsaquo; Username</p>
                             </div>
                           )}
                           {data.contact.hasLine && (
-                            <div className="w-full sm:max-w-[380px]">
+                            <div>
                               <label className={LABEL} htmlFor="agency-line-id">Line ID</label>
                               <input id="agency-line-id" type="text" value={data.contact.lineId || ''} onChange={(e) => setContact({ lineId: e.target.value })} className={INPUT} placeholder="your-line-id" data-testid="agency-line-id-input" />
                             </div>
                           )}
                           {data.contact.hasWechat && (
-                            <div className="w-full sm:max-w-[380px]">
+                            <div>
                               <label className={LABEL} htmlFor="agency-wechat-id">WeChat ID</label>
                               <input id="agency-wechat-id" type="text" value={data.contact.wechatId || ''} onChange={(e) => setContact({ wechatId: e.target.value })} className={INPUT} placeholder="your-wechat-id" data-testid="agency-wechat-id-input" />
                             </div>
