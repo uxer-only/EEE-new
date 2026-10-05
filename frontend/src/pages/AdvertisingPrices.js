@@ -56,7 +56,7 @@ export default function AdvertisingPrices() {
             </thead>
             <tbody className="text-[#B8B8BE]">
               {[
-                ['3 – 6', '€ 25 /pp', '€ 45 /pp', '€ 77 /pp', '€ 205 /pp'],
+                ['3 – 6', '€ 25 /pp', '€ 45 /pp', '€ 80 /pp', '€ 220 /pp'],
                 ['7 – …', '€ 20 /pp', '€ 35 /pp', '€ 65 /pp', '€ 180 /pp'],
               ].map((r, i) => (
                 <tr key={i}>
