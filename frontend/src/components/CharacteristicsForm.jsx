@@ -118,14 +118,14 @@ export default function CharacteristicsForm({ characteristics, onChange }) {
         <div className="w-full sm:max-w-[380px]">
           <Label>Height</Label>
           <div className="relative">
-            <input type="number" value={c.height || ''} onChange={(e) => update('height', e.target.value)} className={`${inputCls} pr-12`} placeholder="170" min="100" max="230" data-testid="char-height" />
+            <input type="number" value={c.height || ''} onChange={(e) => update('height', e.target.value)} className={`${inputCls} pr-12 no-spinner`} placeholder="170" min="100" max="230" data-testid="char-height" />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#BDB4C5]">cm</span>
           </div>
         </div>
         <div className="w-full sm:max-w-[380px]">
           <Label>Weight</Label>
           <div className="relative">
-            <input type="number" value={c.weight || ''} onChange={(e) => update('weight', e.target.value)} className={`${inputCls} pr-12`} placeholder="58" min="35" max="200" data-testid="char-weight" />
+            <input type="number" value={c.weight || ''} onChange={(e) => update('weight', e.target.value)} className={`${inputCls} pr-12 no-spinner`} placeholder="58" min="35" max="200" data-testid="char-weight" />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#BDB4C5]">kg</span>
           </div>
         </div>

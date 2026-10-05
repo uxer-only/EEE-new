@@ -145,7 +145,7 @@ export default function BasicInfoStep({
                 type="number"
                 value={profileData.age}
                 onChange={(e) => setProfileData({ ...profileData, age: e.target.value })}
-                className={inputCls}
+                className={`${inputCls} no-spinner`}
                 placeholder="27"
                 min="18"
                 data-testid="age-input"

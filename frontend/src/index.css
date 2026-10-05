@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide number-input spinner arrows (manual entry only) */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.no-spinner[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+
 @layer base {
   :root {
     --background: 210 10% 4%;
