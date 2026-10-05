@@ -1422,6 +1422,54 @@ async def list_my_invoices(
     return {"invoices": items}
 
 
+@api_router.get("/providers/media/mine")
+async def list_my_media(
+    provider_id: Optional[str] = None,
+    current_user: User = Depends(get_current_user),
+):
+    """Provider-facing media list: merges provider_media (pending/rejected/video with review
+    state) with the profile's flat approved `photos` array, so the dashboard can show
+    'In review' badges and video thumbs alongside approved photos."""
+    if current_user.role != "provider":
+        raise HTTPException(status_code=403, detail="Provider access only")
+    profile = await _resolve_owned_profile(current_user, provider_id, {"_id": 0, "provider_id": 1, "photos": 1})
+    if not profile:
+        return {"media": []}
+    pid = profile["provider_id"]
+    photos = profile.get("photos") or []
+    docs = await db.provider_media.find({"provider_id": pid}, {"_id": 0}).sort("uploaded_at", 1).to_list(200)
+    items = []
+    seen = set()
+    for m in docs:
+        url = m.get("url")
+        items.append({
+            "media_id": m.get("media_id"),
+            "url": url,
+            "media_type": m.get("media_type") or "photo",
+            "status": m.get("status") or "approved",
+        })
+        if url:
+            seen.add(url)
+    # approved photos stored directly on the profile but not tracked in provider_media
+    for idx, url in enumerate(photos):
+        if url in seen:
+            continue
+        items.append({
+            "media_id": f"photo_{idx}",
+            "url": url,
+            "media_type": "photo",
+            "status": "approved",
+        })
+    # order: approved photos first (first = cover), then videos, then pending/rejected
+    def _rank(it):
+        if it["status"] == "approved" and it["media_type"] == "photo":
+            return 0
+        if it["media_type"] == "video":
+            return 1
+        return 2
+    items.sort(key=_rank)
+    return {"media": items}
+
 @api_router.get("/invoices/{invoice_id}/pdf")
 async def download_invoice_pdf(
     invoice_id: str,

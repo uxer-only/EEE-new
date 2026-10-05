@@ -101,6 +101,8 @@ export const replyToEnquiry = (id, message) =>
 // Invoices
 export const listMyInvoices = (providerId) =>
   api.get('/invoices/mine', { params: providerId ? { provider_id: providerId } : {} });
+export const getMyMedia = (providerId) =>
+  api.get('/providers/media/mine', { params: providerId ? { provider_id: providerId } : {} });
 export const invoicePdfUrl = (id) => `${api.defaults.baseURL}/invoices/${id}/pdf`;
 export const invoiceViewUrl = (id) => `${api.defaults.baseURL}/invoices/${id}/pdf?inline=1`;
 

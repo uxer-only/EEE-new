@@ -1,14 +1,14 @@
 import { useState, useEffect, Fragment } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout, updateAutoRenew, listMyEnquiries, markEnquiryRead, deleteEnquiry, replyToEnquiry, listMyInvoices, invoicePdfUrl, invoiceViewUrl, getAgencyProfile } from '@/services/api';
+import { getProviderDashboard, createProviderProfile, updateProviderProfile, deleteProviderProfile, getMySubscription, createSubscriptionCheckout, updateAutoRenew, listMyEnquiries, markEnquiryRead, deleteEnquiry, replyToEnquiry, listMyInvoices, invoicePdfUrl, invoiceViewUrl, getMyMedia, getAgencyProfile } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import { 
   ChatCircle, CheckCircle, User, MapPin, Camera, Clock, 
   CurrencyDollar, FileText, Phone, EnvelopeSimple, WhatsappLogo,
   Plus, Trash, CaretRight, CaretLeft, UploadSimple, X, VideoCamera, ShieldCheck, Crown, Sparkle, ArrowRight, DotsSixVertical,
-  PaperPlaneTilt, DownloadSimple, Eye, Check, CircleNotch, Lock
+  PaperPlaneTilt, DownloadSimple, Eye, Check, CircleNotch, Lock, PencilSimple, Play
 } from 'phosphor-react';
 import { toast } from 'sonner';
 import { notifyError, notifyProblem } from '../lib/notify';
@@ -71,6 +71,12 @@ export default function ProviderDashboard() {
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [subscription, setSubscription] = useState(null);
+  const [enquiries, setEnquiries] = useState([]);
+  const [enquiriesUnread, setEnquiriesUnread] = useState(0);
+  const [invoices, setInvoices] = useState([]);
+  const [media, setMedia] = useState([]);
+  const [showMessagesModal, setShowMessagesModal] = useState(false);
+  const [showInvoicesModal, setShowInvoicesModal] = useState(false);
   const [applyServicesToAll, setApplyServicesToAll] = useState(false);
   const [applyRatesToAll, setApplyRatesToAll] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -269,6 +275,7 @@ export default function ProviderDashboard() {
     }
     fetchDashboard();
     fetchSubscription();
+    fetchOverviewData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeProviderId]);
 
@@ -294,6 +301,20 @@ export default function ProviderDashboard() {
     } catch (_subErr) {
       // Subscription endpoint may 404 for brand-new providers — banner simply won't render.
     }
+  };
+
+  const fetchOverviewData = async () => {
+    const [enq, inv, med] = await Promise.allSettled([
+      listMyEnquiries(activeProviderId),
+      listMyInvoices(activeProviderId),
+      getMyMedia(activeProviderId),
+    ]);
+    if (enq.status === 'fulfilled') {
+      setEnquiries(enq.value.data?.enquiries || []);
+      setEnquiriesUnread(enq.value.data?.unread || 0);
+    }
+    if (inv.status === 'fulfilled') setInvoices(inv.value.data?.invoices || []);
+    if (med.status === 'fulfilled') setMedia(med.value.data?.media || []);
   };
 
   const fetchDashboard = async () => {
@@ -687,507 +708,450 @@ export default function ProviderDashboard() {
     const availableDays = scheduleDays.filter(([_, v]) => v?.available).length;
     const dayLabels = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' };
 
+    const firstName = (p.display_name || '').split(' ')[0] || p.display_name;
+    const contactRows = [
+      { label: 'Mobile phone', value: profileData.contact?.phone },
+      { label: 'WhatsApp', value: profileData.contact?.whatsapp },
+      { label: 'Telegram', value: profileData.contact?.telegram },
+      { label: 'Email', value: profileData.contact?.email },
+    ].filter((c) => c.value);
+    const basicRows = [
+      { label: 'Display name', value: p.display_name },
+      { label: 'Age', value: p.age },
+      { label: 'Gender', value: p.gender, cap: true },
+      { label: 'Orientation', value: profileData.characteristics?.orientation, cap: true },
+      { label: 'Location', value: p.location?.city ? `${p.location.city}, ${p.location.country}` : null },
+      { label: 'Languages', value: Array.isArray(profileData.characteristics?.languages) && profileData.characteristics.languages.length ? profileData.characteristics.languages.join(', ') : null },
+      ...contactRows,
+    ];
+    const sym = currencySymbol(profileData.rates?.currency);
+    const rateIncall = profileData.rates?.incall || {};
+    const rateOutcall = profileData.rates?.outcall || {};
+    const firstRates = [Number(rateIncall['1hour']) || null, Number(rateOutcall['1hour']) || null].filter(Boolean);
+    const fromRate = firstRates.length ? Math.min(...firstRates) : null;
+    const toHrs = (t) => { const [h, m] = String(t || '0:0').split(':').map(Number); return (h || 0) + (m || 0) / 60; };
+    const weeklyHours = Object.values(profileData.schedule || {}).reduce((acc, s) => (s?.available ? acc + Math.max(0, toHrs(s.end) - toHrs(s.start)) : acc), 0);
+    const availTypeLabel = profileData.availability_type === 'incall' ? 'Incall only' : profileData.availability_type === 'outcall' ? 'Outcall only' : 'Incall & outcall';
+    const rateRowsFor = (col) => {
+      const extras = (Array.isArray(col.extras) ? col.extras : []).slice().sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0));
+      return [
+        { label: '1 hour', v: col['1hour'] },
+        { label: '2 hours', v: col['2hours'] },
+        { label: '3 hours', v: col['3hours'] },
+        ...extras.map((e) => ({ label: `${e.hours} hours`, v: e.price })),
+        ...(col.overnight !== undefined && col.overnight !== '' ? [{ label: 'Overnight', v: col.overnight }] : []),
+      ].filter((r) => r.v !== undefined && r.v !== '' && r.v !== null);
+    };
+    const kinds = profileData.availability_type === 'incall' || profileData.availability_type === 'outcall' ? [profileData.availability_type] : ['incall', 'outcall'];
+    const taxiCost = rateOutcall?.taxi;
+    const fmtDate = (iso) => { try { return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); } catch { return ''; } };
+    const latestInvoice = invoices[0] || null;
+    const planLabel = subscription?.featured_active
+      ? (subscription?.vip_active ? 'Featured + VIP Boost' : 'Featured')
+      : (subscription?.vip_active ? 'VIP Boost' : null);
+    const daysLeft = Math.max(0, Math.round(subscription?.featured_days_left || 0));
+    const planDuration = subscription?.plans?.[latestInvoice?.featured_id]?.duration_days || null;
+    const totalDays = planDuration || Math.max(daysLeft, 1);
+    const planPct = Math.min(100, Math.max(0, totalDays ? (daysLeft / totalDays) * 100 : 0));
+    const endDateStr = subscription?.featured_until ? fmtDate(subscription.featured_until) : null;
+    const renewAmount = latestInvoice?.amount != null ? Math.round(latestInvoice.amount) : null;
+    const renewSym = currencySymbol(latestInvoice?.currency || profileData.rates?.currency);
+    const autoRenewOn = subscription?.auto_renew !== false;
+    const displayMedia = (media && media.length)
+      ? media
+      : (p.photos || []).map((url, i) => ({ media_id: `p${i}`, url, media_type: 'photo', status: 'approved' }));
+    const approvedPhotos = displayMedia.filter((m) => m.media_type === 'photo' && m.status === 'approved');
+    const videoCount = displayMedia.filter((m) => m.media_type === 'video').length;
+    const reviewCount = displayMedia.filter((m) => m.status === 'pending').length;
+    const mediaCountLabel = [
+      `${approvedPhotos.length} photo${approvedPhotos.length === 1 ? '' : 's'}`,
+      videoCount ? `${videoCount} video${videoCount === 1 ? '' : 's'}` : null,
+      reviewCount ? `${reviewCount} in review` : null,
+    ].filter(Boolean).join(' · ') || 'No media yet';
+    const coverUrl = approvedPhotos[0]?.url;
+    const previewEnquiries = (enquiries || []).slice(0, 3);
+    const handleAutoRenewToggle = async () => {
+      const next = !autoRenewOn;
+      try {
+        await updateAutoRenew(next, activeProviderId);
+        fetchSubscription();
+        toast.success(next ? 'Auto-renew enabled' : 'Auto-renew disabled');
+      } catch (err) {
+        notifyError(err, "We couldn't update auto-renew.");
+      }
+    };
+
     return (
       <div className="min-h-screen bg-[#F0EFF4] dashboard-light">
         <SiteHeader />
-
         <div className="pt-32 pb-20 section-padding">
           <div className="max-w-6xl mx-auto">
             <EmailVerificationBanner user={user} />
+
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12" data-testid="manage-header">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-8" data-testid="manage-header">
               <div>
-                <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-3">Manage Profile</p>
+                <p className="text-[#7A2357] text-[11px] font-semibold uppercase tracking-[0.2em] mb-2">Manage Profile</p>
                 {isAgencyScoped && (
-                  <button
-                    onClick={() => navigate('/dashboard')}
-                    className="flex items-center gap-1 text-sm text-[#7A2357] hover:text-[#A3243B] transition-colors mb-3"
-                    data-testid="back-to-agency-btn"
-                  >
+                  <button onClick={() => navigate('/dashboard')} className="flex items-center gap-1 text-sm text-[#7A2357] hover:text-[#A3243B] transition-colors mb-2" data-testid="back-to-agency-btn">
                     <CaretLeft size={16} /> Back to all profiles
                   </button>
                 )}
-                <h2 className="text-4xl md:text-5xl text-[#000000] mb-3">Welcome, {p.display_name}</h2>
-                <div className="flex items-center gap-4">
+                <h2 className="text-4xl md:text-5xl font-bold text-[#1B1820] mb-3">Welcome back, {firstName}</h2>
+                <div className="flex items-center gap-4 flex-wrap">
                   {p.verified ? (
-                    <div className="verified-badge" data-testid="verified-badge"><CheckCircle size={16} weight="fill" />Verified Provider</div>
+                    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[#1B8A4B]" data-testid="verified-badge"><CheckCircle size={16} weight="fill" /> Verified</span>
                   ) : (
-                    <div className="status-badge status-pending">Verification {p.verification_status}</div>
+                    <span className="text-sm text-[#8E8597] capitalize">Verification {p.verification_status}</span>
                   )}
-                  <span className="text-[#000000] text-sm">·</span>
-                  <span className="text-[#000000] text-sm">{p.location?.city}, {p.location?.country}</span>
+                  {p.location?.city && (
+                    <span className="inline-flex items-center gap-1 text-sm text-[#5F5966]"><MapPin size={15} /> {p.location.city}, {p.location.country}</span>
+                  )}
                 </div>
               </div>
-              <Link
-                to={`/providers/${p.provider_id}`}
-                className="btn-secondary flex items-center gap-2"
-                data-testid="view-public-profile-btn"
-              >
-                View Public Profile
-                <CaretRight size={16} />
+              <Link to={`/providers/${p.provider_id}`} className="inline-flex items-center gap-2 rounded-lg border border-[#DFDAE4] px-4 py-2.5 text-sm font-medium text-[#1B1820] hover:border-[#7A2357] transition-colors whitespace-nowrap" data-testid="view-public-profile-btn">
+                View public profile <ArrowRight size={15} />
               </Link>
             </div>
 
-            {/* Subscription banner — activation notice is the default until payment is confirmed */}
-            <div className="mb-8" data-testid="subscription-banner">
-              {subscription?.in_grace ? (
-                  <div className="rounded-lg border border-[#F59E0B]/60 bg-[#F59E0B]/10 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4" data-testid="grace-banner">
-                    <div className="flex items-start gap-3">
-                      <Crown size={22} weight="fill" className="text-[#B45309] mt-0.5 shrink-0" />
-                      <div>
-                        <p className="text-[#000000] font-medium mb-1">Your listing has expired</p>
-                        <p className="text-[#000000] text-sm">
-                          It stays visible on Browse for <span className="font-semibold">{Math.ceil(subscription.grace_days_left)} more day{Math.ceil(subscription.grace_days_left) === 1 ? '' : 's'}</span>. Renew now to avoid being hidden from clients.
-                        </p>
-                      </div>
-                    </div>
-                    <Link to={subscribeHref} className="btn-primary whitespace-nowrap" data-testid="renew-cta">
-                      Renew now
-                    </Link>
+            {/* Top row: status / messages / invoices */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6" data-testid="dashboard-top-row">
+              {/* Profile status */}
+              <div className="bg-white border border-[#ECE8EF] rounded-2xl p-5 flex flex-col" data-testid="subscription-banner">
+                <div className="flex items-center gap-2 mb-3">
+                  <Crown size={18} weight="fill" className="text-[#7A2357]" />
+                  <h3 className="font-bold text-[#1B1820]">Profile status</h3>
+                </div>
+                {subscription?.in_grace ? (
+                  <div className="flex-1 flex flex-col">
+                    <p className="text-sm font-medium text-[#B45309] mb-1">Your listing has expired</p>
+                    <p className="text-sm text-[#5F5966] mb-4">Visible for {Math.ceil(subscription.grace_days_left)} more day{Math.ceil(subscription.grace_days_left) === 1 ? '' : 's'}. Renew to stay on Browse.</p>
+                    <Link to={subscribeHref} className="btn-primary text-sm self-start" data-testid="renew-cta">Renew now</Link>
                   </div>
                 ) : !subscription?.featured_active ? (
-                  <div className="rounded-lg border border-[#7A2357]/40 bg-gradient-to-r from-[#7A2357]/10 to-transparent p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <Crown size={22} weight="fill" className="text-[#7A2357] mt-0.5 shrink-0" />
-                      <div>
-                        <p className="text-[#000000] font-medium mb-1">Activate your profile</p>
-                        <p className="text-[#000000] text-sm">
-                          Choose a Featured plan to appear on Browse. Add VIP Boost to be displayed at the top of every search.
-                        </p>
-                      </div>
-                    </div>
-                    <Link to={subscribeHref} className="btn-primary whitespace-nowrap" data-testid="activate-cta">
-                      Choose a plan
-                    </Link>
+                  <div className="flex-1 flex flex-col">
+                    <p className="text-sm text-[#5F5966] mb-4">Choose a Featured plan to appear on Browse. Add VIP Boost to show at the very top.</p>
+                    <Link to={subscribeHref} className="btn-primary text-sm self-start" data-testid="activate-cta">Choose a plan</Link>
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      {subscription.vip_active ? (
-                        <Crown size={22} weight="fill" className="text-[#7A2357] mt-0.5 shrink-0" />
-                      ) : (
-                        <CheckCircle size={22} weight="fill" className="text-[#22C55E] mt-0.5 shrink-0" />
-                      )}
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="w-2 h-2 rounded-full bg-[#22C55E]" />
+                      <span className="text-sm text-[#1B1820]">Online{planLabel ? ` · ${planLabel}` : ''}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <span className="font-semibold text-[#1B1820]">{daysLeft} of {totalDays} days left</span>
+                      {endDateStr && <span className="text-[#8E8597]">Ends {endDateStr}</span>}
+                    </div>
+                    <div className="h-2 rounded-full bg-[#EBE0EA] overflow-hidden mb-4">
+                      <div className="h-full rounded-full bg-[#7A2357]" style={{ width: `${planPct}%` }} />
+                    </div>
+                    <div className="flex items-center justify-between gap-3 border-t border-[#F1ECF1] pt-3 mb-3">
                       <div>
-                        <p className="text-[#000000] font-medium mb-1">
-                          {subscription.vip_active ? 'Profile status: online (VIP)' : 'Profile status: online'}
-                        </p>
-                        <p className="text-[#000000] text-sm mb-3">
-                          Your profile expires in <span className="text-[#000000] font-medium">{Math.ceil(subscription.featured_days_left)} day{Math.ceil(subscription.featured_days_left) === 1 ? '' : 's'}</span>
-                          {subscription.vip_active && subscription.vip_days_left ? (
-                            <> · VIP Boost: {Math.ceil(subscription.vip_days_left)} day{Math.ceil(subscription.vip_days_left) === 1 ? '' : 's'} remaining</>
-                          ) : null}
-                          .
-                        </p>
-                        {/* Auto-renew toggle */}
-                        <div className="flex items-center gap-3">
-                          <button
-                            type="button"
-                            role="switch"
-                            aria-checked={subscription.auto_renew !== false}
-                            onClick={async () => {
-                              const next = !(subscription.auto_renew !== false);
-                              try {
-                                await updateAutoRenew(next, activeProviderId);
-                                fetchDashboard();
-                                toast.success(next ? 'Auto-renew enabled' : 'Auto-renew disabled');
-                              } catch (err) {
-                                notifyError(err, "We couldn't update auto-renew.");
-                              }
-                            }}
-                            className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${
-                              subscription.auto_renew !== false ? 'bg-[#A3243B]' : 'bg-[#dbdadd]'
-                            }`}
-                            data-testid="auto-renew-summary-toggle"
-                          >
-                            <span
-                              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-[#FFFFFF] transition-transform ${
-                                subscription.auto_renew !== false ? 'translate-x-5' : ''
-                              }`}
-                            />
-                          </button>
-                          <span className="text-sm text-[#000000]">
-                            Auto-renew {subscription.auto_renew !== false ? 'on' : 'off'}
-                          </span>
-                        </div>
+                        <div className="text-sm font-medium text-[#1B1820]">Auto-renew</div>
+                        {endDateStr && renewAmount != null && <div className="text-xs text-[#8E8597]">Renews {endDateStr} for {renewSym}{renewAmount}</div>}
                       </div>
+                      <button type="button" role="switch" aria-checked={autoRenewOn} onClick={handleAutoRenewToggle} className={`flex-shrink-0 w-12 h-7 rounded-full p-0.5 transition-colors ${autoRenewOn ? 'bg-[#7A2357]' : 'bg-[#D8D2DC]'}`} data-testid="auto-renew-summary-toggle">
+                        <span className={`block w-6 h-6 rounded-full bg-white transition-transform ${autoRenewOn ? 'translate-x-5' : 'translate-x-0'}`} />
+                      </button>
                     </div>
-                    <div className="flex gap-3">
-                      {!subscription.vip_active && (
-                        <Link to={subscribeHref} className="btn-secondary whitespace-nowrap" data-testid="upgrade-vip-cta">
-                          Upgrade to VIP
-                        </Link>
-                      )}
-                    </div>
+                    <Link to={subscribeHref} className="text-sm font-semibold text-[#7A2357] hover:text-[#A3243B] self-start" data-testid="extend-plan-link">Extend or upgrade plan</Link>
                   </div>
                 )}
               </div>
 
-            {/* Messages + Invoices boxes */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8" data-testid="messages-invoices-grid">
-              <MessagesBox providerId={activeProviderId} />
-              <InvoicesBox providerId={activeProviderId} />
+              {/* Messages */}
+              <div className="bg-white border border-[#ECE8EF] rounded-2xl p-5 flex flex-col" data-testid="messages-card">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-[#1B1820]">Messages</h3>
+                  {enquiriesUnread > 0 && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#7A2357] text-white">{enquiriesUnread} new</span>}
+                </div>
+                {previewEnquiries.length === 0 ? (
+                  <p className="text-sm text-[#8E8597] flex-1">No messages yet.</p>
+                ) : (
+                  <div className="flex flex-col gap-3 flex-1">
+                    {previewEnquiries.map((e) => (
+                      <div key={e.enquiry_id} className="flex items-start gap-2">
+                        <span className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${e.read ? 'bg-transparent' : 'bg-[#7A2357]'}`} />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-semibold text-[#1B1820] truncate">{e.name}</span>
+                            <span className="text-xs text-[#8E8597] flex-shrink-0">{e.created_at ? fmtDate(e.created_at) : ''}</span>
+                          </div>
+                          <p className="text-xs text-[#5F5966] truncate">{e.message}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <button onClick={() => setShowMessagesModal(true)} className="mt-4 text-sm font-semibold text-[#7A2357] hover:text-[#A3243B] text-left" data-testid="view-all-messages-btn">View all messages</button>
+              </div>
+
+              {/* Invoices */}
+              <div className="bg-white border border-[#ECE8EF] rounded-2xl p-5 flex flex-col" data-testid="invoices-card">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-[#1B1820]">Invoices</h3>
+                  <span className="text-sm text-[#8E8597]">{invoices.length} invoice{invoices.length === 1 ? '' : 's'}</span>
+                </div>
+                {invoices.length === 0 ? (
+                  <p className="text-sm text-[#8E8597] flex-1">No invoices yet.</p>
+                ) : (
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between gap-3 rounded-xl border border-[#F1ECF1] p-3">
+                      <div className="min-w-0">
+                        <p className="text-sm text-[#1B1820] truncate">{planLabel || 'Subscription'}{subscription?.plans?.[latestInvoice?.featured_id]?.duration_days ? ` · ${Math.round(subscription.plans[latestInvoice.featured_id].duration_days / 7)} weeks` : ''}</p>
+                        <p className="text-xs text-[#8E8597]">{latestInvoice?.created_at ? fmtDate(latestInvoice.created_at) : ''}{renewAmount != null ? ` · ${renewSym}${renewAmount}` : ''}</p>
+                      </div>
+                      <a href={invoicePdfUrl(latestInvoice.invoice_id)} target="_blank" rel="noreferrer" className="flex-shrink-0 w-9 h-9 rounded-lg border border-[#DFDAE4] flex items-center justify-center text-[#7A2357] hover:border-[#7A2357] transition-colors" data-testid="invoice-download-btn"><DownloadSimple size={16} /></a>
+                    </div>
+                  </div>
+                )}
+                <button onClick={() => setShowInvoicesModal(true)} className="mt-4 text-sm font-semibold text-[#7A2357] hover:text-[#A3243B] text-left" data-testid="view-all-invoices-btn">View all invoices</button>
+              </div>
             </div>
 
-            {/* Verification banner / status */}
+            {/* Verification banner */}
             {(() => {
               const s = p.verification_status || 'pending';
-              const verified = p.verified === true;
-              if (verified) {
+              if (p.verified === true) {
                 return (
-                  <div
-                    className="mb-8 rounded-lg border border-green-500/30 bg-green-500/5 p-5 flex items-start gap-4"
-                    data-testid="verification-banner-approved"
-                  >
-                    <CheckCircle size={22} weight="fill" className="text-green-500 mt-0.5 shrink-0" />
+                  <div className="mb-6 rounded-2xl border border-[#1B8A4B]/25 bg-[#1B8A4B]/5 p-5 flex items-start gap-4" data-testid="verification-banner-approved">
+                    <CheckCircle size={22} weight="fill" className="text-[#1B8A4B] mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-[#000000] font-medium mb-1">Profile verified</p>
-                      <p className="text-[#000000] text-sm">Your profile is live and appears in client search results with the Verified badge.</p>
+                      <p className="text-[#1B1820] font-semibold mb-1">Profile verified</p>
+                      <p className="text-[#5F5966] text-sm">Your profile is live and shows the Verified badge in search results.</p>
                     </div>
                   </div>
                 );
               }
               if (s === 'submitted') {
                 return (
-                  <div
-                    className="mb-8 rounded-lg border border-[#7A2357]/30 bg-[#7A2357]/5 p-5 flex items-start gap-4"
-                    data-testid="verification-banner-submitted"
-                  >
+                  <div className="mb-6 rounded-2xl border border-[#7A2357]/25 bg-[#7A2357]/5 p-5 flex items-start gap-4" data-testid="verification-banner-submitted">
                     <ShieldCheck size={22} weight="thin" className="text-[#7A2357] mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-[#000000] font-medium mb-1">Verification under review</p>
-                      <p className="text-[#000000] text-sm">We&apos;re reviewing your documents — you&apos;ll receive an email within 24 hours. Your profile becomes visible to clients once approved.</p>
+                      <p className="text-[#1B1820] font-semibold mb-1">Verification under review</p>
+                      <p className="text-[#5F5966] text-sm">We&apos;re reviewing your documents — you&apos;ll receive an email within 24 hours.</p>
                     </div>
                   </div>
                 );
               }
               if (s === 'rejected') {
                 return (
-                  <div
-                    className="mb-8 rounded-lg border border-red-500/30 bg-red-500/5 p-5"
-                    data-testid="verification-banner-rejected"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="w-9 h-9 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
-                        <span className="text-red-400 text-lg">!</span>
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-[#000000] font-medium mb-1">Verification needs attention</p>
-                        {p.rejection_reason && (
-                          <p className="text-[#000000] text-sm mb-3"><span className="text-[#000000]">Reason:</span> {p.rejection_reason}</p>
-                        )}
-                        <button
-                          onClick={() => setShowVerificationModal(true)}
-                          className="btn-primary text-sm"
-                          data-testid="verification-resubmit-btn"
-                        >
-                          Resubmit documents
-                        </button>
-                      </div>
+                  <div className="mb-6 rounded-2xl border border-red-500/30 bg-red-500/5 p-5 flex items-start gap-4" data-testid="verification-banner-rejected">
+                    <div className="w-9 h-9 rounded-full bg-red-500/10 flex items-center justify-center shrink-0"><span className="text-red-500 text-lg">!</span></div>
+                    <div className="flex-1">
+                      <p className="text-[#1B1820] font-semibold mb-1">Verification needs attention</p>
+                      {p.rejection_reason && <p className="text-[#5F5966] text-sm mb-3">Reason: {p.rejection_reason}</p>}
+                      <button onClick={() => setShowVerificationModal(true)} className="btn-primary text-sm" data-testid="verification-resubmit-btn">Resubmit documents</button>
                     </div>
                   </div>
                 );
               }
-              // pending (not submitted)
               return (
-                <div
-                  className="mb-8 rounded-lg border border-[#7A2357]/40 bg-gradient-to-br from-[#7A2357]/10 to-transparent p-6"
-                  data-testid="verification-banner-pending"
-                >
+                <div className="mb-6 rounded-2xl border border-[#7A2357]/30 bg-gradient-to-br from-[#7A2357]/10 to-transparent p-6" data-testid="verification-banner-pending">
                   <div className="flex items-start gap-4">
                     <ShieldCheck size={24} weight="thin" className="text-[#7A2357] mt-1 shrink-0" />
                     <div className="flex-1">
-                      <p className="text-[#000000] font-medium mb-1">Unlock the Verified badge</p>
-                      <p className="text-[#000000] text-sm mb-4 leading-relaxed">
-                        Your profile is created — verify your identity to appear in client search and build trust. Takes about 2 minutes. We review within 24 hours.
-                      </p>
-                      <button
-                        onClick={() => setShowVerificationModal(true)}
-                        className="btn-primary text-sm"
-                        data-testid="verification-start-btn"
-                      >
-                        Start verification
-                      </button>
+                      <p className="text-[#1B1820] font-semibold mb-1">Unlock the Verified badge</p>
+                      <p className="text-[#5F5966] text-sm mb-4 leading-relaxed">Verify your identity to appear in client search and build trust. Takes about 2 minutes.</p>
+                      <button onClick={() => setShowVerificationModal(true)} className="btn-primary text-sm" data-testid="verification-start-btn">Start verification</button>
                     </div>
                   </div>
                 </div>
               );
             })()}
 
-            {/* Management Cards — stacked in registration order */}
-            <div className="flex flex-col gap-6">
-              {/* 1. Basic Info */}
-              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-basic-info">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <User size={18} className="text-[#7A2357]" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 1</p>
-                    <h3 className="text-lg font-bold text-[#000000]">Basic Info</h3>
-                  </div>
-                </div>
-                <dl className="space-y-3 text-sm">
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-[#000000]">Display name</dt>
-                    <dd className="text-[#000000] text-right">{p.display_name || '—'}</dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-[#000000]">Age</dt>
-                    <dd className="text-[#000000]">{p.age || '—'}</dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-[#000000]">Gender</dt>
-                    <dd className="text-[#000000] capitalize">{p.gender || '—'}</dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-[#000000]">Location</dt>
-                    <dd className="text-[#000000] text-right">{p.location?.city ? `${p.location.city}, ${p.location.country}` : '—'}</dd>
-                  </div>
-                  <div className="pt-2 border-t border-[#dbdadd]">
-                    <dt className="text-[#000000] mb-2">Bio</dt>
-                    <dd className="text-[#000000] line-clamp-3 leading-relaxed">{p.bio || <span className="text-[#000000] italic">Not set</span>}</dd>
-                  </div>
-                </dl>
-                <button
-                  onClick={() => openEdit(1)}
-                  className="btn-secondary w-full mt-8"
-                  data-testid="edit-basic-info-btn"
-                >
-                  Edit Basic Info
-                </button>
-              </div>
-
-              {/* 2. Photos & Videos */}
-              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-photos">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <Camera size={18} className="text-[#7A2357]" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 2</p>
-                    <h3 className="text-lg font-bold text-[#000000]">Photos & Video&apos;s</h3>
-                  </div>
-                </div>
-                {p.photos && p.photos.length > 0 ? (
-                  <>
-                    <div className="grid grid-cols-4 gap-2 mb-4">
-                      {p.photos.slice(0, 8).map((photo, i) => (
-                        <div key={`${i}-${photo.slice(-40)}`} className="aspect-[3/4] overflow-hidden rounded">
-                          <img src={photo} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
-                        </div>
-                      ))}
+            {/* Section cards */}
+            <div className="flex flex-col gap-5">
+              {/* 1. Basic info */}
+              <div className="bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8" data-testid="card-basic-info">
+                <div className="flex items-start justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-full bg-[#EBE0EA] text-[#7A2357] text-sm font-bold flex items-center justify-center flex-shrink-0">1</span>
+                    <div>
+                      <h3 className="text-lg font-bold text-[#1B1820]">Basic info</h3>
+                      <p className="text-sm text-[#8E8597]">Shown at the top of your profile</p>
                     </div>
-                    <p className="text-[#000000] text-sm">{p.photos.length} media uploaded</p>
-                  </>
-                ) : (
-                  <div className="h-32 flex items-center justify-center border border-dashed border-[#dbdadd] rounded">
-                    <p className="text-[#000000] text-sm italic">No photos yet</p>
+                  </div>
+                  <button onClick={() => openEdit(1)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#DFDAE4] px-3 py-1.5 text-sm font-medium text-[#1B1820] hover:border-[#7A2357] transition-colors flex-shrink-0" data-testid="edit-basic-info-btn"><PencilSimple size={14} /> Edit</button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-3">
+                  {basicRows.map((r) => (
+                    <div key={r.label} className="flex items-center justify-between gap-4 border-b border-[#F3F0F5] pb-2">
+                      <span className="text-sm text-[#8E8597]">{r.label}</span>
+                      <span className={`text-sm font-medium text-[#1B1820] text-right ${r.cap ? 'capitalize' : ''}`}>{r.value || '—'}</span>
+                    </div>
+                  ))}
+                </div>
+                {(profileData.essence || p.bio) && (
+                  <div className="mt-5">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8E8597] mb-2">My essence</p>
+                    <p className="text-sm text-[#1B1820] leading-relaxed">{profileData.essence || p.bio}</p>
                   </div>
                 )}
-                <button
-                  onClick={() => openEdit(2)}
-                  className="btn-secondary w-full mt-8"
-                  data-testid="edit-photos-btn"
-                >
-                  Edit Photos & Video&apos;s
-                </button>
+              </div>
+
+              {/* 2. Photos & videos */}
+              <div className="bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8" data-testid="card-photos">
+                <div className="flex items-start justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-full bg-[#EBE0EA] text-[#7A2357] text-sm font-bold flex items-center justify-center flex-shrink-0">2</span>
+                    <div>
+                      <h3 className="text-lg font-bold text-[#1B1820]">Photos &amp; videos</h3>
+                      <p className="text-sm text-[#8E8597]">{mediaCountLabel}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => openEdit(2)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#DFDAE4] px-3 py-1.5 text-sm font-medium text-[#1B1820] hover:border-[#7A2357] transition-colors flex-shrink-0" data-testid="edit-photos-btn"><PencilSimple size={14} /> Edit</button>
+                </div>
+                {displayMedia.length === 0 ? (
+                  <div className="h-32 flex items-center justify-center border border-dashed border-[#DFDAE4] rounded-xl"><p className="text-sm text-[#8E8597] italic">No photos yet</p></div>
+                ) : (
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                    {displayMedia.slice(0, 12).map((m, i) => {
+                      const isCover = m.url && m.url === coverUrl;
+                      return (
+                        <div key={m.media_id || i} className={`relative aspect-[3/4] rounded-xl overflow-hidden bg-[#EFE9F0] ${isCover ? 'ring-2 ring-[#7A2357]' : ''}`}>
+                          {m.media_type === 'video' ? (
+                            <div className="w-full h-full flex items-center justify-center bg-[#2A2230]"><span className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center text-[#2A2230]"><Play size={16} weight="fill" /></span></div>
+                          ) : m.url ? (
+                            <img src={m.url} alt="" className={`w-full h-full object-cover ${m.status === 'pending' ? 'opacity-70' : ''}`} />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[#C9BED0]"><Camera size={20} /></div>
+                          )}
+                          {isCover && <span className="absolute top-1.5 left-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#7A2357] text-white">Cover</span>}
+                          {m.status === 'pending' && <span className="absolute top-1.5 right-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#FACC15] text-[#5A4600]">In review</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* 3. Services */}
               {(!isAgencyScoped || !applyServicesToAll) && (
-              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-services">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <FileText size={18} className="text-[#7A2357]" />
+              <div className="bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8" data-testid="card-services">
+                <div className="flex items-start justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-full bg-[#EBE0EA] text-[#7A2357] text-sm font-bold flex items-center justify-center flex-shrink-0">3</span>
+                    <div>
+                      <h3 className="text-lg font-bold text-[#1B1820]">Services</h3>
+                      <p className="text-sm text-[#8E8597]">{(profileData.companionshipType || 'Escort')} · {(inclusiveServices.length + extraServices.length) || legacyServices.length} services</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 3</p>
-                    <h3 className="text-lg font-bold text-[#000000]">Services</h3>
-                  </div>
+                  <button onClick={() => openEdit(3)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#DFDAE4] px-3 py-1.5 text-sm font-medium text-[#1B1820] hover:border-[#7A2357] transition-colors flex-shrink-0" data-testid="edit-services-btn"><PencilSimple size={14} /> Edit</button>
                 </div>
                 {legacyServices.length === 0 && inclusiveServices.length === 0 && extraServices.length === 0 ? (
-                  <p className="text-[#000000] text-sm italic">No services set</p>
+                  <p className="text-sm text-[#8E8597] italic">No services set</p>
                 ) : (
-                  <div className="space-y-4">
-                    {/* Prefer new-schema (dict) rendering; fall back to legacy list only if dict is empty */}
+                  <div className="space-y-5">
                     {inclusiveServices.length === 0 && extraServices.length === 0 && legacyServices.length > 0 && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">Offered</p>
-                        <div className="flex flex-wrap gap-2">
-                          {legacyServices.map((s) => (
-                            <span key={s} className="px-3 py-1 text-xs border border-[#dbdadd] text-[#000000] rounded-full">{s}</span>
-                          ))}
-                        </div>
+                      <div className="flex flex-wrap gap-2">
+                        {legacyServices.map((s) => <span key={s} className="px-3 py-1 text-sm rounded-full bg-[#F7F2F6] text-[#1B1820]">{s}</span>)}
                       </div>
                     )}
                     {inclusiveServices.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#7A2357] mb-2">Inclusive ({inclusiveServices.length})</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7A2357] mb-2">Included in your rate · {inclusiveServices.length}</p>
                         <div className="flex flex-wrap gap-2">
-                          {inclusiveServices.slice(0, 8).map(([name]) => (
-                            <span key={name} className="px-3 py-1 text-xs border border-[#dbdadd] text-[#000000] rounded-full">{name}</span>
-                          ))}
-                          {inclusiveServices.length > 8 && <span className="px-3 py-1 text-xs text-[#000000]">+{inclusiveServices.length - 8} more</span>}
+                          {inclusiveServices.map(([name]) => <span key={name} className="px-3 py-1 text-sm rounded-full bg-[#F7F2F6] text-[#1B1820]">{name}</span>)}
                         </div>
                       </div>
                     )}
                     {extraServices.length > 0 && (
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#7A2357] mb-2">Extra ({extraServices.length})</p>
-                        <div className="flex flex-wrap gap-2">
-                          {extraServices.slice(0, 6).map(([name, v]) => (
-                            <span key={name} className="px-3 py-1 text-xs border border-[#7A2357]/40 bg-[#7A2357]/10 text-[#7A2357] rounded-full">
-                              {name} {v.price && `· €${v.price}`}
-                            </span>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7A2357] mb-2">Extras · {extraServices.length}</p>
+                        <div className="divide-y divide-[#F3F0F5] border-t border-[#F3F0F5]">
+                          {extraServices.map(([name, v]) => (
+                            <div key={name} className="flex items-center justify-between py-2.5">
+                              <span className="text-sm text-[#1B1820]">{name}</span>
+                              <span className="text-sm font-medium text-[#1B1820]">{v.price ? `+ ${sym}${v.price}` : '—'}</span>
+                            </div>
                           ))}
-                          {extraServices.length > 6 && <span className="px-3 py-1 text-xs text-[#000000]">+{extraServices.length - 6} more</span>}
                         </div>
                       </div>
                     )}
                   </div>
                 )}
-                <button
-                  onClick={() => openEdit(3)}
-                  className="btn-secondary w-full mt-8"
-                  data-testid="edit-services-btn"
-                >
-                  Edit Services
-                </button>
               </div>
               )}
 
               {/* 4. Rates */}
               {(!isAgencyScoped || !applyRatesToAll) && (
-              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-rates">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <CurrencyDollar size={18} className="text-[#7A2357]" />
+              <div className="bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8" data-testid="card-rates">
+                <div className="flex items-start justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-full bg-[#EBE0EA] text-[#7A2357] text-sm font-bold flex items-center justify-center flex-shrink-0">4</span>
+                    <div>
+                      <h3 className="text-lg font-bold text-[#1B1820]">Rates</h3>
+                      {fromRate != null && <p className="text-sm text-[#8E8597]">From {sym}{fromRate} / hour</p>}
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 4</p>
-                    <h3 className="text-lg font-bold text-[#000000]">Rates</h3>
-                  </div>
+                  <button onClick={() => openEdit(4, 'rates-section')} className="inline-flex items-center gap-1.5 rounded-lg border border-[#DFDAE4] px-3 py-1.5 text-sm font-medium text-[#1B1820] hover:border-[#7A2357] transition-colors flex-shrink-0" data-testid="edit-rates-btn"><PencilSimple size={14} /> Edit</button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {['incall', 'outcall'].map((kind) => {
-                    const col = profileData.rates?.[kind] || {};
-                    const sym = currencySymbol(profileData.rates?.currency);
-                    const base = ['1hour', '2hours', '3hours'];
-                    const extras = (Array.isArray(col.extras) ? col.extras : [])
-                      .slice()
-                      .sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0));
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                  {kinds.map((kind) => {
+                    const col = kind === 'incall' ? rateIncall : rateOutcall;
+                    const rows = rateRowsFor(col);
                     return (
                       <div key={kind}>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#7A2357] mb-3">{kind}</p>
-                        <div className="space-y-2">
-                          {[
-                            { key: '1hour', label: '1 hour' },
-                            { key: '2hours', label: '2 hours' },
-                            { key: '3hours', label: '3 hours' }
-                          ].map(({ key, label }) => {
-                            const v = col[key];
-                            return (
-                              <div key={key} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
-                                <span className="text-[#000000] text-sm">{label}</span>
-                                <span className="text-[#7A2357]">
-                                  {v ? `${sym}${v}` : <span className="text-[#000000] text-sm italic">Not set</span>}
-                                </span>
-                              </div>
-                            );
-                          })}
-                          {extras.map((extra, i) => (
-                            <div key={`extra-${i}`} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
-                              <span className="text-[#000000] text-sm">{extra.hours} hours</span>
-                              <span className="text-[#7A2357]">
-                                {extra.price ? `${sym}${extra.price}` : <span className="text-[#000000] text-sm italic">Not set</span>}
-                              </span>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7A2357] mb-2">{kind}</p>
+                        <div className="divide-y divide-[#F3F0F5] border-t border-[#F3F0F5]">
+                          {rows.length === 0 ? (
+                            <p className="py-2.5 text-sm text-[#8E8597] italic">Not set</p>
+                          ) : rows.map((r) => (
+                            <div key={r.label} className="flex items-center justify-between py-2.5">
+                              <span className="text-sm text-[#1B1820]">{r.label}</span>
+                              <span className="text-sm font-medium text-[#1B1820]">{sym}{Number(r.v).toLocaleString()}</span>
                             </div>
                           ))}
-                          {col.overnight !== undefined && col.overnight !== '' && (
-                            <div className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
-                              <span className="text-[#000000] text-sm">Overnight</span>
-                              <span className="text-[#7A2357]">{sym}{col.overnight}</span>
-                            </div>
-                          )}
                         </div>
                       </div>
                     );
                   })}
                 </div>
-                <button
-                  onClick={() => openEdit(4, 'rates-section')}
-                  className="btn-secondary w-full mt-8"
-                  data-testid="edit-rates-btn"
-                >
-                  Edit Rates
-                </button>
+                <p className="text-sm text-[#8E8597] mt-5">
+                  {kinds.includes('outcall') && taxiCost ? `Outcall: + ${sym}${taxiCost} taxi · ` : ''}Prices in {(profileData.rates?.currency || 'EUR').toLowerCase() === 'eur' ? 'euro (EUR)' : (profileData.rates?.currency || 'EUR')}
+                </p>
               </div>
               )}
 
               {/* 5. Availability */}
               {(!isAgencyScoped || !applyRatesToAll) && (
-              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="card-availability">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center">
-                    <Clock size={18} className="text-[#7A2357]" />
+              <div className="bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8" data-testid="card-availability">
+                <div className="flex items-start justify-between gap-4 mb-5">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-full bg-[#EBE0EA] text-[#7A2357] text-sm font-bold flex items-center justify-center flex-shrink-0">5</span>
+                    <div>
+                      <h3 className="text-lg font-bold text-[#1B1820]">Availability</h3>
+                      <p className="text-sm text-[#8E8597]">{availableDays} of 7 days · {Math.round(weeklyHours)} hours / week</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000]">Step 4</p>
-                    <h3 className="text-lg font-bold text-[#000000]">Availability</h3>
-                    <p className="text-[#000000] text-xs mt-1">{availableDays} of 7 days available</p>
-                  </div>
+                  <button onClick={() => openEdit(4, 'availability-section')} className="inline-flex items-center gap-1.5 rounded-lg border border-[#DFDAE4] px-3 py-1.5 text-sm font-medium text-[#1B1820] hover:border-[#7A2357] transition-colors flex-shrink-0" data-testid="edit-availability-btn"><PencilSimple size={14} /> Edit</button>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
+                <span className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-[#EBE0EA] text-[#7A2357] mb-4">{availTypeLabel}</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
                   {scheduleDays.map(([day, sched]) => (
-                    <div
-                      key={day}
-                      className={`border p-3 text-center transition-colors ${
-                        sched?.available ? 'border-[#7A2357]/40 bg-[#7A2357]/5' : 'border-[#dbdadd] opacity-50'
-                      }`}
-                    >
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">{dayLabels[day] || day.slice(0, 3)}</p>
+                    <div key={day} className={`rounded-xl border p-3 text-center ${sched?.available ? 'border-[#ECE8EF]' : 'border-[#F1ECF1] opacity-60'}`}>
+                      <p className="text-[10px] uppercase tracking-[0.15em] text-[#8E8597] mb-2">{(dayLabels[day] || day.slice(0, 3)).toUpperCase()}</p>
                       {sched?.available ? (
                         <>
-                          <p className="text-[#000000] text-sm">{sched.start}</p>
-                          <p className="text-[#000000] text-xs">to</p>
-                          <p className="text-[#000000] text-sm">{sched.end}</p>
+                          <p className="text-sm text-[#1B1820]">{sched.start}</p>
+                          <p className="text-sm text-[#1B1820]">{sched.end}</p>
                         </>
                       ) : (
-                        <p className="text-[#000000] text-xs italic">Closed</p>
+                        <p className="text-sm text-[#8E8597]">Closed</p>
                       )}
                     </div>
                   ))}
                 </div>
-                <button
-                  onClick={() => openEdit(4, 'availability-section')}
-                  className="btn-secondary w-full mt-8"
-                  data-testid="edit-availability-btn"
-                >
-                  Edit Availability
-                </button>
               </div>
               )}
 
               {/* Remove profile */}
-              <div className="bg-white border border-[#B91C1C] rounded-lg p-6 mt-12" data-testid="card-danger-zone">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full border border-[#B91C1C] flex items-center justify-center">
-                    <Trash size={18} className="text-[#B91C1C]" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl text-[#B91C1C]">Remove my profile</h3>
-                  </div>
-                </div>
-                <p className="text-[#000000] text-sm mb-6">
-                  This permanently deletes your profile, photos, subscriptions and verification documents. This action cannot be undone.
-                </p>
-                <button
-                  onClick={() => setConfirmRemove(true)}
-                  disabled={removing}
-                  className="w-full px-4 py-3 border border-[#B91C1C] text-[#B91C1C] hover:bg-[#B91C1C]/10 transition-colors text-sm uppercase tracking-wider disabled:opacity-50"
-                  data-testid="remove-profile-btn"
-                >
+              <div className="bg-white border border-[#E8C9CF] rounded-2xl p-6 md:p-8 mt-2" data-testid="card-danger-zone">
+                <h3 className="text-lg font-bold text-[#A3243B] mb-2">Remove my profile</h3>
+                <p className="text-sm text-[#5F5966] mb-5">This permanently deletes your profile, photos, subscriptions and verification documents. This can&apos;t be undone.</p>
+                <button onClick={() => setConfirmRemove(true)} disabled={removing} className="rounded-lg border border-[#A3243B] text-[#A3243B] hover:bg-[#A3243B]/5 transition-colors px-5 py-2.5 text-sm font-semibold disabled:opacity-50" data-testid="remove-profile-btn">
                   {removing ? 'Removing…' : 'Remove profile permanently'}
                 </button>
               </div>
@@ -1210,6 +1174,22 @@ export default function ProviderDashboard() {
           onSubmitted={fetchDashboard}
           providerId={activeProviderId}
         />
+        {showMessagesModal && (
+          <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/40 p-4 sm:p-8" onClick={() => setShowMessagesModal(false)} data-testid="messages-modal">
+            <div className="w-full max-w-2xl mx-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="flex justify-end mb-2"><button onClick={() => setShowMessagesModal(false)} className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-[#1B1820]" data-testid="close-messages-modal"><X size={18} /></button></div>
+              <MessagesBox providerId={activeProviderId} />
+            </div>
+          </div>
+        )}
+        {showInvoicesModal && (
+          <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/40 p-4 sm:p-8" onClick={() => setShowInvoicesModal(false)} data-testid="invoices-modal">
+            <div className="w-full max-w-2xl mx-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="flex justify-end mb-2"><button onClick={() => setShowInvoicesModal(false)} className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-[#1B1820]" data-testid="close-invoices-modal"><X size={18} /></button></div>
+              <InvoicesBox providerId={activeProviderId} />
+            </div>
+          </div>
+        )}
       </div>
     );
   }
