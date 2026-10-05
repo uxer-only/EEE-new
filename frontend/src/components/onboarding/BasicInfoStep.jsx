@@ -1,5 +1,6 @@
 import { MapPin, CaretDown, EnvelopeSimple, Check, Plus, X } from 'phosphor-react';
 import CharacteristicsForm from '@/components/CharacteristicsForm';
+import { splitPhone, joinPhone, DIAL_CODE_OPTIONS } from '@/constants/companionData';
 
 const COUNTRIES = [
   'Belgium', 'Netherlands', 'Luxembourg', 'France', 'Germany', 'United Kingdom',
@@ -86,6 +87,17 @@ export default function BasicInfoStep({
   const customLangs = languages.filter((l) => !LANGUAGE_PRESETS.includes(l));
 
   const setContact = (patch) => setProfileData({ ...profileData, contact: { ...profileData.contact, ...patch } });
+
+  const handleCountryChange = (newCountry) => {
+    const newDial = countryDialCodes[newCountry] || '';
+    const oldDial = countryDialCodes[profileData.location.country] || '';
+    const { number } = splitPhone(profileData.contact?.phone, oldDial);
+    setProfileData({
+      ...profileData,
+      location: { ...profileData.location, country: newCountry },
+      contact: { ...profileData.contact, phone: newDial ? joinPhone(newDial, number) : (profileData.contact?.phone || '') },
+    });
+  };
 
   const toggleLang = (lang) => {
     const next = languages.includes(lang) ? languages.filter((l) => l !== lang) : [...languages, lang];
@@ -192,7 +204,7 @@ export default function BasicInfoStep({
                   <select
                     id="country"
                     value={profileData.location.country}
-                    onChange={(e) => setProfileData({ ...profileData, location: { ...profileData.location, country: e.target.value } })}
+                    onChange={(e) => handleCountryChange(e.target.value)}
                     className={`${inputCls} appearance-none pr-10 cursor-pointer`}
                     data-testid="country-input"
                   >
@@ -313,25 +325,30 @@ export default function BasicInfoStep({
             <div className="w-full sm:max-w-[380px]">
               <Label>Mobile phone</Label>
               {(() => {
-                const dial = countryDialCodes[profileData.location.country] || '';
-                const raw = profileData.contact.phone || '';
-                const localValue = dial && raw.startsWith(dial) ? raw.slice(dial.length).replace(/^\s+/, '') : raw;
+                const fallback = countryDialCodes[profileData.location.country] || '';
+                const { dial: curDial, number } = splitPhone(profileData.contact.phone, fallback);
                 return (
-                  <div className="flex items-stretch bg-white border border-[#898989] rounded-lg focus-within:border-[#7A2357] transition-colors overflow-hidden">
-                    {dial && (
-                      <span className="px-4 flex items-center bg-[#F7F5F9] text-[#1B1820] text-sm font-medium border-r border-[#898989] select-none whitespace-nowrap" data-testid="phone-dial-code">
-                        {dial}
-                      </span>
-                    )}
+                  <div className="flex items-stretch gap-2">
+                    <div className="relative w-[118px] flex-shrink-0">
+                      <select
+                        value={curDial}
+                        onChange={(e) => setContact({ phone: joinPhone(e.target.value, number) })}
+                        className="w-full h-full bg-white border border-[#898989] rounded-lg pl-3.5 pr-8 py-3 text-[15px] text-[#1B1820] appearance-none cursor-pointer focus:border-[#7A2357] focus:outline-none"
+                        data-testid="phone-dial-select"
+                      >
+                        {!curDial && <option value="">Code</option>}
+                        {DIAL_CODE_OPTIONS.map((o) => (
+                          <option key={`${o.iso}${o.dial}`} value={o.dial}>{o.iso} {o.dial}</option>
+                        ))}
+                      </select>
+                      <CaretDown size={16} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5F5966] pointer-events-none" />
+                    </div>
                     <input
                       type="tel"
-                      value={localValue}
-                      onChange={(e) => {
-                        const next = e.target.value.replace(/^\+\d+\s?/, '');
-                        setContact({ phone: dial ? `${dial} ${next}`.trim() : next });
-                      }}
-                      className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-3 text-[15px] text-[#1B1820] placeholder:text-[#BDB4C5]"
-                      placeholder={dial ? '470 12 34 56' : 'Select country first or enter full number'}
+                      value={number}
+                      onChange={(e) => setContact({ phone: joinPhone(curDial, e.target.value) })}
+                      className={`${inputCls} flex-1`}
+                      placeholder="470 12 34 56"
                       data-testid="phone-input"
                     />
                   </div>

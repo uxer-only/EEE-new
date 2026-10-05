@@ -17,6 +17,50 @@ export const COUNTRY_DIAL_CODES = {
   Israel: '+972', Lebanon: '+961', Morocco: '+212'
 };
 
+// Dial-code options for the phone country selector (ISO + dial), ordered like COUNTRY_DIAL_CODES.
+export const DIAL_CODE_OPTIONS = [
+  { iso: 'BE', name: 'Belgium', dial: '+32' }, { iso: 'NL', name: 'Netherlands', dial: '+31' },
+  { iso: 'LU', name: 'Luxembourg', dial: '+352' }, { iso: 'FR', name: 'France', dial: '+33' },
+  { iso: 'DE', name: 'Germany', dial: '+49' }, { iso: 'GB', name: 'United Kingdom', dial: '+44' },
+  { iso: 'ES', name: 'Spain', dial: '+34' }, { iso: 'IT', name: 'Italy', dial: '+39' },
+  { iso: 'PT', name: 'Portugal', dial: '+351' }, { iso: 'CH', name: 'Switzerland', dial: '+41' },
+  { iso: 'AT', name: 'Austria', dial: '+43' }, { iso: 'IE', name: 'Ireland', dial: '+353' },
+  { iso: 'DK', name: 'Denmark', dial: '+45' }, { iso: 'SE', name: 'Sweden', dial: '+46' },
+  { iso: 'NO', name: 'Norway', dial: '+47' }, { iso: 'FI', name: 'Finland', dial: '+358' },
+  { iso: 'PL', name: 'Poland', dial: '+48' }, { iso: 'CZ', name: 'Czech Republic', dial: '+420' },
+  { iso: 'GR', name: 'Greece', dial: '+30' }, { iso: 'HR', name: 'Croatia', dial: '+385' },
+  { iso: 'HU', name: 'Hungary', dial: '+36' }, { iso: 'RO', name: 'Romania', dial: '+40' },
+  { iso: 'BG', name: 'Bulgaria', dial: '+359' }, { iso: 'SI', name: 'Slovenia', dial: '+386' },
+  { iso: 'SK', name: 'Slovakia', dial: '+421' }, { iso: 'EE', name: 'Estonia', dial: '+372' },
+  { iso: 'LV', name: 'Latvia', dial: '+371' }, { iso: 'LT', name: 'Lithuania', dial: '+370' },
+  { iso: 'CY', name: 'Cyprus', dial: '+357' }, { iso: 'MT', name: 'Malta', dial: '+356' },
+  { iso: 'IS', name: 'Iceland', dial: '+354' }, { iso: 'MC', name: 'Monaco', dial: '+377' },
+  { iso: 'US', name: 'United States', dial: '+1' }, { iso: 'CA', name: 'Canada', dial: '+1' },
+  { iso: 'MX', name: 'Mexico', dial: '+52' }, { iso: 'BR', name: 'Brazil', dial: '+55' },
+  { iso: 'AR', name: 'Argentina', dial: '+54' }, { iso: 'AU', name: 'Australia', dial: '+61' },
+  { iso: 'NZ', name: 'New Zealand', dial: '+64' }, { iso: 'JP', name: 'Japan', dial: '+81' },
+  { iso: 'KR', name: 'South Korea', dial: '+82' }, { iso: 'CN', name: 'China', dial: '+86' },
+  { iso: 'IN', name: 'India', dial: '+91' }, { iso: 'SG', name: 'Singapore', dial: '+65' },
+  { iso: 'HK', name: 'Hong Kong', dial: '+852' }, { iso: 'TH', name: 'Thailand', dial: '+66' },
+  { iso: 'AE', name: 'UAE', dial: '+971' }, { iso: 'SA', name: 'Saudi Arabia', dial: '+966' },
+  { iso: 'TR', name: 'Turkey', dial: '+90' }, { iso: 'RU', name: 'Russia', dial: '+7' },
+  { iso: 'UA', name: 'Ukraine', dial: '+380' }, { iso: 'ZA', name: 'South Africa', dial: '+27' },
+  { iso: 'EG', name: 'Egypt', dial: '+20' }, { iso: 'IL', name: 'Israel', dial: '+972' },
+  { iso: 'LB', name: 'Lebanon', dial: '+961' }, { iso: 'MA', name: 'Morocco', dial: '+212' }
+];
+
+const _DIALS_BY_LEN = DIAL_CODE_OPTIONS.map((o) => o.dial).sort((a, b) => b.length - a.length);
+
+// Split a stored phone string into { dial, number }. Falls back to the given dial when none is embedded.
+export const splitPhone = (phone, fallbackDial = '') => {
+  const raw = (phone || '').trim();
+  const match = _DIALS_BY_LEN.find((d) => raw.startsWith(d));
+  if (match) return { dial: match, number: raw.slice(match.length).replace(/^\s+/, '') };
+  return { dial: fallbackDial, number: raw };
+};
+
+export const joinPhone = (dial, number) => `${dial || ''} ${(number || '').trim()}`.trim();
+
 export const CURRENCY_OPTIONS = [
   { code: 'EUR', symbol: '€',   label: 'Euro (EUR)' },
   { code: 'USD', symbol: '$',   label: 'US Dollar (USD)' },

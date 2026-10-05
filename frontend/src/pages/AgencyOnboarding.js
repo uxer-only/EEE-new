@@ -2,12 +2,12 @@ import { useState, Fragment } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { notifyError, notifyProblem } from '../lib/notify';
-import { User, FileText, CurrencyDollar, CaretLeft, CaretRight, CaretDown, Plus, X, Check, CheckCircle, Info, ArrowRight } from 'phosphor-react';
+import { User, FileText, CurrencyDollar, CaretLeft, CaretRight, CaretDown, Plus, X, Check, CheckCircle, Info, ArrowRight, EnvelopeSimple } from 'phosphor-react';
 import { saveAgencyProfile } from '@/services/api';
 import SiteHeader from '@/components/SiteHeader';
 import ServicesStep from '@/components/onboarding/ServicesStep';
 import RatesAvailabilityStep from '@/components/onboarding/RatesAvailabilityStep';
-import { COUNTRY_DIAL_CODES, blankRates, defaultSchedule } from '@/constants/companionData';
+import { COUNTRY_DIAL_CODES, blankRates, defaultSchedule, splitPhone, joinPhone, DIAL_CODE_OPTIONS } from '@/constants/companionData';
 
 const STEPS = [
   { id: 1, title: 'Basic info', icon: User },
@@ -71,6 +71,17 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
   const update = (patch) => setData((prev) => ({ ...prev, ...patch }));
   const setContact = (patch) => setData((prev) => ({ ...prev, contact: { ...prev.contact, ...patch } }));
 
+  const handleCountryChange = (newCountry) => {
+    const newDial = COUNTRY_DIAL_CODES[newCountry] || '';
+    const oldDial = COUNTRY_DIAL_CODES[data.location.country] || '';
+    const { number } = splitPhone(data.contact.phone, oldDial);
+    setData((prev) => ({
+      ...prev,
+      location: { ...prev.location, country: newCountry },
+      contact: { ...prev.contact, phone: newDial ? joinPhone(newDial, number) : (prev.contact.phone || '') },
+    }));
+  };
+
   const current = data.languages || [];
   const customLangs = current.filter((l) => !LANG_PRESETS.includes(l));
   const toggleLang = (lang) => update({ languages: current.includes(lang) ? current.filter((l) => l !== lang) : [...current, lang] });
@@ -120,10 +131,6 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
   };
   const back = () => setStep((s) => Math.max(1, s - 1));
   const goToStep = (id) => { setStep(id); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-
-  const dial = COUNTRY_DIAL_CODES[data.location.country] || '';
-  const rawPhone = data.contact.phone || '';
-  const localPhone = dial && rawPhone.startsWith(dial) ? rawPhone.slice(dial.length).replace(/^\s+/, '') : rawPhone;
 
   const applyBox = (checked, onChange, title, hint, testid) => (
     <button type="button" onClick={() => onChange(!checked)} className="w-full flex items-start gap-3 text-left rounded-xl border border-[#7A2357]/30 bg-[#7A2357]/5 p-4" data-testid={testid}>
@@ -199,7 +206,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                     <div className="w-full sm:max-w-[380px]">
                       <label className={LABEL}>Country</label>
                       <div className="relative">
-                        <select value={data.location.country} onChange={(e) => update({ location: { ...data.location, country: e.target.value } })} className={`${INPUT} appearance-none pr-10 cursor-pointer`} data-testid="agency-country-select">
+                        <select value={data.location.country} onChange={(e) => handleCountryChange(e.target.value)} className={`${INPUT} appearance-none pr-10 cursor-pointer`} data-testid="agency-country-select">
                           <option value="">Select country</option>
                           {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
                         </select>
@@ -265,14 +272,31 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                   <div className="flex flex-col gap-4">
                     <div className="w-full sm:max-w-[380px]">
                       <label className={LABEL}>Mobile phone</label>
-                      <div className="flex items-stretch rounded-lg border border-[#898989] bg-white overflow-hidden focus-within:border-[#7A2357] transition-colors">
-                        {dial && <span className="px-3 py-2.5 text-[#7A2357] text-sm border-r border-[#898989] select-none whitespace-nowrap" data-testid="agency-phone-dial-code">{dial}</span>}
-                        <input type="tel" value={localPhone} onChange={(e) => { const nx = e.target.value.replace(/^\+\d+\s?/, ''); setContact({ phone: dial ? `${dial} ${nx}`.trim() : nx }); }} className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-2.5 text-sm text-[#1B1820] placeholder:text-[#8E8597]" placeholder={dial ? 'XXX XX XX XX' : 'Select country first or enter full number'} data-testid="agency-phone-input" />
-                      </div>
+                      {(() => {
+                        const fallback = COUNTRY_DIAL_CODES[data.location.country] || '';
+                        const { dial: curDial, number } = splitPhone(data.contact.phone, fallback);
+                        return (
+                          <div className="flex items-stretch gap-2">
+                            <div className="relative w-[118px] flex-shrink-0">
+                              <select value={curDial} onChange={(e) => setContact({ phone: joinPhone(e.target.value, number) })} className="w-full h-full bg-white border border-[#898989] rounded-lg pl-3.5 pr-8 py-2.5 text-sm text-[#1B1820] appearance-none cursor-pointer focus:border-[#7A2357] focus:outline-none" data-testid="agency-phone-dial-select">
+                                {!curDial && <option value="">Code</option>}
+                                {DIAL_CODE_OPTIONS.map((o) => (
+                                  <option key={`${o.iso}${o.dial}`} value={o.dial}>{o.iso} {o.dial}</option>
+                                ))}
+                              </select>
+                              <CaretDown size={14} weight="bold" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5F5966] pointer-events-none" />
+                            </div>
+                            <input type="tel" value={number} onChange={(e) => setContact({ phone: joinPhone(curDial, e.target.value) })} className={`${INPUT} flex-1`} placeholder="470 12 34 56" data-testid="agency-phone-input" />
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div className="w-full sm:max-w-[380px]">
                       <label className={LABEL}>E-mail</label>
-                      <input type="email" value={data.contact.email} onChange={(e) => setContact({ email: e.target.value })} className={INPUT} placeholder="info@agency.com" data-testid="agency-email-input" />
+                      <div className="relative">
+                        <EnvelopeSimple size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5F5966]" />
+                        <input type="email" value={data.contact.email} onChange={(e) => setContact({ email: e.target.value })} className={`${INPUT} pl-10`} placeholder="info@agency.com" data-testid="agency-email-input" />
+                      </div>
                     </div>
                     <div>
                       <label className={`${LABEL} mb-2`}>Clients can also reach you on</label>
