@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { notifyError, notifyProblem } from '../lib/notify';
 import {
   Plus, PencilSimple, Trash, CheckCircle, Crown, ChatCircle, Users, ArrowRight,
-  ShieldCheck, Gear, ArrowsClockwise, User, FileText, CurrencyDollar, Clock
+  ShieldCheck, Gear, ArrowsClockwise
 } from 'phosphor-react';
 import {
   getAgencyProfiles, getAgencyProfile, deleteProviderProfile, setProfilePlan, createBulkCheckout, syncAgencyDefaults, deleteAgencyProfile
@@ -19,7 +19,10 @@ import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import { currencySymbol } from '@/constants/companionData';
 
 const DAY_LABELS = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' };
-const EDIT_BTN = 'inline-flex items-center gap-1.5 text-xs uppercase tracking-wider px-3 py-1.5 border border-[#7A2357] text-[#7A2357] hover:bg-[#7A2357]/10 rounded transition-colors';
+const CARD = 'bg-white border border-[#ECE8EF] rounded-2xl shadow-[0_6px_20px_rgba(52,24,60,0.06)]';
+const EDIT_BTN = 'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-[#E2DEE8] bg-white text-sm font-semibold text-[#1B1820] hover:border-[#7A2357] hover:text-[#7A2357] transition-colors';
+const GHOST_BTN = 'inline-flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-xl border border-[#E2DEE8] bg-white text-[#1B1820] hover:border-[#7A2357] hover:text-[#7A2357] transition-colors';
+const WINE_BTN = 'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#7A2357] text-white text-sm font-semibold hover:bg-[#631c47] transition-colors whitespace-nowrap';
 
 // Agency per-profile plan catalogue (mirrors backend PLANS allowlist)
 const FEATURED = {
@@ -194,219 +197,86 @@ export default function AgencyDashboard() {
   const extraSvc = svcEntries.filter(([, v]) => v.type === 'extra');
   const rates = agency.default_rates || {};
   const sym = currencySymbol(rates.currency);
+  const hasAnyRate = ['incall', 'outcall'].some((k) => {
+    const col = rates[k] || {};
+    return col['1hour'] || col['2hours'] || col['3hours'] || col.overnight ||
+      (Array.isArray(col.extras) && col.extras.some((e) => e.price));
+  });
   const avail = agency.default_availability || {};
   const schedule = avail.schedule || {};
   const scheduleDays = Object.entries(schedule);
   const availableDays = scheduleDays.filter(([, s]) => s?.available).length;
 
+  const stats = [
+    { Icon: Users, bg: 'bg-[#F3E6EF]', fg: 'text-[#7A2357]', value: profiles.length, label: 'Companion profiles', testid: 'stat-total' },
+    { Icon: Crown, bg: 'bg-[#E6F4EA]', fg: 'text-[#15803D]', value: activeCount, label: 'Live on Browse', testid: 'stat-live' },
+    { Icon: ChatCircle, bg: 'bg-[#FBEAEF]', fg: 'text-[#A3243B]', value: totalUnread, label: 'Unread enquiries', testid: 'stat-enquiries' },
+  ];
+
+  const locationStr = agency.location?.city ? `${agency.location.city}${agency.location.country ? `, ${agency.location.country}` : ''}` : '—';
+
   return (
     <div className="min-h-screen bg-[#F0EFF4] dashboard-light">
       <SiteHeader />
       <div className="pt-32 pb-40 section-padding">
-        <div className="max-w-6xl mx-auto flex flex-col">
+        <div className="max-w-5xl mx-auto flex flex-col">
           <EmailVerificationBanner user={user} />
+
           {/* Header */}
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10" data-testid="agency-header">
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-8" data-testid="agency-header">
             <div>
-              <p className="text-[#000000] text-xs uppercase tracking-[0.2em] mb-3">Agency Dashboard</p>
-              <h2 className="text-4xl md:text-5xl text-[#000000] mb-3">{agency.agency_name || user?.name}</h2>
-              <p className="text-[#898989] text-sm">Add a profile for each companion, choose a plan, then pay for all at once.</p>
+              <p className="text-[#7A2357] text-xs font-semibold uppercase tracking-[0.2em] mb-2">Agency Dashboard</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#1B1820] mb-2">{agency.agency_name || user?.name}</h2>
+              <p className="text-[#8E8597] text-sm">Add a profile for each companion, choose a plan, then pay for all at once.</p>
             </div>
-            <button onClick={() => navigate('/dashboard/profile/new')} className="btn-primary flex items-center gap-2 whitespace-nowrap" data-testid="add-profile-btn">
-              <Plus size={18} weight="bold" /> Add profile
-            </button>
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <button onClick={() => openEdit(1)} className={GHOST_BTN} data-testid="agency-settings-btn">
+                <Gear size={18} /> Agency settings
+              </button>
+              <button onClick={() => navigate('/dashboard/profile/new')} className={WINE_BTN} data-testid="add-profile-btn">
+                <Plus size={18} weight="bold" /> Add profile
+              </button>
+            </div>
           </motion.div>
 
-          {/* Agency action bar */}
-          <div className="flex flex-wrap items-center gap-3 mb-8" data-testid="agency-actions">
-            <button
-              onClick={() => openEdit(1)}
-              className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-[#dbdadd] text-[#000000] hover:border-[#7A2357] hover:text-[#7A2357] rounded-lg transition-colors"
-              data-testid="agency-settings-btn"
-            >
-              <Gear size={16} /> Agency settings
-            </button>
-            <button
-              onClick={handleSyncDefaults}
-              disabled={syncing}
-              className="inline-flex items-center gap-2 text-sm px-4 py-2 border border-[#dbdadd] text-[#000000] hover:border-[#A3243B] hover:text-[#A3243B] rounded-lg transition-colors disabled:opacity-50"
-              data-testid="sync-defaults-btn"
-            >
-              <ArrowsClockwise size={16} className={syncing ? 'animate-spin' : ''} /> {syncing ? 'Syncing…' : 'Sync defaults to all'}
-            </button>
-          </div>
-
-          {/* Agency profile & defaults — Basic info / Services / Rates / Availability */}
-          <div className="mb-10 mt-10 order-1" data-testid="agency-profile-summary">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-[#7A2357]">Agency profile</h3>
-              <span className="text-xs text-[#898989]">Used as the starting point for every new companion profile</span>
-            </div>
-            <div className="flex flex-col gap-6">
-              {/* Basic Information */}
-              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-basic-info">
-                <div className="flex items-center justify-between gap-3 mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><User size={18} className="text-[#7A2357]" /></div>
-                    <h3 className="text-lg font-bold text-[#000000]">Basic Information</h3>
-                  </div>
-                  <button onClick={() => openEdit(1)} className={EDIT_BTN} data-testid="agency-edit-basic-info-btn"><PencilSimple size={14} /> Edit</button>
-                </div>
-                <dl className="space-y-3 text-sm">
-                  <div className="text-[#000000]"><dt className="inline font-semibold">Agency name</dt><dd className="inline">: {agency.agency_name || '—'}</dd></div>
-                  <div className="text-[#000000]"><dt className="inline font-semibold">Location</dt><dd className="inline">: {agency.location?.city ? `${agency.location.city}, ${agency.location.country || ''}` : '—'}</dd></div>
-                  <div className="text-[#000000]"><dt className="inline font-semibold">Languages</dt><dd className="inline">: {(agency.languages || []).join(', ') || '—'}</dd></div>
-                  <div className="pt-2 border-t border-[#dbdadd]">
-                    <dt className="text-[#000000] font-semibold mb-2">Description</dt>
-                    <dd className="text-[#000000] line-clamp-3 leading-relaxed">{agency.description || <span className="text-[#898989] italic">Not set</span>}</dd>
-                  </div>
-                </dl>
-              </div>
-
-              {/* Services */}
-              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-services">
-                <div className="flex items-center justify-between gap-3 mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><FileText size={18} className="text-[#7A2357]" /></div>
-                    <h3 className="text-lg font-bold text-[#000000]">Services</h3>
-                  </div>
-                  <button onClick={() => openEdit(2)} className={EDIT_BTN} data-testid="agency-edit-services-btn"><PencilSimple size={14} /> Edit</button>
-                </div>
-                {svcEntries.length === 0 ? (
-                  <p className="text-[#898989] text-sm italic">No services set</p>
-                ) : (
-                  <div>
-                    {inclusiveSvc.length > 0 && (
-                      <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#7A2357] mb-2">Inclusive ({inclusiveSvc.length})</p>
-                        <div className="flex flex-wrap gap-2">
-                          {inclusiveSvc.slice(0, 10).map(([name]) => (<span key={name} className="px-3 py-1 text-xs border border-[#dbdadd] text-[#000000] rounded-full">{name}</span>))}
-                          {inclusiveSvc.length > 10 && <span className="px-3 py-1 text-xs text-[#000000]">+{inclusiveSvc.length - 10} more</span>}
-                        </div>
-                      </div>
-                    )}
-                    {extraSvc.length > 0 && (
-                      <div className={inclusiveSvc.length > 0 ? 'mt-10' : ''}>
-                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#7A2357] mb-2">Extra ({extraSvc.length})</p>
-                        <div className="flex flex-wrap gap-2">
-                          {extraSvc.slice(0, 8).map(([name, v]) => (<span key={name} className="px-3 py-1 text-xs border border-[#7A2357]/40 bg-[#7A2357]/10 text-[#7A2357] rounded-full">{name}{v.price && ` · €${v.price}`}</span>))}
-                          {extraSvc.length > 8 && <span className="px-3 py-1 text-xs text-[#000000]">+{extraSvc.length - 8} more</span>}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Rates */}
-              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-rates">
-                <div className="flex items-center justify-between gap-3 mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><CurrencyDollar size={18} className="text-[#7A2357]" /></div>
-                    <h3 className="text-lg font-bold text-[#000000]">Rates</h3>
-                  </div>
-                  <button onClick={() => openEdit(3)} className={EDIT_BTN} data-testid="agency-edit-rates-btn"><PencilSimple size={14} /> Edit</button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {['incall', 'outcall'].map((kind) => {
-                    const col = rates[kind] || {};
-                    const extras = (Array.isArray(col.extras) ? col.extras : []).slice().sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0));
-                    return (
-                      <div key={kind}>
-                        <p className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#7A2357] mb-3">{kind}</p>
-                        <div className="space-y-2">
-                          {[{ key: '1hour', label: '1 hour' }, { key: '2hours', label: '2 hours' }, { key: '3hours', label: '3 hours' }].map(({ key, label }) => (
-                            <div key={key} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
-                              <span className="text-[#000000] text-sm">{label}</span>
-                              <span className="text-[#7A2357]">{col[key] ? `${sym}${col[key]}` : <span className="text-[#898989] text-sm italic">Not set</span>}</span>
-                            </div>
-                          ))}
-                          {extras.map((extra, i) => (
-                            <div key={`e-${i}`} className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
-                              <span className="text-[#000000] text-sm">{extra.hours} hours</span>
-                              <span className="text-[#7A2357]">{extra.price ? `${sym}${extra.price}` : <span className="text-[#898989] text-sm italic">Not set</span>}</span>
-                            </div>
-                          ))}
-                          {col.overnight !== undefined && col.overnight !== '' && (
-                            <div className="flex items-center justify-between border-b border-[#dbdadd] pb-2">
-                              <span className="text-[#000000] text-sm">Overnight</span>
-                              <span className="text-[#7A2357]">{sym}{col.overnight}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+          {/* Stat cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            {stats.map(({ Icon, bg, fg, value, label, testid }) => (
+              <div key={testid} className={`${CARD} p-5 flex items-center gap-4`} data-testid={testid}>
+                <div className={`w-11 h-11 rounded-full ${bg} flex items-center justify-center flex-shrink-0`}><Icon size={20} weight="fill" className={fg} /></div>
+                <div>
+                  <p className="text-2xl font-bold text-[#1B1820] leading-none">{value}</p>
+                  <p className="text-sm text-[#8E8597] mt-1.5">{label}</p>
                 </div>
               </div>
-
-              {/* Availability */}
-              <div className="bg-white border border-[#dbdadd] rounded-lg p-8" data-testid="agency-card-availability">
-                <div className="flex items-center justify-between gap-3 mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full border border-[#dbdadd] flex items-center justify-center"><Clock size={18} className="text-[#7A2357]" /></div>
-                    <div>
-                      <h3 className="text-lg font-bold text-[#000000]">Availability</h3>
-                      <p className="text-[#000000] text-xs mt-1">{availableDays} of 7 days available</p>
-                    </div>
-                  </div>
-                  <button onClick={() => openEdit(3)} className={EDIT_BTN} data-testid="agency-edit-availability-btn"><PencilSimple size={14} /> Edit</button>
-                </div>
-                {scheduleDays.length === 0 ? (
-                  <p className="text-[#898989] text-sm italic">No availability set</p>
-                ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
-                    {scheduleDays.map(([day, sched]) => (
-                      <div key={day} className={`border p-3 text-center transition-colors ${sched?.available ? 'border-[#7A2357]/40 bg-[#7A2357]/5' : 'border-[#dbdadd] opacity-50'}`}>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-[#000000] mb-2">{DAY_LABELS[day] || day.slice(0, 3)}</p>
-                        {sched?.available ? (<><p className="text-[#000000] text-sm">{sched.start}</p><p className="text-[#000000] text-xs">to</p><p className="text-[#000000] text-sm">{sched.end}</p></>) : (<p className="text-[#000000] text-xs italic">Closed</p>)}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Companion profiles */}
-          <h3 className="text-xl font-bold text-[#7A2357] mb-4" data-testid="companion-profiles-heading">Companion profiles</h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex items-center gap-4" data-testid="stat-total">
-              <div className="w-11 h-11 rounded-full bg-[#7A2357]/10 flex items-center justify-center"><Users size={20} className="text-[#7A2357]" /></div>
-              <div><p className="text-2xl font-bold text-[#000000]">{profiles.length}</p><p className="text-xs text-[#898989] uppercase tracking-wider">Total profiles</p></div>
+          <div className={`${CARD} p-6 md:p-8 mb-10`} data-testid="companion-profiles-card">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-xl font-bold text-[#1B1820]" data-testid="companion-profiles-heading">Companion profiles</h3>
+              <span className="text-sm text-[#8E8597]">{profiles.length} profile{profiles.length === 1 ? '' : 's'}</span>
             </div>
-            <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex items-center gap-4" data-testid="stat-live">
-              <div className="w-11 h-11 rounded-full bg-[#22C55E]/10 flex items-center justify-center"><Crown size={20} className="text-[#22C55E]" /></div>
-              <div><p className="text-2xl font-bold text-[#000000]">{activeCount}</p><p className="text-xs text-[#898989] uppercase tracking-wider">Live on Browse</p></div>
-            </div>
-            <div className="rounded-lg border border-[#dbdadd] bg-white p-5 flex items-center gap-4" data-testid="stat-enquiries">
-              <div className="w-11 h-11 rounded-full bg-[#A3243B]/10 flex items-center justify-center"><ChatCircle size={20} className="text-[#A3243B]" /></div>
-              <div><p className="text-2xl font-bold text-[#000000]">{totalUnread}</p><p className="text-xs text-[#898989] uppercase tracking-wider">Unread enquiries</p></div>
-            </div>
-          </div>
-
-          {/* Table */}
-          <div data-testid="agency-profiles-table">
             {profiles.length === 0 ? (
-              <div className="rounded-lg border border-[#dbdadd] bg-white p-12 text-center" data-testid="agency-empty-state">
-                <div className="w-14 h-14 rounded-full bg-[#7A2357]/10 flex items-center justify-center mx-auto mb-4"><Users size={26} className="text-[#7A2357]" /></div>
-                <h3 className="text-lg font-bold text-[#000000] mb-2">No profiles yet</h3>
-                <p className="text-sm text-[#898989] mb-6 max-w-md mx-auto">Add your first companion profile. It inherits your agency defaults, and you can tailor it individually.</p>
-                <button onClick={() => navigate('/dashboard/profile/new')} className="btn-primary inline-flex items-center gap-2" data-testid="add-first-profile-btn">
+              <div className="rounded-xl border border-dashed border-[#D9D2E0] py-12 px-6 text-center" data-testid="agency-empty-state">
+                <div className="w-14 h-14 rounded-full bg-[#F3E6EF] flex items-center justify-center mx-auto mb-4"><Users size={26} weight="fill" className="text-[#7A2357]" /></div>
+                <h4 className="text-lg font-bold text-[#1B1820] mb-2">No profiles yet</h4>
+                <p className="text-sm text-[#8E8597] mb-6 max-w-md mx-auto">Add your first companion. The profile starts from your agency defaults below, and you can tailor everything per companion.</p>
+                <button onClick={() => navigate('/dashboard/profile/new')} className={`${WINE_BTN} !px-5 !py-3`} data-testid="add-first-profile-btn">
                   <Plus size={18} weight="bold" /> Add your first profile
                 </button>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto" data-testid="agency-profiles-table">
                 <table className="w-full text-left border-separate border-spacing-y-[6px]">
                   <thead>
-                    <tr className="bg-[#d9d9db]">
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-semibold rounded-l-lg">Profile</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-semibold hidden lg:table-cell">Description</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-semibold">Plan</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-semibold">Status</th>
-                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#6b6b6f] font-semibold text-right rounded-r-lg">Actions</th>
+                    <tr className="bg-[#F4F1F7]">
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#8E8597] font-semibold rounded-l-lg">Profile</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#8E8597] font-semibold hidden lg:table-cell">Description</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#8E8597] font-semibold">Plan</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#8E8597] font-semibold">Status</th>
+                      <th className="px-5 py-3 text-xs uppercase tracking-wider text-[#8E8597] font-semibold text-right rounded-r-lg">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -419,23 +289,23 @@ export default function AgencyDashboard() {
                         </span>
                       ) : null;
                       return (
-                      <tr key={p.provider_id} className="[&>td]:align-middle [&>td]:bg-white [&>td]:border-y [&>td]:border-[#dbdadd] transition-colors" data-testid={`agency-profile-row-${p.provider_id}`}>
+                      <tr key={p.provider_id} className="[&>td]:align-middle [&>td]:bg-white [&>td]:border-y [&>td]:border-[#ECE8EF] transition-colors" data-testid={`agency-profile-row-${p.provider_id}`}>
                         <td className="px-5 py-4 border-l rounded-l-lg">
                           <div className="flex flex-col gap-2">
                             <div className="min-h-[50px] flex flex-col justify-center">
                               <div className="flex items-center gap-2">
-                                <p className="font-medium text-[#000000]">{p.display_name}</p>
+                                <p className="font-medium text-[#1B1820]">{p.display_name}</p>
                                 {p.verified && <CheckCircle size={14} weight="fill" className="text-[#22C55E]" />}
                                 {p.unread_enquiries > 0 && <span className="text-[10px] font-medium px-1.5 py-0.5 bg-[#A3243B] text-white rounded-full">{p.unread_enquiries}</span>}
                               </div>
-                              <div className="lg:hidden mt-1 text-xs text-[#898989] line-clamp-1 max-w-xs">{p.bio || '—'}</div>
+                              <div className="lg:hidden mt-1 text-xs text-[#8E8597] line-clamp-1 max-w-xs">{p.bio || '—'}</div>
                             </div>
                             {vipSpacer}
                           </div>
                         </td>
                         <td className="px-5 py-4 hidden lg:table-cell">
                           <div className="flex flex-col gap-2">
-                            <div className="min-h-[50px] flex items-center"><p className="text-sm text-[#898989] line-clamp-1 max-w-xs">{p.bio || '—'}</p></div>
+                            <div className="min-h-[50px] flex items-center"><p className="text-sm text-[#8E8597] line-clamp-1 max-w-xs">{p.bio || '—'}</p></div>
                             {vipSpacer}
                           </div>
                         </td>
@@ -452,7 +322,7 @@ export default function AgencyDashboard() {
                               <option value="agency_featured_4w">Featured · 4 weeks · €50</option>
                             </select>
                             {pp.featured_plan && (
-                              <label className="flex items-center gap-2 cursor-pointer text-xs text-[#000000]">
+                              <label className="flex items-center gap-2 cursor-pointer text-xs text-[#1B1820]">
                                 <input
                                   type="checkbox"
                                   checked={!!pp.vip_plan}
@@ -487,7 +357,7 @@ export default function AgencyDashboard() {
                               onClick={() => navigate(`/dashboard/profile/${p.provider_id}`)}
                               title="Edit profile"
                               aria-label="Edit profile"
-                              className="p-1.5 rounded transition-colors hover:bg-black/5 text-[#000000]"
+                              className="p-1.5 rounded transition-colors hover:bg-black/5 text-[#1B1820]"
                               data-testid={`edit-profile-${p.provider_id}`}
                             >
                               <PencilSimple size={18} />
@@ -515,15 +385,164 @@ export default function AgencyDashboard() {
             )}
           </div>
 
+          {/* Agency defaults */}
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-5" data-testid="agency-defaults-header">
+            <div>
+              <h3 className="text-2xl font-bold text-[#1B1820]">Agency defaults</h3>
+              <p className="text-sm text-[#8E8597] mt-1">The starting point for every new companion profile.</p>
+            </div>
+            <button onClick={handleSyncDefaults} disabled={syncing} className={`${GHOST_BTN} disabled:opacity-50`} data-testid="sync-defaults-btn">
+              <ArrowsClockwise size={16} className={syncing ? 'animate-spin' : ''} /> {syncing ? 'Syncing…' : 'Sync defaults to all profiles'}
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-5">
+            {/* Basic information */}
+            <div className={`${CARD} p-6 md:p-8`} data-testid="agency-card-basic-info">
+              <div className="flex items-start justify-between gap-3 mb-5">
+                <div>
+                  <h3 className="text-xl font-bold text-[#1B1820]">Basic information</h3>
+                  <p className="text-sm text-[#8E8597] mt-0.5">Agency name, location and languages</p>
+                </div>
+                <button onClick={() => openEdit(1)} className={EDIT_BTN} data-testid="agency-edit-basic-info-btn"><PencilSimple size={15} /> Edit</button>
+              </div>
+              <dl className="divide-y divide-[#F0EDF3]">
+                <div className="flex items-center justify-between py-3 gap-4">
+                  <dt className="text-sm text-[#5F5966]">Agency name</dt>
+                  <dd className="text-sm font-semibold text-[#1B1820] text-right">{agency.agency_name || '—'}</dd>
+                </div>
+                <div className="flex items-center justify-between py-3 gap-4">
+                  <dt className="text-sm text-[#5F5966]">Location</dt>
+                  <dd className="text-sm font-semibold text-[#1B1820] text-right">{locationStr}</dd>
+                </div>
+                <div className="flex items-center justify-between py-3 gap-4">
+                  <dt className="text-sm text-[#5F5966]">Languages</dt>
+                  <dd className="text-sm font-semibold text-[#1B1820] text-right">{(agency.languages || []).join(', ') || '—'}</dd>
+                </div>
+              </dl>
+              <div className="mt-5">
+                <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-[#7A2357] mb-1.5">Description</p>
+                <p className="text-sm text-[#1B1820] leading-relaxed">{agency.description || <span className="text-[#A79FB0] italic">Add a short description of your agency.</span>}</p>
+              </div>
+            </div>
+
+            {/* Services */}
+            <div className={`${CARD} p-6 md:p-8`} data-testid="agency-card-services">
+              <div className="flex items-start justify-between gap-3 mb-5">
+                <div>
+                  <h3 className="text-xl font-bold text-[#1B1820]">Services</h3>
+                  <p className="text-sm text-[#8E8597] mt-0.5">Default services for new profiles</p>
+                </div>
+                <button onClick={() => openEdit(2)} className={EDIT_BTN} data-testid="agency-edit-services-btn"><PencilSimple size={15} /> Edit</button>
+              </div>
+              {svcEntries.length === 0 ? (
+                <p className="text-[#A79FB0] text-sm italic">No services set yet</p>
+              ) : (
+                <div className="flex flex-col gap-5">
+                  {inclusiveSvc.length > 0 && (
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-[#7A2357] mb-3">Included in the rate · {inclusiveSvc.length}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {inclusiveSvc.map(([name]) => (<span key={name} className="px-3 py-1.5 text-sm rounded-full bg-[#FBEEF5] text-[#7A2357] font-medium">{name}</span>))}
+                      </div>
+                    </div>
+                  )}
+                  {extraSvc.length > 0 && (
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-[#7A2357] mb-3">Extra · {extraSvc.length}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {extraSvc.map(([name, v]) => (<span key={name} className="px-3 py-1.5 text-sm rounded-full border border-[#E6D6E0] bg-white text-[#7A2357] font-medium">{name}{v.price ? ` · ${sym}${v.price}` : ''}</span>))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Rates */}
+            <div className={`${CARD} p-6 md:p-8`} data-testid="agency-card-rates">
+              <div className="flex items-start justify-between gap-3 mb-5">
+                <div>
+                  <h3 className="text-xl font-bold text-[#1B1820]">Rates</h3>
+                  <p className="text-sm text-[#8E8597] mt-0.5">{hasAnyRate ? 'Default rates for new profiles' : 'No default rates yet'}</p>
+                </div>
+                <button onClick={() => openEdit(3)} className={EDIT_BTN} data-testid="agency-edit-rates-btn"><PencilSimple size={15} /> Edit</button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                {['incall', 'outcall'].map((kind) => {
+                  const col = rates[kind] || {};
+                  const extras = (Array.isArray(col.extras) ? col.extras : []).slice().sort((a, b) => (Number(a.hours) || 0) - (Number(b.hours) || 0));
+                  return (
+                    <div key={kind}>
+                      <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-[#7A2357] mb-3">{kind}</p>
+                      <div className="flex flex-col">
+                        {[{ key: '1hour', label: '1 hour' }, { key: '2hours', label: '2 hours' }, { key: '3hours', label: '3 hours' }].map(({ key, label }) => (
+                          <div key={key} className="flex items-center justify-between border-b border-[#F0EDF3] py-2.5">
+                            <span className="text-[#1B1820] text-sm">{label}</span>
+                            <span className="text-sm">{col[key] ? <span className="font-semibold text-[#1B1820]">{sym}{col[key]}</span> : <span className="text-[#A79FB0] italic">Not set</span>}</span>
+                          </div>
+                        ))}
+                        {extras.map((extra, i) => (
+                          <div key={`e-${i}`} className="flex items-center justify-between border-b border-[#F0EDF3] py-2.5">
+                            <span className="text-[#1B1820] text-sm">{extra.hours} hours</span>
+                            <span className="text-sm">{extra.price ? <span className="font-semibold text-[#1B1820]">{sym}{extra.price}</span> : <span className="text-[#A79FB0] italic">Not set</span>}</span>
+                          </div>
+                        ))}
+                        {col.overnight !== undefined && col.overnight !== '' && (
+                          <div className="flex items-center justify-between border-b border-[#F0EDF3] py-2.5">
+                            <span className="text-[#1B1820] text-sm">Overnight</span>
+                            <span className="font-semibold text-[#1B1820] text-sm">{sym}{col.overnight}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Availability */}
+            <div className={`${CARD} p-6 md:p-8`} data-testid="agency-card-availability">
+              <div className="flex items-start justify-between gap-3 mb-5">
+                <div>
+                  <h3 className="text-xl font-bold text-[#1B1820]">Availability</h3>
+                  <p className="text-sm text-[#8E8597] mt-0.5">{availableDays} of 7 days</p>
+                </div>
+                <button onClick={() => openEdit(3)} className={EDIT_BTN} data-testid="agency-edit-availability-btn"><PencilSimple size={15} /> Edit</button>
+              </div>
+              {scheduleDays.length === 0 ? (
+                <p className="text-[#A79FB0] text-sm italic">No availability set</p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5">
+                  {scheduleDays.map(([day, sched]) => (
+                    <div key={day} className={`rounded-xl py-3 px-2 text-center border ${sched?.available ? 'bg-[#FBEEF5] border-[#F0DCE8]' : 'bg-[#F5F4F7] border-[#ECEAF0] opacity-70'}`}>
+                      <p className="text-[11px] uppercase tracking-wider font-semibold text-[#7A2357] mb-1.5">{(DAY_LABELS[day] || day.slice(0, 3)).toUpperCase()}</p>
+                      {sched?.available ? (
+                        <>
+                          <p className="text-[#1B1820] text-sm font-medium leading-tight">{sched.start}</p>
+                          <p className="text-[#1B1820] text-sm font-medium leading-tight">{sched.end}</p>
+                        </>
+                      ) : (
+                        <p className="text-[#8E8597] text-xs italic mt-1">Closed</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Delete agency */}
-          <div className="mt-12 flex justify-center order-2" data-testid="agency-danger-zone">
+          <div className={`${CARD} p-6 md:p-8 mt-8 border-[#F0D9E0]`} data-testid="agency-danger-zone">
+            <h3 className="text-lg font-bold text-[#A3243B] mb-1.5">Delete agency profile</h3>
+            <p className="text-sm text-[#8E8597] mb-4">This permanently deletes your agency, all companion profiles, photos and subscriptions. This can't be undone.</p>
             <button
               onClick={() => setConfirmAgencyDelete(true)}
               disabled={deletingAgency}
-              className="inline-flex items-center gap-2 px-6 py-3 border border-[#B91C1C] text-[#B91C1C] hover:bg-[#B91C1C]/10 transition-colors text-sm uppercase tracking-wider disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#A3243B] text-[#A3243B] hover:bg-[#A3243B]/10 transition-colors text-sm font-semibold disabled:opacity-50"
               data-testid="delete-agency-profile-btn"
             >
-              <Trash size={16} /> {deletingAgency ? 'Deleting…' : 'Delete Agency Profile'}
+              {deletingAgency ? 'Deleting…' : 'Delete agency profile'}
             </button>
           </div>
         </div>
@@ -532,12 +551,12 @@ export default function AgencyDashboard() {
       {/* Sticky Finish & Pay bar */}
       {queued.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#dbdadd] shadow-[0_-4px_20px_rgba(0,0,0,0.06)]" data-testid="finish-pay-bar">
-          <div className="max-w-6xl mx-auto section-padding py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="max-w-5xl mx-auto section-padding py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <p className="text-[#000000] font-medium">{queued.length} profile{queued.length === 1 ? '' : 's'} ready to publish</p>
-              <p className="text-sm text-[#898989]">Total due: <span className="font-bold text-[#7A2357]">€{payableTotal}</span></p>
+              <p className="text-[#1B1820] font-medium">{queued.length} profile{queued.length === 1 ? '' : 's'} ready to publish</p>
+              <p className="text-sm text-[#8E8597]">Total due: <span className="font-bold text-[#7A2357]">€{payableTotal}</span></p>
             </div>
-            <button onClick={handleFinishPay} disabled={paying} className="btn-primary flex items-center justify-center gap-2 disabled:opacity-50" data-testid="finish-pay-btn">
+            <button onClick={handleFinishPay} disabled={paying} className={`${WINE_BTN} justify-center disabled:opacity-50`} data-testid="finish-pay-btn">
               {paying ? 'Redirecting…' : (<>Finish &amp; pay €{payableTotal} <ArrowRight size={18} /></>)}
             </button>
           </div>
