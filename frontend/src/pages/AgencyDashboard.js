@@ -285,12 +285,12 @@ export default function AgencyDashboard() {
             ) : (
               <div data-testid="agency-profiles-table">
                 {/* Column header */}
-                <div className="hidden md:grid grid-cols-12 gap-4 bg-[#F4F1F7] rounded-lg px-5 py-3 mb-3">
-                  <div className="col-span-3 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Profile</div>
-                  <div className="col-span-2 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Description</div>
-                  <div className="col-span-3 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Plan</div>
-                  <div className="col-span-3 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Status</div>
-                  <div className="col-span-1 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold text-right">Actions</div>
+                <div className="hidden md:grid md:grid-cols-[2.5fr_3fr_3fr_2.5fr_1fr] gap-4 bg-[#F4F1F7] rounded-lg px-5 py-3 mb-3">
+                  <div className="text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Profile</div>
+                  <div className="text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Description</div>
+                  <div className="text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Plan</div>
+                  <div className="text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Status</div>
+                  <div className="text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold text-right">Actions</div>
                 </div>
 
                 {/* Rows */}
@@ -305,9 +305,9 @@ export default function AgencyDashboard() {
                         className={`rounded-xl bg-white px-4 md:px-5 py-4 transition-colors ${selected ? 'border border-l-4 border-[#7A2357]' : 'border border-[#ECE8EF]'}`}
                         data-testid={`agency-profile-row-${p.provider_id}`}
                       >
-                        <div className="grid grid-cols-12 gap-4 items-center">
+                        <div className="grid grid-cols-1 md:grid-cols-[2.5fr_3fr_3fr_2.5fr_1fr] gap-4 items-start">
                           {/* Profile */}
-                          <div className="col-span-12 md:col-span-3 flex items-center gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
                             <Avatar photo={p.photo} />
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
@@ -319,12 +319,12 @@ export default function AgencyDashboard() {
                           </div>
 
                           {/* Description */}
-                          <div className="col-span-12 md:col-span-2">
+                          <div className="md:pt-0.5">
                             <p className="text-sm text-[#5F5966] line-clamp-2">{p.bio || <span className="italic text-[#A79FB0]">New profile — description not added yet.</span>}</p>
                           </div>
 
                           {/* Plan */}
-                          <div className="col-span-12 md:col-span-3">
+                          <div>
                             {p.featured_active ? (
                               <div>
                                 <p className="text-sm font-semibold text-[#1B1820]">{p.active_plan_label || 'Featured'}</p>
@@ -364,10 +364,10 @@ export default function AgencyDashboard() {
                           </div>
 
                           {/* Status */}
-                          <div className="col-span-6 md:col-span-3"><StatusPill profile={p} /></div>
+                          <div className="md:pt-0.5"><StatusPill profile={p} /></div>
 
                           {/* Actions */}
-                          <div className="col-span-6 md:col-span-1 flex items-center justify-end gap-1">
+                          <div className="flex items-center justify-end gap-1 md:pt-0.5">
                             <button
                               onClick={() => setVerifyFor(p.provider_id)}
                               title={p.verified ? 'Verified' : (p.verification_status === 'submitted' ? 'Review verification' : 'Verify identity')}
