@@ -287,9 +287,9 @@ export default function AgencyDashboard() {
                 {/* Column header */}
                 <div className="hidden md:grid grid-cols-12 gap-4 bg-[#F4F1F7] rounded-lg px-5 py-3 mb-3">
                   <div className="col-span-3 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Profile</div>
-                  <div className="col-span-3 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Description</div>
+                  <div className="col-span-2 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Description</div>
                   <div className="col-span-3 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Plan</div>
-                  <div className="col-span-2 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Status</div>
+                  <div className="col-span-3 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold">Status</div>
                   <div className="col-span-1 text-[11px] uppercase tracking-wider text-[#8E8597] font-semibold text-right">Actions</div>
                 </div>
 
@@ -319,7 +319,7 @@ export default function AgencyDashboard() {
                           </div>
 
                           {/* Description */}
-                          <div className="col-span-12 md:col-span-3">
+                          <div className="col-span-12 md:col-span-2">
                             <p className="text-sm text-[#5F5966] line-clamp-2">{p.bio || <span className="italic text-[#A79FB0]">New profile — description not added yet.</span>}</p>
                           </div>
 
@@ -364,7 +364,7 @@ export default function AgencyDashboard() {
                           </div>
 
                           {/* Status */}
-                          <div className="col-span-6 md:col-span-2"><StatusPill profile={p} /></div>
+                          <div className="col-span-6 md:col-span-3"><StatusPill profile={p} /></div>
 
                           {/* Actions */}
                           <div className="col-span-6 md:col-span-1 flex items-center justify-end gap-1">
