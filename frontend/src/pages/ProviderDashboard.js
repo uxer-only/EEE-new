@@ -972,7 +972,6 @@ export default function ProviderDashboard() {
                     <span className="w-8 h-8 rounded-full bg-[#EBE0EA] text-[#7A2357] text-sm font-bold flex items-center justify-center flex-shrink-0">1</span>
                     <div>
                       <h3 className="text-lg font-bold text-[#1B1820]">Basic info</h3>
-                      <p className="text-sm text-[#8E8597]">Shown at the top of your profile</p>
                     </div>
                   </div>
                   <button onClick={() => openEdit(1)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#DFDAE4] px-3 py-1.5 text-sm font-medium text-[#1B1820] hover:border-[#7A2357] transition-colors flex-shrink-0" data-testid="edit-basic-info-btn"><PencilSimple size={14} /> Edit</button>
@@ -1000,7 +999,6 @@ export default function ProviderDashboard() {
                     <span className="w-8 h-8 rounded-full bg-[#EBE0EA] text-[#7A2357] text-sm font-bold flex items-center justify-center flex-shrink-0">2</span>
                     <div>
                       <h3 className="text-lg font-bold text-[#1B1820]">Photos &amp; videos</h3>
-                      <p className="text-sm text-[#8E8597]">{mediaCountLabel}</p>
                     </div>
                   </div>
                   <button onClick={() => openEdit(2)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#DFDAE4] px-3 py-1.5 text-sm font-medium text-[#1B1820] hover:border-[#7A2357] transition-colors flex-shrink-0" data-testid="edit-photos-btn"><PencilSimple size={14} /> Edit</button>
@@ -1055,7 +1053,6 @@ export default function ProviderDashboard() {
                     <span className="w-8 h-8 rounded-full bg-[#EBE0EA] text-[#7A2357] text-sm font-bold flex items-center justify-center flex-shrink-0">3</span>
                     <div>
                       <h3 className="text-lg font-bold text-[#1B1820]">Services</h3>
-                      <p className="text-sm text-[#8E8597]">{(profileData.companionshipType || 'Escort')} · {(inclusiveServices.length + extraServices.length) || legacyServices.length} services</p>
                     </div>
                   </div>
                   <button onClick={() => openEdit(3)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#DFDAE4] px-3 py-1.5 text-sm font-medium text-[#1B1820] hover:border-[#7A2357] transition-colors flex-shrink-0" data-testid="edit-services-btn"><PencilSimple size={14} /> Edit</button>
@@ -1103,7 +1100,6 @@ export default function ProviderDashboard() {
                     <span className="w-8 h-8 rounded-full bg-[#EBE0EA] text-[#7A2357] text-sm font-bold flex items-center justify-center flex-shrink-0">4</span>
                     <div>
                       <h3 className="text-lg font-bold text-[#1B1820]">Rates</h3>
-                      {fromRate != null && <p className="text-sm text-[#8E8597]">From {sym}{fromRate} / hour</p>}
                     </div>
                   </div>
                   <button onClick={() => openEdit(4, 'rates-section')} className="inline-flex items-center gap-1.5 rounded-lg border border-[#DFDAE4] px-3 py-1.5 text-sm font-medium text-[#1B1820] hover:border-[#7A2357] transition-colors flex-shrink-0" data-testid="edit-rates-btn"><PencilSimple size={14} /> Edit</button>
@@ -1143,7 +1139,6 @@ export default function ProviderDashboard() {
                     <span className="w-8 h-8 rounded-full bg-[#EBE0EA] text-[#7A2357] text-sm font-bold flex items-center justify-center flex-shrink-0">5</span>
                     <div>
                       <h3 className="text-lg font-bold text-[#1B1820]">Availability</h3>
-                      <p className="text-sm text-[#8E8597]">{availableDays} of 7 days · {Math.round(weeklyHours)} hours / week</p>
                     </div>
                   </div>
                   <button onClick={() => openEdit(4, 'availability-section')} className="inline-flex items-center gap-1.5 rounded-lg border border-[#DFDAE4] px-3 py-1.5 text-sm font-medium text-[#1B1820] hover:border-[#7A2357] transition-colors flex-shrink-0" data-testid="edit-availability-btn"><PencilSimple size={14} /> Edit</button>
