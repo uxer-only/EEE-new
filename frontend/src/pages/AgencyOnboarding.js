@@ -188,15 +188,15 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                 <div className={CARD}>
                   <h3 className="text-[20px] font-bold text-[#1B1820] mb-5">Basic information</h3>
                   <div className="flex flex-col gap-4">
-                    <div>
+                    <div className="w-full sm:max-w-[380px]">
                       <label className={LABEL}>Agency name</label>
                       <input type="text" value={data.agency_name} onChange={(e) => update({ agency_name: e.target.value })} className={INPUT} placeholder="Your agency name" data-testid="agency-name-input" />
                     </div>
-                    <div>
+                    <div className="w-full sm:max-w-[380px]">
                       <label className={LABEL}>City</label>
                       <input type="text" value={data.location.city} onChange={(e) => update({ location: { ...data.location, city: e.target.value } })} className={INPUT} placeholder="Your city" data-testid="agency-city-input" />
                     </div>
-                    <div>
+                    <div className="w-full sm:max-w-[380px]">
                       <label className={LABEL}>Country</label>
                       <div className="relative">
                         <select value={data.location.country} onChange={(e) => update({ location: { ...data.location, country: e.target.value } })} className={`${INPUT} appearance-none pr-10 cursor-pointer`} data-testid="agency-country-select">
@@ -214,35 +214,47 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                     <div>
                       <div className="flex items-end justify-between mb-2">
                         <label className={`${LABEL} mb-0`}>Languages</label>
-                        <span className="text-xs text-[#8E8597]">{current.length} selected</span>
+                        <span className="text-xs font-semibold text-[#7A2357]">{current.length} selected</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {LANG_PRESETS.map((lang) => {
                           const selected = current.includes(lang);
                           return (
-                            <button key={lang} type="button" onClick={() => toggleLang(lang)} className={`px-3 py-2 rounded-lg border text-sm transition-colors ${selected ? 'border-[#7A2357] bg-[#7A2357] text-white' : 'border-[#DFDAE4] bg-white text-[#1B1820] hover:border-[#7A2357]'}`} data-testid={`agency-lang-${lang.toLowerCase()}`}>
+                            <button
+                              key={lang}
+                              type="button"
+                              onClick={() => toggleLang(lang)}
+                              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm border transition-colors ${
+                                selected
+                                  ? 'bg-[#FBEEF5] border-[#7A2357] text-[#7A2357] font-semibold'
+                                  : 'bg-white border-[#CFC9D6] text-[#1B1820] font-medium hover:border-[#7A2357]'
+                              }`}
+                              data-testid={`agency-lang-${lang.toLowerCase()}`}
+                            >
+                              {selected && <Check size={14} weight="bold" />}
                               {lang}
                             </button>
                           );
                         })}
                         {customLangs.map((lang) => (
-                          <span key={lang} className="relative pl-3 pr-8 py-2 rounded-lg border border-[#7A2357] bg-[#7A2357] text-white text-sm flex items-center">
-                            <span className="truncate">{lang}</span>
-                            <button type="button" onClick={() => toggleLang(lang)} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/80 hover:text-white transition-colors" aria-label={`Remove ${lang}`}><X size={14} /></button>
+                          <span key={lang} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold border bg-[#FBEEF5] border-[#7A2357] text-[#7A2357]" data-testid={`agency-lang-custom-${lang.toLowerCase()}`}>
+                            <Check size={14} weight="bold" />
+                            {lang}
+                            <button type="button" onClick={() => toggleLang(lang)} className="hover:text-red-500 transition-colors" aria-label={`Remove ${lang}`}><X size={13} weight="bold" /></button>
                           </span>
                         ))}
+                        {showAddLanguage ? (
+                          <span className="inline-flex items-center gap-1 border border-[#7A2357] rounded-full pl-3 pr-1 py-1">
+                            <input type="text" value={newLanguage} onChange={(e) => setNewLanguage(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomLang(); setShowAddLanguage(false); } else if (e.key === 'Escape') { setNewLanguage(''); setShowAddLanguage(false); } }} autoFocus placeholder="Italian" className="bg-transparent border-0 focus:ring-0 focus:outline-none text-sm text-[#1B1820] w-24" data-testid="agency-add-language-input" />
+                            <button type="button" onClick={() => { addCustomLang(); setShowAddLanguage(false); }} className="p-1.5 rounded-full bg-[#7A2357] text-white" data-testid="agency-add-language-confirm"><Check size={13} weight="bold" /></button>
+                            <button type="button" onClick={() => { setNewLanguage(''); setShowAddLanguage(false); }} className="p-1.5 text-[#5F5966] hover:text-red-500 transition-colors" aria-label="Cancel"><X size={13} weight="bold" /></button>
+                          </span>
+                        ) : (
+                          <button type="button" onClick={() => setShowAddLanguage(true)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border border-dashed border-[#898989] text-[#5F5966] hover:border-[#7A2357] hover:text-[#7A2357] transition-colors" data-testid="agency-add-language-button">
+                            <Plus size={14} weight="bold" /> Add language
+                          </button>
+                        )}
                       </div>
-                      {showAddLanguage ? (
-                        <div className="mt-3 flex items-center gap-2">
-                          <input type="text" value={newLanguage} onChange={(e) => setNewLanguage(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomLang(); setShowAddLanguage(false); } else if (e.key === 'Escape') { setNewLanguage(''); setShowAddLanguage(false); } }} autoFocus placeholder="e.g. Italian" className={`${INPUT} flex-1`} data-testid="agency-add-language-input" />
-                          <button type="button" onClick={() => { addCustomLang(); setShowAddLanguage(false); }} disabled={!newLanguage.trim()} className="px-4 py-2.5 rounded-lg border border-[#7A2357] text-[#7A2357] font-semibold hover:bg-[#7A2357]/5 disabled:opacity-40 transition-colors text-sm whitespace-nowrap" data-testid="agency-add-language-confirm">Add</button>
-                          <button type="button" onClick={() => { setNewLanguage(''); setShowAddLanguage(false); }} className="px-3 py-2.5 rounded-lg border border-[#DFDAE4] text-[#1B1820] hover:border-red-400 hover:text-red-400 transition-colors" aria-label="Cancel"><X size={16} /></button>
-                        </div>
-                      ) : (
-                        <button type="button" onClick={() => setShowAddLanguage(true)} className="mt-3 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-dashed border-[#DFDAE4] text-[#1B1820] hover:border-[#7A2357] hover:text-[#7A2357] transition-colors text-sm" data-testid="agency-add-language-button">
-                          <Plus size={16} /> Add language
-                        </button>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -251,14 +263,14 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                 <div className={CARD}>
                   <h3 className="text-[20px] font-bold text-[#1B1820] mb-5">Contact information</h3>
                   <div className="flex flex-col gap-4">
-                    <div>
+                    <div className="w-full sm:max-w-[380px]">
                       <label className={LABEL}>Mobile phone</label>
                       <div className="flex items-stretch rounded-lg border border-[#898989] bg-white overflow-hidden focus-within:border-[#7A2357] transition-colors">
                         {dial && <span className="px-3 py-2.5 text-[#7A2357] text-sm border-r border-[#898989] select-none whitespace-nowrap" data-testid="agency-phone-dial-code">{dial}</span>}
                         <input type="tel" value={localPhone} onChange={(e) => { const nx = e.target.value.replace(/^\+\d+\s?/, ''); setContact({ phone: dial ? `${dial} ${nx}`.trim() : nx }); }} className="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none px-4 py-2.5 text-sm text-[#1B1820] placeholder:text-[#8E8597]" placeholder={dial ? 'XXX XX XX XX' : 'Select country first or enter full number'} data-testid="agency-phone-input" />
                       </div>
                     </div>
-                    <div>
+                    <div className="w-full sm:max-w-[380px]">
                       <label className={LABEL}>E-mail</label>
                       <input type="email" value={data.contact.email} onChange={(e) => setContact({ email: e.target.value })} className={INPUT} placeholder="info@agency.com" data-testid="agency-email-input" />
                     </div>
@@ -277,19 +289,19 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
                       {(data.contact.hasTelegram || data.contact.hasLine || data.contact.hasWechat) && (
                         <div className="mt-4 flex flex-col gap-4">
                           {data.contact.hasTelegram && (
-                            <div>
+                            <div className="w-full sm:max-w-[380px]">
                               <label className={LABEL} htmlFor="agency-telegram-id">Telegram ID</label>
                               <input id="agency-telegram-id" type="text" value={data.contact.telegramId || ''} onChange={(e) => setContact({ telegramId: e.target.value })} className={INPUT} placeholder="@username" data-testid="agency-telegram-id-input" />
                             </div>
                           )}
                           {data.contact.hasLine && (
-                            <div>
+                            <div className="w-full sm:max-w-[380px]">
                               <label className={LABEL} htmlFor="agency-line-id">Line ID</label>
                               <input id="agency-line-id" type="text" value={data.contact.lineId || ''} onChange={(e) => setContact({ lineId: e.target.value })} className={INPUT} placeholder="your-line-id" data-testid="agency-line-id-input" />
                             </div>
                           )}
                           {data.contact.hasWechat && (
-                            <div>
+                            <div className="w-full sm:max-w-[380px]">
                               <label className={LABEL} htmlFor="agency-wechat-id">WeChat ID</label>
                               <input id="agency-wechat-id" type="text" value={data.contact.wechatId || ''} onChange={(e) => setContact({ wechatId: e.target.value })} className={INPUT} placeholder="your-wechat-id" data-testid="agency-wechat-id-input" />
                             </div>
