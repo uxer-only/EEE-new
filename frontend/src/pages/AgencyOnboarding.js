@@ -358,7 +358,7 @@ export default function AgencyOnboarding({ initial, onDone, initialStep = 1 }) {
 
             {step === 2 && (
               <div className="flex flex-col gap-6">
-                <ServicesStep data={data} update={update} showDisabilities={false} />
+                <ServicesStep data={data} update={update} />
                 {applyBox(data.apply_services_to_all, (v) => update({ apply_services_to_all: v }), 'Apply these services to all profiles', 'You can also set services individually in each profile itself.', 'apply-services-to-all')}
               </div>
             )}

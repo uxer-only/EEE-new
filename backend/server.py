@@ -754,23 +754,32 @@ PLANS = {
 }
 CURRENCY = "eur"
 
-# Agency volume-tiered plans. Per-profile price depends on how many profiles are being paid for:
-#   t1 = 3–6 selected profiles, t2 = 7+ selected profiles (discounted).
+# Agency graded plans. The per-profile price depends on the agency's ACTIVE profiles at checkout:
+# profiles that are live now plus the profiles being paid for in this checkout (each counted once).
+#   t0 = 1–2 active profiles (standard price, same as independents)
+#   t1 = 3–6 active profiles (agency price)
+#   t2 = 7+ active profiles (volume price)
 AGENCY_PLANS = {
-    "agency_7d":  {"label": "7 days",   "duration_days": 7,  "kind": "featured", "price": {"t1": 25.00, "t2": 20.00}},
-    "agency_15d": {"label": "15 days",  "duration_days": 15, "kind": "featured", "price": {"t1": 45.00, "t2": 35.00}},
-    "agency_1m":  {"label": "1 month",  "duration_days": 30, "kind": "featured", "price": {"t1": 80.00, "t2": 65.00}},
-    "agency_3m":  {"label": "3 months", "duration_days": 90, "kind": "featured", "price": {"t1": 220.00, "t2": 180.00}},
-    "agency_vip_7d":  {"label": "VIP · 7 days",   "duration_days": 7,  "kind": "vip", "price": {"t1": 10.00, "t2": 8.00}},
-    "agency_vip_15d": {"label": "VIP · 15 days",  "duration_days": 15, "kind": "vip", "price": {"t1": 15.00, "t2": 12.00}},
-    "agency_vip_1m":  {"label": "VIP · 1 month",  "duration_days": 30, "kind": "vip", "price": {"t1": 25.00, "t2": 20.00}},
-    "agency_vip_3m":  {"label": "VIP · 3 months", "duration_days": 90, "kind": "vip", "price": {"t1": 60.00, "t2": 48.00}},
+    "agency_7d":  {"label": "7 days",   "duration_days": 7,  "kind": "featured", "price": {"t0": 30.00, "t1": 25.00, "t2": 20.00}},
+    "agency_15d": {"label": "15 days",  "duration_days": 15, "kind": "featured", "price": {"t0": 50.00, "t1": 45.00, "t2": 35.00}},
+    "agency_1m":  {"label": "1 month",  "duration_days": 30, "kind": "featured", "price": {"t0": 90.00, "t1": 80.00, "t2": 65.00}},
+    "agency_3m":  {"label": "3 months", "duration_days": 90, "kind": "featured", "price": {"t0": 240.00, "t1": 220.00, "t2": 180.00}},
+    "agency_vip_7d":  {"label": "VIP · 7 days",   "duration_days": 7,  "kind": "vip", "price": {"t0": 10.00, "t1": 10.00, "t2": 8.00}},
+    "agency_vip_15d": {"label": "VIP · 15 days",  "duration_days": 15, "kind": "vip", "price": {"t0": 15.00, "t1": 15.00, "t2": 12.00}},
+    "agency_vip_1m":  {"label": "VIP · 1 month",  "duration_days": 30, "kind": "vip", "price": {"t0": 25.00, "t1": 25.00, "t2": 20.00}},
+    "agency_vip_3m":  {"label": "VIP · 3 months", "duration_days": 90, "kind": "vip", "price": {"t0": 60.00, "t1": 60.00, "t2": 48.00}},
 }
-AGENCY_TIER_THRESHOLD = 7  # 7+ selected profiles → discounted tier (t2)
+AGENCY_TIER_MIN = 3         # 3+ active profiles → agency price (t1)
+AGENCY_TIER_THRESHOLD = 7   # 7+ active profiles → volume price (t2)
 
 
-def _agency_tier(selected_count: int) -> str:
-    return "t2" if selected_count >= AGENCY_TIER_THRESHOLD else "t1"
+def _agency_tier(active_count: int) -> str:
+    """Grade for an agency with `active_count` active profiles (live now + paid in this checkout)."""
+    if active_count >= AGENCY_TIER_THRESHOLD:
+        return "t2"
+    if active_count >= AGENCY_TIER_MIN:
+        return "t1"
+    return "t0"
 
 
 def _agency_amount(plan_key: str, tier: str) -> float:
@@ -2304,7 +2313,16 @@ async def create_bulk_checkout(
             continue
         raw.append((p["provider_id"], pp))
 
-    tier = _agency_tier(len(raw))
+    # Grade = live profiles + profiles paid for now, each profile counted once.
+    now_utc = datetime.utcnow()
+    live_ids = set()
+    async for lp in db.provider_profiles.find(
+        {"user_id": current_user.user_id, "featured_until": {"$gt": now_utc}},
+        {"_id": 0, "provider_id": 1},
+    ):
+        live_ids.add(lp["provider_id"])
+    active_count = len(live_ids | {pid for pid, _ in raw})
+    tier = _agency_tier(active_count)
     provider_plans = []
     total_amount = 0.0
     for provider_id, pp in raw:
@@ -2326,6 +2344,7 @@ async def create_bulk_checkout(
         "user_id": current_user.user_id,
         "kind": "agency_bulk",
         "profile_count": str(len(provider_plans)),
+        "active_count": str(active_count),
         "tier": tier,
     }
     origin = body.origin_url.rstrip("/")

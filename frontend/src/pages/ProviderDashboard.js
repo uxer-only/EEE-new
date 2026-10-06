@@ -64,6 +64,8 @@ export default function ProviderDashboard() {
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [mode, setMode] = useState('overview'); // 'overview' | 'edit' | 'create'
+  // Delete / reorder buttons on media only when editing from the dashboard, not during first-time onboarding.
+  const canManageMedia = mode === 'edit';
   const [createdProviderId, setCreatedProviderId] = useState(null); // id of a just-created independent profile (keeps the Activate wizard step working)
   const [saving, setSaving] = useState(false);
   const [draftStatus, setDraftStatus] = useState('idle'); // idle | saving | saved | error
@@ -1137,12 +1139,12 @@ export default function ProviderDashboard() {
               </div>
               )}
 
-              {/* 5. Availability */}
+              {/* 4. Availability (part of step 4: Rates & availability) */}
               {(!isAgencyScoped || !applyRatesToAll) && (
               <div className="bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8" data-testid="card-availability">
                 <div className="flex items-start justify-between gap-4 mb-5">
                   <div className="flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-full bg-[#EBE0EA] text-[#7A2357] text-sm font-bold flex items-center justify-center flex-shrink-0">5</span>
+                    <span className="w-8 h-8 rounded-full bg-[#EBE0EA] text-[#7A2357] text-sm font-bold flex items-center justify-center flex-shrink-0">4</span>
                     <div>
                       <h3 className="text-lg font-bold text-[#1B1820]">Availability</h3>
                     </div>
@@ -1419,46 +1421,50 @@ export default function ProviderDashboard() {
                             <DotsSixVertical size={14} />
                           </div>
 
-                          {/* Delete */}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setProfileData({
-                                ...profileData,
-                                photos: profileData.photos.filter((_, i) => i !== idx)
-                              });
-                            }}
-                            className="absolute top-2 right-2 w-7 h-7 bg-black/70 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                            data-testid={`remove-existing-photo-${idx}`}
-                            aria-label="Delete photo"
-                          >
-                            <X size={14} className="text-white" />
-                          </button>
+                          {/* Delete — only when editing from the dashboard */}
+                          {canManageMedia && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setProfileData({
+                                  ...profileData,
+                                  photos: profileData.photos.filter((_, i) => i !== idx)
+                                });
+                              }}
+                              className="absolute top-2 right-2 w-7 h-7 bg-black/70 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              data-testid={`remove-existing-photo-${idx}`}
+                              aria-label="Delete photo"
+                            >
+                              <X size={14} className="text-white" />
+                            </button>
+                          )}
 
-                          {/* Reorder arrows (bottom) */}
-                          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); movePhoto(idx, idx - 1); }}
-                              disabled={idx === 0}
-                              className="w-7 h-7 bg-black/70 hover:bg-[#7A2357] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
-                              data-testid={`photo-move-left-${idx}`}
-                              aria-label="Move left"
-                            >
-                              <CaretLeft size={14} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); movePhoto(idx, idx + 1); }}
-                              disabled={idx === profileData.photos.length - 1}
-                              className="w-7 h-7 bg-black/70 hover:bg-[#7A2357] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
-                              data-testid={`photo-move-right-${idx}`}
-                              aria-label="Move right"
-                            >
-                              <CaretRight size={14} />
-                            </button>
-                          </div>
+                          {/* Reorder arrows (bottom) — only when editing from the dashboard */}
+                          {canManageMedia && (
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); movePhoto(idx, idx - 1); }}
+                                disabled={idx === 0}
+                                className="w-7 h-7 bg-black/70 hover:bg-[#7A2357] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
+                                data-testid={`photo-move-left-${idx}`}
+                                aria-label="Move left"
+                              >
+                                <CaretLeft size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); movePhoto(idx, idx + 1); }}
+                                disabled={idx === profileData.photos.length - 1}
+                                className="w-7 h-7 bg-black/70 hover:bg-[#7A2357] disabled:opacity-30 disabled:cursor-not-allowed rounded-full flex items-center justify-center text-white"
+                                data-testid={`photo-move-right-${idx}`}
+                                aria-label="Move right"
+                              >
+                                <CaretRight size={14} />
+                              </button>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -1470,13 +1476,15 @@ export default function ProviderDashboard() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h4 className="text-[#000000] font-medium">{uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} selected</h4>
-                      <button
-                        type="button"
-                        onClick={() => setUploadedFiles([])}
-                        className="text-[#000000] hover:text-red-500 text-sm transition-colors"
-                      >
-                        Remove all
-                      </button>
+                      {canManageMedia && (
+                        <button
+                          type="button"
+                          onClick={() => setUploadedFiles([])}
+                          className="text-[#000000] hover:text-red-500 text-sm transition-colors"
+                        >
+                          Remove all
+                        </button>
+                      )}
                     </div>
                     <div className="grid grid-cols-4 gap-4">
                       {uploadedFiles.map((file) => (
@@ -1492,17 +1500,19 @@ export default function ProviderDashboard() {
                               className="w-full h-full object-cover rounded"
                             />
                           )}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeFile(file.id);
-                            }}
-                            className="absolute top-2 right-2 w-6 h-6 bg-black/70 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                            data-testid={`remove-file-${file.id}`}
-                          >
-                            <X size={14} className="text-white" />
-                          </button>
+                          {canManageMedia && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeFile(file.id);
+                              }}
+                              className="absolute top-2 right-2 w-6 h-6 bg-black/70 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              data-testid={`remove-file-${file.id}`}
+                            >
+                              <X size={14} className="text-white" />
+                            </button>
+                          )}
                           {file.type === 'video' && (
                             <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-xs text-white">
                               Video

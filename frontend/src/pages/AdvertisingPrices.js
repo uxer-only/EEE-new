@@ -56,6 +56,7 @@ export default function AdvertisingPrices() {
             </thead>
             <tbody className="text-[#B8B8BE]">
               {[
+                ['1 – 2', '€ 30 /pp', '€ 50 /pp', '€ 90 /pp', '€ 240 /pp'],
                 ['3 – 6', '€ 25 /pp', '€ 45 /pp', '€ 80 /pp', '€ 220 /pp'],
                 ['7 – …', '€ 20 /pp', '€ 35 /pp', '€ 65 /pp', '€ 180 /pp'],
               ].map((r, i) => (
@@ -66,6 +67,8 @@ export default function AdvertisingPrices() {
             </tbody>
           </table>
         </div>
+
+        <P>The number of profiles is the number of active profiles: profiles that are live, plus the profiles you pay for at checkout.</P>
 
         <H2>Refund policy</H2>
         <P>Your satisfaction matters to us, so we offer a clear refund policy. You can request a refund within 48 hours of your purchase. Refunds are granted if you give a valid reason showing that the purchase was fraudulent or unauthorized, or if we decide at our discretion that a refund is appropriate in your case.</P>

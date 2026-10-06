@@ -24,22 +24,37 @@ const EDIT_BTN = 'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border
 const GHOST_BTN = 'inline-flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-xl border border-[#E2DEE8] bg-white text-[#1B1820] hover:border-[#7A2357] hover:text-[#7A2357] transition-colors';
 const WINE_BTN = 'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#7A2357] text-white text-sm font-semibold hover:bg-[#631c47] transition-colors whitespace-nowrap';
 
-// Agency volume-tiered plans (mirrors backend AGENCY_PLANS). t1 = 3–6 selected profiles, t2 = 7+ (discounted).
+// Agency graded plans (mirrors backend AGENCY_PLANS). The grade follows the agency's ACTIVE profiles:
+// live now + queued for this checkout. t0 = 1–2 (standard price), t1 = 3–6 (agency price), t2 = 7+ (volume price).
 const AGENCY_PLANS = [
-  { key: 'agency_7d',  label: '7 days',   vip: 'agency_vip_7d',  price: { t1: 25, t2: 20 } },
-  { key: 'agency_15d', label: '15 days',  vip: 'agency_vip_15d', price: { t1: 45, t2: 35 } },
-  { key: 'agency_1m',  label: '1 month',  vip: 'agency_vip_1m',  price: { t1: 80, t2: 65 } },
-  { key: 'agency_3m',  label: '3 months', vip: 'agency_vip_3m',  price: { t1: 220, t2: 180 } },
+  { key: 'agency_7d',  label: '7 days',   vip: 'agency_vip_7d',  price: { t0: 30, t1: 25, t2: 20 } },
+  { key: 'agency_15d', label: '15 days',  vip: 'agency_vip_15d', price: { t0: 50, t1: 45, t2: 35 } },
+  { key: 'agency_1m',  label: '1 month',  vip: 'agency_vip_1m',  price: { t0: 90, t1: 80, t2: 65 } },
+  { key: 'agency_3m',  label: '3 months', vip: 'agency_vip_3m',  price: { t0: 240, t1: 220, t2: 180 } },
 ];
 const AGENCY_PLAN_MAP = Object.fromEntries(AGENCY_PLANS.map((p) => [p.key, p]));
 const VIP_PRICE = {
-  agency_vip_7d:  { t1: 10, t2: 8 },
-  agency_vip_15d: { t1: 15, t2: 12 },
-  agency_vip_1m:  { t1: 25, t2: 20 },
-  agency_vip_3m:  { t1: 60, t2: 48 },
+  agency_vip_7d:  { t0: 10, t1: 10, t2: 8 },
+  agency_vip_15d: { t0: 15, t1: 15, t2: 12 },
+  agency_vip_1m:  { t0: 25, t1: 25, t2: 20 },
+  agency_vip_3m:  { t0: 60, t1: 60, t2: 48 },
 };
+const AGENCY_TIER_MIN = 3;
 const AGENCY_TIER_THRESHOLD = 7;
-const tierFor = (selectedCount) => (selectedCount >= AGENCY_TIER_THRESHOLD ? 't2' : 't1');
+const tierFor = (activeCount) => (
+  activeCount >= AGENCY_TIER_THRESHOLD ? 't2' : activeCount >= AGENCY_TIER_MIN ? 't1' : 't0'
+);
+// One line explaining the grade, plus how many more active profiles unlock the next one.
+const tierNote = (activeCount) => {
+  const n = `${activeCount} active profile${activeCount === 1 ? '' : 's'}`;
+  if (activeCount >= AGENCY_TIER_THRESHOLD) return `${n} · volume price applies`;
+  if (activeCount >= AGENCY_TIER_MIN) {
+    const more = AGENCY_TIER_THRESHOLD - activeCount;
+    return `${n} · agency price applies · ${more} more for volume price`;
+  }
+  const more = AGENCY_TIER_MIN - activeCount;
+  return `${n} · standard price · ${more} more for agency price`;
+};
 
 const planCost = (pp, tier) => {
   if (!pp || !pp.featured_plan) return 0;
@@ -213,7 +228,9 @@ export default function AgencyDashboard() {
   const liveCount = profiles.filter((p) => p.featured_active).length;
   const totalUnread = profiles.reduce((s, p) => s + (p.unread_enquiries || 0), 0);
   const queued = profiles.filter((p) => p.pending_plan && p.pending_plan.featured_plan);
-  const tier = tierFor(queued.length);
+  // Grade = live profiles + profiles queued for this checkout (a live profile is never queued, so no overlap).
+  const pricingCount = liveCount + queued.filter((p) => !p.featured_active).length;
+  const tier = tierFor(pricingCount);
   const payableTotal = queued.reduce((s, p) => s + planCost(p.pending_plan, tier), 0);
 
   // ----- Agency master-profile defaults (from the setup wizard) -----
@@ -415,6 +432,7 @@ export default function AgencyDashboard() {
                     <div>
                       <p className="text-base font-bold text-[#1B1820]">{queued.length} plan{queued.length === 1 ? '' : 's'} selected</p>
                       <p className="text-sm text-[#8E8597] mt-0.5">{queued.map((p) => `${p.display_name} €${planCost(p.pending_plan, tier)}`).join(' · ')}</p>
+                      <p className="text-sm font-semibold text-[#7A2357] mt-1" data-testid="pricing-tier-note">{tierNote(pricingCount)}</p>
                     </div>
                     <div className="flex items-center gap-5">
                       <div className="text-right">
