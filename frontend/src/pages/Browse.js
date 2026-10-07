@@ -33,6 +33,8 @@ export default function Browse() {
   const [closeToMe, setCloseToMe] = useState(() => localStorage.getItem(CLOSE_TO_ME_KEY) === '1');
   const [coords, setCoords] = useState(null);
   const [showLocationSearch, setShowLocationSearch] = useState(false);
+  // One shuffle seed per visit: the order changes on every visit but stays stable while filtering.
+  const [seed] = useState(() => Math.floor(Math.random() * 1e9));
   const { user } = useAuth();
 
   // Active "extra" filters (excludes city + gender — those are always visible).
@@ -53,7 +55,7 @@ export default function Browse() {
   const fetchProviders = async (override) => {
     const f = override || filters;
     try {
-      const params = {};
+      const params = { seed };
       if (f.city) params.city = f.city;
       if (f.gender) params.gender = f.gender;
       if (coords) {

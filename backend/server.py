@@ -6,6 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import re
 import math
+import random
 import time
 import ipaddress
 import logging
@@ -714,6 +715,16 @@ def _normalize_rates(rates: Optional[Dict[str, Any]]) -> Dict[str, Any]:
         except (TypeError, ValueError):
             continue
     return out_flat
+
+def _distance_zone(km) -> int:
+    """Distance zone for browse ordering: 0 (<=10 km) … 4 (>100 km), 5 when unknown."""
+    if km is None:
+        return 5
+    for zone, limit in enumerate((10, 25, 50, 100)):
+        if km <= limit:
+            return zone
+    return 4
+
 
 def _numeric_range_cond(field_path: str, min_val, max_val) -> dict:
     """$expr range condition that safely handles values stored as numbers or
@@ -1827,6 +1838,8 @@ async def browse_providers(
     max_weight: Optional[float] = None,
     min_age: Optional[int] = None,
     max_age: Optional[int] = None,
+    # Per-visit shuffle seed (sent by /browse once per visit, so the order stays stable while filtering)
+    seed: Optional[int] = None,
     # Visitor-selected location override for distance sorting (overrides IP geolocation)
     origin_lat: Optional[float] = None,
     origin_lng: Optional[float] = None,
@@ -1902,8 +1915,13 @@ async def browse_providers(
         vu = p.get("vip_until")
         p["vip_active"] = bool(vu and vu > now)
 
-    # Distance-based sort: VIPs on top (closest first), then non-VIPs (closest first).
-    # Falls back to VIP -> vip_until -> newest when the visitor's location is unknown.
+    # Order: VIPs on top, then the rest. Within each group profiles are grouped in
+    # distance zones (<=10, <=25, <=50, <=100 km, further, unknown) and shuffled within
+    # a zone, so the top rows differ per visit. Without the visitor's location there are
+    # no zones: VIPs shuffled, then the rest shuffled.
+    shuffle_seed = seed if seed is not None else random.randrange(1 << 30)
+    def _shuffle_key(p):
+        return random.Random(f"{shuffle_seed}:{p.get('provider_id', '')}").random()
     # A visitor-selected city (origin_city) overrides IP-based geolocation.
     visitor_coords = None
     if origin_lat is not None and origin_lng is not None:
@@ -1930,17 +1948,16 @@ async def browse_providers(
             p["distance_km"] = round(_haversine_km(vlat, vlng, plat, plng), 1) if (plat is not None and plng is not None) else None
         profiles.sort(
             key=lambda p: (
-                0 if p["vip_active"] else 1,                                   # VIPs first
-                p["distance_km"] if p.get("distance_km") is not None else float("inf"),  # closest first
-                -(p.get("created_at").timestamp() if p.get("created_at") else 0),        # tiebreak: newest
+                0 if p["vip_active"] else 1,          # VIPs first
+                _distance_zone(p.get("distance_km")),  # nearest zone first
+                _shuffle_key(p),                       # shuffled within the zone
             )
         )
     else:
         profiles.sort(
             key=lambda p: (
-                0 if p["vip_active"] else 1,                 # VIPs first
-                -(p.get("vip_until").timestamp() if p.get("vip_until") else 0),
-                -(p.get("created_at").timestamp() if p.get("created_at") else 0),
+                0 if p["vip_active"] else 1,  # VIPs first
+                _shuffle_key(p),               # shuffled
             )
         )
 
