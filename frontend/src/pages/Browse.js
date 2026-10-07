@@ -6,25 +6,14 @@ import { notifyError, notifyProblem } from '../lib/notify';
 import { MagnifyingGlass, MapPin, Faders, CheckCircle, Crown, Check, X } from 'phosphor-react';
 import { useAuth } from '@/context/AuthContext';
 import SiteHeader from '@/components/SiteHeader';
-import ExtraFilters from '@/components/ExtraFilters';
+import ExtraFilters, { EXTRA_FILTER_DEFAULTS, extraFilterParams, extraFilterChips } from '@/components/ExtraFilters';
 
 const DEFAULT_FILTERS = {
   city: '',
   gender: '',
-  // Extra filters
-  service: '',
-  nationality: '',
-  ethnicity: '',
-  orientation: '',
-  breast_size: '',
-  breast_type: ''
+  // Extra filters (see ExtraFilters.jsx)
+  ...EXTRA_FILTER_DEFAULTS
 };
-
-const EXTRA_FILTER_KEYS = [
-  'service',
-  'nationality', 'ethnicity', 'orientation',
-  'breast_size', 'breast_type'
-];
 
 const CLOSE_TO_ME_KEY = 'ee-close-to-me';
 
@@ -46,12 +35,10 @@ export default function Browse() {
   const [showLocationSearch, setShowLocationSearch] = useState(false);
   const { user } = useAuth();
 
-  // Count of active "extra" filters (excludes city + gender — those are always visible).
-  const isActive = (key) => {
-    const v = filters[key];
-    return v !== undefined && v !== null && String(v).length > 0;
-  };
-  const activeExtraCount = EXTRA_FILTER_KEYS.filter(isActive).length;
+  // Active "extra" filters (excludes city + gender — those are always visible).
+  // A from–to range counts as one filter.
+  const activeChips = extraFilterChips(filters);
+  const activeExtraCount = activeChips.length;
 
   useEffect(() => {
     fetchProviders();
@@ -63,20 +50,19 @@ export default function Browse() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchProviders = async () => {
+  const fetchProviders = async (override) => {
+    const f = override || filters;
     try {
       const params = {};
-      if (filters.city) params.city = filters.city;
-      if (filters.gender) params.gender = filters.gender;
+      if (f.city) params.city = f.city;
+      if (f.gender) params.gender = f.gender;
       if (coords) {
         params.origin_lat = coords.lat;
         params.origin_lng = coords.lng;
       }
 
       // Extra filters
-      EXTRA_FILTER_KEYS.forEach((k) => {
-        if (filters[k] && String(filters[k]).length > 0) params[k] = filters[k];
-      });
+      Object.assign(params, extraFilterParams(f));
 
       const response = await getProviders(params);
       setProviders(response.data);
@@ -140,6 +126,19 @@ export default function Browse() {
       city: prev.city,
       gender: prev.gender
     }));
+  };
+
+  // Removing a chip applies immediately (the panel is closed at that point).
+  const removeChip = (chip) => {
+    const next = { ...filters, ...chip.clear };
+    setFilters(next);
+    fetchProviders(next);
+  };
+
+  const clearChips = () => {
+    const next = { ...DEFAULT_FILTERS, city: filters.city, gender: filters.gender };
+    setFilters(next);
+    fetchProviders(next);
   };
 
   return (
@@ -318,13 +317,46 @@ export default function Browse() {
                     className="flex-1 lg:flex-none bg-[#7A2357] hover:bg-[#5C1A41] text-white font-semibold px-6 py-3.5 lg:py-3 transition-colors"
                     data-testid="apply-filters-button"
                   >
-                    Apply filters
+                    {activeExtraCount > 0 ? `Apply filters (${activeExtraCount})` : 'Apply filters'}
                   </button>
                 </div>
               </motion.div>
             </>
           )}
         </div>
+
+        {/* Active filter chips */}
+        {!showFilters && activeExtraCount > 0 && (
+          <div className="max-w-7xl mx-auto -mt-4 md:-mt-10 mb-6 flex items-start justify-between gap-4" data-testid="active-filter-chips">
+            <div className="flex flex-wrap items-center gap-2">
+              {activeChips.map((chip) => (
+                <span
+                  key={chip.key}
+                  className="h-9 pl-3 pr-1 inline-flex items-center gap-1.5 rounded-full border border-[#7A2357] bg-[#FBF6F9] text-sm font-semibold text-[#7A2357]"
+                >
+                  {chip.label}
+                  <button
+                    type="button"
+                    onClick={() => removeChip(chip)}
+                    className="w-7 h-7 inline-flex items-center justify-center rounded-full hover:bg-[#F5EAF0]"
+                    aria-label={`Remove filter ${chip.label}`}
+                    data-testid={`remove-chip-${chip.key}`}
+                  >
+                    <X size={14} weight="bold" />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={clearChips}
+              className="flex-shrink-0 h-9 text-sm font-semibold whitespace-nowrap text-[#7A2357] underline underline-offset-4 hover:text-[#5C1A41]"
+              data-testid="clear-filter-chips"
+            >
+              Clear filters
+            </button>
+          </div>
+        )}
 
         {/* Results */}
         <div className="max-w-7xl mx-auto">

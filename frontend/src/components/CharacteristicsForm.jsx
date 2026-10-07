@@ -3,11 +3,11 @@
  */
 import { CaretDown } from 'phosphor-react';
 
-const ETHNICITIES = ['European', 'Asian', 'Latin', 'African', 'Middle Eastern', 'Mixed', 'Other'];
-const BREAST_SIZES = ['A', 'B', 'C', 'D', 'DD+'];
-const BREAST_TYPES = ['Natural', 'Enhanced'];
+export const ETHNICITIES = ['European', 'Asian', 'Latin', 'African', 'Middle Eastern', 'Mixed', 'Other'];
+export const BREAST_SIZES = ['A', 'B', 'C', 'D', 'DD+'];
+export const BREAST_TYPES = ['Natural', 'Enhanced'];
 
-const NATIONALITIES = [
+export const NATIONALITIES = [
   'Albanian', 'Algerian', 'American', 'Argentinian', 'Australian', 'Austrian',
   'Belarusian', 'Belgian', 'Brazilian', 'British', 'Bulgarian',
   'Canadian', 'Chilean', 'Chinese', 'Colombian', 'Croatian', 'Cuban', 'Czech',

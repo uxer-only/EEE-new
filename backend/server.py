@@ -715,21 +715,24 @@ def _normalize_rates(rates: Optional[Dict[str, Any]]) -> Dict[str, Any]:
             continue
     return out_flat
 
+def _numeric_range_cond(field_path: str, min_val, max_val) -> dict:
+    """$expr range condition that safely handles values stored as numbers or
+    numeric strings. Missing, empty or non-numeric values never match
+    ($and short-circuits on the type check, and $convert never throws)."""
+    num = {"$convert": {"input": f"${field_path}", "to": "double", "onError": None, "onNull": None}}
+    conds = [{"$eq": [{"$type": num}, "double"]}]
+    if min_val is not None:
+        conds.append({"$gte": [num, float(min_val)]})
+    if max_val is not None:
+        conds.append({"$lte": [num, float(max_val)]})
+    return {"$expr": {"$and": conds}}
+
+
 def _add_numeric_range_expr(query: dict, field_path: str, min_val, max_val):
-    """Add a $expr range condition that safely handles values stored as either
-    numbers or numeric strings (legacy characteristics)."""
+    """Add a numeric range filter on one field (see _numeric_range_cond)."""
     if min_val is None and max_val is None:
         return
-    conds = [
-        {"$ne": [f"${field_path}", None]},
-        {"$ne": [f"${field_path}", ""]},
-    ]
-    if min_val is not None:
-        conds.append({"$gte": [{"$toDouble": f"${field_path}"}, float(min_val)]})
-    if max_val is not None:
-        conds.append({"$lte": [{"$toDouble": f"${field_path}"}, float(max_val)]})
-    clause = {"$expr": {"$and": conds}}
-    query.setdefault("$and", []).append(clause)
+    query.setdefault("$and", []).append(_numeric_range_cond(field_path, min_val, max_val))
 
 
 # ===== SUBSCRIPTIONS / PAYMENTS =====
@@ -1822,6 +1825,8 @@ async def browse_providers(
     max_height: Optional[float] = None,
     min_weight: Optional[float] = None,
     max_weight: Optional[float] = None,
+    min_age: Optional[int] = None,
+    max_age: Optional[int] = None,
     # Visitor-selected location override for distance sorting (overrides IP geolocation)
     origin_lat: Optional[float] = None,
     origin_lng: Optional[float] = None,
@@ -1835,19 +1840,22 @@ async def browse_providers(
         query["location.city"] = {"$regex": city, "$options": "i"}
 
     if service:
-        query["services"] = service
+        service = service.strip()
+        if "." in service or service.startswith("$"):
+            raise HTTPException(status_code=400, detail="Invalid service")
+        # services is stored as a list of names (legacy) or a dict {name: {type, price}};
+        # in the dict form an unticked service keeps type None.
+        query.setdefault("$and", []).append({"$or": [
+            {"services": service},
+            {f"services.{service}.type": {"$nin": [None, ""]}},
+        ]})
 
     if min_rate is not None or max_rate is not None:
-        rate_query = {}
-        if min_rate is not None:
-            rate_query["$gte"] = min_rate
-        if max_rate is not None:
-            rate_query["$lte"] = max_rate
-        # Support both nested (rates.incall.1hour) and legacy flat (rates.1hour) docs
-        query["$or"] = [
-            {"rates.incall.1hour": rate_query},
-            {"rates.1hour": rate_query},
-        ]
+        # 1-hour rate, incall or outcall (nested) or legacy flat (rates.1hour).
+        query.setdefault("$and", []).append({"$or": [
+            _numeric_range_cond(path, min_rate, max_rate)
+            for path in ("rates.incall.1hour", "rates.outcall.1hour", "rates.1hour")
+        ]})
 
     if gender:
         query["gender"] = gender
@@ -1880,6 +1888,7 @@ async def browse_providers(
 
     _add_numeric_range_expr(query, "characteristics.height", min_height, max_height)
     _add_numeric_range_expr(query, "characteristics.weight", min_weight, max_weight)
+    _add_numeric_range_expr(query, "age", min_age, max_age)
 
     # Subscription gate: active Featured plan, or lapsed within the grace period.
     # Mongo returns naive datetimes — compare in naive UTC.
