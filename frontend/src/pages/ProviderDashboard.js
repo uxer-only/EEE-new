@@ -19,6 +19,7 @@ import RatesAvailabilityStep from '@/components/onboarding/RatesAvailabilityStep
 import VerificationModal from '@/components/VerificationModal';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import SiteHeader from '@/components/SiteHeader';
+import usePressDragReorder from '@/hooks/usePressDragReorder';
 
 // Map country → international dial code prefix
 const COUNTRY_DIAL_CODES = {
@@ -135,25 +136,22 @@ export default function ProviderDashboard() {
   const [newService, setNewService] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [draggedPhotoIdx, setDraggedPhotoIdx] = useState(null);
   const [newLanguage, setNewLanguage] = useState('');
   const [showAddLanguage, setShowAddLanguage] = useState(false);
 
   // Reorder helpers for existing profile photos
   const movePhoto = (from, to) => {
-    if (to < 0 || to >= (profileData.photos || []).length) return;
-    const next = [...profileData.photos];
-    const [item] = next.splice(from, 1);
-    next.splice(to, 0, item);
-    setProfileData({ ...profileData, photos: next });
+    setProfileData((prev) => {
+      const photos = prev.photos || [];
+      if (from === to || to < 0 || to >= photos.length) return prev;
+      const next = [...photos];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return { ...prev, photos: next };
+    });
   };
-  const onPhotoDragStart = (idx) => setDraggedPhotoIdx(idx);
-  const onPhotoDragOver = (e) => e.preventDefault();
-  const onPhotoDrop = (targetIdx) => {
-    if (draggedPhotoIdx === null || draggedPhotoIdx === targetIdx) return;
-    movePhoto(draggedPhotoIdx, targetIdx);
-    setDraggedPhotoIdx(null);
-  };
+  // Drag to reorder: mouse = press and drag; phone = press and hold, then drag.
+  const { dragIdx: draggedPhotoIdx, bind: bindPhotoDrag } = usePressDragReorder(movePhoto);
 
   const steps = [
     { id: 1, title: 'Basic Info', icon: User },
@@ -1387,25 +1385,23 @@ export default function ProviderDashboard() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h4 className="text-[#000000] font-medium">Current media ({profileData.photos.length})</h4>
-                      <p className="text-[#000000] text-xs">Drag to reorder · the first photo is your cover</p>
+                      <p className="text-[#000000] text-xs">Drag to reorder (on a phone: press and hold) · the first photo is your cover</p>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {profileData.photos.map((photoUrl, idx) => (
                         <div
                           key={`existing-${idx}`}
-                          draggable
-                          onDragStart={() => onPhotoDragStart(idx)}
-                          onDragOver={onPhotoDragOver}
-                          onDrop={() => onPhotoDrop(idx)}
-                          onDragEnd={() => setDraggedPhotoIdx(null)}
-                          className={`relative group aspect-[3/4] cursor-grab active:cursor-grabbing transition-opacity ${
-                            draggedPhotoIdx === idx ? 'opacity-40' : ''
+                          {...bindPhotoDrag(idx)}
+                          data-reorder-idx={idx}
+                          className={`relative group aspect-[3/4] cursor-grab active:cursor-grabbing transition-[opacity,transform,box-shadow] duration-150 ${
+                            draggedPhotoIdx === idx ? 'opacity-80 scale-105 z-10 shadow-2xl ring-2 ring-[#B04585] rounded' : ''
                           }`}
                           data-testid={`existing-photo-${idx}`}
                         >
                           <img
                             src={photoUrl}
                             alt={`Photo ${idx + 1}`}
+                            draggable={false}
                             className="w-full h-full object-cover rounded pointer-events-none"
                           />
 
@@ -1432,7 +1428,7 @@ export default function ProviderDashboard() {
                                   photos: profileData.photos.filter((_, i) => i !== idx)
                                 });
                               }}
-                              className="absolute top-2 right-2 w-7 h-7 bg-black/70 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="absolute top-2 right-2 w-7 h-7 bg-black/70 hover:bg-red-500 rounded-full flex items-center justify-center [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity"
                               data-testid={`remove-existing-photo-${idx}`}
                               aria-label="Delete photo"
                             >
@@ -1442,7 +1438,7 @@ export default function ProviderDashboard() {
 
                           {/* Reorder arrows (bottom) — only when editing from the dashboard */}
                           {canManageMedia && (
-                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity">
                               <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); movePhoto(idx, idx - 1); }}
