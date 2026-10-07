@@ -1503,7 +1503,7 @@ export default function ProviderDashboard() {
                                 e.stopPropagation();
                                 removeFile(file.id);
                               }}
-                              className="absolute top-2 right-2 w-6 h-6 bg-black/70 hover:bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="absolute top-2 right-2 w-6 h-6 bg-black/70 hover:bg-red-500 rounded-full flex items-center justify-center [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 transition-opacity"
                               data-testid={`remove-file-${file.id}`}
                             >
                               <X size={14} className="text-white" />
