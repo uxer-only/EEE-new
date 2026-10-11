@@ -1,67 +1,70 @@
-import SiteHeader from '@/components/SiteHeader';
-import { SiteFooter } from '@/components/SiteFooter';
-import { Envelope, Clock, ShieldCheck } from 'phosphor-react';
+import { useState } from 'react';
+import { PublicPage } from '@/components/site/Shell';
+import '@/styles/public.css';
 
-const Card = ({ icon: Icon, title, children, testId }) => (
-  <div className="bg-white/[0.03] border border-[#27272A] rounded-[8px] p-6" data-testid={testId}>
-    <div className="flex items-center gap-3 mb-3">
-      <span className="flex items-center justify-center w-10 h-10 rounded-[8px] bg-[#A3243B]/10 text-[#A3243B]">
-        <Icon size={20} weight="fill" />
-      </span>
-      <h3 className="font-manrope font-semibold text-lg text-[#F2F0ED]">{title}</h3>
-    </div>
-    <div className="text-[#B8B8BE] text-sm leading-relaxed">{children}</div>
-  </div>
+const EMAIL = 'info@eliteescortseurope.eu';
+const ic = (d) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7A2357" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{d}</svg>
 );
+const MAIL = <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>;
+const INFO = [
+  { title: 'Response time', text: 'We typically respond within 24–48 hours, Monday to Friday.', icon: ic(<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>), testId: 'contact-hours-card' },
+  { title: 'Privacy & discretion', text: 'Your messages are treated with the utmost confidentiality. We never share your details with third parties.', icon: ic(<><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z" /><path d="m9 12 2 2 4-4" /></>), testId: 'contact-privacy-card' },
+  { title: 'Reports & safety', text: 'To report a fake profile or a safety concern, include the profile link in your email so we can act quickly.', icon: ic(<path d="M5 21V4M5 4h11l-2 4 2 4H5" />), testId: 'contact-reports-card' },
+];
 
 export default function Contact() {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(EMAIL);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch (e) {
+      window.prompt('Copy this address:', EMAIL); // clipboard blocked: let the visitor copy manually
+    }
+  };
   return (
-    <div className="min-h-screen bg-[#0A0A0C] text-[#F2F0ED]" data-testid="contact-page">
-      <SiteHeader />
-      <div className="max-w-3xl mx-auto px-6 pt-28 md:pt-32 pb-20">
-        <h1 className="font-manrope font-semibold text-4xl md:text-5xl text-[#E8799B] mb-2">Contact Us</h1>
-        <p className="text-[#71717A] text-xs mb-8">Elite Escorts Europe</p>
-
-        <p className="text-[#B8B8BE] text-sm leading-relaxed mb-10">
-          Have a question about advertising, your profile, a report, or anything else?
-          We're here to help. Reach out and our team will get back to you as soon as possible.
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <Card icon={Envelope} title="Email" testId="contact-email-card">
-            For all enquiries, email us at{' '}
-            <a
-              href="mailto:info@eliteescortseurope.eu"
-              className="text-[#A3243B] hover:underline break-all"
-              data-testid="contact-email-link"
-            >
-              info@eliteescortseurope.eu
-            </a>
-          </Card>
-          <Card icon={Clock} title="Response time" testId="contact-hours-card">
-            We typically respond within 24–48 hours, Monday to Friday.
-          </Card>
-          <Card icon={ShieldCheck} title="Privacy & discretion" testId="contact-privacy-card">
-            Your messages are treated with the utmost confidentiality. We never share your
-            details with third parties.
-          </Card>
-          <Card icon={Envelope} title="Reports & safety" testId="contact-reports-card">
-            To report a fake profile or a safety concern, include the profile link in your
-            email so we can act quickly.
-          </Card>
-        </div>
-
-        <div className="mt-12 text-center">
-          <a
-            href="mailto:info@eliteescortseurope.eu"
-            className="btn-primary inline-flex"
-            data-testid="contact-send-email-button"
-          >
-            Send us an email
-          </a>
+    <PublicPage bg="photo" mainClass="pub-contact">
+      <div className="x-wrap" data-testid="contact-page">
+        <section className="intro">
+          <span className="ey">Contact</span>
+          <h1>Contact us</h1>
+          <p>Have a question about advertising, your profile, a report, or anything else? We&apos;re here to help. Reach out and our team will get back to you as soon as possible.</p>
+        </section>
+        <div className="cols">
+          <section aria-labelledby="mail-h" className="x-glass card mail" data-testid="contact-email-card">
+            <span className="bic">{ic(MAIL)}</span>
+            <div className="txt">
+              <h2 id="mail-h">Email</h2>
+              <p>For all enquiries, email us at</p>
+              <a href={`mailto:${EMAIL}`} className="addr" data-testid="contact-email-link">{EMAIL}</a>
+            </div>
+            <div className="acts">
+              <a href={`mailto:${EMAIL}`} className="x-btn primary" data-testid="contact-send-email-button">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{MAIL}</svg>
+                Send us an email
+              </a>
+              <button type="button" className="x-btn white" onClick={copy} data-testid="contact-copy-button">
+                {copied ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F7A55" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /></svg>
+                )}
+                <span aria-live="polite">{copied ? 'Copied' : 'Copy address'}</span>
+              </button>
+            </div>
+          </section>
+          <div className="side">
+            {INFO.map((c) => (
+              <div key={c.title} className="x-glass card info" data-testid={c.testId}>
+                <span className="sic">{c.icon}</span>
+                <div><h2>{c.title}</h2><p>{c.text}</p></div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      <SiteFooter />
-    </div>
+    </PublicPage>
   );
 }

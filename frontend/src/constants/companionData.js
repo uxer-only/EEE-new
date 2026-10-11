@@ -78,7 +78,7 @@ export const currencySymbol = (code) => CURRENCY_OPTIONS.find((c) => c.code === 
 
 export const escortServices = [
   'Relaxing massage', 'Erotic massage', 'Couple massage', 'Body to body',
-  'Travel', 'Classic sex', '69 position', 'Cunnilingus', 'Dirty talk', 'Duo with girl',
+  'Classic sex', '69 position', 'Cunnilingus', 'Dirty talk', 'Duo with girl',
   'Facesitting', 'Fingering', 'French kissing', 'Handjob', 'GFE', 'Masturbation',
   'Oral without condom', 'Rimming', 'Role-play', 'Greek', 'Sex toys', 'Shower together',
   'Squirting', 'Striptease', 'Uniform', 'Casual photos', 'Couples', 'Cum on face',
@@ -96,17 +96,24 @@ export const massageServices = [
 export const serviceOptionsFor = (companionshipType) =>
   companionshipType === 'erotic-massage' ? massageServices : escortServices;
 
-// Categorised service catalog (41 services) for the Services step + profile grouping.
+// Categorised service catalog (Travel is not a service — it is a profile option) for the Services step + profile grouping.
 export const SERVICE_CATEGORIES = [
   { id: 'massage', label: 'Massage', services: ['Relaxing massage', 'Erotic massage', 'Couple massage', 'Body to body', 'Shower together'] },
-  { id: 'companionship', label: 'Companionship & role-play', services: ['GFE', 'Dirty talk', 'French kissing', 'Role-play', 'Uniform', 'Striptease', 'Travel', 'Duo with girl'] },
-  { id: 'intimate', label: 'Intimate', services: ['Classic sex', '69 position', 'Cunnilingus', 'Fingering', 'Handjob', 'Masturbation', 'Oral without condom', 'Rimming', 'Greek', 'Sex toys', 'Squirting', 'Cum on face', 'Cum in mouth', 'Deepthroat', 'Facefuck', 'Swallowing', 'Facesitting', 'Porn star experience'] },
+  { id: 'companionship', label: 'Companionship & role-play', services: ['GFE', 'Dirty talk', 'French kissing', 'Role-play', 'Uniform', 'Striptease', 'Duo with girl'] },
+  { id: 'intimate', label: 'Intimate', services: ['Classic sex', '69 position', 'Cunnilingus', 'Fingering', 'Handjob', 'Masturbation', 'Oral with condom', 'Oral without condom', 'Rimming', 'Greek', 'Sex toys', 'Squirting', 'Cum on face', 'Cum in mouth', 'Deepthroat', 'Facefuck', 'Swallowing', 'Facesitting', 'Porn star experience'] },
   { id: 'couples', label: 'Couples & groups', services: ['Couples', 'With 2 men', 'Group sex', 'Double penetration'] },
   { id: 'photos', label: 'Photos & filming', services: ['Casual photos', 'Erotic photos', 'Filming'] },
   { id: 'fetish', label: 'Fetish & BDSM', services: ['Findom', 'BDSM - Femdom', 'Strapon service'] },
 ];
 
 export const ALL_CATALOG_SERVICES = SERVICE_CATEGORIES.flatMap((c) => c.services);
+
+// Services step: two groups with a default pricing type when the service is ticked.
+export const SERVICE_GROUPS = [
+  { id: 'incl', title: 'Usual services', defaultType: 'inclusive', services: ['69 position', 'Body to body', 'Casual photos', 'Classic sex', 'Cunnilingus', 'Dirty talk', 'Erotic massage', 'Fingering', 'French kissing', 'GFE', 'Handjob', 'Masturbation', 'Oral with condom', 'Relaxing massage', 'Sex toys', 'Shower together', 'Striptease'] },
+  { id: 'extra', title: 'Usually an extra', defaultType: 'extra', services: ['BDSM - Femdom', 'Couple massage', 'Couples', 'Cum in mouth', 'Cum on face', 'Deepthroat', 'Double penetration', 'Duo with girl', 'Erotic photos', 'Facefuck', 'Facesitting', 'Filming', 'Findom', 'Greek', 'Group sex', 'Oral without condom', 'Porn star experience', 'Rimming', 'Role-play', 'Squirting', 'Strapon service', 'Swallowing', 'Uniform', 'With 2 men'] },
+];
+export const GROUPED_SERVICES = SERVICE_GROUPS.flatMap((g) => g.services);
 
 // Returns the category label a service name belongs to (or 'Other' for custom services).
 const _norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');

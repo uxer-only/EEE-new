@@ -1,153 +1,92 @@
-import { useState } from 'react';
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { notifyError, notifyProblem } from '../lib/notify';
-import { Eye, EyeSlash, CheckCircle } from 'phosphor-react';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { resetPassword } from '@/services/api';
-import SiteHeader from '@/components/SiteHeader';
+import { PublicPage } from '@/components/site/Shell';
+import { GlassField, StatusIcon } from '@/components/site/AuthBits';
+
+const Tick = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>;
 
 export default function ResetPassword() {
   const [params] = useSearchParams();
   const token = params.get('token') || '';
   const navigate = useNavigate();
-
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [state, setState] = useState(token ? 'form' : 'invalid'); // form | done | invalid
 
-  const invalidToken = !token;
+  const longOk = password.length >= 8;
+  const mixOk = /[a-z]/i.test(password) && /\d/.test(password);
+  const rule = (ok) => (ok ? 'ok' : submitted ? 'bad' : '');
 
-  const handleSubmit = async (e) => {
+  useEffect(() => {
+    if (state !== 'done') return undefined;
+    const t = setTimeout(() => navigate('/login'), 2500);
+    return () => clearTimeout(t);
+  }, [state, navigate]);
+
+  const submit = async (e) => {
     e.preventDefault();
-    if (password.length < 8) {
-      notifyProblem('Your password is too short.', 'Use at least 8 characters, mixing letters and numbers.');
-      return;
-    }
-    if (password !== confirm) {
-      notifyProblem("The passwords don't match.", 'Re-enter the same password in both fields.');
-      return;
-    }
+    setSubmitted(true);
+    if (!longOk || !mixOk || confirm !== password) return;
     setLoading(true);
     try {
       await resetPassword({ token, new_password: password });
-      setSuccess(true);
-      setTimeout(() => navigate('/login'), 2500);
-    } catch (error) {
-      notifyError(error, "We couldn't reset your password.");
+      setState('done');
+    } catch (err) {
+      setState('invalid');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0C] flex">
-      <SiteHeader />
-      <div
-        className="hidden lg:block lg:w-1/2 relative"
-        style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1768609957017-c7f4ad4ee9c3?crop=entropy&cs=srgb&fm=jpg&q=85)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0C]/80 to-transparent"></div>
-      </div>
-
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-8 pt-28 md:pt-32">
-        <div className="w-full max-w-md">
-          {invalidToken ? (
-            <div data-testid="reset-invalid">
-              <h2 className="text-4xl text-[#F2F0ED] mb-4">
- Invalid reset link
- </h2>
-              <p className="text-[#A1A1AA] mb-10 leading-relaxed">
-                This reset link is malformed or missing. Please request a new one.
-              </p>
-              <Link to="/forgot-password" className="btn-primary w-full text-center">
-                Request new link
-              </Link>
+    <PublicPage bg="photo" mainClass="pub-auth">
+      <section className="x-glass a-card" aria-labelledby="t">
+        {state === 'form' && (
+          <>
+            <div className="a-head">
+              <h1 id="t">Create a new password</h1>
+              <p>Choose something only you’ll remember.</p>
             </div>
-          ) : success ? (
-            <div data-testid="reset-success">
-              <div className="w-14 h-14 rounded-full bg-[#7A2357]/10 border border-[#7A2357]/30 flex items-center justify-center mb-8">
-                <CheckCircle size={28} className="text-[#7A2357]" weight="thin" />
-              </div>
-              <h2 className="text-4xl text-[#F2F0ED] mb-4">
- Password updated
- </h2>
-              <p className="text-[#A1A1AA] leading-relaxed mb-10">
-                Your password has been updated successfully. Redirecting you to sign in...
-              </p>
-              <Link to="/login" className="btn-primary w-full text-center">
-                Continue to Login
-              </Link>
+            <form noValidate onSubmit={submit}>
+              <GlassField id="rp-pw" label="New password" password autoComplete="new-password" placeholder="Enter new password" value={password} onChange={setPassword}
+                error={submitted && !longOk ? 'Your password is too short. Use at least 8 characters.' : ''} testId="reset-password-input" />
+              <ul aria-label="Password requirements" className="a-rules">
+                <li className={rule(longOk)}><span className="dot">{longOk && <Tick />}</span>At least 8 characters</li>
+                <li className={rule(mixOk)}><span className="dot">{mixOk && <Tick />}</span>Letters and numbers</li>
+              </ul>
+              <GlassField id="rp-confirm" label="Confirm password" password autoComplete="new-password" placeholder="Re-enter new password" value={confirm} onChange={setConfirm}
+                error={submitted && longOk && mixOk && confirm !== password ? (confirm ? 'The passwords don’t match. Re-enter the same password.' : 'Re-enter your new password.') : ''} testId="reset-confirm-input" />
+              <button type="submit" className="x-btn primary" disabled={loading} style={{ marginTop: 4 }} data-testid="reset-submit">{loading ? 'Updating…' : 'Update password'}</button>
+            </form>
+          </>
+        )}
+        {state === 'done' && (
+          <>
+            <div role="status" className="a-head">
+              <StatusIcon tone="green"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg></StatusIcon>
+              <h1 id="t">Password updated</h1>
+              <p>Your password has been changed. Redirecting you to log in…</p>
             </div>
-          ) : (
-            <>
-              <div className="mb-10">
-                <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="reset-title">
- Create a new password
- </h2>
-                <p className="text-[#A1A1AA]">
-                  Choose something only you&apos;ll remember. At least 8 characters.
-                </p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label className="input-label">New password</label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="input-premium w-full !pr-12"
-                      placeholder="Enter new password"
-                      required
-                      minLength={8}
-                      autoFocus
-                      data-testid="new-password-input"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#F2F0ED]"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="input-label">Confirm password</label>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={confirm}
-                    onChange={(e) => setConfirm(e.target.value)}
-                    className="input-premium w-full"
-                    placeholder="Re-enter new password"
-                    required
-                    minLength={8}
-                    data-testid="confirm-password-input"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                  data-testid="reset-submit-button"
-                >
-                  {loading ? 'Updating...' : 'Update Password'}
-                </button>
-              </form>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
+            <Link to="/login" className="x-btn primary" style={{ width: '100%' }}>Continue to log in</Link>
+          </>
+        )}
+        {state === 'invalid' && (
+          <>
+            <div role="alert" className="a-head">
+              <StatusIcon tone="red"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg></StatusIcon>
+              <h1 id="t">Invalid reset link</h1>
+              <p>This reset link is incomplete or no longer valid. Request a new one and use the most recent e-mail.</p>
+            </div>
+            <div className="a-btns">
+              <Link to="/forgot-password" className="x-btn primary">Request new link</Link>
+              <Link to="/login" className="x-btn white">Back to log in</Link>
+            </div>
+          </>
+        )}
+      </section>
+    </PublicPage>
   );
 }

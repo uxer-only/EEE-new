@@ -1,80 +1,89 @@
-import SiteHeader from '@/components/SiteHeader';
-import { SiteFooter } from '@/components/SiteFooter';
+import { Link } from 'react-router-dom';
+import { PublicPage, Icon } from '@/components/site/Shell';
+import '@/styles/public.css';
 
-const H2 = ({ children }) => (
-  <h2 className="font-manrope font-semibold text-2xl md:text-3xl text-[#E8799B] mt-12 mb-4">{children}</h2>
-);
-const H4 = ({ children }) => (
-  <h4 className="font-manrope font-semibold text-sm md:text-base text-[#E8799B] mt-6 mb-2">{children}</h4>
-);
-const P = ({ children }) => (
-  <p className="text-[#B8B8BE] text-sm leading-relaxed mb-4">{children}</p>
-);
+// Prices per profile (pp). Keep in sync with PLANS / AGENCY_PLANS in backend/server.py.
+const PERIODS = [['7 days', '7d'], ['15 days', '15d'], ['1 month', '1m'], ['3 months', '3m']];
+const INDEPENDENT = [[30, 10], [50, 15], [90, 25], [240, 60]]; // [plan, optional VIP]
+const AGENCY = [
+  { label: '1–2 profiles', short: '1–2', prices: [30, 50, 90, 240] },
+  { label: '3–6 profiles', short: '3–6', prices: [25, 45, 80, 220] },
+  { label: '7 or more profiles', short: '7+', prices: [20, 35, 65, 180], lowest: true },
+];
+
+const Per = ({ long, short }) => (<><span className="lg">{long}</span><span className="sh">{short}</span></>);
 
 export default function AdvertisingPrices() {
   return (
-    <div className="min-h-screen bg-[#0A0A0C] text-[#F2F0ED]" data-testid="advertising-prices-page">
-      <SiteHeader />
-      <div className="max-w-3xl mx-auto px-6 pt-28 md:pt-32 pb-20">
-        <h1 className="font-manrope font-semibold text-4xl md:text-5xl text-[#E8799B] mb-2">Advertising Prices</h1>
-        <p className="text-[#71717A] text-xs mb-8">Elite Escorts Europe — last updated {new Date().getFullYear()}</p>
+    <PublicPage bg="photo" mainClass="pub-prices">
+      <div className="x-wrap" data-testid="advertising-prices-page">
+        <section className="intro">
+          <div>
+            <span className="ey">Advertisement plans</span>
+            <h1>Simple, transparent pricing</h1>
+            <p>www.eliteescortseurope.eu charges the following rates per advertisement (1 advertisement = 1 profile). You pay once for the period you choose.</p>
+            <span className="upd">Elite Escorts Europe — last updated {new Date().getFullYear()}</span>
+          </div>
+          <Link to="/register/provider" className="x-btn primary">Start advertising</Link>
+        </section>
 
-        <P>Www.eliteescortseurope.eu charges the following rates per advertisement (= 1 profile):</P>
-
-        <H4>Independent advertisers (per profile)</H4>
-        <div className="overflow-x-auto mb-6">
-          <table className="w-full text-sm border border-[#27272A]" data-testid="price-table-independent">
-            <thead>
-              <tr className="bg-[#A3243B]/15 text-[#F2F0ED]">
-                <th className="text-left px-4 py-2 border border-[#27272A]">7 days</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">15 days</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">1 month</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">3 months</th>
-              </tr>
-            </thead>
-            <tbody className="text-[#B8B8BE]">
+        <section aria-labelledby="ind-h" className="x-glass card">
+          <div className="head">
+            <div>
+              <h2 id="ind-h">Independent escorts</h2>
+              <p>Price per profile (pp). Choose how long your advertisement stays live.</p>
+            </div>
+          </div>
+          <table className="pt" data-testid="price-table-independent">
+            <caption>Prices for independent escorts per profile, by period</caption>
+            <thead><tr>{PERIODS.map(([l, s]) => <th key={l} scope="col"><Per long={l} short={s} /></th>)}</tr></thead>
+            <tbody>
               <tr>
-                {['€ 30', '€ 50', '€ 90', '€ 240'].map((c, j) => (
-                  <td key={j} className="px-4 py-2 border border-[#27272A]">{c}</td>
+                {INDEPENDENT.map(([price, vip], i) => (
+                  <td key={PERIODS[i][0]}>
+                    <span className="pr">€{price} <small>/pp</small></span>
+                    <span className="vip"><Per long={`VIP +€${vip} (optional)`} short={`VIP +€${vip}`} /></span>
+                  </td>
                 ))}
               </tr>
             </tbody>
           </table>
-        </div>
+        </section>
 
-        <H4>Agencies (pp = per profile)</H4>
-        <div className="overflow-x-auto mb-6">
-          <table className="w-full text-sm border border-[#27272A]" data-testid="price-table-agency">
-            <thead>
-              <tr className="bg-[#A3243B]/15 text-[#F2F0ED]">
-                <th className="text-left px-4 py-2 border border-[#27272A]">Profiles</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">7 days</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">15 days</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">1 month</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">3 months</th>
-              </tr>
-            </thead>
-            <tbody className="text-[#B8B8BE]">
-              {[
-                ['1 – 2', '€ 30 /pp', '€ 50 /pp', '€ 90 /pp', '€ 240 /pp'],
-                ['3 – 6', '€ 25 /pp', '€ 45 /pp', '€ 80 /pp', '€ 220 /pp'],
-                ['7 – …', '€ 20 /pp', '€ 35 /pp', '€ 65 /pp', '€ 180 /pp'],
-              ].map((r, i) => (
-                <tr key={i}>
-                  {r.map((c, j) => <td key={j} className="px-4 py-2 border border-[#27272A]">{c}</td>)}
+        <section aria-labelledby="ag-h" className="x-glass card">
+          <div className="head">
+            <div>
+              <h2 id="ag-h">Agencies</h2>
+              <p>Price per profile (pp). The more profiles, the lower the price per profile.</p>
+            </div>
+            <span className="save">Save up to 25% per profile</span>
+          </div>
+          <table className="pt ag" data-testid="price-table-agency">
+            <caption>Agency prices per profile, by number of profiles and period</caption>
+            <thead><tr><th scope="col">Profiles</th>{PERIODS.map(([l, s]) => <th key={l} scope="col"><Per long={l} short={s} /></th>)}</tr></thead>
+            <tbody>
+              {AGENCY.map((t) => (
+                <tr key={t.label}>
+                  <th scope="row"><span className="tl"><Per long={t.label} short={t.short} />{t.lowest && <span className="low">Lowest price</span>}</span></th>
+                  {t.prices.map((v, i) => <td key={PERIODS[i][0]}>€{v} <small>/pp</small></td>)}
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+          <div className="note"><Icon.info /><p>The number of profiles is the profiles that are live, plus the profiles you pay for at checkout.</p></div>
+        </section>
 
-        <P>The number of profiles is the number of active profiles: profiles that are live, plus the profiles you pay for at checkout.</P>
-
-        <H2>Refund policy</H2>
-        <P>Your satisfaction matters to us, so we offer a clear refund policy. You can request a refund within 48 hours of your purchase. Refunds are granted if you give a valid reason showing that the purchase was fraudulent or unauthorized, or if we decide at our discretion that a refund is appropriate in your case.</P>
-        <P>Contact us at info@eliteescortseurope.eu to initiate a refund.</P>
+        <section aria-labelledby="ref-h" className="x-glass card refund">
+          <span className="ric" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7A2357" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l3 2" /></svg>
+          </span>
+          <div>
+            <h2 id="ref-h">Refund policy</h2>
+            <p>Your satisfaction matters to us, so we offer a clear refund policy. You can request a refund within 48 hours of your purchase. Refunds are granted if you give a valid reason showing that the purchase was fraudulent or unauthorized, or if we decide at our discretion that a refund is appropriate in your case.</p>
+            <p>Contact us at <a href="mailto:info@eliteescortseurope.eu">info@eliteescortseurope.eu</a> to initiate a refund.</p>
+          </div>
+        </section>
       </div>
-      <SiteFooter />
-    </div>
+    </PublicPage>
   );
 }

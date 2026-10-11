@@ -1,5 +1,5 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Cookie, Depends
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Cookie, Depends, UploadFile, File, Form
+from fastapi.responses import JSONResponse, FileResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -42,6 +42,15 @@ GRACE_DAYS = 3
 if RESEND_API_KEY:
     resend.api_key = RESEND_API_KEY
 
+# Uploaded photos / videos are stored on disk (set UPLOAD_DIR to a persistent volume in production)
+UPLOAD_DIR = Path(os.environ.get('UPLOAD_DIR', str(ROOT_DIR / 'uploads')))
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB per file (shown in the upload box)
+MEDIA_TYPES = {
+    'image/jpeg': ('photo', '.jpg'), 'image/png': ('photo', '.png'), 'image/webp': ('photo', '.webp'),
+    'video/mp4': ('video', '.mp4'), 'video/quicktime': ('video', '.mov'),
+}
+
 # Create the main app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -80,6 +89,7 @@ class ProviderProfile(BaseModel):
     availability_type: Optional[str] = "both"    # incall | outcall | both
     booking_advance: Optional[bool] = False
     available247: Optional[bool] = False
+    worldwide_travel: Optional[bool] = False  # shown on the profile as "Available for worldwide travel"
     age: Optional[int] = None
     gender: Optional[str] = None  # female, male, trans
     location: Dict[str, Any]  # {city, country, lat, lng}
@@ -104,6 +114,7 @@ class ProviderProfileCreate(BaseModel):
     availability_type: Optional[str] = "both"
     booking_advance: Optional[bool] = False
     available247: Optional[bool] = False
+    worldwide_travel: Optional[bool] = False
     age: Optional[int] = None
     gender: Optional[str] = None
     location: Dict[str, Any]
@@ -124,6 +135,7 @@ class ProviderProfileUpdate(BaseModel):
     availability_type: Optional[str] = None
     booking_advance: Optional[bool] = None
     available247: Optional[bool] = None
+    worldwide_travel: Optional[bool] = None
     age: Optional[int] = None
     gender: Optional[str] = None
     location: Optional[Dict[str, Any]] = None
@@ -704,6 +716,9 @@ def _normalize_rates(rates: Optional[Dict[str, Any]]) -> Dict[str, Any]:
                     continue
             if col_out:
                 out[kind] = col_out
+        cur = rates.get('currency')
+        if isinstance(cur, str) and re.fullmatch(r'[A-Z]{3}', cur):
+            out['currency'] = cur
         return out
     # Legacy flat shape
     out_flat: Dict[str, Any] = {}
@@ -751,17 +766,17 @@ def _add_numeric_range_expr(query: dict, field_path: str, min_val, max_val):
 PLANS = {
     "featured_2w": {"label": "Featured · 2 weeks", "amount": 30.00, "duration_days": 14, "kind": "featured"},
     "featured_4w": {"label": "Featured · 4 weeks", "amount": 55.00, "duration_days": 28, "kind": "featured"},
-    "vip_2w":      {"label": "VIP Boost · 2 weeks", "amount": 15.00, "duration_days": 14, "kind": "vip"},
-    "vip_4w":      {"label": "VIP Boost · 4 weeks", "amount": 25.00, "duration_days": 28, "kind": "vip"},
+    "vip_2w":      {"label": "VIP · 2 weeks", "amount": 15.00, "duration_days": 14, "kind": "vip"},
+    "vip_4w":      {"label": "VIP · 4 weeks", "amount": 25.00, "duration_days": 28, "kind": "vip"},
     # Independent advertiser plans (per profile)
     "featured_7d":  {"label": "Featured · 7 days",   "amount": 30.00,  "duration_days": 7,  "kind": "featured"},
     "featured_15d": {"label": "Featured · 15 days",  "amount": 50.00,  "duration_days": 15, "kind": "featured"},
     "featured_1m":  {"label": "Featured · 1 month",  "amount": 90.00,  "duration_days": 30, "kind": "featured"},
     "featured_3m":  {"label": "Featured · 3 months", "amount": 240.00, "duration_days": 90, "kind": "featured"},
-    "vip_7d":  {"label": "VIP Boost · 7 days",   "amount": 10.00, "duration_days": 7,  "kind": "vip"},
-    "vip_15d": {"label": "VIP Boost · 15 days",  "amount": 15.00, "duration_days": 15, "kind": "vip"},
-    "vip_1m":  {"label": "VIP Boost · 1 month",  "amount": 25.00, "duration_days": 30, "kind": "vip"},
-    "vip_3m":  {"label": "VIP Boost · 3 months", "amount": 60.00, "duration_days": 90, "kind": "vip"},
+    "vip_7d":  {"label": "VIP · 7 days",   "amount": 10.00, "duration_days": 7,  "kind": "vip"},
+    "vip_15d": {"label": "VIP · 15 days",  "amount": 15.00, "duration_days": 15, "kind": "vip"},
+    "vip_1m":  {"label": "VIP · 1 month",  "amount": 25.00, "duration_days": 30, "kind": "vip"},
+    "vip_3m":  {"label": "VIP · 3 months", "amount": 60.00, "duration_days": 90, "kind": "vip"},
     # Agency per-profile pricing (€30 / 2wk, €50 / 4wk)
     "agency_featured_2w": {"label": "Featured · 2 weeks", "amount": 30.00, "duration_days": 14, "kind": "featured"},
     "agency_featured_4w": {"label": "Featured · 4 weeks", "amount": 50.00, "duration_days": 28, "kind": "featured"},
@@ -1102,8 +1117,25 @@ async def subscription_status(
             await _activate_subscription_for_session(session_id)
 
     tx = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
+    profiles = []
+    if tx.get("provider_plans"):
+        ids = [pp.get("provider_id") for pp in tx["provider_plans"]]
+        names = {
+            d["provider_id"]: d for d in await db.provider_profiles.find(
+                {"provider_id": {"$in": ids}}, {"_id": 0, "provider_id": 1, "display_name": 1}
+            ).to_list(200)
+        }
+        for pp in tx["provider_plans"]:
+            pid = pp.get("provider_id")
+            profiles.append({
+                "provider_id": pid,
+                "name": (names.get(pid) or {}).get("display_name") or "Companion",
+                "featured_plan": pp.get("featured_plan"),
+                "vip_plan": pp.get("vip_plan"),
+            })
     return {
         "session_id": session_id,
+        "profiles": profiles,
         "payment_status": tx.get("payment_status"),
         "status": tx.get("status"),
         "amount": tx.get("amount"),
@@ -1393,8 +1425,18 @@ async def list_my_enquiries(
     async for row in cursor:
         ts = row.get("created_at")
         if isinstance(ts, datetime):
-            row["created_at"] = ts.isoformat()
+            # Mongo returns naive UTC datetimes: mark them as UTC so browsers show local time correctly
+            row["created_at"] = (ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)).isoformat()
         items.append(row)
+    pids = list({e.get("provider_id") for e in items if e.get("provider_id")})
+    if pids:
+        names = {
+            d["provider_id"]: d.get("display_name") for d in await db.provider_profiles.find(
+                {"provider_id": {"$in": pids}}, {"_id": 0, "provider_id": 1, "display_name": 1}
+            ).to_list(500)
+        }
+        for e in items:
+            e["provider_name"] = names.get(e.get("provider_id")) or ""
     return {"enquiries": items, "unread": sum(1 for e in items if not e.get("read"))}
 
 
@@ -1458,9 +1500,12 @@ async def reply_to_enquiry(
     if not client_email:
         raise HTTPException(status_code=400, detail="This enquiry has no reply address")
 
-    provider_name = current_user.name or "Elite Escorts Europe"
+    # Reply-to = the public contact e-mail on the profile (never the private account e-mail)
+    prof = await db.provider_profiles.find_one({"provider_id": enq.get("provider_id")}, {"_id": 0, "display_name": 1, "contact": 1})
+    provider_name = (prof or {}).get("display_name") or current_user.name or "Elite Escorts Europe"
     provider_email = current_user.email
-    subject = f"Re: your enquiry on Elite Escorts Europe"
+    public_email = (((prof or {}).get("contact") or {}).get("email") or "").strip()
+    subject = f"Re: Your request to {provider_name} on Elite Escorts Europe"
     safe_msg = text.replace("\n", "<br/>")
     html = f"""
     <div style="font-family: Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color:#000000;">
@@ -1483,8 +1528,9 @@ async def reply_to_enquiry(
                 "to": [client_email],
                 "subject": subject,
                 "html": html,
-                "reply_to": [provider_email],
             }
+            if public_email:
+                payload["reply_to"] = [public_email]
             await asyncio.to_thread(resend.Emails.send, payload)
             sent = True
         except Exception as e:
@@ -1561,6 +1607,8 @@ async def list_my_media(
             "url": url,
             "media_type": m.get("media_type") or "photo",
             "status": m.get("status") or "approved",
+            "file_name": m.get("file_name"),
+            "position": m.get("position"),
         })
         if url:
             seen.add(url)
@@ -1574,15 +1622,108 @@ async def list_my_media(
             "media_type": "photo",
             "status": "approved",
         })
-    # order: approved photos first (first = cover), then videos, then pending/rejected
+    # order: photos as ordered on the profile (first = cover), then photos in review, then videos
+    prof_rank = {u: n for n, u in enumerate(photos)}
     def _rank(it):
-        if it["status"] == "approved" and it["media_type"] == "photo":
-            return 0
         if it["media_type"] == "video":
-            return 1
-        return 2
+            return (2, it.get("position") or 0)
+        if it["url"] in prof_rank:
+            return (0, prof_rank[it["url"]])
+        return (1, it.get("position") or 0)
     items.sort(key=_rank)
     return {"media": items}
+
+@api_router.post("/providers/media")
+async def upload_my_media(
+    file: UploadFile = File(...),
+    provider_id: Optional[str] = Form(None),
+    current_user: User = Depends(get_current_user),
+):
+    """Upload one photo or video. It is stored on disk and queued for review ("pending");
+    an admin approval publishes it on the profile."""
+    profile = await _resolve_owned_profile(current_user, provider_id, {"_id": 0, "provider_id": 1})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Create your profile first, then add photos and videos.")
+    kind = MEDIA_TYPES.get((file.content_type or '').lower())
+    if not kind:
+        raise HTTPException(status_code=400, detail="Use JPG, PNG or WebP photos, or MP4 or MOV videos.")
+    data = await file.read(MAX_UPLOAD_BYTES + 1)
+    if len(data) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=400, detail="This file is larger than 10 MB. Choose a smaller file.")
+    media_type, ext = kind
+    media_id = f"media_{uuid.uuid4().hex[:16]}"
+    name = f"{media_id}{ext}"
+    (UPLOAD_DIR / name).write_bytes(data)
+    last = await db.provider_media.find({"provider_id": profile["provider_id"]}, {"_id": 0, "position": 1}).sort("position", -1).to_list(1)
+    doc = {
+        "media_id": media_id,
+        "provider_id": profile["provider_id"],
+        "url": f"{APP_URL}/api/media/files/{name}" if APP_URL else f"/api/media/files/{name}",
+        "media_type": media_type,
+        "status": "pending",
+        "file_name": (file.filename or name)[:120],
+        "position": ((last[0].get("position") or 0) + 1) if last else 1,
+        "uploaded_at": datetime.now(timezone.utc),
+    }
+    await db.provider_media.insert_one(dict(doc))
+    doc["uploaded_at"] = doc["uploaded_at"].isoformat()
+    return doc
+
+
+@api_router.get("/media/files/{name}")
+async def serve_media_file(name: str):
+    if not re.fullmatch(r"media_[0-9a-f]{16}\.(jpg|png|webp|mp4|mov)", name):
+        raise HTTPException(status_code=404, detail="Not found")
+    path = UPLOAD_DIR / name
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Not found")
+    return FileResponse(path, headers={"Cache-Control": "public, max-age=31536000, immutable"})
+
+
+@api_router.delete("/providers/media/{media_id}")
+async def delete_my_media(media_id: str, provider_id: Optional[str] = None, current_user: User = Depends(get_current_user)):
+    """Remove a photo or video. `media_id` may also be `photo_<index>` for photos stored directly on the profile."""
+    profile = await _resolve_owned_profile(current_user, provider_id, {"_id": 0, "provider_id": 1, "photos": 1})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    pid = profile["provider_id"]
+    if media_id.startswith("photo_"):
+        try:
+            url = (profile.get("photos") or [])[int(media_id.split("_", 1)[1])]
+        except (ValueError, IndexError):
+            raise HTTPException(status_code=404, detail="Photo not found")
+        await db.provider_profiles.update_one({"provider_id": pid}, {"$pull": {"photos": url}})
+        return {"status": "deleted"}
+    m = await db.provider_media.find_one({"media_id": media_id, "provider_id": pid})
+    if not m:
+        raise HTTPException(status_code=404, detail="Media not found")
+    await db.provider_media.delete_one({"media_id": media_id})
+    await db.provider_profiles.update_one({"provider_id": pid}, {"$pull": {"photos": m.get("url")}})
+    try:
+        (UPLOAD_DIR / m["url"].rsplit("/", 1)[-1]).unlink(missing_ok=True)
+    except Exception:
+        pass
+    return {"status": "deleted"}
+
+
+class MediaOrder(BaseModel):
+    urls: List[str]  # photos (or videos) in the new order; first photo = cover
+
+
+@api_router.put("/providers/media/order")
+async def reorder_my_media(body: MediaOrder, provider_id: Optional[str] = None, current_user: User = Depends(get_current_user)):
+    profile = await _resolve_owned_profile(current_user, provider_id, {"_id": 0, "provider_id": 1, "photos": 1})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    pid = profile["provider_id"]
+    rank = {u: i for i, u in enumerate(body.urls)}
+    photos = profile.get("photos") or []
+    ordered = sorted(photos, key=lambda u: rank.get(u, len(rank) + photos.index(u)))
+    await db.provider_profiles.update_one({"provider_id": pid}, {"$set": {"photos": ordered}})
+    for u, i in rank.items():
+        await db.provider_media.update_one({"provider_id": pid, "url": u}, {"$set": {"position": i}})
+    return {"status": "ok"}
+
 
 @api_router.get("/invoices/{invoice_id}/pdf")
 async def download_invoice_pdf(
@@ -1650,7 +1791,7 @@ async def download_invoice_pdf(
     if meta.get("featured_id"):
         line_parts.append(f"Featured listing · {meta['featured_id']}")
     if meta.get("vip_id"):
-        line_parts.append(f"VIP Boost · {meta['vip_id']}")
+        line_parts.append(f"VIP · {meta['vip_id']}")
     if not line_parts:
         line_parts.append(str(meta.get("plan_id") or "Subscription purchase"))
     c.setFillColor(black)
@@ -1799,6 +1940,34 @@ async def _geocode_city(city: str, country: str = ""):
         upsert=True,
     )
     return coords
+
+
+@api_router.get("/geo/reverse")
+async def reverse_geocode(lat: float, lng: float):
+    """City name for the visitor's device location (Browse: 'Showing results nearest to <city>').
+    Rounded to ~1 km and cached; returns {"city": null} when unknown. The location is not stored with any user."""
+    rl, rg = round(lat, 2), round(lng, 2)
+    key = f"rev|{rl}|{rg}"
+    doc = await db.geocode_cache.find_one({"_id": key})
+    if doc:
+        return {"city": doc.get("city")}
+    city = None
+    try:
+        async with httpx.AsyncClient(
+            timeout=5.0,
+            headers={"User-Agent": "EliteEscortsEurope/1.0 (info@eliteescortseurope.eu)"},
+        ) as client:
+            r = await client.get(
+                "https://nominatim.openstreetmap.org/reverse",
+                params={"lat": rl, "lon": rg, "format": "json", "zoom": 10, "accept-language": "en"},
+            )
+        if r.status_code == 200:
+            addr = (r.json() or {}).get("address") or {}
+            city = addr.get("city") or addr.get("town") or addr.get("village") or addr.get("municipality")
+    except Exception as e:
+        logger.error(f"Reverse geocoding failed: {e}")
+    await db.geocode_cache.replace_one({"_id": key}, {"_id": key, "city": city}, upsert=True)
+    return {"city": city}
 
 
 def _haversine_km(lat1, lng1, lat2, lng2) -> float:
@@ -1998,6 +2167,13 @@ async def get_provider_detail(provider_id: str):
     profile["in_grace"] = _grace_state(profile.get("featured_until"), now)["in_grace"]
     profile["vip_active"] = bool(profile.get("vip_until") and profile["vip_until"] > now)
 
+    # Approved videos for the public gallery (photos come from the profile's `photos` array)
+    vids = await db.provider_media.find(
+        {"provider_id": provider_id, "media_type": "video", "status": "approved"},
+        {"_id": 0, "url": 1},
+    ).sort("uploaded_at", 1).to_list(20)
+    profile["videos"] = [v["url"] for v in vids if v.get("url")]
+
     return profile
 
 @api_router.post("/providers/profile")
@@ -2016,6 +2192,7 @@ async def create_provider_profile(
     
     provider_id = f"provider_{uuid.uuid4().hex[:12]}"
     data = profile_data.model_dump()
+    data["photos"] = []  # photos are added through upload + review
     data["rates"] = _normalize_rates(data.get("rates"))
     profile_doc = {
         "provider_id": provider_id,
@@ -2046,6 +2223,8 @@ async def update_provider_profile(
         raise HTTPException(status_code=404, detail="Profile not found")
     
     update_data = {k: v for k, v in updates.model_dump().items() if v is not None}
+    # Photos are only published through upload + admin review (POST /providers/media), never set directly
+    update_data.pop("photos", None)
     if "rates" in update_data:
         update_data["rates"] = _normalize_rates(update_data["rates"])
     
@@ -2917,8 +3096,8 @@ async def admin_approve_media(
         {"$set": update_data}
     )
     
-    # If approved, add to provider's photos array
-    if approval.status == "approved":
+    # If approved, add photos to the profile's photo list (approved videos are read from provider_media)
+    if approval.status == "approved" and media.get("media_type", "photo") == "photo":
         await db.provider_profiles.update_one(
             {"provider_id": media["provider_id"]},
             {"$addToSet": {"photos": media["url"]}}

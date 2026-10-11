@@ -20,6 +20,7 @@ export const resendVerification = () => api.post('/auth/resend-verification', {}
 // Providers
 export const getProviders = (params) => api.get('/providers', { params });
 export const getProviderById = (id) => api.get(`/providers/${id}`);
+export const reverseGeocode = (lat, lng) => api.get('/geo/reverse', { params: { lat, lng } });
 export const createProviderProfile = (data) => api.post('/providers/profile', data);
 export const updateProviderProfile = (data, providerId) =>
   api.put('/providers/profile', data, { params: providerId ? { provider_id: providerId } : {} });
@@ -101,6 +102,19 @@ export const replyToEnquiry = (id, message) =>
 // Invoices
 export const listMyInvoices = (providerId) =>
   api.get('/invoices/mine', { params: providerId ? { provider_id: providerId } : {} });
+export const uploadMedia = (file, providerId, onProgress) => {
+  const fd = new FormData();
+  fd.append('file', file);
+  if (providerId) fd.append('provider_id', providerId);
+  return api.post('/providers/media', fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: (e) => onProgress && e.total && onProgress(Math.round((e.loaded / e.total) * 100)),
+  });
+};
+export const deleteMedia = (mediaId, providerId) =>
+  api.delete(`/providers/media/${mediaId}`, { params: providerId ? { provider_id: providerId } : {} });
+export const reorderMedia = (urls, providerId) =>
+  api.put('/providers/media/order', { urls }, { params: providerId ? { provider_id: providerId } : {} });
 export const getMyMedia = (providerId) =>
   api.get('/providers/media/mine', { params: providerId ? { provider_id: providerId } : {} });
 export const invoicePdfUrl = (id) => `${api.defaults.baseURL}/invoices/${id}/pdf`;

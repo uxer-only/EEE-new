@@ -1,441 +1,251 @@
 import { useState } from 'react';
-import { Trash, Plus, CaretDown, Check } from 'phosphor-react';
 import { CURRENCY_OPTIONS, currencySymbol, defaultSchedule } from '@/constants/companionData';
+import { Card, Switch, Plus, XIcon, Chev } from '@/components/site/Form';
 
-const TIME_OPTIONS = Array.from({ length: 25 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
-const DAY_LABELS = {
-  monday: 'Monday', tuesday: 'Tuesday', wednesday: 'Wednesday', thursday: 'Thursday',
-  friday: 'Friday', saturday: 'Saturday', sunday: 'Sunday'
-};
+const HOURS = Array.from({ length: 25 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
+const DAYS = [['monday', 'Monday'], ['tuesday', 'Tuesday'], ['wednesday', 'Wednesday'], ['thursday', 'Thursday'], ['friday', 'Friday'], ['saturday', 'Saturday'], ['sunday', 'Sunday']];
+const PLACES = [
+  ['incall', 'Incall', 'Clients visit you'],
+  ['outcall', 'Outcall', 'You visit the client'],
+  ['both', 'Incall & outcall', 'Both options'],
+];
+const BASE = [['1hour', '1 hour', 1], ['2hours', '2 hours', 2], ['3hours', '3 hours', 3]];
+const TAIL = [['overnight', 'Overnight', 900], ['weekend', 'Weekend', 901]];
 
-const CARD = 'bg-white border border-[#ECE8EF] rounded-2xl p-6 md:p-8 shadow-[0_6px_20px_rgba(52,24,60,0.06)]';
+const toH = (t) => { const [h, m] = String(t || '0:0').split(':').map(Number); return (h || 0) + (m || 0) / 60; };
+const filled = (v) => v !== undefined && v !== null && v !== '';
 
-const toHours = (t) => {
-  const [h, m] = String(t || '0:0').split(':').map(Number);
-  return (h || 0) + (m || 0) / 60;
-};
+/** Day timeline bar: handles hours that run past midnight (e.g. 18:00 – 02:00). */
+function DayBar({ on, start, end }) {
+  if (!on) return <div className="dbar" aria-hidden="true" />;
+  const s = toH(start); const e = toH(end);
+  const seg = (a, b) => ({ left: `${(a / 24) * 100}%`, width: `${(Math.max(0, b - a) / 24) * 100}%` });
+  return (
+    <div className="dbar" aria-hidden="true">
+      {e > s ? <span style={seg(s, e)} /> : <><span style={seg(s, 24)} /><span style={seg(0, e)} /></>}
+    </div>
+  );
+}
 
-/**
- * Step 4 — Rates & availability. Two cards (Availability, Rates).
- * Props: data (profileData), update (patch) => merges top-level keys into parent state.
- */
-export const RatesAvailabilityStep = ({ data, update }) => {
-  const [newHours, setNewHours] = useState('');
+function SwitchRow({ id, label, desc, checked, onChange, children, testId }) {
+  return (
+    <div className="ra-sw">
+      <div className="r">
+        <span className="tx"><span id={id} className="t">{label}</span>{desc && <span className="d">{desc}</span>}</span>
+        <Switch checked={checked} onChange={onChange} labelledBy={id} testId={testId} />
+      </div>
+      {children}
+    </div>
+  );
+}
 
+/** Availability card (where, booking options, weekly hours). */
+export function AvailabilityCard({ data, update, level = 1, who = 'you' }) {
   const schedule = data.schedule || defaultSchedule();
-  const days = Object.keys(schedule);
   const availType = data.availability_type || 'both';
-  const kinds = availType === 'incall' || availType === 'outcall' ? [availType] : ['incall', 'outcall'];
-  const rates = data.rates || { currency: 'EUR', incall: { extras: [] }, outcall: { extras: [] } };
-  const sym = currencySymbol(rates.currency);
-
-  /* ---------------- Availability helpers ---------------- */
-  const setSchedule = (next, extra = {}) => update({ schedule: next, available247: false, ...extra });
-
-  const toggleDay = (day) => {
-    const s = schedule[day] || { available: false, start: '10:00', end: '22:00' };
-    setSchedule({ ...schedule, [day]: { ...s, available: !s.available } });
-  };
-  const setDayTime = (day, field, value) => {
-    const s = schedule[day] || { available: true, start: '10:00', end: '22:00' };
-    setSchedule({ ...schedule, [day]: { ...s, [field]: value } });
-  };
-
-  const allDaysMatch = (start, end) =>
-    days.length > 0 && days.every((d) => schedule[d]?.available && schedule[d]?.start === start && schedule[d]?.end === end);
   const is247 = !!data.available247;
-  const everyDay1022 = !is247 && allDaysMatch('10:00', '22:00');
-
-  const applyEveryDay1022 = () => {
+  const setSchedule = (next, extra = {}) => update({ schedule: next, available247: false, ...extra });
+  const setDay = (day, patch) => setSchedule({ ...schedule, [day]: { ...(schedule[day] || { available: true, start: '10:00', end: '22:00' }), ...patch } });
+  const allMatch = (start, end) => DAYS.every(([d]) => schedule[d]?.available && schedule[d]?.start === start && schedule[d]?.end === end);
+  const every1022 = !is247 && allMatch('10:00', '22:00');
+  const applyAll = (start, end, extra = {}) => {
     const next = {};
-    days.forEach((d) => { next[d] = { available: true, start: '10:00', end: '22:00' }; });
-    setSchedule(next);
-  };
-  const toggle247 = () => {
-    const next = {};
-    if (is247) {
-      days.forEach((d) => { next[d] = { available: true, start: '10:00', end: '22:00' }; });
-      update({ available247: false, schedule: next });
-    } else {
-      days.forEach((d) => { next[d] = { available: true, start: '00:00', end: '24:00' }; });
-      update({ available247: true, schedule: next });
-    }
+    DAYS.forEach(([d]) => { next[d] = { available: true, start, end }; });
+    update({ schedule: next, available247: false, ...extra });
   };
   const copyMonday = () => {
-    const mon = schedule.monday;
-    if (!mon) return;
-    const next = {};
-    days.forEach((d) => {
-      next[d] = schedule[d]?.available ? { ...schedule[d], start: mon.start, end: mon.end } : schedule[d];
-    });
+    const m = schedule.monday || { start: '10:00', end: '22:00' };
+    const next = { ...schedule };
+    DAYS.forEach(([d]) => { if (d !== 'monday' && next[d]?.available) next[d] = { ...next[d], start: m.start, end: m.end }; });
     setSchedule(next);
   };
+  return (
+    <Card level={level} title="Availability" testId="availability-card">
+      <fieldset className="fs">
+        <legend>Available for</legend>
+        <div className="optcards three">
+          {PLACES.map(([id, label, desc]) => (
+            <label key={id} className={`optcard${availType === id ? ' on' : ''}`} data-testid={`availability-${id}`}>
+              <input type="radio" name="avail-for" checked={availType === id} onChange={() => update({ availability_type: id })} />
+              <span className="t"><b>{label}</b><small>{desc}</small></span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <SwitchRow id="adv-l" label="Booking in advance required" checked={!!data.booking_advance} onChange={(v) => update({ booking_advance: v })} testId="booking-advance-toggle" />
+      <SwitchRow id="travel-l" label="Available for worldwide travel" checked={!!data.worldwide_travel} onChange={(v) => update({ worldwide_travel: v })} testId="worldwide-travel-toggle" />
 
-  /* ---------------- Rates helpers ---------------- */
-  const setRates = (next) => update({ rates: next });
-  const setCurrency = (c) => setRates({ ...rates, currency: c });
-  const fixedVal = (kind, key) => rates?.[kind]?.[key] ?? '';
-  const setFixed = (kind, key, value) => setRates({ ...rates, [kind]: { ...(rates[kind] || {}), [key]: value } });
-
-  const extraHours = (() => {
-    const s = new Set();
-    kinds.forEach((k) => (rates[k]?.extras || []).forEach((e) => {
-      if (e.hours !== '' && e.hours != null) s.add(Number(e.hours));
-    }));
-    return [...s].sort((a, b) => a - b);
-  })();
-  const extraPrice = (kind, hours) => {
-    const e = (rates[kind]?.extras || []).find((x) => Number(x.hours) === Number(hours));
-    return e ? (e.price ?? '') : '';
-  };
-  const setExtraPrice = (kind, hours, price) => {
-    const col = rates[kind] || {};
-    const extras = [...(col.extras || [])];
-    const i = extras.findIndex((x) => Number(x.hours) === Number(hours));
-    if (i >= 0) extras[i] = { ...extras[i], price };
-    else extras.push({ hours: Number(hours), price });
-    setRates({ ...rates, [kind]: { ...col, extras } });
-  };
-  const addExtraHour = () => {
-    const h = Number(newHours);
-    if (!h || h < 1) return;
-    const next = { ...rates };
-    kinds.forEach((k) => {
-      const col = next[k] || {};
-      const extras = [...(col.extras || [])];
-      if (!extras.some((x) => Number(x.hours) === h)) extras.push({ hours: h, price: '' });
-      next[k] = { ...col, extras };
-    });
-    setRates(next);
-    setNewHours('');
-  };
-  const removeExtraHour = (hours) => {
-    const next = { ...rates };
-    ['incall', 'outcall'].forEach((k) => {
-      if (next[k]?.extras) next[k] = { ...next[k], extras: next[k].extras.filter((x) => Number(x.hours) !== Number(hours)) };
-    });
-    setRates(next);
-  };
-
-  const taxiEnabled = !!(rates.outcall?.taxiEnabled ?? (rates.outcall?.taxi !== '' && rates.outcall?.taxi != null));
-  const toggleTaxi = () => {
-    if (taxiEnabled) setRates({ ...rates, outcall: { ...(rates.outcall || {}), taxiEnabled: false, taxi: '' } });
-    else setRates({ ...rates, outcall: { ...(rates.outcall || {}), taxiEnabled: true } });
-  };
-
-  /* ---------------- UI atoms ---------------- */
-  const checkbox = (on) => (
-    <span className={`flex-shrink-0 w-5 h-5 rounded-[5px] border-2 flex items-center justify-center transition-colors ${on ? 'bg-[#7A2357] border-[#7A2357]' : 'bg-white border-[#898989]'}`}>
-      {on && <Check size={13} weight="bold" className="text-white" />}
-    </span>
-  );
-  const radio = (on) => (
-    <span className={`flex-shrink-0 mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${on ? 'border-[#7A2357]' : 'border-[#C9C3CE]'}`}>
-      {on && <span className="w-2.5 h-2.5 rounded-full bg-[#7A2357]" />}
-    </span>
-  );
-  const bigToggle = (on, onClick, testid) => (
-    <button type="button" role="switch" aria-checked={on} onClick={onClick}
-      className={`flex-shrink-0 w-12 h-7 rounded-full p-0.5 transition-colors ${on ? 'bg-[#7A2357]' : 'bg-[#D8D2DC]'}`} data-testid={testid}>
-      <span className={`block w-6 h-6 rounded-full bg-white transition-transform ${on ? 'translate-x-5' : 'translate-x-0'}`} />
-    </button>
-  );
-  const dayToggle = (on, onClick, testid) => (
-    <button type="button" role="switch" aria-checked={on} onClick={onClick}
-      className={`flex-shrink-0 w-10 h-6 rounded-full p-0.5 transition-colors ${on ? 'bg-[#7A2357]' : 'bg-[#D8D2DC]'}`} data-testid={testid}>
-      <span className={`block w-5 h-5 rounded-full bg-white transition-transform ${on ? 'translate-x-4' : 'translate-x-0'}`} />
-    </button>
-  );
-  const timeSelect = (value, onChange, testid) => (
-    <div className="relative">
-      <select value={value} onChange={(e) => onChange(e.target.value)}
-        className="appearance-none w-full rounded-lg border border-[#898989] bg-white pl-3 pr-8 py-2 text-sm text-[#1B1820] focus:border-[#7A2357] focus:outline-none cursor-pointer"
-        data-testid={testid}>
-        {TIME_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
-      </select>
-      <CaretDown size={12} weight="bold" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8E8597] pointer-events-none" />
-    </div>
-  );
-  const moneyInput = (value, onChange, testid) => (
-    <div className="relative">
-      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#8E8597]">{sym}</span>
-      <input type="text" inputMode="numeric" value={value || ''}
-        onChange={(e) => onChange(e.target.value.replace(/[^0-9]/g, ''))}
-        className="w-full rounded-lg border border-[#898989] bg-white pl-7 pr-3 py-2 text-sm text-[#1B1820] text-right focus:border-[#7A2357] focus:outline-none"
-        placeholder="—" data-testid={testid} />
-    </div>
-  );
-
-  const timelineBar = (sched) => {
-    const on = !!sched?.available;
-    const s = toHours(sched?.start);
-    const e = toHours(sched?.end);
-    const left = Math.max(0, Math.min(100, (s / 24) * 100));
-    const width = Math.max(0, Math.min(100, ((e - s) / 24) * 100));
-    return (
-      <div className="relative h-2 rounded-full bg-[#E4DCE6] w-full">
-        {on && width > 0 && (
-          <div className="absolute top-0 h-2 rounded-full bg-[#7A2357]" style={{ left: `${left}%`, width: `${width}%` }} />
-        )}
+      <div className="ob-grp">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <h2 className="ra-h">Weekly hours</h2>
+          <label className="ra-preset"><input type="checkbox" checked={every1022} onChange={() => (every1022 ? null : applyAll('10:00', '22:00'))} data-testid="preset-daily" /><span>Every day 10–22</span></label>
+          <label className="ra-preset"><input type="checkbox" checked={is247} onChange={() => (is247 ? applyAll('10:00', '22:00') : applyAll('00:00', '24:00', { available247: true }))} data-testid="preset-247" /><span>Available 24/7</span></label>
+        </div>
+        <div className="ra-tbl">
+          <div className="ra-day hd" aria-hidden="true"><span /><span>Day</span><span>Hours</span><span className="ticks"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></span></div>
+          {DAYS.map(([d, name]) => {
+            const s = schedule[d] || { available: false, start: '10:00', end: '22:00' };
+            return (
+              <div key={d} className={`ra-day${s.available ? ' on' : ''}`} data-testid={`day-row-${d}`}>
+                <Switch checked={!!s.available} onChange={(v) => setDay(d, { available: v })} label={`Available on ${name}`} testId={`day-toggle-${d}`} />
+                <span className="nm">{name}</span>
+                <div className="hrs">
+                  {s.available ? (
+                    <>
+                      <span className="sb tsel"><select aria-label={`${name} from`} value={s.start} onChange={(e) => setDay(d, { start: e.target.value })} data-testid={`day-start-${d}`}>{HOURS.slice(0, 24).map((h) => <option key={h} value={h}>{h}</option>)}</select><Chev /></span>
+                      <span aria-hidden="true" className="dash">–</span>
+                      <span className="sb tsel"><select aria-label={`${name} until`} value={s.end} onChange={(e) => setDay(d, { end: e.target.value })} data-testid={`day-end-${d}`}>{HOURS.slice(1).map((h) => <option key={h} value={h}>{h}</option>)}</select><Chev /></span>
+                    </>
+                  ) : <span className="off">Unavailable</span>}
+                </div>
+                <DayBar on={s.available} start={s.start} end={s.end} />
+              </div>
+            );
+          })}
+        </div>
+        <button type="button" className="ra-link" onClick={copyMonday} data-testid="copy-monday">Copy Monday’s hours to all active days</button>
       </div>
+    </Card>
+  );
+}
+
+/** Rates card (currency, durations × incall/outcall, extra hours, taxi). */
+export function RatesCard({ data, update, level = 2 }) {
+  const rates = data.rates || { currency: 'EUR', incall: { extras: [] }, outcall: { extras: [] } };
+  const availType = data.availability_type || 'both';
+  const inOn = availType !== 'outcall';
+  const outOn = availType !== 'incall';
+  const sym = currencySymbol(rates.currency);
+  const col = (k) => rates[k] || {};
+  const isNew = ![...BASE, ...TAIL].some(([k]) => filled(col('incall')[k]) || filled(col('outcall')[k]));
+  const [hidden, setHidden] = useState(() => {
+    const h = {};
+    [...BASE.slice(1), ...TAIL].forEach(([k]) => { if (!isNew && !filled(col('incall')[k]) && !filled(col('outcall')[k])) h[k] = true; });
+    return h;
+  });
+  const [newHrs, setNewHrs] = useState('');
+  const [addErr, setAddErr] = useState('');
+  const setRates = (next) => update({ rates: next });
+  const setVal = (kind, key, v) => setRates({ ...rates, [kind]: { ...col(kind), [key]: v } });
+  const extrasOf = (kind) => (Array.isArray(col(kind).extras) ? col(kind).extras : []);
+  const extraHours = Array.from(new Set([...extrasOf('incall'), ...extrasOf('outcall')].map((x) => Number(x.hours)).filter((h) => h > 0))).sort((a, b) => a - b);
+  const extraVal = (kind, h) => extrasOf(kind).find((x) => Number(x.hours) === h)?.price ?? '';
+  const setExtra = (kind, h, v) => {
+    const list = extrasOf(kind);
+    const next = list.some((x) => Number(x.hours) === h) ? list.map((x) => (Number(x.hours) === h ? { ...x, price: v } : x)) : [...list, { hours: h, price: v }];
+    setRates({ ...rates, [kind]: { ...col(kind), extras: next } });
+  };
+  const rows = [
+    ...BASE.filter(([k]) => k === '1hour' || !hidden[k]).map(([k, label, sort]) => ({ key: k, label, sort, base: true })),
+    ...extraHours.filter((h) => h > 3).map((h) => ({ key: `x${h}`, h, label: `${h} hours`, sort: h })),
+    ...TAIL.filter(([k]) => !hidden[k]).map(([k, label, sort]) => ({ key: k, label, sort, base: true })),
+  ].sort((a, b) => a.sort - b.sort);
+
+  const removeRow = (r) => {
+    if (r.base) {
+      setHidden((h) => ({ ...h, [r.key]: true }));
+      setRates({ ...rates, incall: { ...col('incall'), [r.key]: '' }, outcall: { ...col('outcall'), [r.key]: '' } });
+    } else {
+      setRates({
+        ...rates,
+        incall: { ...col('incall'), extras: extrasOf('incall').filter((x) => Number(x.hours) !== r.h) },
+        outcall: { ...col('outcall'), extras: extrasOf('outcall').filter((x) => Number(x.hours) !== r.h) },
+      });
+    }
+  };
+  const addHours = () => {
+    const n = parseInt(newHrs, 10);
+    if (!(n >= 1 && n <= 24)) { setAddErr('Enter a number of hours between 1 and 24.'); return; }
+    const baseKey = { 1: '1hour', 2: '2hours', 3: '3hours' }[n];
+    if (baseKey) {
+      if (n === 1 || !hidden[baseKey]) { setAddErr(`You already have a ${n}-hour rate.`); return; }
+      setHidden((h) => ({ ...h, [baseKey]: false }));
+    } else {
+      if (extraHours.includes(n)) { setAddErr(`You already have a ${n}-hour rate.`); return; }
+      setRates({
+        ...rates,
+        incall: { ...col('incall'), extras: [...extrasOf('incall'), { hours: n, price: '' }] },
+        outcall: { ...col('outcall'), extras: [...extrasOf('outcall'), { hours: n, price: '' }] },
+      });
+    }
+    setNewHrs(''); setAddErr('');
+  };
+  const taxi = col('outcall').taxi;
+  const taxiOn = filled(taxi) || !!rates.taxi_on;
+
+  const cell = (kind, r) => {
+    const on = kind === 'incall' ? inOn : outOn;
+    if (!on) return <span className="off">Not offered</span>;
+    const v = r.h ? extraVal(kind, r.h) : (col(kind)[r.key] ?? '');
+    return (
+      <label className="ib rate">
+        <span className="pre">{sym}</span>
+        <input type="number" min="0" inputMode="numeric" className="no-spinner" aria-label={`${r.label} ${kind} rate`} value={v}
+          onChange={(e) => { const x = e.target.value.replace(/[^0-9]/g, '').slice(0, 6); if (r.h) setExtra(kind, r.h, x); else setVal(kind, r.key, x); }}
+          data-testid={`rate-${kind}-${r.key}`} />
+      </label>
     );
   };
 
-  const gridCols = `minmax(0,1.3fr) ${kinds.map(() => 'minmax(0,1fr)').join(' ')} 36px`;
-
-  const rateRows = [
-    { key: '1hour', label: '1 hour' },
-    { key: '2hours', label: '2 hours' },
-    { key: '3hours', label: '3 hours' },
-    ...extraHours.map((h) => ({ key: `extra-${h}`, label: `${h} hours`, hours: h, removable: true })),
-    { key: 'overnight', label: 'Overnight' },
-  ];
-  const cellValue = (row, kind) => (row.hours != null ? extraPrice(kind, row.hours) : fixedVal(kind, row.key));
-  const setCell = (row, kind, v) => (row.hours != null ? setExtraPrice(kind, row.hours, v) : setFixed(kind, row.key, v));
-
   return (
-    <div className="flex flex-col gap-6">
-      {/* ======================= AVAILABILITY ======================= */}
-      <div id="availability-section" className={`${CARD} scroll-mt-24`}>
-        <div className="mb-6">
-          <h3 className="text-[24px] md:text-[28px] font-bold text-[#1B1820] mb-1">Availability</h3>
-          <p className="text-sm text-[#5F5966]">Where you meet clients and when they can book you.</p>
+    <Card level={level} className="ra-rates" testId="rates-card">
+      <div className="ra-rh">
+        <div className="ch">
+          <h2 style={{ fontSize: 28, letterSpacing: '-.02em' }}>Rates</h2>
+          <p>What clients pay per booking. Leave a field empty if you don’t offer it.</p>
         </div>
-
-        <div className="flex flex-col gap-6">
-          {/* Available for */}
-          <div>
-            <p className="text-[13px] font-semibold text-[#1B1820] mb-3">Available for</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[
-                { value: 'incall', title: 'Incall', sub: 'Clients visit you' },
-                { value: 'outcall', title: 'Outcall', sub: 'You visit the client' },
-                { value: 'both', title: 'Incall & outcall', sub: 'Both options' },
-              ].map((opt) => {
-                const on = availType === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => update({ availability_type: opt.value })}
-                    className={`flex items-start gap-3 text-left rounded-xl border p-4 transition-colors ${on ? 'border-[#7A2357] bg-[#7A2357]/5' : 'border-[#DFDAE4] bg-white hover:border-[#7A2357]'}`}
-                    data-testid={`availability-type-${opt.value}`}
-                  >
-                    {radio(on)}
-                    <span>
-                      <span className="block font-semibold text-[#1B1820]">{opt.title}</span>
-                      <span className="block text-sm text-[#5F5966]">{opt.sub}</span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Booking in advance */}
-          <div className="flex items-center justify-between gap-4 rounded-xl bg-[#EBE0EA] px-5 py-4">
-            <div>
-              <div className="font-semibold text-[#1B1820]">Booking in advance required</div>
-              <div className="text-sm text-[#5F5966]">Clients see &ldquo;Book ahead&rdquo; instead of &ldquo;Available now&rdquo;.</div>
-            </div>
-            {bigToggle(!!data.booking_advance, () => update({ booking_advance: !data.booking_advance }), 'booking-advance-toggle')}
-          </div>
-
-          {/* Weekly hours */}
-          <div>
-            <h4 className="text-lg font-bold text-[#1B1820] mb-3">Weekly hours</h4>
-            <div className="flex flex-col gap-2 mb-4">
-              <button type="button" onClick={applyEveryDay1022} className="flex items-center gap-3 text-left" data-testid="every-day-1022-checkbox">
-                {checkbox(everyDay1022)}
-                <span className="text-[15px] text-[#1B1820]">Every day 10&ndash;22</span>
-              </button>
-              <button type="button" onClick={toggle247} className="flex items-center gap-3 text-left" data-testid="available-247-checkbox">
-                {checkbox(is247)}
-                <span className="text-[15px] text-[#1B1820]">Available 24/7</span>
-              </button>
-            </div>
-
-            <div className="rounded-xl border border-[#ECE8EF] overflow-hidden">
-              {/* Header */}
-              <div className="hidden sm:grid items-center gap-4 px-4 py-2.5 bg-[#F7F5F9] text-[11px] font-semibold uppercase tracking-wider text-[#8E8597]"
-                style={{ gridTemplateColumns: '150px 210px 1fr' }}>
-                <span>Day</span>
-                <span>Hours</span>
-                <div className="flex justify-between">
-                  <span>00</span><span>06</span><span>12</span><span>18</span><span>24</span>
-                </div>
-              </div>
-
-              {days.map((day) => {
-                const sched = schedule[day] || { available: false, start: '10:00', end: '22:00' };
-                return (
-                  <div key={day} className="border-t border-[#F1ECF1] px-4 py-3">
-                    {/* Desktop */}
-                    <div className="hidden sm:grid items-center gap-4" style={{ gridTemplateColumns: '150px 210px 1fr' }}>
-                      <div className="flex items-center gap-3">
-                        {dayToggle(sched.available, () => toggleDay(day), `schedule-day-toggle-${day}`)}
-                        <span className="text-[15px] text-[#1B1820]">{DAY_LABELS[day]}</span>
-                      </div>
-                      {sched.available ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-[88px]">{timeSelect(sched.start, (v) => setDayTime(day, 'start', v), `schedule-start-${day}`)}</div>
-                          <span className="text-[#8E8597]">&ndash;</span>
-                          <div className="w-[88px]">{timeSelect(sched.end, (v) => setDayTime(day, 'end', v), `schedule-end-${day}`)}</div>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-[#8E8597]">Unavailable</span>
-                      )}
-                      {timelineBar(sched)}
-                    </div>
-
-                    {/* Mobile */}
-                    <div className="sm:hidden flex flex-col gap-3">
-                      <div className="flex items-center gap-3">
-                        {dayToggle(sched.available, () => toggleDay(day), `schedule-day-toggle-m-${day}`)}
-                        <span className="text-[15px] text-[#1B1820]">{DAY_LABELS[day]}</span>
-                      </div>
-                      {sched.available ? (
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1">{timeSelect(sched.start, (v) => setDayTime(day, 'start', v), `schedule-start-m-${day}`)}</div>
-                          <span className="text-[#8E8597]">&ndash;</span>
-                          <div className="flex-1">{timeSelect(sched.end, (v) => setDayTime(day, 'end', v), `schedule-end-m-${day}`)}</div>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-[#8E8597]">Unavailable</span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <button type="button" onClick={copyMonday}
-              className="mt-4 text-sm font-semibold text-[#7A2357] hover:text-[#A3243B] underline underline-offset-2 transition-colors"
-              data-testid="copy-monday-button">
-              Copy Monday&apos;s hours to all active days
-            </button>
-          </div>
-        </div>
+        <label className="ra-cur">
+          <span>Currency</span>
+          <span className="sb"><select value={rates.currency || 'EUR'} onChange={(e) => setRates({ ...rates, currency: e.target.value })} data-testid="currency-select">{CURRENCY_OPTIONS.map((o) => <option key={o.code} value={o.code}>{o.label}</option>)}</select><Chev /></span>
+        </label>
       </div>
-
-      {/* ======================= RATES ======================= */}
-      <div id="rates-section" className={`${CARD} scroll-mt-24`}>
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
-          <div>
-            <h3 className="text-[24px] md:text-[28px] font-bold text-[#1B1820] mb-1">Rates</h3>
-            <p className="text-sm text-[#5F5966]">What clients pay per booking. Leave a field empty if you don&apos;t offer it.</p>
+      <div className="ra-tbl">
+        <div className="ra-rate hd" aria-hidden="true"><span>Duration</span><span className={inOn ? '' : 'dim'}>Incall</span><span className={outOn ? '' : 'dim'}>Outcall</span><span /></div>
+        {rows.map((r) => (
+          <div key={r.key} className={`ra-rate${r.key === '1hour' ? ' first' : ''}`}>
+            <span className="lb">{r.label}</span>
+            <div className="c in">{cell('incall', r)}</div>
+            <div className="c out">{cell('outcall', r)}</div>
+            <div className="x">{r.key !== '1hour' && <button type="button" className="xbtn" aria-label={`Remove ${r.label}`} onClick={() => removeRow(r)} data-testid={`rate-remove-${r.key}`}><XIcon size={16} /></button>}</div>
           </div>
-          <div className="sm:w-52">
-            <label className="block text-[13px] font-semibold text-[#1B1820] mb-1">Currency</label>
-            <div className="relative">
-              <select value={rates.currency || 'EUR'} onChange={(e) => setCurrency(e.target.value)}
-                className="appearance-none w-full rounded-lg border border-[#898989] bg-white pl-3 pr-9 py-2 text-sm text-[#1B1820] focus:border-[#7A2357] focus:outline-none cursor-pointer"
-                data-testid="rates-currency-select">
-                {CURRENCY_OPTIONS.map((opt) => <option key={opt.code} value={opt.code}>{opt.label}</option>)}
-              </select>
-              <CaretDown size={14} weight="bold" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8E8597] pointer-events-none" />
-            </div>
-          </div>
-        </div>
-
-        {/* Rates table */}
-        <div className="rounded-xl border border-[#ECE8EF] overflow-hidden">
-          {/* Header (desktop) */}
-          <div className="hidden sm:grid items-center gap-4 px-4 py-2.5 bg-[#F7F5F9] text-[11px] font-semibold uppercase tracking-wider text-[#8E8597]"
-            style={{ gridTemplateColumns: gridCols }}>
-            <span>Duration</span>
-            {kinds.map((k) => <span key={k} className="capitalize">{k}</span>)}
-            <span />
-          </div>
-
-          {rateRows.map((row) => (
-            <div key={row.key} className="border-t border-[#F1ECF1] px-4 py-3">
-              {/* Desktop */}
-              <div className="hidden sm:grid items-center gap-4" style={{ gridTemplateColumns: gridCols }}>
-                <span className="text-[15px] text-[#1B1820]">{row.label}</span>
-                {kinds.map((kind) => (
-                  <div key={kind}>{moneyInput(cellValue(row, kind), (v) => setCell(row, kind, v), `rate-${kind}-${row.key}`)}</div>
-                ))}
-                <div className="flex justify-center">
-                  {row.removable && (
-                    <button type="button" onClick={() => removeExtraHour(row.hours)}
-                      className="text-[#8E8597] hover:text-[#A3243B] transition-colors" aria-label={`Remove ${row.label}`}
-                      data-testid={`rate-extra-remove-${row.hours}`}>
-                      <Trash size={16} />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Mobile */}
-              <div className="sm:hidden flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[15px] font-medium text-[#1B1820]">{row.label}</span>
-                  {row.removable && (
-                    <button type="button" onClick={() => removeExtraHour(row.hours)}
-                      className="text-[#8E8597] hover:text-[#A3243B] transition-colors" aria-label={`Remove ${row.label}`}
-                      data-testid={`rate-extra-remove-m-${row.hours}`}>
-                      <Trash size={16} />
-                    </button>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {kinds.map((kind) => (
-                    <div key={kind}>
-                      <label className="block text-xs text-[#8E8597] mb-1 capitalize">{kind}</label>
-                      {moneyInput(cellValue(row, kind), (v) => setCell(row, kind, v), `rate-${kind}-m-${row.key}`)}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Add extra hours */}
-        <div className="mt-6">
-          <label className="block text-[13px] font-semibold text-[#1B1820] mb-2">Add extra hours</label>
-          <div className="flex gap-3">
-            <div className="relative w-40">
-              <input type="text" inputMode="numeric" value={newHours}
-                onChange={(e) => setNewHours(e.target.value.replace(/[^0-9]/g, ''))}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addExtraHour(); } }}
-                className="w-full rounded-lg border border-[#898989] bg-white pl-3 pr-14 py-2.5 text-sm text-[#1B1820] focus:border-[#7A2357] focus:outline-none"
-                placeholder="e.g. 5" data-testid="extra-hour-input" />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[#8E8597]">hours</span>
-            </div>
-            <button type="button" onClick={addExtraHour}
-              className="flex items-center gap-2 px-5 rounded-lg border border-[#7A2357] text-[#7A2357] font-semibold hover:bg-[#7A2357]/5 transition-colors"
-              data-testid="add-extra-hour-button">
-              <Plus size={16} weight="bold" /> Add
-            </button>
-          </div>
-        </div>
-
-        {/* Taxi (outcall) */}
-        {kinds.includes('outcall') && (
-          <div className="mt-6 rounded-xl bg-[#EBE0EA] px-5 py-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="font-semibold text-[#1B1820]">Taxi costs charged extra for outcall</div>
-                <div className="text-sm text-[#5F5966]">Turn on if clients pay for your taxi on top of the outcall rate.</div>
-              </div>
-              {bigToggle(taxiEnabled, toggleTaxi, 'taxi-toggle')}
-            </div>
-            {taxiEnabled && (
-              <div className="mt-4">
-                <label className="block text-[13px] font-semibold text-[#1B1820] mb-1">Taxi cost</label>
-                <div className="w-full sm:w-56">
-                  {moneyInput(rates.outcall?.taxi ?? '', (v) => setFixed('outcall', 'taxi', v), 'taxi-cost-input')}
-                </div>
-                <p className="text-xs text-[#8E8597] mt-2">Shown next to your outcall rates, e.g. &ldquo;+ {sym}30 taxi&rdquo;.</p>
-              </div>
-            )}
-          </div>
-        )}
+        ))}
       </div>
-    </div>
+      <div className="fl">
+        <label htmlFor="rt-add">Add extra hours</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span className="ib" style={{ width: 180, height: 48, padding: '0 14px' }}>
+            <input id="rt-add" type="number" min="1" max="24" inputMode="numeric" className="no-spinner" placeholder="e.g. 5" value={newHrs} onChange={(e) => { setNewHrs(e.target.value.replace(/[^0-9]/g, '').slice(0, 2)); setAddErr(''); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addHours(); } }} style={{ fontSize: 15, fontWeight: 600 }} data-testid="add-hours-input" />
+            <span className="unit">hours</span>
+          </span>
+          <button type="button" className="x-btn outl" style={{ height: 48 }} onClick={addHours} data-testid="add-hours-button"><Plus />Add</button>
+        </div>
+        {addErr && <span className="hm bad">{addErr}</span>}
+      </div>
+      {outOn && (
+        <SwitchRow id="taxi-l" label="Taxi costs charged extra for outcall" desc="Turn on if clients pay for your taxi on top of the outcall rate"
+          checked={taxiOn} onChange={(v) => setRates({ ...rates, taxi_on: v, outcall: { ...col('outcall'), taxi: v ? (taxi || '') : '' } })} testId="taxi-toggle">
+          {taxiOn && (
+            <div className="fl sub2">
+              <label htmlFor="rt-taxi">Taxi cost</label>
+              <span className="ib" style={{ width: 180, height: 48, padding: '0 14px', gap: 6 }}>
+                <span className="pre" style={{ fontSize: 15 }}>{sym}</span>
+                <input id="rt-taxi" type="number" min="0" inputMode="numeric" className="no-spinner" placeholder="0" value={taxi ?? ''} onChange={(e) => setVal('outcall', 'taxi', e.target.value.replace(/[^0-9]/g, '').slice(0, 5))} style={{ fontSize: 15, fontWeight: 600, textAlign: 'right' }} data-testid="taxi-input" />
+              </span>
+              <span className="hm">Shown next to your outcall rates, e.g. “+ {sym}30 taxi”.</span>
+            </div>
+          )}
+        </SwitchRow>
+      )}
+    </Card>
   );
-};
+}
+
+/** Step 4 — Availability + Rates. */
+export const RatesAvailabilityStep = ({ data, update, who }) => (
+  <div className="ob-stack">
+    <AvailabilityCard data={data} update={update} who={who} />
+    <RatesCard data={data} update={update} />
+  </div>
+);
 
 export default RatesAvailabilityStep;

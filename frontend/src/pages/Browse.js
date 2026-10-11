@@ -1,441 +1,236 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { getProviders } from '@/services/api';
+import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { getProviders, reverseGeocode } from '@/services/api';
 import { notifyError, notifyProblem } from '../lib/notify';
-import { MagnifyingGlass, MapPin, Faders, CheckCircle, Crown, Check, X } from 'phosphor-react';
-import { useAuth } from '@/context/AuthContext';
-import SiteHeader from '@/components/SiteHeader';
+import { PublicPage, ProfileTile, Icon } from '@/components/site/Shell';
 import ExtraFilters, { EXTRA_FILTER_DEFAULTS, extraFilterParams, extraFilterChips } from '@/components/ExtraFilters';
+import '@/styles/public.css';
 
-const DEFAULT_FILTERS = {
-  city: '',
-  gender: '',
-  // Extra filters (see ExtraFilters.jsx)
-  ...EXTRA_FILTER_DEFAULTS
-};
-
+const DEFAULT_FILTERS = { city: '', gender: '', ...EXTRA_FILTER_DEFAULTS };
 const CLOSE_TO_ME_KEY = 'ee-close-to-me';
+const RECENT_KEY = 'lumiere-recent-providers';
 
-const GENDER_OPTIONS = [
+const CATS = [
   { label: 'All', value: '', testId: 'filter-all' },
   { label: 'Female', value: 'female', testId: 'filter-female' },
   { label: 'Male', value: 'male', testId: 'filter-male' },
   { label: 'Trans', value: 'trans', testId: 'filter-trans' },
 ];
 
+const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* ignore */ } };
+
+const SlidersIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" /><circle cx="16" cy="6" r="2" /><circle cx="10" cy="12" r="2" /><circle cx="18" cy="18" r="2" /></svg>
+);
+const SmallX = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+);
+
 export default function Browse() {
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState(DEFAULT_FILTERS);
-  const [showFilters, setShowFilters] = useState(false);
-  const [offlineMode, setOfflineMode] = useState(false);
-  const [closeToMe, setCloseToMe] = useState(() => localStorage.getItem(CLOSE_TO_ME_KEY) === '1');
+  const [params] = useSearchParams();
+  const [filters, setFilters] = useState(() => ({ ...DEFAULT_FILTERS, city: params.get('city') || '' }));
+  const [panel, setPanel] = useState(false);
+  const [offline, setOffline] = useState(false);
+  const [closeToMe, setCloseToMe] = useState(() => lsGet(CLOSE_TO_ME_KEY) === '1');
   const [coords, setCoords] = useState(null);
-  const [showLocationSearch, setShowLocationSearch] = useState(false);
+  const [nearCity, setNearCity] = useState(null);
   // One shuffle seed per visit: the order changes on every visit but stays stable while filtering.
   const [seed] = useState(() => Math.floor(Math.random() * 1e9));
-  const { user } = useAuth();
+  const filtersRef = useRef(filters);
+  filtersRef.current = filters;
 
-  // Active "extra" filters (excludes city + gender — those are always visible).
-  // A from–to range counts as one filter.
-  const activeChips = extraFilterChips(filters);
-  const activeExtraCount = activeChips.length;
-
-  useEffect(() => {
-    fetchProviders();
-  }, [filters.gender, coords]);
-
-  // Re-request device location on mount if the user previously opted in.
-  useEffect(() => {
-    if (closeToMe) requestLocation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const chips = extraFilterChips(filters);
+  const activeCount = chips.length;
 
   const fetchProviders = async (override) => {
-    const f = override || filters;
+    const f = override || filtersRef.current;
     try {
-      const params = { seed };
+      const params = { seed, ...extraFilterParams(f) };
       if (f.city) params.city = f.city;
       if (f.gender) params.gender = f.gender;
-      if (coords) {
-        params.origin_lat = coords.lat;
-        params.origin_lng = coords.lng;
-      }
-
-      // Extra filters
-      Object.assign(params, extraFilterParams(f));
-
-      const response = await getProviders(params);
-      setProviders(response.data);
-      setOfflineMode(false);
+      if (coords) { params.origin_lat = coords.lat; params.origin_lng = coords.lng; }
+      const r = await getProviders(params);
+      setProviders(Array.isArray(r.data) ? r.data : []);
+      setOffline(false);
     } catch (error) {
-      // Fall back to recently viewed profiles cached in localStorage
-      try {
-        const cached = JSON.parse(localStorage.getItem('lumiere-recent-providers') || '[]');
-        if (cached.length > 0 && !navigator.onLine) {
-          setProviders(cached);
-          setOfflineMode(true);
-        } else {
-          notifyError(error, "We couldn't load providers.");
-        }
-      } catch {
-        notifyProblem("We couldn't load providers.", 'Check your connection and refresh the page.');
+      let cached = [];
+      try { cached = JSON.parse(lsGet(RECENT_KEY) || '[]'); } catch (e) { cached = []; }
+      if (cached.length > 0 && !navigator.onLine) {
+        setProviders(cached);
+        setOffline(true);
+      } else {
+        notifyError(error, "We couldn't load profiles.");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchProviders();
-  };
+  useEffect(() => { fetchProviders(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [filters.gender, coords]);
 
   const requestLocation = () => {
     if (!navigator.geolocation) {
-      notifyProblem("Location unavailable", "Your browser doesn't support location access.");
-      setCloseToMe(false);
-      localStorage.removeItem(CLOSE_TO_ME_KEY);
+      notifyProblem('Location unavailable', "Your browser doesn't support location access.");
+      setCloseToMe(false); lsSet(CLOSE_TO_ME_KEY, null);
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      (pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      (pos) => {
+        const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setCoords(c);
+        reverseGeocode(c.lat, c.lng).then((r) => setNearCity(r.data?.city || null)).catch(() => setNearCity(null));
+      },
       () => {
-        notifyProblem("Location blocked", "Allow location access to see escorts closest to you.");
-        setCloseToMe(false);
-        localStorage.removeItem(CLOSE_TO_ME_KEY);
+        notifyProblem('Location blocked', 'Allow location access to see escorts closest to you.');
+        setCloseToMe(false); lsSet(CLOSE_TO_ME_KEY, null);
       },
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
     );
   };
 
-  const handleToggleCloseToMe = () => {
+  useEffect(() => { if (closeToMe) requestLocation(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+
+  const toggleNear = () => {
     const next = !closeToMe;
     setCloseToMe(next);
-    if (next) {
-      localStorage.setItem(CLOSE_TO_ME_KEY, '1');
-      requestLocation();
-    } else {
-      localStorage.removeItem(CLOSE_TO_ME_KEY);
-      setCoords(null);
-    }
+    if (next) { lsSet(CLOSE_TO_ME_KEY, '1'); requestLocation(); }
+    else { lsSet(CLOSE_TO_ME_KEY, null); setCoords(null); setNearCity(null); }
   };
 
-  const handleClearExtraFilters = () => {
-    setFilters((prev) => ({
-      ...DEFAULT_FILTERS,
-      city: prev.city,
-      gender: prev.gender
-    }));
-  };
-
-  // Removing a chip applies immediately (the panel is closed at that point).
-  const removeChip = (chip) => {
-    const next = { ...filters, ...chip.clear };
-    setFilters(next);
-    fetchProviders(next);
-  };
-
-  const clearChips = () => {
-    const next = { ...DEFAULT_FILTERS, city: filters.city, gender: filters.gender };
-    setFilters(next);
-    fetchProviders(next);
-  };
+  const apply = (next) => { setFilters(next); fetchProviders(next); };
+  const clearAll = () => apply({ ...DEFAULT_FILTERS, city: filters.city, gender: filters.gender });
+  const near = closeToMe && !!coords;
+  const nearSub = closeToMe ? (nearCity ? `${nearCity} · nearest first` : 'Nearest first') : 'Uses your device location';
 
   return (
-    <div className="min-h-screen bg-[#F0EFF4]">
-      {/* Header */}
-      <SiteHeader />
+    <PublicPage bg="glow" mainClass="pub-browse">
+      <div className="x-wrap">
+        <h1 className="title" data-testid="browse-title">Discover Excellence</h1>
 
-      <div className="pt-24 md:pt-32 pb-20 section-padding">
-        {offlineMode && (
-          <div
-            className="max-w-4xl mx-auto mb-6 px-4 py-3 rounded border border-[#7A2357]/30 bg-[#7A2357]/5 text-center"
-            data-testid="offline-banner"
-          >
-            <p className="text-[#7A2357] text-sm">
-              You're offline — showing profiles you've recently viewed
-            </p>
-          </div>
-        )}
-        {/* Search Bar */}
-        <div className="max-w-7xl mx-auto mb-10 md:mb-16">
-          <h2 className="text-4xl md:text-5xl text-[#141416] mb-6 md:mb-8 text-center" data-testid="browse-title">
- Discover Excellence
- </h2>
-
-          {/* Filter + location + search toolbar */}
-          <div className="flex flex-col lg:flex-row items-stretch gap-3 lg:gap-4">
-          {/* Row 1 (mobile): gender filter card + location reveal button */}
-          <div className="flex items-stretch gap-3 lg:contents">
-            {/* Gender filter + extra filters */}
-            <div
-              className="flex-1 lg:basis-0 min-w-0 flex items-center justify-center gap-0.5 md:gap-1 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] px-2 py-2"
-              data-testid="filter-card"
-            >
-              {GENDER_OPTIONS.map((g) => (
-                <button
-                  key={g.value || 'all'}
-                  onClick={() => setFilters({ ...filters, gender: g.value })}
-                  className={`px-2 md:px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors ${
-                    filters.gender === g.value
-                      ? 'bg-[#7A2357] text-white'
-                      : 'text-[#52525B] hover:text-[#7A2357]'
-                  }`}
-                  data-testid={g.testId}
-                >
-                  {g.label}
-                </button>
-              ))}
-              <div className="w-px h-6 bg-[#e5e7eb] mx-0.5 md:mx-1" />
+        <form
+          role="search"
+          aria-label="Find escorts"
+          className="toolbar"
+          onSubmit={(e) => { e.preventDefault(); fetchProviders(); }}
+        >
+          <div role="group" aria-label="Category and filters" className="box cats" data-testid="filter-card">
+            {CATS.map((c) => (
               <button
+                key={c.value || 'all'}
                 type="button"
-                onClick={() => setShowFilters(!showFilters)}
-                className={`relative p-2 md:p-2.5 rounded-xl transition-colors ${
-                  showFilters || activeExtraCount > 0
-                    ? 'text-[#7A2357] bg-[#7A2357]/5'
-                    : 'text-[#52525B] hover:text-[#7A2357]'
-                }`}
-                data-testid="filters-button"
-                aria-label="Extra filters"
+                className={`seg${filters.gender === c.value ? ' on' : ''}`}
+                aria-pressed={filters.gender === c.value}
+                onClick={() => setFilters({ ...filters, gender: c.value })}
+                data-testid={c.testId}
               >
-                <Faders size={20} />
-                {activeExtraCount > 0 && (
-                  <span
-                    className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-[#7A2357] text-white text-[10px] font-semibold leading-none"
-                    data-testid="extra-filters-count"
-                  >
-                    {activeExtraCount}
-                  </span>
-                )}
+                {c.label}
               </button>
+            ))}
+            <span className="sep" aria-hidden="true" />
+            <button
+              type="button"
+              className={`icon${panel || activeCount > 0 ? ' on' : ''}`}
+              aria-label={activeCount > 0 ? `More filters, ${activeCount} active` : 'More filters'}
+              title="More filters"
+              aria-haspopup="dialog"
+              aria-expanded={panel}
+              onClick={() => setPanel((v) => !v)}
+              data-testid="filters-button"
+            >
+              <SlidersIcon />
+              {activeCount > 0 && <span className="count" data-testid="extra-filters-count">{activeCount}</span>}
+            </button>
+          </div>
+
+          <label className={`box near${closeToMe ? ' on' : ''}`} data-testid="close-to-me-toggle">
+            <input type="checkbox" checked={closeToMe} onChange={toggleNear} />
+            <span className="txt">
+              <span className="t1">Show escorts close to me</span>
+              <span className="t2">{nearSub}</span>
+            </span>
+            <Icon.pin width="20" height="20" />
+          </label>
+
+          <div className="box find">
+            <input
+              type="search"
+              aria-label="Search city or name"
+              placeholder="Search city or name"
+              value={filters.city}
+              onChange={(e) => setFilters({ ...filters, city: e.target.value })}
+              data-testid="city-search-input"
+            />
+            <button type="submit" className="go" aria-label="Search" data-testid="search-button"><Icon.search width="20" height="20" /></button>
+          </div>
+
+          {panel && (
+            <div role="dialog" aria-label="More filters" className="panel" data-testid="filters-panel">
+              <div className="phead">
+                <h2>More filters</h2>
+                <button type="button" className="x" aria-label="Close filters" onClick={() => setPanel(false)} data-testid="filters-close"><Icon.close width="20" height="20" /></button>
+              </div>
+              <ExtraFilters filters={filters} setFilters={setFilters} />
+              <div className="pfoot">
+                <button type="button" className="txtbtn" onClick={() => setFilters({ ...DEFAULT_FILTERS, city: filters.city, gender: filters.gender })} data-testid="extra-filters-clear">Clear all</button>
+                <button type="button" className="x-btn primary" onClick={() => { fetchProviders(); setPanel(false); }} data-testid="apply-filters-button">
+                  {activeCount > 0 ? `Apply filters (${activeCount})` : 'Apply filters'}
+                </button>
+              </div>
             </div>
-            {/* Mobile-only location & search reveal button */}
-            <button
-              type="button"
-              onClick={() => setShowLocationSearch((v) => !v)}
-              className={`lg:hidden flex-shrink-0 w-14 flex items-center justify-center rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] border-2 transition-colors ${
-                showLocationSearch ? 'bg-[#7A2357]/5 border-[#7A2357]' : 'bg-white border-transparent'
-              }`}
-              data-testid="mobile-location-toggle"
-              aria-label="Toggle location and search"
-              aria-pressed={showLocationSearch}
-            >
-              <MapPin size={24} className="text-[#7A2357]" />
-            </button>
-          </div>
-
-            {/* Close-to-me location toggle (uses device geolocation) */}
-            <button
-              type="button"
-              onClick={handleToggleCloseToMe}
-              className={`${showLocationSearch ? 'flex' : 'hidden'} lg:flex lg:flex-1 lg:basis-0 min-w-0 items-center gap-3 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] px-4 py-3 text-left`}
-              data-testid="close-to-me-toggle"
-              aria-pressed={closeToMe}
-            >
-              <span
-                className={`flex-shrink-0 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
-                  closeToMe ? 'bg-[#7A2357] border-[#7A2357]' : 'border-[#c9c7cc] bg-white'
-                }`}
-              >
-                {closeToMe && <Check size={14} weight="bold" className="text-white" />}
-              </span>
-              <span className="flex-1 min-w-0">
-                <span className="block text-sm font-semibold text-[#141416] leading-tight">Show escorts close to me</span>
-                <span className="block text-xs text-[#898989] leading-tight">Uses your device location</span>
-              </span>
-              <MapPin size={22} weight="fill" className="text-[#7A2357] flex-shrink-0" />
-            </button>
-
-            {/* City / name search */}
-            <form
-              onSubmit={handleSearch}
-              className={`${showLocationSearch ? 'flex' : 'hidden'} lg:flex flex-1 items-center gap-2 bg-white rounded-2xl shadow-[0_2px_14px_rgba(20,20,22,0.05)] pl-5 pr-2 py-2`}
-            >
-              <input
-                type="text"
-                value={filters.city}
-                onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-                placeholder="Search city or name"
-                className="flex-1 min-w-0 bg-transparent border-0 text-sm text-[#3D2645] placeholder:text-[#9CA3AF] focus:ring-0 focus:outline-none"
-                data-testid="city-search-input"
-              />
-              <button
-                type="submit"
-                style={{ borderRadius: '8px' }}
-                className="flex-shrink-0 w-11 h-11 bg-[#7A2357] hover:bg-[#5C1A41] text-white flex items-center justify-center transition-colors"
-                data-testid="search-button"
-                aria-label="Search"
-              >
-                <MagnifyingGlass size={20} />
-              </button>
-            </form>
-          </div>
-
-          {/* More filters — dropdown card on desktop, bottom sheet on mobile */}
-          {showFilters && (
-            <>
-              <div
-                className="lg:hidden fixed inset-0 bg-black/40 z-40"
-                onClick={() => setShowFilters(false)}
-                data-testid="filters-scrim"
-              />
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="fixed inset-x-0 bottom-0 z-50 max-h-[88vh] overflow-y-auto rounded-t-3xl bg-white shadow-[0_-8px_40px_rgba(20,20,22,0.18)] lg:static lg:inset-auto lg:z-auto lg:max-h-none lg:overflow-hidden lg:rounded-2xl lg:mt-3 lg:w-full lg:max-w-[880px] lg:shadow-[0_12px_44px_rgba(20,20,22,0.14)]"
-                data-testid="filters-panel"
-              >
-                <div className="lg:hidden mx-auto mt-3 mb-1 h-1.5 w-10 rounded-full bg-[#d8d6db]" />
-                <div className="p-6 md:p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl lg:text-lg font-semibold text-[#141416]">More filters</h3>
-                    <button
-                      type="button"
-                      onClick={() => setShowFilters(false)}
-                      className="text-[#898989] hover:text-[#141416] transition-colors"
-                      data-testid="filters-close"
-                      aria-label="Close filters"
-                    >
-                      <X size={24} />
-                    </button>
-                  </div>
-                  <ExtraFilters filters={filters} setFilters={setFilters} />
-                </div>
-                <div className="sticky bottom-0 bg-white border-t border-[#ececef] px-6 md:px-8 py-4 flex items-center gap-4 lg:justify-between">
-                  <button
-                    type="button"
-                    onClick={handleClearExtraFilters}
-                    className="flex-shrink-0 text-sm font-medium text-[#7A2357] underline underline-offset-4 hover:text-[#5C1A41] transition-colors"
-                    data-testid="extra-filters-clear"
-                  >
-                    Clear all
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { fetchProviders(); setShowFilters(false); }}
-                    style={{ borderRadius: '8px' }}
-                    className="flex-1 lg:flex-none bg-[#7A2357] hover:bg-[#5C1A41] text-white font-semibold px-6 py-3.5 lg:py-3 transition-colors"
-                    data-testid="apply-filters-button"
-                  >
-                    {activeExtraCount > 0 ? `Apply filters (${activeExtraCount})` : 'Apply filters'}
-                  </button>
-                </div>
-              </motion.div>
-            </>
           )}
-        </div>
+        </form>
 
-        {/* Active filter chips */}
-        {!showFilters && activeExtraCount > 0 && (
-          <div className="max-w-7xl mx-auto -mt-4 md:-mt-10 mb-6 flex items-start justify-between gap-4" data-testid="active-filter-chips">
-            <div className="flex flex-wrap items-center gap-2">
-              {activeChips.map((chip) => (
-                <span
-                  key={chip.key}
-                  className="h-9 pl-3 pr-1 inline-flex items-center gap-1.5 rounded-full border border-[#7A2357] bg-[#FBF6F9] text-sm font-semibold text-[#7A2357]"
-                >
-                  {chip.label}
-                  <button
-                    type="button"
-                    onClick={() => removeChip(chip)}
-                    className="w-7 h-7 inline-flex items-center justify-center rounded-full hover:bg-[#F5EAF0]"
-                    aria-label={`Remove filter ${chip.label}`}
-                    data-testid={`remove-chip-${chip.key}`}
-                  >
-                    <X size={14} weight="bold" />
-                  </button>
+        {offline && (
+          <div role="status" className="offline" data-testid="offline-banner">You're offline — showing profiles you've recently viewed.</div>
+        )}
+
+        {!loading && (
+          <div className="meta">
+            <div className="left" data-testid="active-filter-chips">
+              <span aria-live="polite" className="cnt">{providers.length === 1 ? '1 profile' : `${providers.length} profiles`}</span>
+              {near && (
+                <span className="chip nearchip">
+                  <Icon.pin width="14" height="14" />
+                  {nearCity ? <>Showing results nearest to <strong>{nearCity}</strong></> : 'Showing results nearest to you'}
+                  <button type="button" aria-label="Stop sorting by distance" onClick={toggleNear}><SmallX /></button>
+                </span>
+              )}
+              {!panel && chips.map((c) => (
+                <span key={c.key} className="chip act">
+                  {c.label}
+                  <button type="button" aria-label={`Remove filter ${c.label}`} onClick={() => apply({ ...filters, ...c.clear })} data-testid={`remove-chip-${c.key}`}><SmallX /></button>
                 </span>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={clearChips}
-              className="flex-shrink-0 h-9 text-sm font-semibold whitespace-nowrap text-[#7A2357] underline underline-offset-4 hover:text-[#5C1A41]"
-              data-testid="clear-filter-chips"
-            >
-              Clear filters
-            </button>
+            {!panel && activeCount > 0 && (
+              <button type="button" className="txtbtn" onClick={clearAll} data-testid="clear-filter-chips">Clear filters</button>
+            )}
           </div>
         )}
 
-        {/* Results */}
-        <div className="max-w-7xl mx-auto">
-          {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {[...Array(30)].map((_, i) => (
-                <div key={i} className="shimmer aspect-[3/4]" data-testid={`skeleton-${i}`}></div>
-              ))}
+        {loading ? (
+          <div className="x-tiles c6 results">
+            {[...Array(12)].map((_, i) => <div key={i} className="x-tile skeleton" aria-hidden="true" data-testid={`skeleton-${i}`}><div className="ph" /></div>)}
+          </div>
+        ) : providers.length > 0 ? (
+          <>
+            <div className="x-tiles c6 results">
+              {providers.map((p, i) => <ProfileTile key={p.provider_id} provider={p} index={i} testId={`provider-card-${i}`} />)}
             </div>
-          ) : providers.length === 0 ? (
-            <div className="text-center py-20" data-testid="no-results">
-              <p className="text-[#A1A1AA] text-lg">No providers found matching your criteria</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {providers.map((provider, index) => (
-                <motion.div
-                  key={provider.provider_id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.02 }}
-                  data-testid={`provider-card-${index}`}
-                >
-                  <Link
-                    to={`/providers/${provider.provider_id}`}
-                    className="block group"
-                  >
-                    <div className="relative w-full aspect-[3/4] overflow-hidden bg-[#141416] border border-[#dbdadd] hover:border-[#7A2357] transition-all duration-300">
-                      <img
-                        src={provider.photos?.[0] || 'https://images.unsplash.com/photo-1768609957045-591c79431f48?crop=entropy&cs=srgb&fm=jpg&q=85'}
-                        alt={provider.display_name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      
-                      {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0C] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                      {/* VIP pill - top left */}
-                      {provider.vip_active && (
-                        <div
-                          className="absolute top-2 left-2 px-2 py-1 bg-[#7A2357] text-white text-[10px] font-semibold uppercase tracking-wider rounded-sm flex items-center gap-1 shadow-lg"
-                          data-testid={`vip-pill-${index}`}
-                        >
-                          <Crown size={11} weight="fill" />
-                          VIP
-                        </div>
-                      )}
-
-                      {/* Info overlay - always visible at bottom */}
-                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#0A0A0C] to-transparent">
-                        <div>
-                          <h3 className="text-lg text-[#F2F0ED] mb-1 truncate flex items-center gap-1.5">
- <span className="truncate">{provider.display_name}</span>
- {provider.verified && (
- <CheckCircle
- size={16}
- weight="fill"
- className="text-[#22C55E] flex-shrink-0"
- data-testid={`verified-badge-${index}`}
- />
- )}
- </h3>
-                          <div className="flex items-center gap-2 text-[#A1A1AA] text-xs mb-1">
-                            <span>{provider.age}</span>
-                            <span>•</span>
-                            <span className="truncate">{provider.location?.city}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
+            <p className="end">You&apos;ve seen all {providers.length === 1 ? '1 profile' : `${providers.length} profiles`}</p>
+          </>
+        ) : (
+          <div className="x-glass empty" data-testid="no-results">
+            <span className="ic"><Icon.search width="24" height="24" /></span>
+            <h2>No providers found matching your criteria</h2>
+            <p>Try another city or name, choose a different category, or clear some filters.</p>
+            <button type="button" className="x-btn white" onClick={() => apply({ ...DEFAULT_FILTERS })}>Clear all filters</button>
+          </div>
+        )}
       </div>
-    </div>
+    </PublicPage>
   );
 }

@@ -1,39 +1,68 @@
-import SiteHeader from '@/components/SiteHeader';
-import { SiteFooter } from '@/components/SiteFooter';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { PublicPage } from '@/components/site/Shell';
+import '@/styles/public.css';
 
-const H2 = ({ children }) => (
-  <h2 className="font-manrope font-semibold text-2xl md:text-3xl text-[#E8799B] mt-12 mb-4">{children}</h2>
+const PARTS = [['introduction', 'Introduction'], ['about-our-website', 'About our website'], ['advertising-conditions', 'Advertising Conditions'], ['privacy-policy', 'Privacy Policy'], ['cookie-policy', 'Cookie Policy']];
+
+const H2 = ({ n, id, children }) => (
+  <div className="part" id={id}>
+    <span className="pn">Part {n}</span>
+    <h2>{children}</h2>
+  </div>
 );
-const H3 = ({ children }) => (
-  <h3 className="font-manrope font-semibold text-lg md:text-xl text-[#E8799B] mt-8 mb-3">{children}</h3>
-);
-const H4 = ({ children }) => (
-  <h4 className="font-manrope font-semibold text-sm md:text-base text-[#E8799B] mt-6 mb-2">{children}</h4>
-);
-const P = ({ children }) => (
-  <p className="text-[#B8B8BE] text-sm leading-relaxed mb-4">{children}</p>
-);
+const H3 = ({ children }) => <h3>{children}</h3>;
+const H4 = ({ children }) => <h4>{children}</h4>;
+const P = ({ children }) => <p>{children}</p>;
 const UL = ({ items }) => (
-  <ul className="list-disc pl-5 text-[#B8B8BE] text-sm leading-relaxed mb-4 space-y-1.5">
-    {items.map((it, i) => <li key={i}>{it}</li>)}
-  </ul>
+  <ul>{items.map((it, i) => <li key={i}>{it}</li>)}</ul>
 );
 
 export default function TermsPrivacy() {
+  const [current, setCurrent] = useState(PARTS[0][0]);
+  useEffect(() => {
+    const els = PARTS.map(([id]) => document.getElementById(id)).filter(Boolean);
+    const io = new IntersectionObserver((entries) => {
+      const vis = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (vis[0]) setCurrent(vis[0].target.id);
+    }, { rootMargin: '-90px 0px -60% 0px' });
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+  const jump = (e, id) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 96, behavior: 'smooth' });
+    setCurrent(id);
+  };
   return (
-    <div className="min-h-screen bg-[#0A0A0C] text-[#F2F0ED]" data-testid="terms-privacy-page">
-      <SiteHeader />
-      <div className="max-w-3xl mx-auto px-6 pt-28 md:pt-32 pb-20">
-        <h1 className="font-manrope font-semibold text-4xl md:text-5xl text-[#E8799B] mb-2">Terms, Privacy &amp; Cookies</h1>
-        <p className="text-[#71717A] text-xs mb-8">Elite Escorts Europe — last updated {new Date().getFullYear()}</p>
+    <PublicPage bg="photo" mainClass="pub-terms" noAgeGate>
+      <div className="x-wrap" data-testid="terms-privacy-page">
+        <section className="intro">
+          <span className="ey">Legal</span>
+          <h1>Terms, privacy &amp; cookies</h1>
+          <p>The terms for using the website and advertising on it, how we process your personal data, and how we use cookies.</p>
+          <span className="upd">Elite Escorts Europe — last updated {new Date().getFullYear()}</span>
+        </section>
+        <div className="cols">
+          <nav className="x-glass toc" aria-label="On this page">
+            <span className="tl">On this page</span>
+            <ol>
+              {PARTS.map(([id, label]) => (
+                <li key={id}><a href={`#${id}`} aria-current={current === id ? 'true' : undefined} onClick={(e) => jump(e, id)}>{label}</a></li>
+              ))}
+            </ol>
+            <div className="q">Questions? <Link to="/contact">Contact us</Link></div>
+          </nav>
+          <article className="x-glass doc">
 
         {/* Introduction */}
-        <H2>Introduction</H2>
+        <H2 n={1} id="introduction">Introduction</H2>
         <P>www.eliteescortseurope.com is not an escort agency. We are an advertising platform, portal website, for independent models and escort agencies with the aim of bringing adults in contact with each other. www.eliteescortseurope.com doesn't arrange meetings itself, we only provide an advertising space.</P>
         <P>Adults, both in advertiser and user, are clearly defined as the minimum age required by the law of your country (Belgium = 18 years old) to use www.eliteescortseurope.com. We can therefore not guarantee that any expectations will be met or vouch for anyone's behaviour. When using our website, you must always respect the rights and obligations stated on the website as described in the Terms and Conditions.</P>
 
         {/* About our website */}
-        <H2>About our website</H2>
+        <H2 n={2} id="about-our-website">About our website</H2>
 
         <H3>Operation, security and availability</H3>
         <P>Www.eliteescortseurope.eu provides a user-friendly website that is safe for all visitors. We take all reasonable steps to keep our website functioning correctly, safely and without disruption, but we are unable to provide an absolute guarantee in this respect. Using the website is always at your own risk. We are not liable for any damage caused by malfunctions, interruptions, harmful elements or defects of the website, whether these result from an external cause or from force majeure. We may, at any time and without notice, limit or suspend access to all or part of our website. As a rule, we only do so when circumstances warrant it.</P>
@@ -58,7 +87,7 @@ export default function TermsPrivacy() {
         <P>We are free to change, expand, restrict or stop our website and the services it offers at any time. We may do so without informing visitors in advance, and this does not entitle anyone to any compensation. This Disclaimer is governed by and construed solely under Belgian law. Any dispute concerning or arising from the use of the website, or from agreements entered into with www.eliteescortseurope.eu, will be brought before the courts of the place where our registered office is established, unless the law imposes another competent court. Should one or more of the provisions of this Disclaimer prove to be invalid or unenforceable, the remaining provisions will continue to apply in full. In that case, we may replace the provision concerned with a valid provision that has a comparable effect.</P>
 
         {/* Advertising Conditions */}
-        <H2>Advertising Conditions</H2>
+        <H2 n={3} id="advertising-conditions">Advertising Conditions</H2>
 
         <H3>Purpose</H3>
         <P>As an advertisement platform, www.eliteescortseurope.eu provides advertisers with advertising space on the website www.eliteescortseurope.eu, where they can publish advertisements – within the limits of the costs listed under « Costs » – for acte de présence, companionship and affection.</P>
@@ -73,44 +102,45 @@ export default function TermsPrivacy() {
         <H3>Prices</H3>
         <P>Www.eliteescortseurope.eu charges the following rates per advertisement:</P>
         <H4>Independent advertisers (per profile)</H4>
-        <div className="overflow-x-auto mb-6">
-          <table className="w-full text-sm border border-[#27272A]" data-testid="price-table-independent">
+        <div className="tw">
+          <table className="tt" data-testid="price-table-independent">
             <thead>
-              <tr className="bg-[#A3243B]/15 text-[#F2F0ED]">
-                <th className="text-left px-4 py-2 border border-[#27272A]">7 days</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">15 days</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">1 month</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">3 months</th>
+              <tr>
+                <th>7 days</th>
+                <th>15 days</th>
+                <th>1 month</th>
+                <th>3 months</th>
               </tr>
             </thead>
-            <tbody className="text-[#B8B8BE]">
+            <tbody>
               <tr>
                 {['€ 30', '€ 50', '€ 90', '€ 240'].map((c, j) => (
-                  <td key={j} className="px-4 py-2 border border-[#27272A]">{c}</td>
+                  <td key={j}>{c}</td>
                 ))}
               </tr>
             </tbody>
           </table>
         </div>
         <H4>Agencies (pp = per profile)</H4>
-        <div className="overflow-x-auto mb-6">
-          <table className="w-full text-sm border border-[#27272A]" data-testid="price-table-agency">
+        <div className="tw">
+          <table className="tt" data-testid="price-table-agency">
             <thead>
-              <tr className="bg-[#A3243B]/15 text-[#F2F0ED]">
-                <th className="text-left px-4 py-2 border border-[#27272A]">Profiles</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">7 days</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">15 days</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">1 month</th>
-                <th className="text-left px-4 py-2 border border-[#27272A]">3 months</th>
+              <tr>
+                <th>Profiles</th>
+                <th>7 days</th>
+                <th>15 days</th>
+                <th>1 month</th>
+                <th>3 months</th>
               </tr>
             </thead>
-            <tbody className="text-[#B8B8BE]">
+            <tbody>
               {[
-                ['3 – 6', '€ 25 /pp', '€ 52 /pp', '€ 77 /pp', '€ 205 /pp'],
-                ['7 – …', '€ 20 /pp', '€ 35 /pp', '€ 60 /pp', '€ 150 /pp'],
+                ['1 – 2', '€ 30 /pp', '€ 50 /pp', '€ 90 /pp', '€ 240 /pp'],
+                ['3 – 6', '€ 25 /pp', '€ 45 /pp', '€ 80 /pp', '€ 220 /pp'],
+                ['7 – …', '€ 20 /pp', '€ 35 /pp', '€ 65 /pp', '€ 180 /pp'],
               ].map((r, i) => (
                 <tr key={i}>
-                  {r.map((c, j) => <td key={j} className="px-4 py-2 border border-[#27272A]">{c}</td>)}
+                  {r.map((c, j) => <td key={j}>{c}</td>)}
                 </tr>
               ))}
             </tbody>
@@ -138,7 +168,7 @@ export default function TermsPrivacy() {
         <P>If you still have questions or remarks after reading these Advertising Conditions, you are always welcome to contact us at info@eliteescortseurope.eu.</P>
 
         {/* Privacy Policy */}
-        <H2>Privacy Policy</H2>
+        <H2 n={4} id="privacy-policy">Privacy Policy</H2>
 
         <H3>Purpose of this privacy statement</H3>
         <P>Anyone who visits the website (hereinafter the « visitor ») and anyone who uses our services, for example to place online advertisements (hereinafter the « advertiser »), will almost unavoidably share certain personal data. Personal data is information that makes it possible to identify you as a natural person, whether or not we actually do so. You are identifiable as soon as one or more pieces of personal data can be linked, directly or indirectly, to you as a natural person. Visitors and advertisers are hereinafter jointly referred to as « Data Subjects ».</P>
@@ -234,7 +264,7 @@ export default function TermsPrivacy() {
         <P>If you have remarks or complaints about how we handle your personal data, please tell us first, so that we can try to find an amicable solution together. If you remain dissatisfied with how Www.eliteescortseurope.eu processes your personal data after contacting us, you may lodge a complaint with the competent supervisory authority (in Belgium: https://www.dataprotectionauthority.be).</P>
 
         {/* Cookie Policy */}
-        <H2>Cookie Policy</H2>
+        <H2 n={5} id="cookie-policy">Cookie Policy</H2>
 
         <H3>What are cookies?</H3>
         <P>When visitors arrive on our company's web pages, a small file called a “cookie” is saved on their device. Cookies can be used for various purposes. Some of the cookies we use are essential for the website to work properly (“process cookies”). Others collect information about how the website is used (statistics), so that we can make it easier and more useful. Some cookies are temporary and are deleted when you close your browser, while others stay on your device for a longer period.</P>
@@ -249,9 +279,10 @@ export default function TermsPrivacy() {
         <H3>Managing and disabling cookies</H3>
         <P>Modern browsers let you change your cookie settings. Many browsers accept cookies automatically by default, but you can change this setting so that cookies are no longer accepted automatically. If you reset your browser, it will let you choose again whether to accept cookies in the future.</P>
 
-        <p className="text-[#71717A] text-xs mt-12">For any questions, contact us at info@eliteescortseurope.eu</p>
+        <p className="end">For any questions, contact us at <a href="mailto:info@eliteescortseurope.eu">info@eliteescortseurope.eu</a></p>
+          </article>
+        </div>
       </div>
-      <SiteFooter />
-    </div>
+    </PublicPage>
   );
 }

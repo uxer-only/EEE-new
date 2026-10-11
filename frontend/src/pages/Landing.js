@@ -1,221 +1,84 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, Warning, ArrowRight } from 'phosphor-react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getProviders } from '@/services/api';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import SiteHeader from '@/components/SiteHeader';
-import { SiteFooter } from '@/components/SiteFooter';
+import { PublicPage, ProfileTile, Icon } from '@/components/site/Shell';
+import '@/styles/public.css';
+
+const WHY = [
+  {
+    title: 'Verified profiles',
+    text: 'The green tick shows the advertiser has completed our verification, so you know the profile is genuine.',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z" /><path d="m9 12 2 2 4-4" /></svg>,
+  },
+  {
+    title: 'Discreet by design',
+    text: 'Browse without an account and get in touch directly by phone, message or e-mail, on your own terms.',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>,
+  },
+  {
+    title: 'Why advertise with us',
+    text: 'Independent companions and agencies present themselves in a curated, premium environment.',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-2 10H5z" /></svg>,
+    link: { to: '/advertising-prices', label: 'See advertisement plans' },
+  },
+];
 
 export default function Landing() {
-  const navigate = useNavigate();
-  const [showAgeModal, setShowAgeModal] = useState(false);
   const [providers, setProviders] = useState([]);
-  const [loadingProviders, setLoadingProviders] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user has already confirmed age
-    const ageConfirmed = localStorage.getItem('ageConfirmed');
-    if (!ageConfirmed) {
-      setShowAgeModal(true);
-    }
-    
-    // Fetch latest providers
-    fetchProviders();
+    getProviders({ limit: 10 })
+      .then((r) => setProviders((Array.isArray(r.data) ? r.data : []).slice(0, 10)))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const fetchProviders = async () => {
-    try {
-      const response = await getProviders({ limit: 18 });
-      setProviders(response.data.slice(0, 18));
-    } catch (_err) {
-      // Landing page failure to load providers is non-blocking — UI shows empty grid.
-    } finally {
-      setLoadingProviders(false);
-    }
-  };
-
-  const handleAgeConfirm = () => {
-    localStorage.setItem('ageConfirmed', 'true');
-    setShowAgeModal(false);
-  };
-
-  const handleLeaveWebsite = () => {
-    window.location.href = 'https://google.com';
-  };
-
   return (
-    <div className="min-h-screen bg-[#0A0A0C]">
-      {/* Age Verification Modal */}
-      <Dialog open={showAgeModal} onOpenChange={() => {}}>
-        <DialogContent className="bg-[#141416] border-[#27272A] text-[#F2F0ED] max-w-md p-0 overflow-hidden" hideClose>
-          <div className="p-6 md:p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#7A2357]/10 flex items-center justify-center">
-              <Warning size={32} className="text-[#7A2357]" weight="fill" />
-            </div>
-            <h2 className="text-2xl text-[#F2F0ED] mb-4">
- Attention
- </h2>
-            <p className="text-[#A1A1AA] mb-8 text-sm leading-relaxed">
-              This website contains adult content and is intended for individuals 18 years of age or older. By entering, you confirm that you are of legal age in your jurisdiction.
-            </p>
-            <div className="space-y-3">
-              <button
-                onClick={handleAgeConfirm}
-                className="btn-primary w-full"
-                data-testid="age-confirm-button"
-              >
-                I am 18 or older
-              </button>
-              <button
-                onClick={handleLeaveWebsite}
-                className="btn-secondary w-full"
-                data-testid="leave-website-button"
-              >
-                Leave Website
-              </button>
-            </div>
-            <div className="mt-6 pt-6 border-t border-[#27272A] flex justify-center gap-6 text-xs text-[#52525B]">
-              <Link to="/terms" className="hover:text-[#A3243B] transition-colors">
-                Terms, Privacy &amp; Cookies
-              </Link>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-      {/* Floating Header */}
-      <SiteHeader />
-
-      {/* Hero Section with Overlapping Profiles */}
-      <section className="relative" data-testid="hero-section">
-        {/* Hero Background - fixed so content scrolls over it */}
-        <div className="fixed inset-0 z-0 h-screen w-full overflow-hidden">
-          <picture>
-            <source
-              media="(max-width: 767px)"
-              type="image/webp"
-              srcSet="/hero-bg-mobile.webp"
-            />
-            <source
-              media="(max-width: 767px)"
-              srcSet="/hero-bg-mobile.jpg"
-            />
-            <source type="image/webp" srcSet="/hero-bg.webp" />
-            <img
-              src="/hero-bg.jpg"
-              alt=""
-              fetchPriority="high"
-              className="w-full h-full object-cover"
-              data-testid="hero-bg-image"
-            />
-          </picture>
-          <div className="hero-gradient absolute inset-0"></div>
-        </div>
-
-        {/* Hero Text Content */}
-        <div className="section-padding relative z-10 pt-32 md:pt-40 pb-12 md:pb-16 w-full">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-5xl mx-auto text-center"
-          >
-            <h2
-              className="text-4xl sm:text-5xl lg:text-6xl font-playfair text-[#F2F0ED] mb-6 leading-[1.3]"
-              data-testid="hero-title"
-            >
-              <span className="block whitespace-nowrap">Bringing your secret desire</span>
-              <span className="block whitespace-nowrap">closer to you</span>
-            </h2>
-            <p
-              className="text-base md:text-xl text-[#A1A1AA] max-w-xl mx-auto"
-              data-testid="hero-subtitle"
-            >
-              Discreet. Curated. Exceptional. Connect with verified independent professionals in a safe, premium environment.
-            </p>
-          </motion.div>
-        </div>
-
-        {/* Latest Profiles - Overlapping onto hero */}
-        <div className="section-padding relative z-10 pb-12" data-testid="latest-profiles-section">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-8 md:mb-12">
-              <span className="label-premium">Discover</span>
-              <h3 className="text-3xl md:text-4xl lg:text-5xl text-[#F2F0ED] mt-4">
- Latest Profiles
- </h3>
-            </div>
-
-            {loadingProviders ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {[...Array(18)].map((_, index) => (
-                  <div key={index} className="aspect-[3/4] shimmer rounded-sm"></div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {providers.map((provider, index) => (
-                  <motion.div
-                    key={provider.provider_id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: index * 0.03 }}
-                  >
-                    <Link
-                      to={`/providers/${provider.provider_id}`}
-                      className="block group"
-                      data-testid={`profile-card-${index}`}
-                    >
-                      <div className="relative aspect-[3/4] overflow-hidden bg-[#141416] border border-[#27272A] transition-all duration-300">
-                        <img
-                          src={provider.photos?.[0] || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400'}
-                          alt={provider.display_name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 p-3 bg-black/40 backdrop-blur-sm">
-                          <p className="text-[#F2F0ED] font-medium text-sm truncate">
-                            {provider.display_name}
-                          </p>
-                          <p className="text-[#A1A1AA] text-xs truncate">
-                            {provider.age && <span>{provider.age}</span>}
-                            {provider.age && provider.location?.city && <span> · </span>}
-                            {provider.location?.city}
-                          </p>
-                        </div>
-                        {provider.verified && (
-                          <div className="absolute top-2 right-2">
-                            <CheckCircle size={16} weight="fill" className="text-[#22C55E]" />
-                          </div>
-                        )}
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-
-            {/* Single CTA below profiles */}
-            <div className="flex items-center justify-center mt-16">
-              <Link
-                to="/browse"
-                className="group inline-flex items-center justify-center gap-3 h-[56px] min-w-[240px] px-8 rounded-[8px] bg-transparent border border-[#FFFFFF]/70 text-[#FFFFFF] uppercase tracking-[0.2em] text-sm font-semibold backdrop-blur-sm transition-all duration-300 hover:border-[#FFFFFF] hover:bg-[#FFFFFF]/10"
-                data-testid="cta-browse-button"
-              >
-                <span>All profiles</span>
-                <ArrowRight
-                  size={18}
-                  weight="bold"
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />
-              </Link>
-            </div>
-          </div>
+    <PublicPage bg="photo" mainClass="pub-home">
+      <section className="hero" aria-labelledby="hero-title" data-testid="hero-section">
+        <span className="x-eyebrow">Discreet · Curated · Exceptional</span>
+        <h1 id="hero-title" className="x-serif" data-testid="hero-title">
+          Bringing your secret desire<br /><span>closer to you</span>
+        </h1>
+        <p data-testid="hero-subtitle">Connect with verified independent professionals in a safe, premium environment.</p>
+        <div className="ctas">
+          <Link to="/browse" className="x-btn lg primary" data-testid="hero-browse">Browse profiles <Icon.arrow /></Link>
+          <Link to="/register/provider" className="x-btn lg glass" data-testid="hero-advertise">Advertise with us</Link>
         </div>
       </section>
 
-      {/* Footer */}
-      <SiteFooter />
-    </div>
+      <section className="x-wrap latest" aria-labelledby="latest-title" data-testid="latest-profiles-section">
+        <div className="x-sechead">
+          <span className="x-eyebrow">Discover</span>
+          <h2 id="latest-title" className="x-h2">Latest profiles</h2>
+        </div>
+        <div className="x-tiles c5">
+          {loading
+            ? [...Array(10)].map((_, i) => <div key={i} className="x-tile skeleton" aria-hidden="true"><div className="ph" /></div>)
+            : providers.map((p, i) => <ProfileTile key={p.provider_id} provider={p} index={i} testId={`profile-card-${i}`} />)}
+        </div>
+        <div className="more">
+          <Link to="/browse" className="x-btn glass" data-testid="cta-browse-button">All profiles <Icon.arrow /></Link>
+        </div>
+      </section>
+
+      <section className="x-wrap why" aria-labelledby="why-title">
+        <div className="x-sechead">
+          <span className="x-eyebrow">Why Elite Escorts Europe</span>
+          <h2 id="why-title" className="x-h2">A curated, discreet directory</h2>
+        </div>
+        <div className="cards">
+          {WHY.map((w) => (
+            <div key={w.title} className="x-glass card">
+              <span className="ic">{w.icon}</span>
+              <h3>{w.title}</h3>
+              <p>{w.text}</p>
+              {w.link && <Link to={w.link.to} className="lnk">{w.link.label} <Icon.arrow /></Link>}
+            </div>
+          ))}
+        </div>
+      </section>
+    </PublicPage>
   );
 }

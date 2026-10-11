@@ -1,123 +1,68 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { notifyError } from '../lib/notify';
-import { CaretLeft, EnvelopeSimple } from 'phosphor-react';
 import { forgotPassword } from '@/services/api';
-import SiteHeader from '@/components/SiteHeader';
+import { PublicPage, Icon } from '@/components/site/Shell';
+import { GlassField, ServerError, StatusIcon, EMAIL_RE } from '@/components/site/AuthBits';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [serverErr, setServerErr] = useState(false);
+  const ok = EMAIL_RE.test(email.trim());
 
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
+    setSubmitted(true);
+    setServerErr(false);
+    if (!ok) return;
     setLoading(true);
     try {
-      await forgotPassword({ email });
+      await forgotPassword({ email: email.trim() });
       setSent(true);
-    } catch (error) {
-      notifyError(error, "We couldn't process your request.");
+      setSubmitted(false);
+    } catch (err) {
+      setServerErr(true);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0C] flex">
-      <SiteHeader />
-      {/* Left - Image (desktop only) */}
-      <div
-        className="hidden lg:block lg:w-1/2 relative"
-        style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1768609957017-c7f4ad4ee9c3?crop=entropy&cs=srgb&fm=jpg&q=85)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0C]/80 to-transparent"></div>
-      </div>
-
-      {/* Right - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-8 pt-28 md:pt-32">
-        <div className="w-full max-w-md">
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-2 text-[#A1A1AA] hover:text-[#A3243B] transition-colors mb-10"
-            data-testid="back-to-login-link"
-          >
-            <CaretLeft size={18} />
-            <span className="uppercase tracking-wider text-xs">Back to Login</span>
-          </Link>
-
-          {!sent ? (
-            <>
-              <div className="mb-10">
-                <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="forgot-title">
- Forgot your password?
- </h2>
-                <p className="text-[#A1A1AA]">
-                  Enter the email associated with your account and we'll send you a link to reset it.
-                </p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label className="input-label">Email address</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="input-premium w-full"
-                    placeholder="you@example.com"
-                    required
-                    autoFocus
-                    data-testid="forgot-email-input"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                  data-testid="forgot-submit-button"
-                >
-                  {loading ? 'Sending...' : 'Send Reset Link'}
-                </button>
-              </form>
-
-              <p className="text-center text-[#A1A1AA] text-sm mt-8">
-                Remembered it?{' '}
-                <Link to="/login" className="text-[#A3243B] hover:opacity-80">
-                  Sign in
-                </Link>
-              </p>
-            </>
-          ) : (
-            <div data-testid="forgot-success">
-              <div className="w-14 h-14 rounded-full bg-[#7A2357]/10 border border-[#7A2357]/30 flex items-center justify-center mb-8">
-                <EnvelopeSimple size={26} className="text-[#7A2357]" weight="thin" />
-              </div>
-              <h2 className="text-4xl text-[#F2F0ED] mb-4">
- Check your email
- </h2>
-              <p className="text-[#A1A1AA] mb-3 leading-relaxed">
-                If an account exists for <span className="text-[#F2F0ED]">{email}</span>, we've sent a reset link.
-              </p>
-              <p className="text-[#A1A1AA] text-sm leading-relaxed mb-10">
-                The link expires in 24 hours. Don't forget to check your spam folder.
-              </p>
-              <button
-                onClick={() => { setSent(false); setEmail(''); }}
-                className="btn-secondary w-full"
-                data-testid="forgot-try-again-button"
-              >
-                Use a different email
-              </button>
+    <PublicPage bg="photo" mainClass="pub-auth">
+      <section className="x-glass a-card" aria-labelledby="t">
+        <Link to="/login" className="back"><Icon.back />Back to log in</Link>
+        {!sent ? (
+          <>
+            <div className="a-head">
+              <h1 id="t">Forgot your password?</h1>
+              <p>Enter the e-mail address of your account and we’ll send you a link to reset it.</p>
             </div>
-          )}
-        </div>
-      </div>
-    </div>
+            {serverErr && <ServerError title="We couldn’t send the link." text="Check your connection and try again." />}
+            <form noValidate onSubmit={submit}>
+              <GlassField id="fp-email" label="E-mail" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={setEmail}
+                error={submitted && !ok ? (email.trim() ? 'Enter a valid e-mail address, e.g. name@example.com.' : 'Enter your e-mail address.') : ''} testId="forgot-email-input" />
+              <button type="submit" className="x-btn primary" disabled={loading} style={{ marginTop: 4 }} data-testid="forgot-submit">{loading ? 'Sending…' : 'Send reset link'}</button>
+            </form>
+            <div className="a-rule" />
+            <p className="a-foot">Remembered it? <Link to="/login">Log in</Link></p>
+          </>
+        ) : (
+          <div role="status" className="a-stack" style={{ gap: 24 }}>
+            <div className="a-head">
+              <StatusIcon tone="rose"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg></StatusIcon>
+              <h1 id="t">Check your e-mail</h1>
+              <p>If an account exists for <strong>{email.trim()}</strong>, we’ve sent a link to reset your password.</p>
+            </div>
+            <div className="a-tip"><Icon.info width="18" height="18" style={{ flexShrink: 0, marginTop: 1 }} /><span>The link expires in 24 hours. Can’t find it? Check your spam folder.</span></div>
+            <div className="a-btns">
+              <Link to="/login" className="x-btn primary">Back to log in</Link>
+              <button type="button" className="x-btn white" onClick={() => { setSent(false); setEmail(''); }}>Use a different e-mail</button>
+            </div>
+          </div>
+        )}
+      </section>
+    </PublicPage>
   );
 }

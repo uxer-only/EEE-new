@@ -12,13 +12,13 @@ import TermsPrivacy from '@/pages/TermsPrivacy';
 import VerifyEmail from '@/pages/VerifyEmail';
 import AdvertisingPrices from '@/pages/AdvertisingPrices';
 import Contact from '@/pages/Contact';
-import Register from '@/pages/Register';
 import ProviderRegister from '@/pages/ProviderRegister';
 import AuthCallback from '@/pages/AuthCallback';
 import Browse from '@/pages/Browse';
 import ProviderDetail from '@/pages/ProviderDetail';
 import ClientDashboard from '@/pages/ClientDashboard';
 import ProviderDashboard from '@/pages/ProviderDashboard';
+import LegacyProviderDashboard from '@/pages/LegacyProviderDashboard';
 import AgencyDashboard from '@/pages/AgencyDashboard';
 import Messages from '@/pages/Messages';
 import AdminPanel from '@/pages/AdminPanel';
@@ -49,7 +49,7 @@ function AppRouter() {
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/advertising-prices" element={<AdvertisingPrices />} />
       <Route path="/contact" element={<Contact />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/register" element={<Navigate to="/register/provider" replace />} />
       <Route path="/register/provider" element={<ProviderRegister />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
@@ -68,11 +68,13 @@ function AppRouter() {
         }
       />
 
+      <Route path="/dashboard/edit/:section" element={<ProtectedRoute requiredRole="provider"><ProviderDashboard view="edit" /></ProtectedRoute>} />
+      <Route path="/dashboard/plan" element={<ProtectedRoute requiredRole="provider"><ProviderDashboard view="plan" /></ProtectedRoute>} />
       <Route
         path="/dashboard/profile/:providerId"
         element={
           <ProtectedRoute requiredRole="provider">
-            <ProviderDashboard />
+            <LegacyProviderDashboard />
           </ProtectedRoute>
         }
       />
