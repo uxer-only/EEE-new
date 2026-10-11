@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const api = axios.create({
@@ -49,7 +49,7 @@ export const getVerificationStatus = (providerId) =>
   api.get('/verification/status', { params: providerId ? { provider_id: providerId } : {} });
 
 // Admin
-export const getPendingVerifications = () => api.get('/admin/verifications');
+export const getPendingVerifications = (status = 'pending') => api.get('/admin/verifications', { params: { status } });
 export const updateVerification = (providerId, data) =>
   api.put(`/admin/verifications/${providerId}`, data);
 

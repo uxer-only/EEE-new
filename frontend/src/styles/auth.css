@@ -101,3 +101,10 @@
   .a-reg .a-card { padding: 28px 20px; }
   .a-types .opts { grid-template-columns: minmax(0,1fr); }
 }
+
+/* admin log in */
+.a-card.adml-card { position: relative; overflow: hidden; border-top: 0; }
+.a-card.adml-card::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: var(--x-cta); }
+.adm-badge { align-self: flex-start; height: 28px; display: inline-flex; align-items: center; gap: 8px; padding: 0 12px; margin-bottom: 8px; background: #F5EAF0; color: #7A2357; border-radius: 999px; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.adm-alt { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 24px 0 0; font-size: 15px; color: rgba(255,255,255,.85); }
+.adm-alt a { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }

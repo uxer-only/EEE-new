@@ -1,127 +1,68 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
-import { notifyError } from '../lib/notify';
-import { Eye, EyeSlash, ShieldCheck } from 'phosphor-react';
-import SiteHeader from '@/components/SiteHeader';
+import { PublicPage } from '@/components/site/Shell';
+import { GlassField, ServerError, EMAIL_RE } from '@/components/site/AuthBits';
 
+const Shield = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 2.5 4 5.5v6c0 5 3.4 9.4 8 10.5 4.6-1.1 8-5.5 8-10.5v-6l-8-3z" /><path d="m9 12 2 2 4-4" /></svg>;
+const Lock = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>;
+
+/** Administrator log in (restricted). Non-admin accounts are logged out again. */
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [serverErr, setServerErr] = useState(null);
   const [loading, setLoading] = useState(false);
   const { login, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const eBad = submitted && !EMAIL_RE.test(email.trim());
+  const pBad = submitted && !password;
 
+  const submit = async (e) => {
+    e.preventDefault();
+    setSubmitted(true);
+    setServerErr(null);
+    if (!EMAIL_RE.test(email.trim()) || !password) return;
+    setLoading(true);
     try {
-      const user = await login(email, password);
+      const user = await login(email.trim(), password);
       if (user?.role !== 'admin') {
         await logout();
-        notifyError(null, 'This account is not a website administrator.');
+        setServerErr({ title: 'This is not an administrator account.', text: 'Use the regular log in for advertiser accounts.' });
         return;
       }
-      toast.success('Welcome back, administrator');
       navigate('/admin');
-    } catch (error) {
-      notifyError(error, "We couldn't sign you in.");
+    } catch (err) {
+      const status = err?.response?.status;
+      setServerErr(status === 401 || status === 400
+        ? { title: 'We couldn’t log you in.', text: 'Check your e-mail and password and try again.' }
+        : { title: 'Something went wrong.', text: 'Check your connection and try again in a moment.' });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0C] flex">
-      <SiteHeader />
-      {/* Left side - Image */}
-      <div
-        className="hidden lg:block lg:w-1/2 relative"
-        style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1768609957017-c7f4ad4ee9c3?crop=entropy&cs=srgb&fm=jpg&q=85)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0A0A0C]/80 to-transparent"></div>
-      </div>
-
-      {/* Right side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 pt-28 md:pt-32">
-        <div className="w-full max-w-md">
-          <div className="mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-[#A3243B]/10 text-[#A3243B] text-xs font-semibold uppercase tracking-widest mb-4" data-testid="admin-login-badge">
-              <ShieldCheck size={16} weight="fill" />
-              Administrator
-            </div>
-            <h2 className="text-4xl text-[#F2F0ED] mb-3" data-testid="admin-login-title">
-              Website Administrator Login
-            </h2>
-            <p className="text-[#A1A1AA]">
-              Restricted area — sign in with your administrator account.
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="input-label">Email address</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-premium w-full"
-                placeholder="Enter your email"
-                required
-                data-testid="email-input"
-              />
-            </div>
-
-            <div>
-              <label className="input-label">Password</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-premium w-full pr-12"
-                  placeholder="Enter your password"
-                  required
-                  data-testid="password-input"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#A3243B] transition-colors"
-                  data-testid="toggle-password-button"
-                >
-                  {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
-              <div className="mt-2 text-right">
-                <Link
-                  to="/forgot-password"
-                  className="text-sm text-[#A1A1AA] hover:text-[#A3243B] transition-colors"
-                  data-testid="forgot-password-link"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full disabled:opacity-50"
-              data-testid="login-button"
-            >
-              {loading ? 'Signing In...' : 'Sign In'}
-            </button>
-          </form>
+    <PublicPage bg="photo" mainClass="pub-auth" noAgeGate>
+      <section className="x-glass a-card adml-card" aria-labelledby="t">
+        <div className="a-head">
+          <span className="adm-badge" data-testid="admin-login-badge"><Shield />Administrator</span>
+          <h1 id="t" data-testid="admin-login-title">Administrator log in</h1>
+          <p>Restricted area. Log in with your administrator account.</p>
         </div>
-      </div>
-    </div>
+        {serverErr && <ServerError {...serverErr} />}
+        <div className="a-stack"><form noValidate onSubmit={submit}>
+          <GlassField id="ad-email" label="E-mail" type="email" autoComplete="email" placeholder="admin@example.com" value={email} onChange={setEmail}
+            error={eBad ? (email.trim() ? 'Enter a valid e-mail address, e.g. name@example.com.' : 'Enter your e-mail address.') : ''} testId="admin-email-input" />
+          <GlassField id="ad-pw" label="Password" password autoComplete="current-password" placeholder="Your password" value={password} onChange={setPassword}
+            labelExtra={<Link to="/forgot-password">Forgot password?</Link>}
+            error={pBad ? 'Enter your password.' : ''} testId="admin-password-input" />
+          <button type="submit" className="x-btn primary" disabled={loading} style={{ marginTop: 4 }} data-testid="admin-login-button">{loading ? 'Logging in…' : 'Log in'}</button>
+        </form></div>
+      </section>
+      <p className="adm-alt"><Lock />Not an administrator? <Link to="/login">Go to the regular log in</Link></p>
+    </PublicPage>
   );
 }

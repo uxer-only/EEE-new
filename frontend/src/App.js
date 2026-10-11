@@ -16,17 +16,16 @@ import ProviderRegister from '@/pages/ProviderRegister';
 import AuthCallback from '@/pages/AuthCallback';
 import Browse from '@/pages/Browse';
 import ProviderDetail from '@/pages/ProviderDetail';
-import ClientDashboard from '@/pages/ClientDashboard';
 import ProviderDashboard from '@/pages/ProviderDashboard';
 import AgencyArea from '@/pages/AgencyArea';
 import Messages from '@/pages/Messages';
-import AdminPanel from '@/pages/AdminPanel';
-import AdminDashboard from '@/pages/AdminDashboard';
-import AdminProviderDetail from '@/pages/AdminProviderDetail';
-import AdminAgencies from '@/pages/AdminAgencies';
+import AdminOverview from '@/pages/admin/AdminOverview';
+import AdminIndependents from '@/pages/admin/AdminIndependents';
+import AdminAdvertiser from '@/pages/admin/AdminAdvertiser';
+import AdminAgencies from '@/pages/admin/AdminAgencies';
+import AdminVerifications from '@/pages/admin/AdminVerifications';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
-import Subscribe from '@/pages/Subscribe';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
@@ -84,14 +83,7 @@ function AppRouter() {
         }
       />
 
-      <Route
-        path="/subscribe"
-        element={
-          <ProtectedRoute requiredRole="provider">
-            <Subscribe />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/subscribe" element={<Navigate to="/dashboard/plan" replace />} />
 
       <Route
         path="/payment-success"
@@ -102,41 +94,11 @@ function AppRouter() {
         }
       />
       
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute requiredRole="admin">
-            <AdminDashboard />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/admin/providers/:providerId"
-        element={
-          <ProtectedRoute requiredRole="admin">
-            <AdminProviderDetail />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/admin/agencies"
-        element={
-          <ProtectedRoute requiredRole="admin">
-            <AdminAgencies />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/admin/verifications"
-        element={
-          <ProtectedRoute requiredRole="admin">
-            <AdminPanel />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminOverview /></ProtectedRoute>} />
+      <Route path="/admin/independents" element={<ProtectedRoute requiredRole="admin"><AdminIndependents /></ProtectedRoute>} />
+      <Route path="/admin/providers/:providerId" element={<ProtectedRoute requiredRole="admin"><AdminAdvertiser /></ProtectedRoute>} />
+      <Route path="/admin/agencies" element={<ProtectedRoute requiredRole="admin"><AdminAgencies /></ProtectedRoute>} />
+      <Route path="/admin/verifications" element={<ProtectedRoute requiredRole="admin"><AdminVerifications /></ProtectedRoute>} />
     </Routes>
   );
 }
@@ -163,7 +125,7 @@ function DashboardRouter() {
     return <ProviderDashboard />;
   }
   
-  return <ClientDashboard />;
+  return <Navigate to="/browse" replace />;
 }
 
 function App() {

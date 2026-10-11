@@ -157,3 +157,15 @@
 .x-age .fine a:hover { color: #fff; }
 @media (max-width: 767px) { .x-age .box { padding: 28px 20px; } .x-age h2 { font-size: 24px; } }
 .x-page.light, .dx-scrim, .pp-scrim { color-scheme: light; }
+
+/* admin nav */
+.x-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.x-adm { height: 24px; display: inline-flex; align-items: center; padding: 0 10px; background: #F5EAF0; color: #B04585; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+.x-navlinks.is-adm { gap: 4px; }
+.x-navlinks.is-adm .x-sn { font-weight: 600; }
+.x-navlinks.is-adm .x-sn[aria-current="page"] { font-weight: 700; color: var(--x-cta); box-shadow: inset 0 -2px 0 var(--x-cta); }
+.x-sep { width: 1px; height: 24px; margin: 0 8px; background: #DFDAE4; }
+.x-sn.ext { gap: 6px; font-size: 14px; color: #5F5966 !important; }
+.x-navlinks.is-adm .x-snc { margin-left: 8px; }
+.x-menu .x-sep { display: none; }
+.x-menu .x-sn[aria-current="page"] { color: var(--x-cta); font-weight: 700; }

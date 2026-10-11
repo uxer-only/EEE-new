@@ -69,6 +69,7 @@ export default function Browse() {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchProviders(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [filters.gender, coords]);
 
   const requestLocation = () => {
@@ -91,6 +92,7 @@ export default function Browse() {
     );
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (closeToMe) requestLocation(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
   const toggleNear = () => {

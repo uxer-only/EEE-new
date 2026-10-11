@@ -38,7 +38,7 @@ export const Icon = {
 };
 
 /* ---------- header ---------- */
-export function SiteNav({ theme = 'dark', links = null }) {
+export function SiteNav({ theme = 'dark', links = null, admin = null }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, logout } = useAuth();
@@ -57,7 +57,15 @@ export function SiteNav({ theme = 'dark', links = null }) {
     try { await logout(); } finally { navigate('/'); }
   };
 
-  const items = links || (user
+  const adminItems = admin && [
+    { to: '/admin', label: 'Overview', key: 'overview' },
+    { to: '/admin/independents', label: 'Independents', key: 'independents' },
+    { to: '/admin/agencies', label: 'Agencies', key: 'agencies' },
+    { sep: true, label: 'sep' },
+    { href: '/browse', label: 'View site', ext: true },
+    { label: 'Log out', onClick: doLogout, cta: true },
+  ];
+  const items = adminItems || links || (user
     ? [
         { to: '/browse', label: 'Elite Escorts' },
         { to: user.role === 'admin' ? '/admin' : '/dashboard', label: 'Dashboard' },
@@ -71,7 +79,11 @@ export function SiteNav({ theme = 'dark', links = null }) {
 
   const render = (it) => {
     const cls = it.cta ? 'x-snc' : 'x-sn';
-    const current = it.to && (pathname === it.to || (it.to !== '/' && pathname.startsWith(it.to + '/'))) ? 'page' : undefined;
+    if (it.sep) return <span key="sep" className="x-sep" aria-hidden="true" />;
+    if (it.href) {
+      return <a key={it.label} href={it.href} className={`${cls} ext`} target="_blank" rel="noopener noreferrer">{it.label}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg></a>;
+    }
+    const current = (admin ? it.key === admin : it.to && (pathname === it.to || (it.to !== '/' && pathname.startsWith(it.to + '/')))) ? 'page' : undefined;
     if (it.onClick && !it.to) {
       return <button key={it.label} type="button" className={cls} onClick={() => { setOpen(false); it.onClick(); }}>{it.label}</button>;
     }
@@ -81,14 +93,17 @@ export function SiteNav({ theme = 'dark', links = null }) {
   return (
     <>
       <header className={`x-nav ${theme}${scrolled ? ' scrolled' : ''}${open ? ' open' : ''}`} data-testid="header">
-        <Link to="/" className="x-logo" data-testid="logo-link">Elite Escorts Europe</Link>
-        <nav aria-label="Main" className="x-navlinks">{items.map(render)}</nav>
+        <span className="x-brand">
+          <Link to={admin ? '/admin' : '/'} className="x-logo" data-testid="logo-link">Elite Escorts Europe</Link>
+          {admin && <span className="x-adm">Admin</span>}
+        </span>
+        <nav aria-label={admin ? 'Admin' : 'Main'} className={`x-navlinks${admin ? ' is-adm' : ''}`}>{items.map(render)}</nav>
         <button type="button" className="x-burger" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} onClick={() => setOpen((v) => !v)} data-testid="mobile-menu-toggle">
           {open ? <Icon.close /> : <Icon.burger />}
         </button>
       </header>
       {open && (
-        <nav aria-label="Main" className={`x-menu ${theme}`} data-testid="mobile-menu">{items.map(render)}</nav>
+        <nav aria-label={admin ? 'Admin' : 'Main'} className={`x-menu ${theme}${admin ? ' is-adm' : ''}`} data-testid="mobile-menu">{items.map(render)}</nav>
       )}
     </>
   );
@@ -190,10 +205,10 @@ export function PublicPage({ bg = 'glow', children, mainClass = '', mainStyle, n
 }
 
 /** Light advertiser / agency / admin page. */
-export function LightPage({ children, links, mainClass = '', mainStyle }) {
+export function LightPage({ children, links, admin = null, mainClass = '', mainStyle }) {
   return (
     <div className="x-page light">
-      <SiteNav theme="light" links={links} />
+      <SiteNav theme="light" links={links} admin={admin} />
       <main className={`x-main ${mainClass}`} style={{ paddingTop: 40, ...mainStyle }}>{children}</main>
       <SiteFoot theme="light" />
     </div>

@@ -489,29 +489,29 @@ def _reset_email_html(display_name: str, reset_url: str) -> str:
     <tr><td align="center">
       <table role="presentation" width="520" cellspacing="0" cellpadding="0" border="0" style="max-width:520px;background-color:#141416;border:1px solid #27272A;">
         <tr><td style="padding:40px 40px 24px 40px;text-align:center;">
-          <h1 style="margin:0;color:#C6A87C;font-size:28px;font-weight:normal;letter-spacing:2px;">Lumi&egrave;re</h1>
+          <h1 style="margin:0;color:#E9C4D7;font-size:28px;font-weight:normal;letter-spacing:2px;">Elite Escorts Europe</h1>
         </td></tr>
         <tr><td style="padding:0 40px 24px 40px;">
           <h2 style="margin:0 0 16px 0;color:#F2F0ED;font-size:22px;font-weight:normal;">Reset your password</h2>
           <p style="margin:0 0 16px 0;color:#A1A1AA;font-size:15px;line-height:1.6;">Hi {display_name},</p>
           <p style="margin:0 0 24px 0;color:#A1A1AA;font-size:15px;line-height:1.6;">
-            We received a request to reset your Lumi&egrave;re password. Tap the button below to choose a new one. This link expires in 24 hours.
+            We received a request to reset your Elite Escorts Europe password. Tap the button below to choose a new one. This link expires in 24 hours.
           </p>
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 auto;">
-            <tr><td style="background-color:#C6A87C;">
+            <tr><td style="background-color:#E9C4D7;">
               <a href="{reset_url}" style="display:inline-block;padding:14px 36px;color:#0A0A0C;text-decoration:none;font-family:Arial,sans-serif;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;">Reset Password</a>
             </td></tr>
           </table>
           <p style="margin:28px 0 0 0;color:#71717A;font-size:13px;line-height:1.6;">
             If the button doesn't work, copy and paste this link into your browser:<br/>
-            <a href="{reset_url}" style="color:#C6A87C;word-break:break-all;">{reset_url}</a>
+            <a href="{reset_url}" style="color:#E9C4D7;word-break:break-all;">{reset_url}</a>
           </p>
           <p style="margin:24px 0 0 0;color:#71717A;font-size:13px;line-height:1.6;">
             If you didn't request this, you can safely ignore this email &mdash; your password won't change.
           </p>
         </td></tr>
         <tr><td style="padding:24px 40px;border-top:1px solid #27272A;text-align:center;">
-          <p style="margin:0;color:#52525B;font-size:12px;">Lumi&egrave;re &middot; Discreet. Curated. Exceptional.</p>
+          <p style="margin:0;color:#52525B;font-size:12px;">Elite Escorts Europe &middot; Discreet. Curated. Exceptional.</p>
         </td></tr>
       </table>
     </td></tr>
@@ -546,9 +546,9 @@ async def forgot_password(payload: ForgotPasswordRequest, request: Request):
                 await asyncio.to_thread(
                     resend.Emails.send,
                     {
-                        "from": f"Lumi\u00e8re <{SENDER_EMAIL}>",
+                        "from": f"Elite Escorts Europe <{SENDER_EMAIL}>",
                         "to": [email],
-                        "subject": "Reset your Lumi\u00e8re password",
+                        "subject": "Reset your Elite Escorts Europe password",
                         "html": _reset_email_html(user.get("name") or "there", reset_url),
                     },
                 )
@@ -2859,15 +2859,15 @@ async def get_verification_status(
 # ===== ADMIN ROUTES =====
 
 @api_router.get("/admin/verifications")
-async def get_pending_verifications(current_user: User = Depends(get_current_user)):
-    """Get pending verifications (admin only)"""
+async def get_pending_verifications(status: str = "pending", current_user: User = Depends(get_current_user)):
+    """Verification queue (admin only). status = pending (submitted, oldest first) | approved | rejected."""
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access only")
-    
+    vs = {"pending": "submitted", "approved": "approved", "rejected": "rejected"}.get(status, "submitted")
     profiles = await db.provider_profiles.find(
-        {"verification_status": {"$in": ["submitted"]}},
+        {"verification_status": vs},
         {"_id": 0}
-    ).to_list(100)
+    ).to_list(200)
     
     for profile in profiles:
         docs = await db.verification_documents.find(
@@ -2881,14 +2881,23 @@ async def get_pending_verifications(current_user: User = Depends(get_current_use
             {"_id": 0, "email": 1, "name": 1}
         )
         profile["user"] = user
-    
+        owner = await _owner_info(profile.get("user_id"))
+        profile["owner_type"] = owner["owner_type"]
+        profile["agency_name"] = owner["agency_name"]
+        profile["submitted_at"] = _iso(docs[0].get("submitted_at")) if docs else None
+        for d in docs:
+            d["submitted_at"] = _iso(d.get("submitted_at"))
+            d["reviewed_at"] = _iso(d.get("reviewed_at"))
+        for k in ("created_at", "featured_until", "vip_until"):
+            profile[k] = _iso(profile.get(k))
+    profiles.sort(key=lambda x: x.get("submitted_at") or "", reverse=(vs != "submitted"))
     return profiles
 
 def _verification_email_html(display_name: str, approved: bool, reason: Optional[str]) -> str:
     """Branded email for verification approval / rejection."""
     if approved:
         headline = "You\u2019re verified"
-        body = ("Congratulations! Your Lumi&egrave;re provider profile has been verified and is now "
+        body = ("Congratulations! Your Elite Escorts Europe provider profile has been verified and is now "
                 "live on the marketplace with the Verified badge. Clients searching your city will now "
                 "see your profile in their results.")
     else:
@@ -2903,7 +2912,7 @@ def _verification_email_html(display_name: str, approved: bool, reason: Optional
     <tr><td align="center">
       <table role="presentation" width="520" cellspacing="0" cellpadding="0" border="0" style="max-width:520px;background-color:#141416;border:1px solid #27272A;">
         <tr><td style="padding:40px 40px 24px 40px;text-align:center;">
-          <h1 style="margin:0;color:#C6A87C;font-size:28px;font-weight:normal;letter-spacing:2px;">Lumi&egrave;re</h1>
+          <h1 style="margin:0;color:#E9C4D7;font-size:28px;font-weight:normal;letter-spacing:2px;">Elite Escorts Europe</h1>
         </td></tr>
         <tr><td style="padding:0 40px 24px 40px;">
           <h2 style="margin:0 0 16px 0;color:#F2F0ED;font-size:22px;font-weight:normal;">{headline}</h2>
@@ -2911,7 +2920,7 @@ def _verification_email_html(display_name: str, approved: bool, reason: Optional
           <p style="margin:0 0 24px 0;color:#A1A1AA;font-size:15px;line-height:1.6;">{body}</p>
         </td></tr>
         <tr><td style="padding:24px 40px;border-top:1px solid #27272A;text-align:center;">
-          <p style="margin:0;color:#52525B;font-size:12px;">Lumi&egrave;re &middot; Discreet. Curated. Exceptional.</p>
+          <p style="margin:0;color:#52525B;font-size:12px;">Elite Escorts Europe &middot; Discreet. Curated. Exceptional.</p>
         </td></tr>
       </table>
     </td></tr>
@@ -2962,7 +2971,7 @@ async def update_verification(
         user = await db.users.find_one({"user_id": profile.get("user_id")}, {"_id": 0, "email": 1, "name": 1})
         if user and user.get("email"):
             approved = decision.status == "approved"
-            subject = "Your Lumi\u00e8re profile is verified" if approved else "Your Lumi\u00e8re verification update"
+            subject = "Your Elite Escorts Europe profile is verified" if approved else "Your Elite Escorts Europe verification update"
             html = _verification_email_html(
                 user.get("name") or profile.get("display_name") or "there",
                 approved,
@@ -2971,13 +2980,53 @@ async def update_verification(
             try:
                 await asyncio.to_thread(
                     resend.Emails.send,
-                    {"from": f"Lumi\u00e8re <{SENDER_EMAIL}>", "to": [user["email"]],
+                    {"from": f"Elite Escorts Europe <{SENDER_EMAIL}>", "to": [user["email"]],
                      "subject": subject, "html": html}
                 )
             except Exception as e:
                 logger.error(f"Resend verification email failed: {e}")
     
     return {"message": f"Verification {decision.status}"}
+
+
+def _iso(v):
+    return v.isoformat() if isinstance(v, datetime) else v
+
+
+def _admin_plan(p: dict, now: datetime) -> Dict[str, Any]:
+    """Plan / visibility summary of a profile for the admin screens."""
+    fu, vu = p.get("featured_until"), p.get("vip_until")
+    featured_active = bool(fu and fu > now)
+    vip_active = bool(vu and vu > now)
+    grace = _grace_state(fu, now)
+    afp = p.get("active_featured_plan") or ""
+    meta = AGENCY_PLANS.get(afp) or PLANS.get(afp)
+    length = meta["label"] if meta else None
+    live = bool(not p.get("suspended") and p.get("verified") and p.get("available", True)
+                and (featured_active or grace["in_grace"]))
+    if featured_active:
+        label = f"{'VIP' if vip_active else 'Featured'} · {round(_days_left_dt(fu, now))} days left"
+    elif fu:
+        label = f"Plan ended {fu.day} {fu.strftime('%b')}"
+    else:
+        label = "No plan yet"
+    return {
+        "featured_active": featured_active, "vip_active": vip_active,
+        "featured_until": _iso(fu), "vip_until": _iso(vu),
+        "featured_days_left": _days_left_dt(fu, now), "vip_days_left": _days_left_dt(vu, now),
+        "plan_length": length, "plan_label": label, "in_grace": grace["in_grace"], "live": live,
+    }
+
+
+async def _owner_info(user_id: str) -> Dict[str, Any]:
+    """Account type of the profile owner; for agency companions also the agency name."""
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0, "password_hash": 0})
+    is_agency = (user or {}).get("account_type") == "agency"
+    agency_name = None
+    if is_agency:
+        ag = await db.agency_profiles.find_one({"user_id": user_id}, {"_id": 0, "agency_name": 1})
+        agency_name = (ag or {}).get("agency_name")
+    return {"user": user, "owner_type": "agency" if is_agency else "independent", "agency_name": agency_name}
 
 # ===== ADMIN HELPERS =====
 
@@ -2997,6 +3046,7 @@ async def admin_get_providers(
 ):
     """Get all providers for admin dashboard - pending actions first"""
     admin = await get_admin_user(request, session_token)
+    now = datetime.utcnow()
     
     # Get all providers with their user info
     providers = await db.provider_profiles.find({}, {"_id": 0}).to_list(1000)
@@ -3016,6 +3066,9 @@ async def admin_get_providers(
             {"_id": 0, "password_hash": 0}
         )
         provider["user"] = user
+        provider["owner_type"] = "agency" if (user or {}).get("account_type") == "agency" else "independent"
+        provider.update(_admin_plan(provider, now))
+        provider.pop("photos_data", None)
         
         # Convert datetime to ISO string
         if "created_at" in provider and isinstance(provider["created_at"], datetime):
@@ -3064,6 +3117,20 @@ async def admin_get_provider_detail(
             item["reviewed_at"] = item["reviewed_at"].isoformat()
     
     provider["media"] = media
+    for item in media:
+        if item.get("rejection_reason") is None and item.get("reason"):
+            item["rejection_reason"] = item["reason"]
+
+    now = datetime.utcnow()
+    provider.update(_admin_plan(provider, now))
+    owner = await _owner_info(provider["user_id"])
+    provider["owner_type"] = owner["owner_type"]
+    provider["agency_name"] = owner["agency_name"]
+    docs = await db.verification_documents.find({"provider_id": provider_id}, {"_id": 0}).sort("submitted_at", -1).to_list(20)
+    latest = {}
+    for d in docs:  # newest submission per document type
+        latest.setdefault(d.get("document_type"), d)
+    provider["documents"] = [{**d, "submitted_at": _iso(d.get("submitted_at")), "reviewed_at": _iso(d.get("reviewed_at"))} for d in latest.values()]
     
     # Convert provider datetime
     if "created_at" in provider and isinstance(provider["created_at"], datetime):
@@ -3106,12 +3173,28 @@ async def admin_approve_media(
             {"provider_id": media["provider_id"]},
             {"$addToSet": {"photos": media["url"]}}
         )
-    # If rejected, remove from photos array if it exists
+    # If rejected, remove from photos array if it exists and tell the account holder why
     elif approval.status == "rejected":
         await db.provider_profiles.update_one(
             {"provider_id": media["provider_id"]},
             {"$pull": {"photos": media["url"]}}
         )
+        if RESEND_API_KEY:
+            prof = await db.provider_profiles.find_one({"provider_id": media["provider_id"]}, {"_id": 0, "user_id": 1, "display_name": 1})
+            owner = await db.users.find_one({"user_id": (prof or {}).get("user_id")}, {"_id": 0, "email": 1, "name": 1})
+            if owner and owner.get("email"):
+                kind = "video" if media.get("media_type") == "video" else "photo"
+                html = (f"<div style=\"font-family:Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1B1820;\">"
+                        f"<h2 style=\"color:#B04585;margin:0 0 12px;\">Elite Escorts Europe</h2>"
+                        f"<p>Hi {owner.get('name') or 'there'},</p>"
+                        f"<p>A {kind} on the profile <strong>{(prof or {}).get('display_name') or ''}</strong> was not approved.</p>"
+                        f"<p><strong>Reason:</strong> {approval.reason or 'It did not meet our guidelines.'}</p>"
+                        f"<p>You can upload a new {kind} from your dashboard.</p></div>")
+                try:
+                    await asyncio.to_thread(resend.Emails.send, {"from": f"Elite Escorts Europe <{SENDER_EMAIL}>", "to": [owner["email"]],
+                                                                 "subject": f"Your {kind} was not approved", "html": html})
+                except Exception as e:
+                    logger.error(f"Media rejection email failed: {e}")
     
     return {"status": "success", "media_id": media_id, "new_status": approval.status}
 
@@ -3135,11 +3218,35 @@ async def admin_get_stats(
     )
     providers_needing_action = len(providers_with_pending)
     
+    now = datetime.utcnow()
+    week_ago = now - timedelta(days=7)
+    agency_users = {u["user_id"] for u in await db.users.find({"account_type": "agency"}, {"_id": 0, "user_id": 1}).to_list(5000)}
+    profs = await db.provider_profiles.find({}, {"_id": 0, "provider_id": 1, "user_id": 1, "verified": 1, "verification_status": 1}).to_list(5000)
+    indep = [p for p in profs if p.get("user_id") not in agency_users]
+    comp = [p for p in profs if p.get("user_id") in agency_users]
+    pending_set = set(providers_with_pending)
+    clients_week = await db.users.count_documents({"role": "client", "created_at": {"$gte": week_ago}})
     return {
         "total_providers": total_providers,
         "total_clients": total_clients,
+        "clients_this_week": clients_week,
         "pending_media": pending_media,
-        "providers_needing_action": providers_needing_action
+        "providers_needing_action": providers_needing_action,
+        "verified": sum(1 for p in profs if p.get("verified")),
+        "not_verified": sum(1 for p in profs if not p.get("verified")),
+        "verifications_waiting": sum(1 for p in profs if p.get("verification_status") == "submitted"),
+        "verifications_approved": sum(1 for p in profs if p.get("verification_status") == "approved"),
+        "verifications_rejected": sum(1 for p in profs if p.get("verification_status") == "rejected"),
+        "independents": {
+            "total": len(indep),
+            "media_in_review": sum(1 for p in indep if p["provider_id"] in pending_set),
+            "not_verified": sum(1 for p in indep if not p.get("verified")),
+        },
+        "agencies": {
+            "total": await db.agency_profiles.count_documents({}),
+            "companions": len(comp),
+            "media_in_review": sum(1 for p in comp if p["provider_id"] in pending_set),
+        },
     }
 
 @api_router.get("/admin/traffic")
@@ -3259,7 +3366,7 @@ async def admin_list_agencies(
             1 for p in profiles
             if not p.get("suspended")
             and p.get("verified")
-            and p.get("available")
+            and p.get("available", True)
             and p.get("featured_until") and p["featured_until"] > now - timedelta(days=GRACE_DAYS)
         )
         user = await db.users.find_one({"user_id": uid}, {"_id": 0, "password_hash": 0})
@@ -3299,9 +3406,11 @@ async def admin_get_agency_detail(
             "provider_id": p["provider_id"],
             "display_name": p.get("display_name") or "Untitled profile",
             "location": p.get("location") or {},
+            "age": p.get("age"),
             "verified": p.get("verified", False),
+            "verification_status": p.get("verification_status", "pending"),
             "suspended": bool(p.get("suspended")),
-            "live": bool(not p.get("suspended") and p.get("verified") and p.get("available") and fu and fu > now - timedelta(days=GRACE_DAYS)),
+            "live": bool(not p.get("suspended") and p.get("verified") and p.get("available", True) and fu and fu > now - timedelta(days=GRACE_DAYS)),
             "photos": p.get("photos") or [],
         })
     return {

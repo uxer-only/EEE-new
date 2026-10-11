@@ -30,7 +30,7 @@ export default function EditSection({ adv, section, providerId = null, backHref 
   const update = (patch) => { setChanged(true); setData((d) => ({ ...d, ...patch })); };
   const withContact = !agencyCompanion;
 
-  useEffect(() => { if (submitted && section === 'basic') setErrors(validateBasic(data, { withContact, who: her ? 'her' : 'you' })); }, [data, submitted, section, withContact]);
+  useEffect(() => { if (submitted && section === 'basic') setErrors(validateBasic(data, { withContact, who: her ? 'her' : 'you' })); }, [data, submitted, section, withContact, her]);
 
   const save = async () => {
     if (section === 'photos') { navigate(backHref); return; }
