@@ -106,7 +106,7 @@ export default function Messages() {
 
   return (
     <LightPage>
-      <div className="adv msgs" data-testid="messages-page">
+      <div className="adv inbox-pg" data-testid="messages-page">
         <Link to="/dashboard" className="lnk back" data-testid="back-dashboard"><Back />Back to dashboard</Link>
         <header className="msgs-head">
           <h1>Messages</h1>

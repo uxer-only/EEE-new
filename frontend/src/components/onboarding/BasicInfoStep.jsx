@@ -141,7 +141,7 @@ export function ContactFields({ contact = {}, country, countryDialCodes = {}, on
               const val = (contact[a.id] || '').replace(/^@/, '');
               return (
                 <label key={a.id} className="fl">
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span className="lb">{a.idLabel}</span><span className="req">Required</span></span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span className="lb">{a.idLabel}</span><span className="req-b">Required</span></span>
                   <span className={`ib${missing ? ' bad' : ''}`} style={{ gap: 6 }}>
                     {a.prefix && <span className="pre">{a.prefix}</span>}
                     <input type="text" value={val} onChange={(e) => set({ [a.id]: e.target.value.replace(/^@/, '') })} placeholder={a.ph} data-testid={`${a.id.replace('Id', '')}-id-input`} />

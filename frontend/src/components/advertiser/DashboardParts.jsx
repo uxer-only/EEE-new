@@ -121,7 +121,7 @@ export function MessagesCard({ enquiries = [], unread = 0, href = '/messages', p
         <ul className="msgs">
           {list.map((m) => (
             <li key={m.enquiry_id} className="mrow">
-              <Link className="msg" to={`${href}#${m.enquiry_id}`} aria-label={`Open message from ${m.name}`}>
+              <Link className="dmsg" to={`${href}#${m.enquiry_id}`} aria-label={`Open message from ${m.name}`}>
                 <span className={`dot${m.read ? '' : ' on'}`} aria-hidden="true" />
                 <span className="b">
                   <span className="t"><span className={`nm${m.read ? '' : ' un'}`}>{m.name}</span><span className="dt">{shortWhen(m.created_at)}</span></span>
@@ -289,7 +289,7 @@ export function ProfileSections({ data, media = [], edit, expanded = false, who 
       </SectionCard>
       <SectionCard num={2} title="Photos & videos" editHref={edit('photos')} open={!!open[1]} onToggle={() => t(1)} testId="card-photos">
         {media.length === 0 ? <p className="empty">No photos yet. Add at least one photo — it becomes {who} cover.</p> : (
-          <ul className="media">
+          <ul className="dmedia">
             {[...photos, ...videos].map((m, i) => (
               <li key={m.media_id} className={i === 0 && m.media_type !== 'video' ? 'cover' : ''}>
                 {m.media_type === 'video' ? <><video src={abs(m.url)} muted preload="metadata" /><span className="pl">{Ico.play}</span></> : <img src={abs(m.url)} alt="" loading="lazy" />}

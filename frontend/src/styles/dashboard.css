@@ -49,16 +49,16 @@
 .ms .newb { height: 24px; display: inline-flex; align-items: center; padding: 0 10px; background: var(--x-cta); color: #fff; border-radius: 999px; font-size: 12px; font-weight: 700; }
 .msgs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .mrow { border-bottom: 1px solid #ECE8EF; }
-.msg { display: flex; gap: 10px; padding: 10px 8px; margin: 0 -8px; border-radius: 8px; text-decoration: none; color: var(--x-ink) !important; }
-.msg:hover { background: var(--x-rose); }
-.msg .dot { width: 8px; height: 8px; flex-shrink: 0; margin-top: 6px; border-radius: 999px; background: transparent; }
-.msg .dot.on { background: var(--x-cta); }
-.msg .b { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.msg .t { display: flex; justify-content: space-between; gap: 8px; }
-.msg .nm { font-size: 14px; font-weight: 600; }
-.msg .nm.un { font-weight: 800; }
-.msg .dt { font-size: 12px; color: var(--x-muted); white-space: nowrap; }
-.msg .pv { font-size: 13px; color: var(--x-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dmsg { display: flex; gap: 10px; padding: 10px 8px; margin: 0 -8px; border-radius: 8px; text-decoration: none; color: var(--x-ink) !important; }
+.dmsg:hover { background: var(--x-rose); }
+.dmsg .dot { width: 8px; height: 8px; flex-shrink: 0; margin-top: 6px; border-radius: 999px; background: transparent; }
+.dmsg .dot.on { background: var(--x-cta); }
+.dmsg .b { flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.dmsg .t { display: flex; justify-content: space-between; gap: 8px; }
+.dmsg .nm { font-size: 14px; font-weight: 600; }
+.dmsg .nm.un { font-weight: 800; }
+.dmsg .dt { font-size: 12px; color: var(--x-muted); white-space: nowrap; }
+.dmsg .pv { font-size: 13px; color: var(--x-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* invoices */
 .iv .cnt { font-size: 13px; font-weight: 600; color: var(--x-muted); }
@@ -109,15 +109,15 @@
 .ess { display: flex; flex-direction: column; gap: 6px; }
 .dsec .ey { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--x-cta); }
 .ess p { margin: 0; font-size: 15px; line-height: 1.6; white-space: pre-line; }
-.media { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 12px; }
-.media li { position: relative; aspect-ratio: 3 / 4; border-radius: 8px; overflow: hidden; background: #ECE7EF; }
-.media li.cover { box-shadow: 0 0 0 3px var(--x-cta); }
-.media img, .media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.media .pl { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(27,24,32,.55); border-radius: 999px; }
-.media .b { position: absolute; height: 22px; display: inline-flex; align-items: center; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
-.media .b.cov { top: 8px; left: 8px; background: var(--x-cta); color: #fff; }
-.media .b.rev { top: 8px; right: 8px; background: #FFF4E0; color: #7A4A00; }
-.media .b.rej { top: 8px; right: 8px; background: #FCEBEE; color: #A3243B; }
+.dmedia { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 12px; }
+.dmedia li { position: relative; aspect-ratio: 3 / 4; border-radius: 8px; overflow: hidden; background: #ECE7EF; }
+.dmedia li.cover { box-shadow: 0 0 0 3px var(--x-cta); }
+.dmedia img, .dmedia video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.dmedia .pl { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(27,24,32,.55); border-radius: 999px; }
+.dmedia .b { position: absolute; height: 22px; display: inline-flex; align-items: center; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+.dmedia .b.cov { top: 8px; left: 8px; background: var(--x-cta); color: #fff; }
+.dmedia .b.rev { top: 8px; right: 8px; background: #FFF4E0; color: #7A4A00; }
+.dmedia .b.rej { top: 8px; right: 8px; background: #FCEBEE; color: #A3243B; }
 .svcs { display: flex; flex-direction: column; gap: 20px; }
 .svcs .grp { display: flex; flex-direction: column; gap: 10px; }
 .svcs .grp.tight { gap: 4px; }
@@ -157,7 +157,7 @@
   .dsec, .dsec.acc { padding: 20px; }
   .dsec.dz { padding: 20px; }
   .g2 { grid-template-columns: minmax(0,1fr); gap: 0; }
-  .media { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
+  .dmedia { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
   .acc-b { gap: 10px; }
   .acc-b .num { width: 32px; height: 32px; font-size: 14px; }
   .acc-b h2 { font-size: 19px; }
@@ -192,10 +192,10 @@
 .vf-slot .pv img { width: 100%; height: 100%; object-fit: contain; }
 
 /* ---------- Messages (enquiry inbox) ---------- */
-.msgs { display: flex; flex-direction: column; gap: 20px; }
-.msgs .lnk { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--x-cta); text-decoration: none; background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; }
-.msgs .lnk:hover { text-decoration: underline; }
-.msgs .lnk.back { align-self: flex-start; height: 40px; }
+.inbox-pg { display: flex; flex-direction: column; gap: 20px; }
+.inbox-pg .lnk { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: var(--x-cta); text-decoration: none; background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; }
+.inbox-pg .lnk:hover { text-decoration: underline; }
+.inbox-pg .lnk.back { align-self: flex-start; height: 40px; }
 .msgs-head { display: flex; flex-direction: column; gap: 6px; }
 .msgs-head h1 { margin: 0; font-size: 32px; line-height: 1.15; font-weight: 600; letter-spacing: -.02em; color: var(--x-ink); }
 .msgs-head p { margin: 0; font-size: 15px; color: #5F5966; }
