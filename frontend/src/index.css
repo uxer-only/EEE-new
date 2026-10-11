@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hide number-input spinner arrows (manual entry only) */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.no-spinner[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+
+@layer base {
+  :root {
+    --background: 210 10% 4%;
+    --foreground: 40 20% 95%;
+    --card: 210 10% 8%;
+    --card-foreground: 40 20% 95%;
+    --popover: 210 10% 8%;
+    --popover-foreground: 40 20% 95%;
+    --primary: 36 40% 62%;
+    --primary-foreground: 210 10% 4%;
+    --secondary: 240 4% 46%;
+    --secondary-foreground: 40 20% 95%;
+    --muted: 240 5% 32%;
+    --muted-foreground: 240 4% 66%;
+    --accent: 36 40% 62%;
+    --accent-foreground: 210 10% 4%;
+    --destructive: 345 80% 35%;
+    --destructive-foreground: 40 20% 95%;
+    --border: 240 6% 15%;
+    --input: 240 6% 25%;
+    --ring: 36 40% 62%;
+    --radius: 0rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-[#141016] text-[#F2F0ED] font-manrope;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(10, 10, 12, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #7A2357;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #D4B88C;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(198, 168, 124, 0.3);
+  color: #F2F0ED;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Input autofill override */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px #141416 inset !important;
+  -webkit-text-fill-color: #F2F0ED !important;
+}
+
+/* Glass morphism utility */
+.glass {
+  backdrop-filter: blur(24px);
+  background: rgba(10, 10, 12, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Shimmer effect for loading */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    to right,
+    #141416 4%,
+    #1a1a1c 25%,
+    #141416 36%
+  );
+  background-size: 1000px 100%;
+}

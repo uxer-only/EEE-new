@@ -1,0 +1,34 @@
+{
+  "summary": "Verified STEP 1 Basic Info wizard redesign and functional draft-save for independent providers. Backend: 7/7 pytest pass (register → POST /api/providers/profile, duplicate rejected, PUT updates persist breast_size/breast_type/ethnicity/tattoos/contact.telegramId, GET /api/providers/{id} returns persisted characteristics, Browse /api/providers?breast_type=Enhanced OK). Frontend: fresh independent provider lands on /dashboard with 'Step 1 of 5 · About 6 minutes left' label, numbered horizontal stepper (Basic Info active), and the three white cards (basic-info-card, contact-info-card, physical-characteristics-card). Filling all fields and clicking 'Save & continue' (data-testid=next-button) issues EXACTLY ONE POST to /api/providers/profile and advances to Step 2. Returning to Step 1 and editing essence triggers a debounced PUT after ~2s and the draft-status pill shows 'Draft saved' (no silent extra POST — duplicate-create guard works). 'Save & exit' saves the draft and navigates to /dashboard. Telegram pill toggles the required telegram-id-input (contact-telegram → telegram-id-input visible, saved to contact.telegramId). New characteristics fields breast_size (A/B/C/D/DD+) and breast_type (Natural/Enhanced) are selectable via data-testid=char-breast_size-c / char-breast_type-enhanced and persist to the backend. Browse ExtraFilters shows Natural/Enhanced (not 'Implants') and /api/providers responds 200 with filter applied.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Provider wizard Step 1 (BasicInfoStep)", "issues": ["Pre-existing React hydration warnings: <span data-ve-dynamic=\"true\"> wrappers injected between <select> and <option> for the country/nationality dropdowns. Non-functional (dropdowns still work and save) but produces console errors. Same instrumentation issue previously flagged for admin tables in iteration_16."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_basic_info_wizard.py",
+    "/app/test_reports/pytest/basic_info_wizard.xml"
+  ],
+  "action_items": [
+    "No functional fixes required — all user-choice features (functional Draft saved indicator, functional Save & exit, breast_size/breast_type persisted, new header/stepper/footer on Step 1) are working end-to-end.",
+    "(Low priority, pre-existing) The ve-dynamic <span> instrumentation wraps <option>/<tr> children and produces React hydration errors. Not a regression from this change but worth flagging to the platform."
+  ],
+  "critical_code_review_comments": [
+    "saveDraft() correctly guards against silent creation: autosave useEffect only PUTs when a profile already exists (dashboard.profile OR createdProviderId), while the explicit Save & continue passes allowCreate:true. Verified via network inspection — one POST, subsequent edits PUT.",
+    "canPersistDraft requires display_name + country (for non-agency) — matches handleCreateProfile preconditions, so Save & exit won't attempt to persist a half-empty draft.",
+    "BasicInfoStep.jsx cleanly extracted; data-testid coverage is thorough (display-name-input, age-input, gender-input-*, orientation-input-*, city-input, country-input, essence-input, basic-lang-*, contact-*, telegram-id-input, char-*). Good testability.",
+    "ExtraFilters BREAST_TYPES correctly updated to ['Natural','Enhanced']."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_basic_info_wizard.py (new)"
+  ],
+  "success_rate": {"backend": "100% (7/7)", "frontend": "100% (all 7 test scenarios in review request pass)"},
+  "test_credentials": "Dynamic registration via POST /api/auth/register with role=provider, account_type=independent, password=test1234 — works as expected and lands user directly on the wizard at /dashboard.",
+  "seed_data_creation": "Each run creates one TEST_wiz_* provider via /api/auth/register and one TEST_Mila profile. Residual test data remains in DB (not cleaned); consistent with repo convention of TEST_ prefix for easy cleanup later.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend regression suite /app/backend/tests/test_basic_info_wizard.py requires REACT_APP_BACKEND_URL env (set from /app/frontend/.env). Independent providers created via /api/auth/register land directly on /dashboard which renders the ProviderDashboard wizard (no profile => Step 1). The GET helper /api/providers (list) hides unverified providers, so to verify a freshly-saved profile use /api/providers/{provider_id} with the cookie session — the backend tests already cover this. Email verification banner shows on the wizard but does NOT block draft-save / step navigation (only publish/activate)."
+}

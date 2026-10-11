@@ -1,0 +1,47 @@
+{
+  "summary": "Tested the new Subscriptions/Payments feature (Featured + VIP plans, Stripe checkout, subscription gate on /api/providers, VIP-first sort, dashboard banner, /subscribe page, /payment-success polling). Backend: 15/15 pytest cases pass (PLANS allowlist, server-side validation, server-computed amount, payment_transactions row, gate, VIP sort, detail flags, ownership 403, 404). Frontend: VIP pill on Sophia (first card), client→/subscribe redirect to /dashboard, Sophia dashboard 'VIP Featured · live' banner with 30 days remaining + Renew CTA, /subscribe totals (€55 default → €30 → €55 after vip_4w add) all working. Pay button correctly redirects to checkout.stripe.com with cs_test_ session. ONE deviation from spec: /payment-success short-circuits to 'failed' card on first poll when Stripe returns payment_status='unpaid', so it never reaches MAX_ATTEMPTS=8 nor shows the 'Still processing' timeout card — contradicts the explicit testing requirement.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "PaymentSuccess.js (line 33)",
+        "issue": "Polling short-circuits to state='failed' on FIRST response when data.payment_status === 'unpaid'. Spec requires polling every ~2s up to MAX_ATTEMPTS=8 (~16s) for an unpaid open session, then showing the 'Still processing' (state='timeout') card. As implemented, only 1-2 calls fire and the user sees 'Payment didn't complete' / Try again card instead. This is a functional deviation from the review request requirement.",
+        "selector": "[data-testid=\"payment-status-card\"] / [data-testid=\"go-dashboard-late-btn\"] never reached",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_subscriptions.py",
+    "/app/test_reports/pytest/subscriptions.xml"
+  ],
+  "action_items": [
+    "Decide intended behaviour for /payment-success when Stripe reports payment_status='unpaid'. To match the review-request spec, remove the `data.payment_status === 'unpaid'` short-circuit in PaymentSuccess.js line 33 (keep only `data.status === 'expired'` as the failed-state trigger) so polling continues for ~16s before falling into the 'Still processing' timeout state. Alternatively, update the spec to accept the current 'fail-fast on unpaid' UX."
+  ],
+  "critical_code_review_comments": [
+    "PaymentSuccess.js: short-circuiting on `payment_status === 'unpaid'` defeats the polling pattern; in real Stripe flow the redirect lands before webhook processes, so a brief 'pending → paid' transition is normal and polling exists for that window. As written, the user will see a red X 'Payment didn't complete' card the moment they land — confusing.",
+    "server.py _activate_subscription_for_session is correctly idempotent (status==complete short-circuit, payment_status==paid required) — good.",
+    "server.py /api/providers gate uses `featured_until > now` with naive UTC consistently with Mongo storage — good. The VIP sort sorts non-VIP secondarily by created_at desc which is sensible.",
+    "Subscribe.js: useMemo total uses `(o)=>o.id===vipPlan)?.price || 0`; good. Origin URL is sent from window.location.origin (correct).",
+    "server.py CheckoutBody has no length / format validation for origin_url — minor, server doesn't trust it for amount calc, only for redirect URLs.",
+    "server.py PLANS dict is the single source of truth for amount (good — server-side allowlist enforced)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_subscriptions.py (new — 15 pytest cases)"
+  ],
+  "success_rate": {
+    "backend": "100% (15/15)",
+    "frontend": "~83% (5/6 flows pass — PaymentSuccess timeout card path fails)"
+  },
+  "test_credentials": "Sophia (provider, VIP+featured): provider1@lumiere.com / sophia123. Client: testclient@example.com / password123. Used as-is from /app/memory/test_credentials.md.",
+  "seed_data_creation": "None. Test_provider_without_active_featured_is_hidden temporarily flips a non-Sophia provider's featured_until into the past then restores it inside a try/finally. Multiple checkout sessions (cs_test_*) were created in payment_transactions during testing — all remain in 'pending'/'open' state since no card was charged. Optionally clean up rows where status='open' and payment_status='pending' older than today.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Subscriptions feature is fully wired. Backend pytest at /app/backend/tests/test_subscriptions.py — run with `REACT_APP_BACKEND_URL=https://elegant-staging-2.preview.emergentagent.com MONGO_URL=mongodb://localhost:27017 DB_NAME=test_database pytest backend/tests/test_subscriptions.py -v`. The only outstanding item is the PaymentSuccess.js polling logic mismatch with spec — verify after main agent fixes whether the polling card transitions: pending → (8 polls @ 2s) → timeout 'Still processing'. Sophia is the VIP/Featured demo provider; expect her at index 0 of /api/providers with vip_active=true. Browse VIP pill is at [data-testid='vip-pill-0']. Subscribe page testids: featured-option-featured_2w/4w, vip-toggle, vip-option-vip_2w/4w, total-amount, pay-button. Dashboard banner testids: subscription-banner, renew-cta, upgrade-vip-cta, activate-cta.",
+  "rca of the issue": "PaymentSuccess.js useEffect (lines 25-46) calls `poll()` once. Inside, line 33 treats `data.payment_status === 'unpaid'` as terminal failure and sets state='failed', returning before scheduling another setTimeout. The backend /api/subscriptions/status/{sid} returns payment_status='unpaid' for any open Stripe checkout session that has not yet been paid (Stripe's normal initial state). Consequence: the polling never iterates, attempts never reach MAX_ATTEMPTS=8, and the timeout 'Still processing' branch is unreachable in the standard 'just landed, payment not yet captured' flow. Mitigation: move 'unpaid' out of the failed-state trigger, leaving only `data.status === 'expired'` as terminal failure (an expired Stripe session truly cannot be paid)."
+}

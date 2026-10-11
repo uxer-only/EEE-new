@@ -1,0 +1,210 @@
+/* App-specific styles */
+:root {
+  color-scheme: dark;
+}
+
+.App {
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply inline-flex items-center justify-center h-[50px] rounded-[8px] bg-[#A3243B] text-[#FFFFFF] hover:bg-[#7A1A2E] px-8 uppercase tracking-widest text-sm font-semibold transition-all duration-300 ease-out;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center h-[50px] rounded-[8px] bg-transparent border border-[#FFFFFF] text-[#FFFFFF] font-bold hover:bg-white/10 px-8 uppercase tracking-widest text-sm transition-all;
+}
+
+.dashboard-light .btn-secondary {
+  @apply border-[#7A2357] text-[#7A2357] hover:bg-[#7A2357]/10;
+}
+
+.btn-ghost {
+  @apply text-[#F0EFF4] hover:text-[#A3243B] uppercase tracking-wider text-xs transition-colors;
+}
+
+/* Input styles */
+.input-premium {
+  @apply bg-transparent border border-[#52525B] focus:border-[#A3243B] px-4 py-3 text-[13px] text-[#A1A1AA] placeholder:text-[#9CA3AF] placeholder:italic focus:ring-0 focus:outline-none transition-colors;
+}
+
+select.input-premium {
+  @apply h-[50px] appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3d%22http%3a%2f%2fwww.w3.org%2f2000%2fsvg%22%20width%3d%2224%22%20height%3d%2224%22%20viewBox%3d%220%200%2024%2024%22%20fill%3d%22none%22%20stroke%3d%22%239CA3AF%22%20stroke-width%3d%222%22%20stroke-linecap%3d%22round%22%20stroke-linejoin%3d%22round%22%3e%3cpolyline%20points%3d%226%209%2012%2015%2018%209%22%3e%3c%2fpolyline%3e%3c%2fsvg%3e')] bg-no-repeat bg-[right_1rem_center] pr-12;
+}
+
+select.input-premium option {
+  @apply bg-[#1F1F23] text-[#A1A1AA];
+}
+
+.input-label {
+  @apply text-sm text-[#F2F0ED] mb-1 block font-medium;
+}
+
+/* Light-theme scoped overrides for the provider dashboard wizard */
+.dashboard-light .input-label {
+  @apply text-[#898989];
+}
+.dashboard-light .input-premium {
+  @apply bg-white text-[#000000] border-[#898989] placeholder:text-gray-400;
+}
+.dashboard-light .input-premium:focus {
+  @apply border-[#A3243B];
+}
+.dashboard-light select.input-premium option {
+  @apply bg-white text-[#000000];
+}
+
+.input-helper {
+  @apply text-xs text-[#A3243B] mt-0.5 block;
+}
+
+/* Global checkbox + radio styles (redesign): white box, wine when checked */
+input[type="checkbox"], input[type="radio"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  margin: 0;
+  border: 1.5px solid #8E8597 !important;
+  background-color: #FFFFFF !important;
+  cursor: pointer !important;
+  position: relative !important;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease !important;
+}
+input[type="checkbox"] { border-radius: 4px !important; }
+input[type="radio"] { border-radius: 999px !important; }
+input[type="checkbox"]:hover, input[type="radio"]:hover { border-color: #B04585 !important; }
+input[type="checkbox"]:checked { background-color: #B04585 !important; border-color: #B04585 !important; }
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  width: 5px;
+  height: 10px;
+  border: solid #FFFFFF;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -55%) rotate(45deg);
+}
+input[type="radio"]:checked { border-color: #B04585 !important; background-color: #B04585 !important; box-shadow: inset 0 0 0 4px #FFFFFF; }
+input[type="checkbox"]:focus-visible, input[type="radio"]:focus-visible { outline: 2px solid #B04585; outline-offset: 2px; }
+input[type="checkbox"]:disabled, input[type="radio"]:disabled { opacity: .5; cursor: not-allowed !important; }
+
+/* Card styles */
+.card-premium {
+  @apply bg-[#141416] border border-[#27272A] hover:border-[#7A2357] transition-all duration-300;
+}
+
+.dashboard-light .card-premium {
+  @apply bg-[#FFFFFF] border-[#dbdadd] hover:border-[#7A2357];
+}
+
+/* Provider card hover effect */
+.provider-card {
+  @apply relative overflow-hidden cursor-pointer;
+  aspect-ratio: 3/4;
+}
+
+.provider-card::after {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-t from-[#0A0A0C] via-transparent to-transparent opacity-0 transition-opacity duration-300;
+}
+
+.provider-card:hover::after {
+  @apply opacity-100;
+}
+
+.provider-card-info {
+  @apply absolute bottom-0 left-0 right-0 p-6 transform translate-y-full transition-transform duration-300;
+}
+
+.provider-card:hover .provider-card-info {
+  @apply translate-y-0;
+}
+
+/* Hero section */
+.hero-gradient {
+  background: linear-gradient(to bottom, rgba(10, 10, 12, 0) 0%, #0A0A0C 100%);
+}
+
+/* Label style */
+.label-premium {
+  @apply text-xs uppercase tracking-widest font-medium text-[#71717A];
+}
+
+/* Section spacing */
+.section-padding {
+  @apply px-6 md:px-12 lg:px-24;
+}
+
+/* Floating header */
+.floating-header {
+  @apply fixed top-0 left-0 right-0 z-50;
+  background: #000000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Message bubble */
+.message-bubble {
+  @apply px-6 py-4 max-w-md;
+}
+
+.message-bubble.sent {
+  @apply bg-[#7A2357] text-[#0A0A0C] ml-auto;
+}
+
+.message-bubble.received {
+  @apply bg-[#141416] text-[#F2F0ED] border border-[#27272A];
+}
+
+/* Status badge */
+.status-badge {
+  @apply inline-flex items-center px-3 py-1 text-xs font-medium uppercase tracking-wider;
+}
+
+.status-pending {
+  @apply bg-[#52525B] text-[#F2F0ED];
+}
+
+.status-confirmed {
+  @apply bg-[#10B981] text-white;
+}
+
+.status-completed {
+  @apply bg-[#7A2357] text-[#0A0A0C];
+}
+
+.status-cancelled {
+  @apply bg-[#9F1239] text-white;
+}
+
+/* Verified badge */
+.verified-badge {
+  @apply inline-flex items-center gap-2 px-3 py-1 text-xs font-medium uppercase tracking-wider bg-white text-[#22C55E] border border-[#22C55E];
+}
+
+
+/* Add-to-home-screen sheet animation */
+@keyframes slideUp {
+  from { transform: translateY(110%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+/* Hide scrollbar visually while retaining scroll behaviour */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}

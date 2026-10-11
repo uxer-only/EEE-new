@@ -1,0 +1,38 @@
+{
+  "summary": "Frontend-only review of the new shared RatesAvailabilityStep.jsx wired into ProviderDashboard Step 4 (edit mode) and AgencyOnboarding Step 3. All critical interactions and persistence verified end-to-end against the real backend via provider1@lumiere.com and agency@test.com.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Step 4 (RatesAvailabilityStep) — both provider edit mode and agency onboarding", "issues": ["React hydration/console warning: 'In HTML, <span> cannot be a child of <select>/<option>'. The dev-only Visual-Edits wrapper injects <span data-ve-dynamic> around <option> elements inside <select>. Known preview artifact per the review-request note; dropdowns still function (verified by select_option changing values). No action required unless the warning is also seen in production build."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "RatesAvailabilityStep.jsx is clean (~440 lines) — single file, no DRY violations, proper controlled inputs. OK.",
+    "toggle247 restore path (when toggling 24/7 OFF) hard-codes 10:00-22:00 for every day instead of restoring the previous schedule. Acceptable UX but worth noting — users who had a custom non-10-22 schedule and accidentally click 24/7 twice will lose their original times.",
+    "copyMonday only copies to currently-available days (correct per spec). Disabled days remain disabled — matches requirement.",
+    "removeExtraHour correctly iterates ['incall','outcall'] regardless of current availability_type, so switching from 'both' to 'incall' and removing an extra also cleans up the hidden outcall column — good.",
+    "No autosave on Step 4 — persistence relies solely on the explicit Save Changes button in edit mode (verified working). In the create wizard (mode!='edit') Step 4 relies on the usual debounced autosave + Next, which is consistent with other steps."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (not tested per request)", "frontend": "100%"},
+  "test_credentials": "provider1@lumiere.com / sophia123, agency@test.com / agency123 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "Mutated provider1 (Sophia) rates/availability during the test: incall 1h=€350, outcall 1h=€400, incall 6h extra=€1200, Monday-Saturday 09:00-18:00, Sunday Unavailable, taxi enabled at €30. Changes persist in backend and are visible on the dashboard summary.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "RatesAvailabilityStep testids verified: availability-type-{incall|outcall|both}, booking-advance-toggle, every-day-1022-checkbox, available-247-checkbox, schedule-day-toggle-{day} (desktop) & schedule-day-toggle-m-{day} (mobile), schedule-start-{day}/schedule-end-{day} (desktop) & -m- variants, copy-monday-button, rates-currency-select, rate-{incall|outcall}-{1hour|2hours|3hours|overnight|extra-N}, extra-hour-input, add-extra-hour-button, rate-extra-remove-{N}, taxi-toggle, taxi-cost-input. Save in edit mode = data-testid=save-step-button. Overview summary cards: card-rates & card-availability update immediately after save and after fresh login reload. Agency entry: AgencyDashboard -> agency-edit-rates-btn or agency-edit-availability-btn opens AgencyOnboarding at step 3 which renders the same component.",
+  "verifications": {
+    "availability_type_switch": "incall hides outcall column AND hides taxi section; both shows outcall column AND taxi; verified in UI.",
+    "booking_advance_toggle": "aria-checked flips false<->true on click.",
+    "weekly_presets": "every-day-1022 sets all 7 days to 10:00-22:00; available-247 sets 00:00-24:00 and marks checked; day-toggle disables day and hides time selects, shows 'Unavailable'.",
+    "copy_monday": "After setting Monday to 09:00-18:00, Tuesday-Saturday propagate to 09:00-18:00; disabled days skipped.",
+    "extra_hours_add_remove": "Adding 6 creates rate-incall-extra-6 AND rate-outcall-extra-6 with rate-extra-remove-6 trash; remove deletes both columns' extra entries.",
+    "rates_inputs": "Digits-only enforced; values update state; currency dropdown switches symbol.",
+    "taxi": "Only shown when outcall included; toggle reveals taxi-cost-input.",
+    "persistence": "After Save Changes, overview card-rates shows €350/€400/€1200/€2000+€2400, card-availability shows 'SUN Closed' and MON-SAT 09:00-18:00. Re-logging in from scratch (full session) preserves all values; re-opening edit shows incall1h=350, outcall1h=400, incall6h=1200, sunday aria-checked=false, taxi=30, monday 09:00-18:00.",
+    "agency_regression": "agency@test.com -> agency-edit-rates-btn opens AgencyOnboarding step 3 (title 'Set up your agency', step indicator 'RATES & AVAILABILITY'). RatesAvailabilityStep renders with the same two-card layout; all testids present; no card-in-card; inputs white; Finish Setup button present."
+  }
+}

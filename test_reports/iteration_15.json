@@ -1,0 +1,31 @@
+{
+  "summary": "Tested iteration 15 removal of agency public page. Backend: 6/6 pytest passed - GET /api/agencies/{id}/public returns 404, /api/providers still includes verified agency companions (Sofia/Valentina/Amara), agency-owned provider detail endpoint works normally. Frontend: agency dashboard shows all 4 summary cards + Agency settings + Sync defaults, has NO view-agency-page-btn; provider detail pages for both agency and independent profiles do NOT render provider-agency-link; agency companions appear on /browse indistinguishable from independents and clicking opens /providers/<id>. Independent regression (provider1@lumiere.com) dashboard loads fine. Fixed one gap: /agency/* had no route AND no catch-all, so it rendered a blank page instead of redirecting to /browse. Added `<Route path='/agency/*' element={<Navigate to='/browse' replace />} />` in App.js — now verified to redirect correctly.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "AgencyDashboard", "issues": ["React hydration warning: <span data-ve-dynamic> injected as child of <tbody> and wrapping <tr> — instrumentation artifact per review note, but should be cleaned up long-term"]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_agency_removal.py",
+    "/app/test_reports/pytest/iter15_results.xml"
+  ],
+  "action_items": [
+    "None blocking. Fix already applied for /agency/* redirect. Optional cleanup: address <tr> hydration warning on AgencyDashboard roster table."
+  ],
+  "critical_code_review_comments": [
+    "AgencyPublic.js stub file exists but was orphaned (no route wired to it after route removal) — this created a bug where /agency/xxx rendered blank. Now fixed via catch-all redirect route in App.js. Consider deleting the AgencyPublic.js stub entirely and keeping only the inline Navigate in App.js to reduce dead code."
+  ],
+  "updated_files": [
+    "/app/frontend/src/App.js (added <Route path='/agency/*' element={<Navigate to='/browse' replace />} />)",
+    "/app/backend/tests/test_agency_removal.py (new)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "agency@test.com/agency123 and provider1@lumiere.com/sophia123 both verified working",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration 15 removed agency public page. Backend endpoint /api/agencies/{id}/public returns 404 as expected. Frontend catch-all redirect at /agency/* was added by testing agent to fulfill spec (previously blank page). AgencyPublic.js stub is now dead code and can be deleted."
+}

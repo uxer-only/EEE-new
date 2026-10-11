@@ -1,0 +1,23 @@
+{
+  "summary": "Frontend-only regression test of the /subscribe -> Back to dashboard bug fix in ProviderDashboard.js. Verified UNPAID provider sees 'Activate your profile' banner + 'Choose a plan' CTA on initial dashboard load, after 1st round-trip to /subscribe and back, and after 2nd round-trip. Regression verified PAID provider still sees 'Profile status: online' with expiry days and auto-renew toggle and NO activate-cta. All 4 test cases pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fix is correct: banner div (data-testid=subscription-banner) now renders unconditionally and falls back to 'Activate your profile' when !subscription?.featured_active. This handles the case where getMySubscription silently fails/returns null after navigating back from /subscribe.",
+    "ProviderDashboard.js is ~2735 lines — consider splitting into smaller modules (banner, messages, invoices, verification sections) for maintainability. Not blocking this bug fix."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "unpaidtest99@test.com/testpass123 (unpaid), provider1@lumiere.com/sophia123 (paid)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Bug fix verified end-to-end. Unpaid banner persists across multiple /subscribe round-trips. Paid provider shows correct 'online' status banner with 6 days remaining and auto-renew toggle. Two console 401 errors observed on /login before auth completes — expected pre-login behaviour, not a bug.",
+  "rca of the issue": "Previous code gated the entire banner div behind `{subscription && ...}`. When getMySubscription() returned null/failed silently (which happened after coming back from /subscribe), the whole banner including the activation notice disappeared. Fix renders the wrapper div unconditionally and defaults to the activation notice whenever subscription?.featured_active is falsy, ensuring unpaid state is always surfaced."
+}
