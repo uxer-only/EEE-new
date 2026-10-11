@@ -21,7 +21,7 @@ export function AccessibilityToggle({ checked, onChange, who = 'your' }) {
       <span className="ic"><AccessIcon /></span>
       <span className="tx">
         <span id="acc-l" className="t">Welcoming to clients with disabilities</span>
-        <span className="d">Shows an accessibility badge on {who} profile</span>
+        <span className="d">Shows an accessibility badge on {who === 'their' ? 'their profiles' : `${who} profile`}</span>
       </span>
       <Switch checked={checked} onChange={onChange} labelledBy="acc-l" testId="accepts-disabilities-toggle" />
     </div>
@@ -83,7 +83,7 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
             {COMPANIONSHIP.map(([id, label, desc]) => (
               <label key={id} className={`optcard${comp[id] ? ' on' : ''}`} data-testid={`companionship-${id}`}>
                 <input type="checkbox" checked={comp[id]} onChange={() => setComp(id)} />
-                <span className="t"><b>{label}</b><small>{desc}</small></span>
+                <span className="t"><b>{label}</b><small>{who === 'her' ? desc.replace('your place', 'her place') : desc}</small></span>
               </label>
             ))}
           </div>
@@ -94,10 +94,10 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
 
       <div className="ob-grp">
         <div className="sv-head">
-          <h2>What {who === 'your' ? 'you offer' : 'she offers'}</h2>
+          <h2>What {who === 'your' ? 'you offer' : who === 'their' ? 'your companions offer' : 'she offers'}</h2>
           <span className="cnt" data-testid="services-count">{chosen}/{total}</span>
         </div>
-        <p className="sv-sub">Tick the services {who === 'your' ? 'you offer' : 'she offers'}. Unticked services are not shown on {who} profile.</p>
+        <p className="sv-sub">Tick the services {who === 'your' ? 'you offer' : who === 'their' ? 'your companions offer' : 'she offers'}. Unticked services are not shown on {who === 'their' ? 'their profiles' : `${who} profile`}.</p>
 
         {groups.map((g) => {
           const n = g.services.filter(isOn).length;
@@ -141,7 +141,7 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
                                 onChange={(e) => setSvc(name, { price: e.target.value.replace(/[^0-9]/g, '').slice(0, 5) })} className="no-spinner" data-testid={`service-price-${name}`} />
                             </label>
                           ) : (
-                            <span className="inrate">In {who} rate</span>
+                            <span className="inrate">In {who === 'their' ? 'the' : who} rate</span>
                           )}
                         </div>
                       </div>
@@ -154,12 +154,12 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
         })}
 
         <div className="sv-add">
-          <label htmlFor="sv-custom">Missing something? Add {who === 'your' ? 'your' : 'her'} own service</label>
+          <label htmlFor="sv-custom">Missing something? Add {who === 'their' ? 'a custom' : who === 'your' ? 'your own' : 'her own'} service</label>
           <div className="r">
             <span className="ib"><input id="sv-custom" type="text" maxLength={40} placeholder="e.g. Dinner date" value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustom(); } }} data-testid="custom-service-input" /></span>
             <button type="button" className="x-btn outl" onClick={addCustom} data-testid="custom-service-add"><Plus />Add</button>
           </div>
-          <span className="hm" style={{ marginTop: 0 }}>Custom services are checked by our team before they appear on {who} profile.</span>
+          <span className="hm" style={{ marginTop: 0 }}>Custom services are checked by our team before they appear on {who === 'their' ? 'a' : who} profile.</span>
         </div>
       </div>
     </Card>

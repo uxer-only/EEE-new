@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import '@/App.css';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -18,8 +18,7 @@ import Browse from '@/pages/Browse';
 import ProviderDetail from '@/pages/ProviderDetail';
 import ClientDashboard from '@/pages/ClientDashboard';
 import ProviderDashboard from '@/pages/ProviderDashboard';
-import LegacyProviderDashboard from '@/pages/LegacyProviderDashboard';
-import AgencyDashboard from '@/pages/AgencyDashboard';
+import AgencyArea from '@/pages/AgencyArea';
 import Messages from '@/pages/Messages';
 import AdminPanel from '@/pages/AdminPanel';
 import AdminDashboard from '@/pages/AdminDashboard';
@@ -70,14 +69,11 @@ function AppRouter() {
 
       <Route path="/dashboard/edit/:section" element={<ProtectedRoute requiredRole="provider"><ProviderDashboard view="edit" /></ProtectedRoute>} />
       <Route path="/dashboard/plan" element={<ProtectedRoute requiredRole="provider"><ProviderDashboard view="plan" /></ProtectedRoute>} />
-      <Route
-        path="/dashboard/profile/:providerId"
-        element={
-          <ProtectedRoute requiredRole="provider">
-            <LegacyProviderDashboard />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/dashboard/defaults/:section" element={<ProtectedRoute requiredRole="provider"><AgencyArea view="defaults" /></ProtectedRoute>} />
+      <Route path="/dashboard/companion/new" element={<ProtectedRoute requiredRole="provider"><AgencyArea view="new" /></ProtectedRoute>} />
+      <Route path="/dashboard/companion/:providerId" element={<ProtectedRoute requiredRole="provider"><AgencyArea view="companion" /></ProtectedRoute>} />
+      <Route path="/dashboard/companion/:providerId/edit/:section" element={<ProtectedRoute requiredRole="provider"><AgencyArea view="companion" /></ProtectedRoute>} />
+      <Route path="/dashboard/profile/:providerId" element={<LegacyProfileRedirect />} />
       
       <Route
         path="/messages"
@@ -145,6 +141,12 @@ function AppRouter() {
   );
 }
 
+/** Old agency links (/dashboard/profile/:id and /dashboard/profile/new) → the new companion pages. */
+function LegacyProfileRedirect() {
+  const { providerId } = useParams();
+  return <Navigate to={providerId === 'new' ? '/dashboard/companion/new' : `/dashboard/companion/${providerId}`} replace />;
+}
+
 function DashboardRouter() {
   const { user } = require('@/context/AuthContext').useAuth();
   
@@ -156,7 +158,7 @@ function DashboardRouter() {
   
   if (user.role === 'provider') {
     if (user.account_type === 'agency') {
-      return <AgencyDashboard />;
+      return <AgencyArea />;
     }
     return <ProviderDashboard />;
   }

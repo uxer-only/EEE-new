@@ -2444,6 +2444,10 @@ async def sync_agency_defaults(current_user: User = Depends(get_current_user)):
         set_fields["available247"] = da["available247"]
     if "booking_advance" in da:
         set_fields["booking_advance"] = da["booking_advance"]
+    if "worldwide_travel" in da:
+        set_fields["worldwide_travel"] = da["worldwide_travel"]
+    if "accepts_disabilities" in ag:
+        set_fields["accepts_disabilities"] = bool(ag.get("accepts_disabilities"))
 
     if not set_fields:
         return {"ok": True, "updated": 0}

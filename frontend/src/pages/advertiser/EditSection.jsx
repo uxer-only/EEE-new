@@ -18,7 +18,8 @@ const TITLES = { basic: 'Edit Basic info', photos: 'Edit Photos & videos', servi
  * adv = useAdvertiser() result, providerId for agency companions, backHref, eyebrow, who ('your' | 'her'),
  * agencyCompanion: hides contact/location (they come from the agency defaults).
  */
-export default function EditSection({ adv, section, providerId = null, backHref = '/dashboard', backLabel = 'Back to dashboard', eyebrow = 'Manage profile', who = 'your', agencyCompanion = false, note = null }) {
+export default function EditSection({ adv, section, providerId = null, backHref = '/dashboard', backLabel = 'Back to dashboard', eyebrow = 'Manage profile', who = 'your', agencyCompanion = false, note = null, name = null }) {
+  const her = who === 'her';
   const navigate = useNavigate();
   const [data, setData] = useState(adv.data);
   const [errors, setErrors] = useState({});
@@ -29,13 +30,13 @@ export default function EditSection({ adv, section, providerId = null, backHref 
   const update = (patch) => { setChanged(true); setData((d) => ({ ...d, ...patch })); };
   const withContact = !agencyCompanion;
 
-  useEffect(() => { if (submitted && section === 'basic') setErrors(validateBasic(data, { withContact })); }, [data, submitted, section, withContact]);
+  useEffect(() => { if (submitted && section === 'basic') setErrors(validateBasic(data, { withContact, who: her ? 'her' : 'you' })); }, [data, submitted, section, withContact]);
 
   const save = async () => {
     if (section === 'photos') { navigate(backHref); return; }
     if (section === 'basic') {
       setSubmitted(true);
-      const e = validateBasic(data, { withContact });
+      const e = validateBasic(data, { withContact, who: her ? 'her' : 'you' });
       setErrors(e);
       if (Object.keys(e).length) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
     }
@@ -61,16 +62,16 @@ export default function EditSection({ adv, section, providerId = null, backHref 
           <div className="tt">
             <span className="ey">{eyebrow}</span>
             <h1 className="h">{TITLES[section]}</h1>
-            <span className="sub">{section === 'photos' ? 'New photos and videos are checked by our team before they appear on the profile.' : `Update this section of ${who} profile. Changes are visible on ${who} profile as soon as you save.`}</span>
+            <span className="sub">{section === 'photos' ? 'New photos and videos are checked by our team before they appear on the profile.' : (name ? `Update this section of ${name}’s profile. Changes are visible on her profile as soon as you save.` : `Update this section of ${who} profile. Changes are visible on ${who} profile as soon as you save.`)}</span>
           </div>
         </header>
         <div className="ob-stack">
           {note}
           {section === 'basic' && submitted && errList.length > 0 && <ErrorSummary title={errorTitle(errList.length)} items={errList} />}
-          {section === 'basic' && <BasicInfoStep data={data} update={update} errors={submitted ? errors : {}} countryDialCodes={COUNTRY_DIAL_CODES} hideLocationContact={agencyCompanion} />}
+          {section === 'basic' && <BasicInfoStep data={data} update={update} errors={submitted ? errors : {}} countryDialCodes={COUNTRY_DIAL_CODES} hideLocationContact={agencyCompanion} who={her ? 'her' : 'you'} />}
           {section === 'photos' && <PhotosStep providerId={providerId} who={who} onChange={() => setChanged(true)} />}
-          {section === 'services' && <ServicesStep data={data} update={update} who={who} />}
-          {section === 'rates' && <RatesAvailabilityStep data={data} update={update} who={who} />}
+          {section === 'services' && <ServicesStep data={data} update={update} who={who} sub={her ? 'Tick what she offers. For each one, say whether it’s included in her rate or costs extra.' : undefined} />}
+          {section === 'rates' && <RatesAvailabilityStep data={data} update={update} who={her ? 'her' : 'you'} />}
           <div role="group" aria-label="Save or cancel" className="ob-nav">
             <Link to={backHref} className="x-btn back" style={{ padding: '0 22px' }}>Cancel</Link>
             <div>

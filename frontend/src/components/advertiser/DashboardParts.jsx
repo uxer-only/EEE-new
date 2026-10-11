@@ -172,19 +172,94 @@ export function InvoicesCard({ invoices = [], plans }) {
 /* ---------- profile sections (accordion with Edit buttons) ---------- */
 const DAY_SHORT = [['monday', 'Mon', 'Monday'], ['tuesday', 'Tue', 'Tuesday'], ['wednesday', 'Wed', 'Wednesday'], ['thursday', 'Thu', 'Thursday'], ['friday', 'Fri', 'Friday'], ['saturday', 'Sat', 'Saturday'], ['sunday', 'Sun', 'Sunday']];
 
-function SectionCard({ num, title, editHref, open, onToggle, children, testId }) {
+export function SectionCard({ num, title, meta, editHref, editLabel, open, onToggle, children, testId }) {
   return (
     <section className="dsec acc" data-testid={testId}>
       <div className="card-h">
         <button type="button" className="acc-b" aria-expanded={open} onClick={onToggle}>
           <span className="num">{num}</span>
-          <h2>{title}</h2>
+          {meta ? <span className="tm"><h2>{title}</h2><span className="mt">{meta}</span></span> : <h2>{title}</h2>}
           <span className={`ch${open ? ' open' : ''}`}>{Ico.chev}</span>
         </button>
-        <Link className="edit" to={editHref} aria-label={`Edit ${title}`} data-testid={`edit-${testId}`}>{Ico.pen}<span>Edit</span></Link>
+        <Link className="edit" to={editHref} aria-label={editLabel || `Edit ${title}`} data-testid={`edit-${testId}`}>{Ico.pen}<span>Edit</span></Link>
       </div>
       {open && <div className="acc-body">{children}</div>}
     </section>
+  );
+}
+
+const rateRows = (col = {}) => [
+    ['1 hour', col['1hour']], ['2 hours', col['2hours']], ['3 hours', col['3hours']],
+    ...(Array.isArray(col.extras) ? col.extras : []).slice().sort((a, b) => a.hours - b.hours).map((x) => [`${x.hours} hours`, x.price]),
+    ['Overnight', col.overnight], ['Weekend', col.weekend],
+  ].filter(([, v]) => v !== '' && v !== undefined && v !== null);
+
+/** Section bodies, shared by the advertiser dashboard, agency companion page and agency defaults. */
+export function ServicesBody({ data, who = 'your', ratePhrase }) {
+  const svc = Object.entries(data.services || {}).filter(([, v]) => v?.type);
+  const incl = svc.filter(([, v]) => v.type === 'inclusive').map(([k]) => k);
+  const extras = svc.filter(([, v]) => v.type === 'extra');
+  const sym = currencySymbol(data.rates?.currency);
+  return (
+    <>
+      {svc.length === 0 ? <p className="empty">No services chosen yet.</p> : (
+        <div className="svcs">
+          {incl.length > 0 && <div className="grp"><span className="ey">Included in {ratePhrase || `${who} rate`} · {incl.length}</span><div className="dtags">{incl.map((s) => <span key={s}>{s}</span>)}</div></div>}
+          {extras.length > 0 && <div className="grp tight"><span className="ey">Extras · {extras.length}</span>{extras.map(([k, v]) => <div key={k} className="dlr"><span>{k}</span><b>{v.price ? `+ ${money(sym, v.price)}` : 'Price not set'}</b></div>)}</div>}
+        </div>
+      )}
+    </>
+  );
+}
+
+export function AvailabilityBody({ data }) {
+  const sched = data.schedule || {};
+  const availLabel = { incall: 'Incall', outcall: 'Outcall', both: 'Incall & outcall' }[data.availability_type] || 'Incall & outcall';
+  return (
+    <>
+      <div className="dtags">
+        <span>{availLabel}</span>
+        {data.booking_advance && <span>Booking in advance required</span>}
+        {data.worldwide_travel && <span>Available for worldwide travel</span>}
+      </div>
+      {data.available247 ? <p className="lead">Available 24/7</p> : (
+        <ul className="wdays">
+          {DAY_SHORT.map(([k, short, long]) => {
+            const s = sched[k];
+            const on = !!s?.available;
+            return (
+              <li key={k} className={`wday${on ? ' on' : ''}`}>
+                <span className="dd"><span className="lg">{short}</span><span className="sm">{long}</span></span>
+                <span className="tt">{on ? <><span className="lg">{s.start}</span><span className="sm">{s.start} – {s.end}</span></> : 'Closed'}</span>
+                {on && <span className="tt lg">{s.end}</span>}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </>
+  );
+}
+
+export function RatesBody({ data, foot }) {
+  const sym = currencySymbol(data.rates?.currency);
+  const kinds = data.availability_type === 'incall' ? ['incall'] : data.availability_type === 'outcall' ? ['outcall'] : ['incall', 'outcall'];
+  const taxi = data.rates?.outcall?.taxi;
+  return (
+    <>
+      <div className="g2">
+        {kinds.map((k) => {
+          const rows = rateRows(data.rates?.[k]);
+          return (
+            <div key={k} className="rc">
+              <span className="ey">{k === 'incall' ? 'Incall' : 'Outcall'}</span>
+              {rows.length ? rows.map(([l, v]) => <div key={l} className="dlr"><span>{l}</span><b>{money(sym, v)}</b></div>) : <p className="empty">No rates yet.</p>}
+            </div>
+          );
+        })}
+      </div>
+      <span className="foot">{kinds.includes('outcall') && taxi ? `Outcall: + ${money(sym, taxi)} taxi · ` : ''}Prices in {data.rates?.currency || 'EUR'}{foot || ''}</span>
+    </>
   );
 }
 
@@ -193,7 +268,7 @@ function SectionCard({ num, title, editHref, open, onToggle, children, testId })
  * data = normalized profile data, media = /providers/media/mine items, edit(section) → href.
  */
 export function ProfileSections({ data, media = [], edit, expanded = false, who = 'your', hideContact = false }) {
-  const [open, setOpen] = useState(() => (expanded ? { 0: true, 1: true, 2: true, 3: true, 4: true } : {}));
+  const [open, setOpen] = useState(() => (expanded ? { 0: true, 1: true, 2: true, 3: true, 4: true } : { 0: true }));
   const t = (i) => setOpen((o) => ({ ...o, [i]: !o[i] }));
   const c = data.characteristics || {};
   const ct = data.contact || {};
@@ -203,21 +278,8 @@ export function ProfileSections({ data, media = [], edit, expanded = false, who 
     ['Languages', (c.languages || []).join(', ')],
     ...(hideContact ? [] : [['Mobile phone', ct.phone], ['E-mail', ct.email], ['Telegram', ct.hasTelegram && ct.telegramId ? `@${ct.telegramId}` : '']]),
   ].filter(([, v]) => v);
-  const svc = Object.entries(data.services || {}).filter(([, v]) => v?.type);
-  const incl = svc.filter(([, v]) => v.type === 'inclusive').map(([k]) => k);
-  const extras = svc.filter(([, v]) => v.type === 'extra');
-  const sym = currencySymbol(data.rates?.currency);
-  const kinds = data.availability_type === 'incall' ? ['incall'] : data.availability_type === 'outcall' ? ['outcall'] : ['incall', 'outcall'];
-  const rateRows = (col = {}) => [
-    ['1 hour', col['1hour']], ['2 hours', col['2hours']], ['3 hours', col['3hours']],
-    ...(Array.isArray(col.extras) ? col.extras : []).slice().sort((a, b) => a.hours - b.hours).map((x) => [`${x.hours} hours`, x.price]),
-    ['Overnight', col.overnight], ['Weekend', col.weekend],
-  ].filter(([, v]) => v !== '' && v !== undefined && v !== null);
-  const taxi = data.rates?.outcall?.taxi;
   const photos = media.filter((m) => m.media_type !== 'video');
   const videos = media.filter((m) => m.media_type === 'video');
-  const sched = data.schedule || {};
-  const availLabel = { incall: 'Incall', outcall: 'Outcall', both: 'Incall & outcall' }[data.availability_type] || 'Incall & outcall';
 
   return (
     <>
@@ -240,61 +302,28 @@ export function ProfileSections({ data, media = [], edit, expanded = false, who 
         )}
       </SectionCard>
       <SectionCard num={3} title="Services" editHref={edit('services')} open={!!open[2]} onToggle={() => t(2)} testId="card-services">
-        {svc.length === 0 ? <p className="empty">No services chosen yet.</p> : (
-          <div className="svcs">
-            {incl.length > 0 && <div className="grp"><span className="ey">Included in {who} rate · {incl.length}</span><div className="dtags">{incl.map((s) => <span key={s}>{s}</span>)}</div></div>}
-            {extras.length > 0 && <div className="grp tight"><span className="ey">Extras · {extras.length}</span>{extras.map(([k, v]) => <div key={k} className="dlr"><span>{k}</span><b>{v.price ? `+ ${money(sym, v.price)}` : 'Price not set'}</b></div>)}</div>}
-          </div>
-        )}
+        <ServicesBody data={data} who={who} />
       </SectionCard>
       <SectionCard num={4} title="Availability" editHref={edit('rates')} open={!!open[3]} onToggle={() => t(3)} testId="card-availability">
-        <div className="dtags">
-          <span>{availLabel}</span>
-          {data.booking_advance && <span>Booking in advance required</span>}
-          {data.worldwide_travel && <span>Available for worldwide travel</span>}
-        </div>
-        {data.available247 ? <p className="lead">Available 24/7</p> : (
-          <ul className="wdays">
-            {DAY_SHORT.map(([k, short, long]) => {
-              const s = sched[k];
-              const on = !!s?.available;
-              return (
-                <li key={k} className={`wday${on ? ' on' : ''}`}>
-                  <span className="dd"><span className="lg">{short}</span><span className="sm">{long}</span></span>
-                  <span className="tt">{on ? <><span className="lg">{s.start}</span><span className="sm">{s.start} – {s.end}</span></> : 'Closed'}</span>
-                  {on && <span className="tt lg">{s.end}</span>}
-                </li>
-              );
-            })}
-          </ul>
-        )}
+        <AvailabilityBody data={data} />
       </SectionCard>
       <SectionCard num={5} title="Rates" editHref={edit('rates')} open={!!open[4]} onToggle={() => t(4)} testId="card-rates">
-        <div className="g2">
-          {kinds.map((k) => {
-            const rows = rateRows(data.rates?.[k]);
-            return (
-              <div key={k} className="rc">
-                <span className="ey">{k === 'incall' ? 'Incall' : 'Outcall'}</span>
-                {rows.length ? rows.map(([l, v]) => <div key={l} className="dlr"><span>{l}</span><b>{money(sym, v)}</b></div>) : <p className="empty">No rates yet.</p>}
-              </div>
-            );
-          })}
-        </div>
-        <span className="foot">{kinds.includes('outcall') && taxi ? `Outcall: + ${money(sym, taxi)} taxi · ` : ''}Prices in {data.rates?.currency || 'EUR'}</span>
+        <RatesBody data={data} />
       </SectionCard>
     </>
   );
 }
 
-export function VerificationBanner({ profile, onStart }) {
+export function VerificationBanner({ profile, onStart, name = null }) {
+  const pos = name ? `${name}’s` : 'your';
+  const Sub = name ? 'Her' : 'Your';
   const s = profile.verification_status || 'pending';
   if (profile.verified) return null;
   if (s === 'submitted') {
     return (
       <div role="status" className="vban pend">
         <span className="i">{Ico.clock}</span>
-        <span className="tx"><b>Verification pending</b><span>We’re checking your ID documents, usually within 24 hours. Your profile goes live with the Verified badge once it’s approved.</span></span>
+        <span className="tx"><b>Verification pending</b><span>We’re checking {pos} ID documents, usually within 24 hours. {Sub} profile goes live with the Verified badge once it’s approved.</span></span>
       </div>
     );
   }
@@ -302,7 +331,7 @@ export function VerificationBanner({ profile, onStart }) {
     return (
       <div role="alert" className="vban rej">
         <span className="i">!</span>
-        <span className="tx"><b>Verification needs attention</b><span>{profile.rejection_reason ? `Reason: ${profile.rejection_reason}. ` : ''}Upload new documents so we can verify your profile.</span></span>
+        <span className="tx"><b>Verification needs attention</b><span>{profile.rejection_reason ? `Reason: ${profile.rejection_reason}. ` : ''}Upload new documents so we can verify {name ? 'her' : 'your'} profile.</span></span>
         <button type="button" className="x-btn primary sm" onClick={onStart} data-testid="verification-resubmit-btn">Resubmit documents</button>
       </div>
     );
@@ -310,13 +339,13 @@ export function VerificationBanner({ profile, onStart }) {
   return (
     <div className="vban start">
       <span className="i">{Ico.shield}</span>
-      <span className="tx"><b>Verify your profile</b><span>Upload an ID and a selfie so we can verify you. Your profile goes live with the Verified badge once it’s approved — it takes about 2 minutes.</span></span>
+      <span className="tx"><b>{name ? `Verify ${name}` : 'Verify your profile'}</b><span>Upload an ID and a selfie so we can verify {name ? 'her' : 'you'}. {Sub} profile goes live with the Verified badge once it’s approved — it takes about 2 minutes.</span></span>
       <button type="button" className="x-btn primary sm" onClick={onStart} data-testid="verification-start-btn">Start verification</button>
     </div>
   );
 }
 
-export function DangerZone({ onRemove, label = 'Remove my profile', text = 'This permanently deletes your profile, photos, subscriptions and verification documents. This can’t be undone.', button = 'Remove profile permanently' }) {
+export function DangerZone({ onRemove, confirmTitle = 'Remove profile permanently?', confirmLabel = 'Remove permanently', label = 'Remove my profile', text = 'This permanently deletes your profile, photos, subscriptions and verification documents. This can’t be undone.', button = 'Remove profile permanently' }) {
   const [ask, setAsk] = useState(false);
   const [busy, setBusy] = useState(false);
   return (
@@ -325,8 +354,8 @@ export function DangerZone({ onRemove, label = 'Remove my profile', text = 'This
       <p>{text}</p>
       <button type="button" className="danger" onClick={() => setAsk(true)} data-testid="remove-profile-btn">{button}</button>
       {ask && (
-        <Dialog title="Remove profile permanently?" danger onClose={() => setAsk(false)}
-          footer={<><button type="button" className="x-btn white" onClick={() => setAsk(false)}>Cancel</button><button type="button" className="x-btn dangerb" disabled={busy} onClick={async () => { setBusy(true); try { await onRemove(); } finally { setBusy(false); } }} data-testid="confirm-remove">{busy ? 'Removing…' : 'Remove permanently'}</button></>}>
+        <Dialog title={confirmTitle} danger onClose={() => setAsk(false)}
+          footer={<><button type="button" className="x-btn white" onClick={() => setAsk(false)}>Cancel</button><button type="button" className="x-btn dangerb" disabled={busy} onClick={async () => { setBusy(true); try { await onRemove(); } finally { setBusy(false); } }} data-testid="confirm-remove">{busy ? 'Removing…' : confirmLabel}</button></>}>
           <p className="dtext">{text}</p>
         </Dialog>
       )}

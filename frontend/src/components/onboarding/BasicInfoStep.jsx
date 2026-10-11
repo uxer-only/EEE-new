@@ -46,7 +46,7 @@ const SearchIcon = () => (
 );
 
 /** "Add language" popover with search; extra languages appear as removable chips. */
-export function LanguagePicker({ languages, onChange, testId = 'basic-lang' }) {
+export function LanguagePicker({ languages, onChange, testId = 'basic-lang', label = 'Languages you speak' }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const ref = useRef(null);
@@ -65,7 +65,7 @@ export function LanguagePicker({ languages, onChange, testId = 'basic-lang' }) {
   const canAddCustom = ql && !MORE_LANGUAGES.some(([l]) => l.toLowerCase() === ql) && !LANGUAGE_PRESETS.some((l) => l.toLowerCase() === ql);
   return (
     <fieldset className="fs">
-      <legend className="split"><span>Languages you speak</span><span className="cnt wine" style={{ fontSize: 13, fontWeight: 600, color: 'var(--x-cta)' }}>{languages.length} selected</span></legend>
+      <legend className="split"><span>{label}</span><span className="cnt wine" style={{ fontSize: 13, fontWeight: 600, color: 'var(--x-cta)' }}>{languages.length} selected</span></legend>
       <div className="pills">
         {LANGUAGE_PRESETS.map((l) => <Pill key={l} on={languages.includes(l)} onClick={() => toggle(l)} testId={`${testId}-${l.toLowerCase()}`}>{l}</Pill>)}
         {extra.map((l) => (
@@ -101,7 +101,8 @@ export function LanguagePicker({ languages, onChange, testId = 'basic-lang' }) {
 }
 
 /** Contact details: phone with country code, e-mail and messaging apps. */
-export function ContactFields({ contact = {}, country, countryDialCodes = {}, onChange, errors = {} }) {
+export function ContactFields({ contact = {}, country, countryDialCodes = {}, onChange, errors = {}, who = 'you' }) {
+  const her = who === 'her';
   const set = (patch) => onChange({ ...contact, ...patch });
   const fallback = countryDialCodes[country] || '';
   const { dial, number } = splitPhone(contact.phone, fallback);
@@ -128,8 +129,8 @@ export function ContactFields({ contact = {}, country, countryDialCodes = {}, on
         <TextField id="ct-mail" label="E-mail" type="email" icon={<MailIcon />} placeholder="you@example.com" value={contact.email} onChange={(v) => set({ email: v })} error={errors.email} testId="email-input" />
       </div>
       <fieldset className="fs">
-        <legend style={{ marginBottom: 4 }}>Clients can also reach you on</legend>
-        <span style={{ display: 'block', marginBottom: 8, fontSize: 13, color: 'var(--x-muted)' }}>Shown as buttons on your profile. WhatsApp, Signal, SMS and Viber use the number above; Telegram, Line and WeChat need your ID.</span>
+        <legend style={{ marginBottom: 4 }}>Clients can also reach {her ? 'her' : 'you'} on</legend>
+        <span style={{ display: 'block', marginBottom: 8, fontSize: 13, color: 'var(--x-muted)' }}>Shown as buttons on {her ? 'her' : 'your'} profile. WhatsApp, Signal, SMS and Viber use the number above; Telegram, Line and WeChat need {her ? 'her' : 'your'} ID.</span>
         <div className="pills">
           {MESSAGING_APPS.map((a) => <Pill key={a.key} on={!!contact[a.key]} onClick={() => set({ [a.key]: !contact[a.key] })} testId={`contact-${a.label.toLowerCase()}`}>{a.label}</Pill>)}
         </div>
@@ -162,7 +163,8 @@ export function ContactFields({ contact = {}, country, countryDialCodes = {}, on
  *  hideLocationContact (agency companion: location/contact come from agency defaults),
  *  errors: { display_name, age, city, country, phone, email, telegramId, ... }
  */
-export default function BasicInfoStep({ data, update, hideLocationContact = false, countryDialCodes = {}, errors = {}, nameLabel = 'Display name' }) {
+export default function BasicInfoStep({ data, update, hideLocationContact = false, countryDialCodes = {}, errors = {}, nameLabel = 'Display name', who = 'you' }) {
+  const her = who === 'her';
   const c = data.characteristics || {};
   const setChar = (patch) => update({ characteristics: { ...c, ...patch } });
   const location = data.location || { city: '', country: '' };
@@ -198,7 +200,7 @@ export default function BasicInfoStep({ data, update, hideLocationContact = fals
 
         {!hideLocationContact && (
           <div className="ob-grp ob-half">
-            <TextField id="bi-city" label="City" icon={<PinIcon />} value={location.city} onChange={(v) => update({ location: { ...location, city: v } })} placeholder="Start typing your city" error={errors.city} hint="Clients only see your city, never your address." testId="city-input" />
+            <TextField id="bi-city" label="City" icon={<PinIcon />} value={location.city} onChange={(v) => update({ location: { ...location, city: v } })} placeholder="Start typing your city" error={errors.city} hint={`Clients only see ${her ? 'her' : 'your'} city, never ${her ? 'her' : 'your'} address.`} testId="city-input" />
             <SelectField id="bi-country" label="Country" value={location.country} onChange={setCountry} error={errors.country} testId="country-input">
               <option value="">Select country</option>
               {COUNTRIES.map((x) => <option key={x} value={x}>{x}</option>)}
@@ -207,21 +209,21 @@ export default function BasicInfoStep({ data, update, hideLocationContact = fals
         )}
 
         <div className="fl">
-          <div className="lr"><label htmlFor="bi-about">Describe yourself</label><span className="cnt">{(data.bio || '').length}/1500</span></div>
-          <span className="sub">Shown as “My Essence” on your profile. Tell clients what makes you unique.</span>
+          <div className="lr"><label htmlFor="bi-about">{her ? 'Describe her' : 'Describe yourself'}</label><span className="cnt">{(data.bio || '').length}/1500</span></div>
+          <span className="sub">{her ? 'Shown as “My Essence” on her profile. Tell clients what makes her unique.' : 'Shown as “My Essence” on your profile. Tell clients what makes you unique.'}</span>
           <textarea id="bi-about" className="ta" rows={6} maxLength={1500} value={data.bio || ''} onChange={(e) => update({ bio: e.target.value.slice(0, 1500) })} placeholder="Warm, curious and easy to talk to…" data-testid="essence-input" />
         </div>
 
-        <LanguagePicker languages={Array.isArray(c.languages) ? c.languages : []} onChange={(languages) => setChar({ languages })} />
+        <LanguagePicker label={her ? 'Languages she speaks' : 'Languages you speak'} languages={Array.isArray(c.languages) ? c.languages : []} onChange={(languages) => setChar({ languages })} />
       </Card>
 
       {!hideLocationContact && (
-        <Card id="sec-contact" title="Contact information" sub="How clients reach you to make an enquiry." testId="contact-info-card">
-          <ContactFields contact={data.contact || {}} country={location.country} countryDialCodes={countryDialCodes} onChange={(contact) => update({ contact })} errors={errors} />
+        <Card id="sec-contact" title="Contact information" sub={`How clients reach ${her ? 'her' : 'you'} to make an enquiry.`} testId="contact-info-card">
+          <ContactFields contact={data.contact || {}} country={location.country} countryDialCodes={countryDialCodes} onChange={(contact) => update({ contact })} errors={errors} who={who} />
         </Card>
       )}
 
-      <Card id="sec-physical" title="Physical characteristics" tag="Optional" sub="Fill in only what you want on your profile. These details power the search filters." testId="physical-characteristics-card">
+      <Card id="sec-physical" title="Physical characteristics" tag="Optional" sub={`Fill in only what you want on ${her ? 'her' : 'your'} profile. These details power the search filters.`} testId="physical-characteristics-card">
         <CharacteristicsForm characteristics={c} onChange={(next) => update({ characteristics: next })} />
       </Card>
     </div>

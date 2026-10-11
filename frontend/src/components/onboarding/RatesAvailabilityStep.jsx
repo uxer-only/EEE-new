@@ -4,9 +4,9 @@ import { Card, Switch, Plus, XIcon, Chev } from '@/components/site/Form';
 
 const HOURS = Array.from({ length: 25 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
 const DAYS = [['monday', 'Monday'], ['tuesday', 'Tuesday'], ['wednesday', 'Wednesday'], ['thursday', 'Thursday'], ['friday', 'Friday'], ['saturday', 'Saturday'], ['sunday', 'Sunday']];
-const PLACES = [
-  ['incall', 'Incall', 'Clients visit you'],
-  ['outcall', 'Outcall', 'You visit the client'],
+const placesFor = (who) => [
+  ['incall', 'Incall', who === 'her' ? 'Clients visit her' : 'Clients visit you'],
+  ['outcall', 'Outcall', who === 'her' ? 'She visits the client' : 'You visit the client'],
   ['both', 'Incall & outcall', 'Both options'],
 ];
 const BASE = [['1hour', '1 hour', 1], ['2hours', '2 hours', 2], ['3hours', '3 hours', 3]];
@@ -40,7 +40,7 @@ function SwitchRow({ id, label, desc, checked, onChange, children, testId }) {
 }
 
 /** Availability card (where, booking options, weekly hours). */
-export function AvailabilityCard({ data, update, level = 1, who = 'you' }) {
+export function AvailabilityCard({ data, update, level = 1, who = 'you', sub }) {
   const schedule = data.schedule || defaultSchedule();
   const availType = data.availability_type || 'both';
   const is247 = !!data.available247;
@@ -60,11 +60,11 @@ export function AvailabilityCard({ data, update, level = 1, who = 'you' }) {
     setSchedule(next);
   };
   return (
-    <Card level={level} title="Availability" testId="availability-card">
+    <Card level={level} title="Availability" sub={sub} testId="availability-card">
       <fieldset className="fs">
         <legend>Available for</legend>
         <div className="optcards three">
-          {PLACES.map(([id, label, desc]) => (
+          {placesFor(who).map(([id, label, desc]) => (
             <label key={id} className={`optcard${availType === id ? ' on' : ''}`} data-testid={`availability-${id}`}>
               <input type="radio" name="avail-for" checked={availType === id} onChange={() => update({ availability_type: id })} />
               <span className="t"><b>{label}</b><small>{desc}</small></span>
@@ -110,7 +110,8 @@ export function AvailabilityCard({ data, update, level = 1, who = 'you' }) {
 }
 
 /** Rates card (currency, durations × incall/outcall, extra hours, taxi). */
-export function RatesCard({ data, update, level = 2 }) {
+export function RatesCard({ data, update, level = 2, who = 'you' }) {
+  const her = who === 'her';
   const rates = data.rates || { currency: 'EUR', incall: { extras: [] }, outcall: { extras: [] } };
   const availType = data.availability_type || 'both';
   const inOn = availType !== 'outcall';
@@ -192,7 +193,7 @@ export function RatesCard({ data, update, level = 2 }) {
       <div className="ra-rh">
         <div className="ch">
           <h2 style={{ fontSize: 28, letterSpacing: '-.02em' }}>Rates</h2>
-          <p>What clients pay per booking. Leave a field empty if you don’t offer it.</p>
+          <p>What clients pay per booking. Leave a field empty if {her ? 'she doesn’t' : 'you don’t'} offer it.</p>
         </div>
         <label className="ra-cur">
           <span>Currency</span>
@@ -222,7 +223,7 @@ export function RatesCard({ data, update, level = 2 }) {
         {addErr && <span className="hm bad">{addErr}</span>}
       </div>
       {outOn && (
-        <SwitchRow id="taxi-l" label="Taxi costs charged extra for outcall" desc="Turn on if clients pay for your taxi on top of the outcall rate"
+        <SwitchRow id="taxi-l" label="Taxi costs charged extra for outcall" desc={`Turn on if clients pay for ${her ? 'her' : 'your'} taxi on top of the outcall rate`}
           checked={taxiOn} onChange={(v) => setRates({ ...rates, taxi_on: v, outcall: { ...col('outcall'), taxi: v ? (taxi || '') : '' } })} testId="taxi-toggle">
           {taxiOn && (
             <div className="fl sub2">
@@ -241,10 +242,10 @@ export function RatesCard({ data, update, level = 2 }) {
 }
 
 /** Step 4 — Availability + Rates. */
-export const RatesAvailabilityStep = ({ data, update, who }) => (
+export const RatesAvailabilityStep = ({ data, update, who, availabilitySub }) => (
   <div className="ob-stack">
-    <AvailabilityCard data={data} update={update} who={who} />
-    <RatesCard data={data} update={update} />
+    <AvailabilityCard data={data} update={update} who={who} sub={availabilitySub} />
+    <RatesCard data={data} update={update} who={who} />
   </div>
 );
 

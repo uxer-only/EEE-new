@@ -103,14 +103,15 @@ export function toPayload(d) {
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i;
 
 /** Step 1 validation. Returns { field: message }. */
-export function validateBasic(d, { withContact = true } = {}) {
+export function validateBasic(d, { withContact = true, who = 'you' } = {}) {
+  const her = who === 'her';
   const e = {};
   const ageN = parseInt(d.age, 10);
   if (!(d.display_name || '').trim()) e.display_name = 'Enter a display name.';
-  if (!String(d.age || '').trim()) e.age = 'Enter your age.';
-  else if (!(ageN >= 18)) e.age = 'You must be 18 or older to advertise.';
+  if (!String(d.age || '').trim()) e.age = her ? 'Enter her age.' : 'Enter your age.';
+  else if (!(ageN >= 18)) e.age = her ? 'She must be 18 or older.' : 'You must be 18 or older to advertise.';
   if (withContact) {
-    if (!(d.location?.city || '').trim()) e.city = 'Enter the city you work in.';
+    if (!(d.location?.city || '').trim()) e.city = her ? 'Enter the city she works in.' : 'Enter the city you work in.';
     if (!d.location?.country) e.country = 'Choose your country.';
     const digits = (d.contact?.phone || '').replace(/\D/g, '');
     if (digits.length < 8) e.phone = 'Enter a full mobile number, e.g. 470 12 34 56.';
@@ -123,7 +124,7 @@ export function validateBasic(d, { withContact = true } = {}) {
 }
 
 const LABELS = { display_name: ['Display name', '#bi-name'], age: ['Age', '#bi-age'], city: ['City', '#bi-city'], country: ['Country', '#bi-country'], phone: ['Mobile phone', '#ct-phone'], email: ['E-mail', '#ct-mail'], telegramId: ['Telegram username', '#sec-contact'], lineId: ['Line ID', '#sec-contact'], wechatId: ['WeChat ID', '#sec-contact'] };
-export const errorItems = (errors) => Object.entries(errors).map(([k, msg]) => ({ msg: `${LABELS[k]?.[0] || k}: ${msg === 'Required' ? 'Enter it or turn the app off.' : msg}`, href: LABELS[k]?.[1] || '#' }));
+export const errorItems = (errors, names = {}) => Object.entries(errors).map(([k, msg]) => ({ msg: `${names[k] || LABELS[k]?.[0] || k}: ${msg === 'Required' ? 'Enter it or turn the app off.' : msg}`, href: LABELS[k]?.[1] || '#' }));
 export const errorTitle = (n) => (n === 1 ? 'Fix 1 field to continue' : `Fix ${n} fields to continue`);
 
 /** Quick summaries used on dashboards. */
@@ -133,4 +134,69 @@ export function summarize(d) {
   const activeDays = Object.values(sched).filter((s) => s?.available).length;
   const one = [d.rates?.incall?.['1hour'], d.rates?.outcall?.['1hour']].map(Number).filter((x) => x > 0);
   return { services: svc.length, extras: svc.filter(([, v]) => v.type === 'extra').length, activeDays, fromRate: one.length ? Math.min(...one) : null };
+}
+
+/* ---------- agency ---------- */
+
+/** Agency master profile (defaults) → editable data in the same shape as a profile. */
+export function agencyToForm(ag = {}) {
+  const av = ag.default_availability || {};
+  const d = normalizeProfile({
+    display_name: ag.agency_name || '', location: ag.location, bio: ag.description || '', contact: ag.contact,
+    services: ag.default_services || {}, rates: ag.default_rates, accepts_disabilities: ag.accepts_disabilities,
+    availability_type: av.availability_type, schedule: av.schedule, available247: av.available247,
+    booking_advance: av.booking_advance, worldwide_travel: av.worldwide_travel,
+    characteristics: { languages: Array.isArray(ag.languages) ? ag.languages : [] },
+  });
+  return { ...d, account_type: 'agency' };
+}
+
+/** Editable agency data → POST /agency/profile body. */
+export function formToAgency(d) {
+  const p = toPayload(d);
+  return {
+    agency_name: (d.display_name || '').trim(),
+    location: d.location || {},
+    description: d.bio || '',
+    languages: d.characteristics?.languages || [],
+    contact: p.contact,
+    default_services: d.services || {},
+    default_rates: d.rates || {},
+    default_availability: {
+      availability_type: d.availability_type, schedule: d.schedule, available247: !!d.available247,
+      booking_advance: !!d.booking_advance, worldwide_travel: !!d.worldwide_travel,
+    },
+    accepts_disabilities: !!d.accepts_disabilities,
+  };
+}
+
+/** Agency basic info validation (name, city, country, contact). */
+export function validateAgency(d) {
+  const e = validateBasic({ ...d, age: '99' });
+  delete e.age;
+  if (e.display_name) e.display_name = 'Enter your agency name.';
+  return e;
+}
+
+/** A new companion profile, pre-filled from the agency defaults. */
+export function companionFromAgency(ag) {
+  const base = emptyProfile('independent');
+  if (!ag) return base;
+  const a = agencyToForm(ag);
+  return {
+    ...base,
+    gender: 'female',
+    companionshipType: 'escort',
+    location: a.location,
+    contact: a.contact,
+    services: a.services,
+    accepts_disabilities: a.accepts_disabilities,
+    rates: a.rates,
+    availability_type: a.availability_type,
+    schedule: a.schedule,
+    available247: a.available247,
+    booking_advance: a.booking_advance,
+    worldwide_travel: a.worldwide_travel,
+    characteristics: { ...base.characteristics, orientation: 'Straight', languages: a.characteristics.languages },
+  };
 }
