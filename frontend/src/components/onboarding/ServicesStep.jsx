@@ -125,6 +125,8 @@ export const ServicesStep = ({ data, update, showCompanionshipType = true, showD
                         <label className="nm">
                           <input type="checkbox" checked={on} onChange={() => setSvc(name, on ? { type: null, price: '' } : { type: t, price: '' })} data-testid={`service-toggle-${name}`} />
                           <span>{name}</span>
+                          {g.custom && services[name]?.custom && services[name]?.review === 'approved' && <span className="sv-rv ok">Approved</span>}
+                          {g.custom && services[name]?.custom && services[name]?.review !== 'approved' && <span className="sv-rv">{services[name]?.review === 'pending' ? 'In review' : 'Checked after saving'}</span>}
                           {g.custom && <button type="button" className="rmx" aria-label={`Remove ${name}`} onClick={(e) => { e.preventDefault(); removeCustom(name); }}><XIcon size={12} /></button>}
                         </label>
                         <div>

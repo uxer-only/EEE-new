@@ -200,12 +200,13 @@ export function ServicesBody({ data, who = 'your', ratePhrase }) {
   const incl = svc.filter(([, v]) => v.type === 'inclusive').map(([k]) => k);
   const extras = svc.filter(([, v]) => v.type === 'extra');
   const sym = currencySymbol(data.rates?.currency);
+  const inReview = (name) => !!(data.services?.[name]?.custom && data.services[name].review !== 'approved');
   return (
     <>
       {svc.length === 0 ? <p className="empty">No services chosen yet.</p> : (
         <div className="svcs">
-          {incl.length > 0 && <div className="grp"><span className="ey">Included in {ratePhrase || `${who} rate`} · {incl.length}</span><div className="dtags">{incl.map((s) => <span key={s}>{s}</span>)}</div></div>}
-          {extras.length > 0 && <div className="grp tight"><span className="ey">Extras · {extras.length}</span>{extras.map(([k, v]) => <div key={k} className="dlr"><span>{k}</span><b>{v.price ? `+ ${money(sym, v.price)}` : 'Price not set'}</b></div>)}</div>}
+          {incl.length > 0 && <div className="grp"><span className="ey">Included in {ratePhrase || `${who} rate`} · {incl.length}</span><div className="dtags">{incl.map((s) => <span key={s} className={inReview(s) ? 'rv' : undefined}>{s}{inReview(s) ? ' · in review' : ''}</span>)}</div></div>}
+          {extras.length > 0 && <div className="grp tight"><span className="ey">Extras · {extras.length}</span>{extras.map(([k, v]) => <div key={k} className="dlr"><span>{k}{inReview(k) ? <em className="rvt"> · in review</em> : null}</span><b>{v.price ? `+ ${money(sym, v.price)}` : 'Price not set'}</b></div>)}</div>}
         </div>
       )}
     </>

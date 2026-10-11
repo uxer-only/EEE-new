@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { PublicPage } from '@/components/site/Shell';
-import { GlassField, ServerError, GoogleButton, OrDivider, EMAIL_RE, startGoogleAuth } from '@/components/site/AuthBits';
+import { GlassField, ServerError, EMAIL_RE } from '@/components/site/AuthBits';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -44,8 +44,6 @@ export default function Login() {
         </div>
         {serverErr && <ServerError {...serverErr} />}
         <div className="a-stack" style={{ gap: 24 }}>
-          <GoogleButton onClick={startGoogleAuth} testId="google-login-button" />
-          <OrDivider />
           <form noValidate onSubmit={submit}>
             <GlassField id="li-email" label="E-mail" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={setEmail}
               error={eBad ? (email.trim() ? 'Enter a valid e-mail address, e.g. name@example.com.' : 'Enter your e-mail address.') : ''} testId="email-input" />

@@ -221,8 +221,8 @@ export default function TermsPrivacy() {
         ]} />
         <P>The Data Subject's personal data may also be used for the following purposes:</P>
         <UL items={['Handling disputes.', 'Preventing fraud and offences.']} />
-        <P>We also use cookies to recognise visitors (or their IP address), to give them a personalised user experience, to remember their technical settings and to identify and fix errors on the website. You can find more information on how we use cookies in our Cookie Policy.</P>
-        <P>When you visit the website, certain data are collected for statistical purposes. We need these data to improve the use of our website. They include the presumed location, time and date of the visit, the pages viewed, and so on. To protect your privacy as much as possible, these data are always anonymised.</P>
+        <P>We use a small number of essential cookies and similar browser storage to keep advertisers logged in, to remember that you confirmed you are 18 or older and to remember your settings. You can find more information in our Cookie Policy.</P>
+        <P>When you visit the website, we count which pages are viewed and when, so that we can improve the website. We do not store your IP address for this: it is immediately replaced by a scrambled code that changes every day, so visits cannot be linked to you or followed from one day to the next. Detailed visit records are deleted after 90 days; after that we only keep daily totals.</P>
         <P>The Data Subject always provides the personal data to www.eliteescortseurope.eu personally and therefore retains a degree of control. Www.eliteescortseurope.eu may suspend or cancel certain operations if the necessary personal data are missing, incorrect or incomplete.</P>
 
         <H3>Who has access to your personal data?</H3>
@@ -267,14 +267,13 @@ export default function TermsPrivacy() {
         <H2 n={5} id="cookie-policy">Cookie Policy</H2>
 
         <H3>What are cookies?</H3>
-        <P>When visitors arrive on our company's web pages, a small file called a “cookie” is saved on their device. Cookies can be used for various purposes. Some of the cookies we use are essential for the website to work properly (“process cookies”). Others collect information about how the website is used (statistics), so that we can make it easier and more useful. Some cookies are temporary and are deleted when you close your browser, while others stay on your device for a longer period.</P>
+        <P>When visitors arrive on our company's web pages, a small file called a “cookie” is saved on their device. Cookies can be used for various purposes. The cookies we use are essential for the website to work properly (“process cookies”). Some cookies are temporary and are deleted when you close your browser, while others stay on your device for a longer period.</P>
 
         <H3>Why we use cookies</H3>
-        <P>To collect statistics that help us understand how visitors use our website and other online services, so that we can keep improving them.</P>
+        <P>Only for what the website needs to work: to keep advertisers logged in and to remember your choices, such as your age confirmation. We do not use cookies for statistics or advertising.</P>
 
-        <H3>Performance cookies</H3>
-        <P>Performance cookies let us collect information about how visitors use our website – for example, which pages they view, how many pages they visit, where they click, how long each step takes and which error messages appear. We use this information to keep developing our website (its services, features, etc.) in line with what our visitors need, and to offer them a high-quality, user-friendly experience. To measure performance, our website uses third-party cookies on every visit. These cookies show us how many people visit the website and which content interests them. All information is stored anonymously, so that we can offer our users a high-quality experience.</P>
-        <P>Our website uses analytics cookies from the following provider: Google Analytics – details about this service are available at: https://www.google.com/analytics/terms/us.html</P>
+        <H3>Statistics</H3>
+        <P>We do not use third-party analytics or advertising cookies. We count page views with our own counter, which works without cookies: for each page viewed we record the page and the date and time, together with a scrambled code that replaces your IP address and changes every day. This tells us how many people visit the website and which content interests them, without identifying you. Detailed records are deleted after 90 days; after that we only keep daily totals.</P>
 
         <H3>Managing and disabling cookies</H3>
         <P>Modern browsers let you change your cookie settings. Many browsers accept cookies automatically by default, but you can change this setting so that cookies are no longer accepted automatically. If you reset your browser, it will let you choose again whether to accept cookies in the future.</P>

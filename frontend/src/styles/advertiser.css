@@ -389,3 +389,5 @@ fieldset.fs > legend.split { display: flex; align-items: baseline; justify-conte
 .ob-head.ed { flex-direction: column; align-items: flex-start; gap: 16px; }
 .ob-head.ed .back { height: 40px; margin: 0; color: var(--x-cta); }
 .ob-head .sub { font-size: 15px; color: var(--x-muted); }
+.sv-rv { height: 20px; display: inline-flex; align-items: center; padding: 0 8px; margin-left: 4px; background: #FFF4E0; color: #7A4A00; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.sv-rv.ok { background: #EEF4F1; color: #24603F; }

@@ -10,7 +10,7 @@ export default function ProtectedRoute({ children, requiredRole }) {
   );
 
   useEffect(() => {
-    // Skip auth check if user data was passed from AuthCallback
+    // Skip the auth check if user data was passed in the navigation state
     if (location.state?.user) return;
 
     const verifyAuth = async () => {

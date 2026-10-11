@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import '@/App.css';
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
+import { trackPageView } from '@/services/api';
 import { AuthProvider } from '@/context/AuthContext';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -13,7 +14,6 @@ import VerifyEmail from '@/pages/VerifyEmail';
 import AdvertisingPrices from '@/pages/AdvertisingPrices';
 import Contact from '@/pages/Contact';
 import ProviderRegister from '@/pages/ProviderRegister';
-import AuthCallback from '@/pages/AuthCallback';
 import Browse from '@/pages/Browse';
 import ProviderDetail from '@/pages/ProviderDetail';
 import ProviderDashboard from '@/pages/ProviderDashboard';
@@ -29,15 +29,17 @@ import ResetPassword from '@/pages/ResetPassword';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
-function AppRouter() {
-  const location = useLocation();
-  
-  // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
-  // Check URL fragment synchronously during render to prevent race conditions
-  if (location.hash?.includes('session_id=')) {
-    return <AuthCallback />;
-  }
+/** Counts one page view per page visited (the site's own counter; no cookies, admin pages are not counted). */
+function PageTracker() {
+  const { pathname, search } = useLocation();
+  useEffect(() => {
+    if (pathname.startsWith('/admin')) return;
+    trackPageView(`${pathname}${search}`);
+  }, [pathname, search]);
+  return null;
+}
 
+function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
@@ -133,6 +135,7 @@ function App() {
     <div className="App">
       <AuthProvider>
         <BrowserRouter>
+          <PageTracker />
           <AppRouter />
         </BrowserRouter>
         <Toaster position="bottom-right" />

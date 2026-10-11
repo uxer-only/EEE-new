@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { PublicPage } from '@/components/site/Shell';
-import { GlassField, ServerError, GoogleButton, OrDivider, EMAIL_RE, startGoogleAuth } from '@/components/site/AuthBits';
+import { GlassField, ServerError, EMAIL_RE } from '@/components/site/AuthBits';
 
 const svg = (d) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{d}</svg>;
 const BENEFITS = [
@@ -29,7 +29,6 @@ export default function ProviderRegister() {
   const okMail = EMAIL_RE.test(email.trim());
   const okPw = password.length >= 8 && /[a-z]/i.test(password) && /\d/.test(password);
 
-  const remember = () => { try { localStorage.setItem('pending_account_type', type); } catch (e) { /* ignore */ } };
 
   const submit = async (e) => {
     e.preventDefault();
@@ -38,7 +37,6 @@ export default function ProviderRegister() {
     if (!okMail || !okPw || !agree) return;
     setLoading(true);
     try {
-      remember();
       await register(email.trim(), password, email.trim().split('@')[0], 'provider', type);
       navigate('/dashboard');
     } catch (err) {
@@ -85,8 +83,6 @@ export default function ProviderRegister() {
                 ))}
               </div>
             </fieldset>
-            <GoogleButton onClick={() => { remember(); startGoogleAuth(); }} testId="google-register-button" style={{ marginTop: 12 }} />
-            <OrDivider />
             <GlassField id="ra-email" label="E-mail" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={setEmail}
               error={submitted && !okMail ? (email.trim() ? 'Enter a valid e-mail address, e.g. name@example.com.' : 'Enter your e-mail address.') : ''} testId="email-input" />
             <GlassField id="ra-pw" label="Password" password autoComplete="new-password" placeholder="Create a strong password" value={password} onChange={setPassword}

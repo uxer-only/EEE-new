@@ -33,7 +33,7 @@ export default function AdminIndependents() {
 
   return (
     <AdminPage active="independents" testId="admin-independents">
-      <AdminHead title="Independents" sub={list ? `${all.length} independent advertisers · ${action.length} with media waiting for review · ${unver.length} not verified yet` : ' '} />
+      <AdminHead title="Independents" sub={list ? `${all.length} independent advertisers · ${action.length} with media or services waiting for review · ${unver.length} not verified yet` : ' '} />
       <section className="adm-card" aria-labelledby="ai-t">
         <div className="hd"><div><h2 id="ai-t">All independents</h2><p>Independents needing action are listed first · click a row to open the profile</p></div></div>
         <div className="adm-tools">
@@ -41,7 +41,7 @@ export default function AdminIndependents() {
           <Search value={q} onChange={setQ} placeholder="Search by name or e-mail" testId="search-independents" />
         </div>
         <div className="adm-rows" role="table" aria-label="Independents">
-          <div className="adm-thead" role="row"><span>Status</span><span>Independent</span><span>E-mail</span><span>Location</span><span>Verified</span><span>Pending media</span><span /></div>
+          <div className="adm-thead" role="row"><span>Status</span><span>Independent</span><span>E-mail</span><span>Location</span><span>Verified</span><span>In review</span><span /></div>
           {list && rows.length === 0 && <p className="adm-empty">No independents match.</p>}
           {rows.map((p) => (
             <Link key={p.provider_id} to={`/admin/providers/${p.provider_id}`} className={`adm-row${p.needs_action ? ' act' : ''}`} role="row" data-testid={`row-${p.provider_id}`}>
@@ -50,7 +50,7 @@ export default function AdminIndependents() {
               <span className="em">{p.user?.email}</span>
               <span className="loc">{p.location?.city || '—'}</span>
               <span className="vr">{p.verified ? <span className="apill ver">Verified</span> : <span className="apill unv">{p.verification_status === 'submitted' ? 'Pending' : 'Unverified'}</span>}</span>
-              <span className="pm">{p.pending_media_count ? <span className="apill rev">{p.pending_media_count} in review</span> : <span className="adm-none">None</span>}</span>
+              <span className="pm">{(p.pending_media_count || 0) + (p.pending_services || []).length ? <span className="apill rev" title={`${p.pending_media_count || 0} photos or videos, ${(p.pending_services || []).length} custom services`}>{(p.pending_media_count || 0) + (p.pending_services || []).length} in review</span> : <span className="adm-none">None</span>}</span>
               <span className="go">{AI.chevR}</span>
             </Link>
           ))}

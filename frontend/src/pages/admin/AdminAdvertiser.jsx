@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { getAdminProviderDetail, approveMedia, updateVerification } from '@/services/api';
+import { getAdminProviderDetail, approveMedia, updateVerification, reviewCustomService } from '@/services/api';
 import { notifyError } from '@/lib/notify';
 import { AdminPage, Crumbs, AI, abs, fmtDay, fmtAgo, DocTiles, ReasonDialog } from '@/components/admin/AdminParts';
 
@@ -32,6 +32,7 @@ export default function AdminAdvertiser() {
   const { providerId } = useParams();
   const [p, setP] = useState(null);
   const [rejectMedia, setRejectMedia] = useState(null);
+  const [rejectSvc, setRejectSvc] = useState(null);
   const [rejectVer, setRejectVer] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -49,6 +50,15 @@ export default function AdminAdvertiser() {
       await approveMedia(m.media_id, status, reason);
       toast.success(status === 'approved' ? 'Approved — it’s now on the public profile.' : 'Rejected — the reason was sent.');
       setRejectMedia(null);
+      load();
+    } catch (e) { notifyError(e, "We couldn't save this decision."); }
+  };
+  const decideSvc = async (name, status, reason) => {
+    if (status === 'rejected' && !reason) { setRejectSvc(name); return; }
+    try {
+      await reviewCustomService(providerId, name, status, reason);
+      toast.success(status === 'approved' ? `“${name}” is approved — it now shows on the profile.` : `“${name}” was removed and the reason was sent.`);
+      setRejectSvc(null);
       load();
     } catch (e) { notifyError(e, "We couldn't save this decision."); }
   };
@@ -71,6 +81,11 @@ export default function AdminAdvertiser() {
   const pending = media.filter((m) => m.status === 'pending');
   const approved = media.filter((m) => m.status === 'approved');
   const rejected = media.filter((m) => m.status === 'rejected');
+  const customs = Object.entries(p.services && typeof p.services === 'object' && !Array.isArray(p.services) ? p.services : {})
+    .filter(([, v]) => v && v.custom && v.type);
+  const svcPending = customs.filter(([, v]) => v.review !== 'approved');
+  const svcApproved = customs.filter(([, v]) => v.review === 'approved');
+  const svcRejected = p.rejected_services || [];
   const docs = p.documents || [];
   const vs = p.verification_status || 'pending';
   const name = p.display_name || 'Untitled profile';
@@ -118,6 +133,29 @@ export default function AdminAdvertiser() {
         <div className="adm-sh"><span className="i amber">{AI.clock}</span><span className="tx"><h2 id="rv-t">In review <span className="c">({pending.length})</span></h2><p>Not visible on the public profile until approved</p></span></div>
         {pending.length === 0 ? <p className="adm-empty">Nothing waiting for review.</p> : <div className="adm-review">{pending.map((m) => <ReviewTile key={m.media_id} m={m} onDecide={decideMedia} />)}</div>}
       </section>
+
+      {(customs.length > 0 || svcRejected.length > 0) && (
+        <section className="adm-card" aria-labelledby="cs-t" data-testid="custom-services">
+          <div className="adm-sh"><span className={`i ${svcPending.length ? 'amber' : 'green'}`}>{svcPending.length ? AI.clock : AI.check}</span><span className="tx"><h2 id="cs-t">Custom services <span className="c">({svcPending.length} in review)</span></h2><p>Services the {who} added. They only show on the public profile once approved.</p></span></div>
+          <ul className="adm-svcs">
+            {svcPending.map(([name, v]) => (
+              <li key={name} className="pend" data-testid={`svc-${name}`}>
+                <span className="nm"><b>{name}</b><span className="apill pend sm">In review</span><small>{v.type === 'extra' ? `Extra${v.price ? ` · €${v.price}` : ''}` : 'Included in the rate'}</small></span>
+                <span className="bt">
+                  <button type="button" className="btn-ok" onClick={() => decideSvc(name, 'approved')} data-testid={`approve-svc-${name}`}>{AI.check}Approve</button>
+                  <button type="button" className="btn-no" onClick={() => decideSvc(name, 'rejected')} data-testid={`reject-svc-${name}`}>{AI.x}Reject</button>
+                </span>
+              </li>
+            ))}
+            {svcApproved.map(([name, v]) => (
+              <li key={name}><span className="nm"><b>{name}</b><span className="apill ver sm">{AI.check}Approved</span><small>{v.type === 'extra' ? `Extra${v.price ? ` · €${v.price}` : ''}` : 'Included in the rate'}</small></span></li>
+            ))}
+            {svcRejected.map((r, i) => (
+              <li key={`${r.name}-${i}`} className="rej"><span className="nm"><b>{r.name}</b><span className="apill bad sm">Rejected</span><small>{fmtDay(r.rejected_at)}{r.reason ? ` · Reason sent: ${r.reason}` : ''}</small></span></li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="adm-card" aria-labelledby="ap-t">
         <div className="adm-sh"><span className="i green">{AI.check}</span><span className="tx"><h2 id="ap-t">Approved media <span className="c">({approved.length})</span></h2></span></div>
@@ -170,6 +208,7 @@ export default function AdminAdvertiser() {
         {vs === 'rejected' && p.rejection_reason && <p className="adm-vdone"><b>Reason sent:</b> {p.rejection_reason}</p>}
       </section>
 
+      {rejectSvc && <ReasonDialog title={`Reject “${rejectSvc}”?`} cta="Reject and send reason" placeholder="e.g. This service can't be advertised on the website" help={`The service is removed from the profile and the ${who} receives this reason by e-mail.`} onClose={() => setRejectSvc(null)} onSend={(r) => decideSvc(rejectSvc, 'rejected', r)} />}
       {rejectMedia && <ReasonDialog title="Reject this item?" cta="Reject and send reason" placeholder="e.g. Face is fully visible — please crop or blur and upload again" help={`The ${who} receives this reason by e-mail.`} onClose={() => setRejectMedia(null)} onSend={(r) => decideMedia(rejectMedia, 'rejected', r)} />}
       {rejectVer && <ReasonDialog title="Reject verification?" help={`The ${who} receives this by e-mail and can resubmit from the dashboard.`} onClose={() => setRejectVer(false)} onSend={(r) => decideVer('rejected', r)} />}
     </AdminPage>

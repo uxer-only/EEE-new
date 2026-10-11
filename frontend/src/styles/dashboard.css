@@ -381,3 +381,5 @@ a.stat:hover { border-color: #CFC6D8; }
 }
 .adv .back-l { height: 40px; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 15px; font-weight: 700; color: var(--x-cta); text-decoration: none; }
 .adv .back-l:hover { text-decoration: underline; }
+.dtags span.rv { background: #FFF4E0; color: #7A4A00; }
+.dlr .rvt { font-style: normal; font-size: 12px; font-weight: 700; color: #7A4A00; }

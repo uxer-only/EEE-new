@@ -11,6 +11,7 @@ This folder is the existing EEE code base (the copy from 7 October) with the new
   | Role | Account |
   |---|---|
   | Independent (live) | `isabella.indep@demo.com`, `chloé.indep@demo.com` |
+| Independent with media, ID and custom services to review | `mia.indep@demo.com` |
   | New independent, no profile yet | `new.indep@demo.com` |
   | Agency | `rosenoire.agency@demo.com` |
   | New agency, not set up yet | `new.agency@demo.com` |
@@ -117,17 +118,38 @@ The old screens were removed:
   - Rejecting a photo or video now e-mails the reason to the account holder. For a companion, that is the agency.
   - The old "Lumière" branding in the password reset and verification e-mails was replaced with Elite Escorts Europe.
 
+## Second round (feedback)
+
+- **Google log-in removed.** The Emergent-hosted Google sign-in, its callback page and the `/api/auth/session` endpoint are gone. Log-in and registration are e-mail and password only.
+- **Custom services are reviewed by an admin.**
+  - A service an advertiser adds is saved with `review: "pending"`. Only an admin can approve it; the review state sent by the browser is ignored.
+  - Visitors only see approved custom services (profile page and Browse).
+  - The admin advertiser page has a **Custom services** section with Approve and Reject. Reject removes the service, keeps a record in `rejected_services` and e-mails the reason.
+  - Endpoint: `PUT /api/admin/providers/{id}/services/review`.
+  - Advertisers see an "In review" tag in the services editor and on their dashboard.
+  - Pending services count as "action needed" in the admin overview and the Independents list.
+- **Own page-view counter (no Google Analytics).**
+  - Every page except admin pages sends one page view (`POST /api/track`).
+  - No cookies and no IP address are stored. The IP is replaced by a scrambled code that changes every day.
+  - Raw page views are kept 90 days, then turned into daily totals (`traffic_daily`) and deleted. This runs every 6 hours with the renewal-notice job. Old rows that still held IP addresses are cleaned the same way.
+  - The 10,000-row limit on the traffic report is gone.
+  - Unique visitors are counted per day, because the code changes daily.
+- **Privacy and cookie text updated** to match: no Google Analytics, no statistics cookies, what the counter stores and the 90-day limit.
+- **Privacy fix:** the public profile no longer returns the advertiser's account e-mail address.
+
+## Database
+
+The code uses **MongoDB** (via `motor`). It is ready to connect: set `MONGO_URL` (for example a MongoDB Atlas connection string) and `DB_NAME`. Collections and indexes are created automatically on first use. A MySQL or PostgreSQL database would need the data layer rewritten.
+
 ## Known limitations and open decisions
 
 1. **Payments still use Stripe** through the `emergentintegrations` package. Stripe is not usable for this business. A high-risk payment provider has to be integrated before launch. The checkout calls are in one place: `createSubscriptionCheckout`, `createBulkCheckout` and `/subscriptions/status`.
-2. **`emergentintegrations` and Google log in** go through Emergent's hosted services (`auth.emergentagent.com`). Both have to be replaced when the site moves away from Emergent.
+2. **`emergentintegrations`** is still used for the Stripe checkout only; it goes when the payment provider is replaced. Google log-in has been removed.
 3. **Verification documents** are stored as base64 inside MongoDB. They should move to private object storage.
 4. **Uploads are stored on the server's local disk** (`UPLOAD_DIR`). Production needs persistent storage or object storage.
-5. **Custom services are not reviewed yet.** The form says "checked by our team", but there is no admin screen for this.
-6. **The privacy text still mentions Google Analytics.** Check this against the actual tracking before launch.
-7. **E-mails are only sent when `RESEND_API_KEY` is set.** Without it, replies and decisions are saved and the inbox says the e-mail was not sent.
-8. **The "Show in Advertisers" link** from the Agencies design was left out, because it had no clear destination.
-9. **The old automated tests** in `backend/tests` expect the original hosted environment and its accounts, so they fail locally. The redesign was instead checked end to end in a real browser for every flow:
+5. **E-mails are only sent when `RESEND_API_KEY` is set.** Without it, replies and decisions are saved and the inbox says the e-mail was not sent.
+6. **The "Show in Advertisers" link** from the Agencies design was left out, because it had no clear destination.
+7. **The old automated tests** in `backend/tests` expect the original hosted environment and its accounts, so they fail locally. The redesign was instead checked end to end in a real browser for every flow:
    - Onboarding, uploads, plans and editing.
    - The inbox and replies.
    - Agency setup, companions, plans and sync.

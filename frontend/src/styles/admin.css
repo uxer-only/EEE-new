@@ -311,3 +311,14 @@
 .adm .lnk-r { font-size: 15px; font-weight: 700; color: var(--x-cta); text-decoration: none; white-space: nowrap; }
 .adm .lnk-r:hover { text-decoration: underline; }
 @media (max-width: 767px) { .adm-card > .hd { flex-wrap: wrap; } .adm-card > .hd > .lnk-r { order: 3; } }
+
+/* custom services review */
+.adm-svcs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.adm-svcs li { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; border: 1px solid #ECE8EF; border-radius: 10px; }
+.adm-svcs li.pend { background: #FFFAF0; border-color: #EBCB8B; }
+.adm-svcs .nm { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; min-width: 0; }
+.adm-svcs .nm b { font-size: 16px; }
+.adm-svcs .nm small { flex-basis: 100%; font-size: 13px; color: #5F5966; }
+.adm-svcs .bt { display: flex; gap: 8px; flex-shrink: 0; }
+.adm-svcs .bt button { height: 40px; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+@media (max-width: 767px) { .adm-svcs li { flex-direction: column; align-items: stretch; } .adm-svcs .bt button { flex: 1; justify-content: center; } }

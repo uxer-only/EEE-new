@@ -71,8 +71,7 @@ export const suspendAgency = (agencyUserId, suspend) =>
 export const deleteAgency = (agencyUserId) => api.delete(`/admin/agencies/${agencyUserId}`);
 
 // Traffic tracking
-export const trackPageView = (page, userId) => 
-  api.post('/track', { page, user_id: userId });
+export const trackPageView = (page) => api.post('/track', { page }).catch(() => {});
 
 // Subscriptions / Payments
 export const getMySubscription = (providerId) =>
@@ -113,6 +112,8 @@ export const uploadMedia = (file, providerId, onProgress) => {
 };
 export const deleteMedia = (mediaId, providerId) =>
   api.delete(`/providers/media/${mediaId}`, { params: providerId ? { provider_id: providerId } : {} });
+export const reviewCustomService = (providerId, name, status, reason) =>
+  api.put(`/admin/providers/${providerId}/services/review`, { name, status, reason });
 export const reorderMedia = (urls, providerId) =>
   api.put('/providers/media/order', { urls }, { params: providerId ? { provider_id: providerId } : {} });
 export const getMyMedia = (providerId) =>

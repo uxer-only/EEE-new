@@ -120,6 +120,10 @@ async def seed_demo():
                 "document_type": t, "document_url": f"{D}p{k + 3}.jpg", "status": "pending",
                 "submitted_at": now - timedelta(minutes=mins), "reviewed_at": None})
     if mia:
+        svcs = dict(mia.get("services") or {})
+        svcs["Dinner date"] = {"type": "extra", "price": "150", "custom": True, "review": "pending"}
+        svcs["Ballroom dancing"] = {"type": "inclusive", "price": "", "custom": True, "review": "pending"}
+        await db.provider_profiles.update_one({"provider_id": mia["provider_id"]}, {"$set": {"services": svcs}})
         for k, (typ, url, st, ago) in enumerate([("photo", f"{D}p6.jpg", "pending", 0.1), ("photo", f"{D}p7.jpg", "pending", 0.2),
                                                ("video", f"{D}v1.mp4", "pending", 0.6), ("photo", f"{D}p0.jpg", "rejected", 4)]):
             doc = {"media_id": f"media_admin_{k}", "provider_id": mia["provider_id"], "url": url, "media_type": typ, "status": st,
@@ -134,8 +138,9 @@ async def seed_demo():
     logs = []
     for day in range(30):
         for _ in range(rnd.randint(25, 60)):
-            logs.append({"log_id": uuid.uuid4().hex[:12], "page": rnd.choices(pages, [30, 25, 12, 8, 4, 3])[0],
-                         "ip_address": f"10.0.{rnd.randint(0, 3)}.{rnd.randint(1, 40)}", "timestamp": now - timedelta(days=day, minutes=rnd.randint(0, 1400))})
+            ts = now - timedelta(days=day, minutes=rnd.randint(0, 1400))
+            logs.append({"page": rnd.choices(pages, [30, 25, 12, 8, 4, 3])[0], "day": ts.strftime("%Y-%m-%d"),
+                         "visitor": f"v{rnd.randint(1, 160)}", "timestamp": ts})
     await db.traffic_logs.insert_many(logs)
     await db.users.update_many({}, {"$set": {"email_verified": True}})
     print("DEMO SEEDED")

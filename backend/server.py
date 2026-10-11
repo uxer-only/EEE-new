@@ -18,6 +18,7 @@ from datetime import datetime, timezone, timedelta
 import bcrypt
 from jose import jwt
 import httpx
+import hashlib
 import asyncio
 import resend
 import secrets
@@ -77,9 +78,6 @@ class UserRegister(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
-
-class SessionExchange(BaseModel):
-    session_id: str
 
 class ProviderProfile(BaseModel):
     provider_id: str
@@ -378,76 +376,6 @@ async def login(credentials: UserLogin):
     response.set_cookie(
         key="session_token",
         value=session_token,
-        httponly=True,
-        secure=True,
-        samesite="none",
-        path="/",
-        max_age=7*24*60*60
-    )
-    
-    return response
-
-@api_router.post("/auth/session")
-async def exchange_session(session_data: SessionExchange):
-    """Exchange Emergent session_id for user data and session_token"""
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
-            headers={"X-Session-ID": session_data.session_id}
-        )
-        
-        if response.status_code != 200:
-            raise HTTPException(status_code=400, detail="Invalid session_id")
-        
-        auth_data = response.json()
-    
-    # Check if user exists
-    user_doc = await db.users.find_one({"email": auth_data["email"]})
-    
-    if user_doc:
-        # Update existing user
-        await db.users.update_one(
-            {"user_id": user_doc["user_id"]},
-            {"$set": {
-                "name": auth_data["name"],
-                "picture": auth_data["picture"]
-            }}
-        )
-        user_id = user_doc["user_id"]
-    else:
-        # Create new user with client role by default
-        user_id = f"user_{uuid.uuid4().hex[:12]}"
-        user_doc = {
-            "user_id": user_id,
-            "email": auth_data["email"],
-            "name": auth_data["name"],
-            "picture": auth_data["picture"],
-            "role": "client",  # Default role for OAuth
-            "email_verified": True,  # Google/Emergent OAuth already verifies the email
-            "created_at": datetime.now(timezone.utc)
-        }
-        await db.users.insert_one(user_doc)
-    
-    # Create session with emergent session_token
-    session_doc = {
-        "user_id": user_id,
-        "session_token": auth_data["session_token"],
-        "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
-        "created_at": datetime.now(timezone.utc)
-    }
-    
-    await db.user_sessions.insert_one(session_doc)
-    
-    # Return user data
-    user_response = await db.users.find_one(
-        {"user_id": user_id},
-        {"_id": 0, "password_hash": 0}
-    )
-    
-    response = JSONResponse(content=user_response)
-    response.set_cookie(
-        key="session_token",
-        value=auth_data["session_token"],
         httponly=True,
         secure=True,
         samesite="none",
@@ -1028,6 +956,10 @@ async def _renewal_notice_loop():
                 logger.info(f"Sent {n} renewal notice(s)")
         except Exception as e:
             logger.error(f"Renewal notice loop error: {e}")
+        try:
+            await rollup_old_traffic()
+        except Exception as e:
+            logger.error(f"Traffic roll-up error: {e}")
         await asyncio.sleep(6 * 3600)
 
 
@@ -1979,6 +1911,39 @@ def _haversine_km(lat1, lng1, lat2, lng2) -> float:
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
+
+# ----- custom services: added by advertisers, shown publicly only after an admin approves them -----
+
+def _apply_service_review(new_services, old_services):
+    """Mark custom services as pending review unless an admin already approved that same service.
+    The review state sent by the browser is ignored, so it can't be approved from the client."""
+    if not isinstance(new_services, dict):
+        return new_services
+    old = old_services if isinstance(old_services, dict) else {}
+    out = {}
+    for name, v in new_services.items():
+        if isinstance(v, dict) and v.get("custom"):
+            prev = old.get(name)
+            approved = isinstance(prev, dict) and prev.get("custom") and prev.get("review") == "approved"
+            v = {**v, "review": "approved" if approved else "pending"}
+            v.pop("reason", None)
+        out[name] = v
+    return out
+
+
+def _public_services(services):
+    """Services as shown to visitors: custom services only once approved."""
+    if not isinstance(services, dict):
+        return services
+    return {k: v for k, v in services.items()
+            if not (isinstance(v, dict) and v.get("custom") and v.get("review") != "approved")}
+
+
+def _pending_custom_services(services) -> List[str]:
+    if not isinstance(services, dict):
+        return []
+    return [k for k, v in services.items() if isinstance(v, dict) and v.get("custom") and v.get("review") == "pending" and v.get("type")]
+
 @api_router.get("/providers")
 async def browse_providers(
     request: Request,
@@ -2140,6 +2105,7 @@ async def browse_providers(
     for profile in profiles:
         u = user_map.get(profile["user_id"])
         profile["user"] = {k: v for k, v in (u or {}).items() if k != "user_id"} if u else None
+        profile["services"] = _public_services(profile.get("services"))
 
     return profiles
 
@@ -2157,9 +2123,10 @@ async def get_provider_detail(provider_id: str):
     # Get user info
     user = await db.users.find_one(
         {"user_id": profile["user_id"]},
-        {"_id": 0, "name": 1, "picture": 1, "email": 1, "account_type": 1}
+        {"_id": 0, "name": 1, "picture": 1, "account_type": 1}
     )
-    profile["user"] = user
+    profile["user"] = user  # the account e-mail stays private; visitors only see the public contact details
+    profile["services"] = _public_services(profile.get("services"))
 
     # Annotate active subscription flags for the frontend (Mongo dates are naive UTC)
     now = datetime.utcnow()
@@ -2194,6 +2161,7 @@ async def create_provider_profile(
     data = profile_data.model_dump()
     data["photos"] = []  # photos are added through upload + review
     data["rates"] = _normalize_rates(data.get("rates"))
+    data["services"] = _apply_service_review(data.get("services"), None)
     profile_doc = {
         "provider_id": provider_id,
         "user_id": current_user.user_id,
@@ -2227,6 +2195,8 @@ async def update_provider_profile(
     update_data.pop("photos", None)
     if "rates" in update_data:
         update_data["rates"] = _normalize_rates(update_data["rates"])
+    if "services" in update_data:
+        update_data["services"] = _apply_service_review(update_data["services"], profile.get("services"))
     
     if update_data:
         await db.provider_profiles.update_one(
@@ -2381,10 +2351,11 @@ async def save_agency_profile(
     )
     # Propagate services to all existing profiles when requested
     if body.apply_services_to_all and body.default_services:
-        await db.provider_profiles.update_many(
-            {"user_id": current_user.user_id},
-            {"$set": {"services": body.default_services, "accepts_disabilities": body.accepts_disabilities}},
-        )
+        async for prof in db.provider_profiles.find({"user_id": current_user.user_id}, {"_id": 0, "provider_id": 1, "services": 1}):
+            await db.provider_profiles.update_one(
+                {"provider_id": prof["provider_id"]},
+                {"$set": {"services": _apply_service_review(body.default_services, prof.get("services")), "accepts_disabilities": body.accepts_disabilities}},
+            )
     # Propagate rates & availability to all existing profiles when requested
     if body.apply_rates_to_all:
         rate_fields: Dict[str, Any] = {}
@@ -2452,11 +2423,14 @@ async def sync_agency_defaults(current_user: User = Depends(get_current_user)):
     if not set_fields:
         return {"ok": True, "updated": 0}
 
-    result = await db.provider_profiles.update_many(
-        {"user_id": current_user.user_id},
-        {"$set": set_fields},
-    )
-    return {"ok": True, "updated": result.modified_count}
+    updated = 0
+    async for prof in db.provider_profiles.find({"user_id": current_user.user_id}, {"_id": 0, "provider_id": 1, "services": 1}):
+        fields = dict(set_fields)
+        if "services" in fields:
+            fields["services"] = _apply_service_review(fields["services"], prof.get("services"))
+        r = await db.provider_profiles.update_one({"provider_id": prof["provider_id"]}, {"$set": fields})
+        updated += r.modified_count
+    return {"ok": True, "updated": updated}
 
 
 class ProfilePlanBody(BaseModel):
@@ -3058,7 +3032,8 @@ async def admin_get_providers(
             "status": "pending"
         })
         provider["pending_media_count"] = pending_count
-        provider["needs_action"] = pending_count > 0
+        provider["pending_services"] = _pending_custom_services(provider.get("services"))
+        provider["needs_action"] = pending_count > 0 or bool(provider["pending_services"])
         
         # Get user info
         user = await db.users.find_one(
@@ -3198,6 +3173,50 @@ async def admin_approve_media(
     
     return {"status": "success", "media_id": media_id, "new_status": approval.status}
 
+
+class ServiceReview(BaseModel):
+    name: str
+    status: str  # approved | rejected
+    reason: Optional[str] = None
+
+
+@api_router.put("/admin/providers/{provider_id}/services/review")
+async def admin_review_custom_service(provider_id: str, body: ServiceReview, request: Request, session_token: Optional[str] = Cookie(None)):
+    """Approve a custom service (it then shows on the public profile) or reject it (removed, reason e-mailed)."""
+    admin = await get_admin_user(request, session_token)
+    if body.status not in ("approved", "rejected"):
+        raise HTTPException(status_code=400, detail="Invalid status")
+    prof = await db.provider_profiles.find_one({"provider_id": provider_id}, {"_id": 0, "services": 1, "user_id": 1, "display_name": 1})
+    services = (prof or {}).get("services")
+    if not isinstance(services, dict) or not isinstance(services.get(body.name), dict) or not services[body.name].get("custom"):
+        raise HTTPException(status_code=404, detail="Custom service not found")
+    services = dict(services)
+    now = datetime.now(timezone.utc)
+    if body.status == "approved":
+        services[body.name] = {**services[body.name], "review": "approved", "reviewed_at": now.isoformat()}
+        await db.provider_profiles.update_one({"provider_id": provider_id}, {"$set": {"services": services}})
+    else:
+        services.pop(body.name, None)
+        await db.provider_profiles.update_one(
+            {"provider_id": provider_id},
+            {"$set": {"services": services},
+             "$push": {"rejected_services": {"name": body.name, "reason": body.reason or "", "rejected_at": now.isoformat(), "by": admin.user_id}}},
+        )
+        if RESEND_API_KEY:
+            owner = await db.users.find_one({"user_id": prof.get("user_id")}, {"_id": 0, "email": 1, "name": 1})
+            if owner and owner.get("email"):
+                html = (f"<div style=\"font-family:Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1B1820;\">"
+                        f"<h2 style=\"color:#B04585;margin:0 0 12px;\">Elite Escorts Europe</h2>"
+                        f"<p>Hi {owner.get('name') or 'there'},</p>"
+                        f"<p>The service <strong>{body.name}</strong> on the profile <strong>{prof.get('display_name') or ''}</strong> was not approved and has been removed.</p>"
+                        f"<p><strong>Reason:</strong> {body.reason or 'It does not meet our guidelines.'}</p></div>")
+                try:
+                    await asyncio.to_thread(resend.Emails.send, {"from": f"Elite Escorts Europe <{SENDER_EMAIL}>", "to": [owner["email"]],
+                                                                 "subject": "A service on your profile was not approved", "html": html})
+                except Exception as e:
+                    logger.error(f"Service rejection email failed: {e}")
+    return {"status": "success", "name": body.name, "review": body.status}
+
 @api_router.get("/admin/stats")
 async def admin_get_stats(
     request: Request,
@@ -3216,7 +3235,8 @@ async def admin_get_stats(
     providers_with_pending = await db.provider_media.distinct(
         "provider_id", {"provider_id": {"$in": provider_ids}, "status": "pending"}
     )
-    providers_needing_action = len(providers_with_pending)
+    with_services = {p["provider_id"] async for p in db.provider_profiles.find({}, {"_id": 0, "provider_id": 1, "services": 1}) if _pending_custom_services(p.get("services"))}
+    providers_needing_action = len(set(providers_with_pending) | with_services)
     
     now = datetime.utcnow()
     week_ago = now - timedelta(days=7)
@@ -3231,6 +3251,7 @@ async def admin_get_stats(
         "total_clients": total_clients,
         "clients_this_week": clients_week,
         "pending_media": pending_media,
+        "pending_services": len(with_services),
         "providers_needing_action": providers_needing_action,
         "verified": sum(1 for p in profs if p.get("verified")),
         "not_verified": sum(1 for p in profs if not p.get("verified")),
@@ -3249,76 +3270,105 @@ async def admin_get_stats(
         },
     }
 
+TRAFFIC_RAW_DAYS = 90  # raw page views are kept this long; after that only daily totals remain
+
+
+def _visitor_code(ip: str, day: str) -> str:
+    """Scrambled visitor code: changes every day and cannot be turned back into the IP address."""
+    salt = os.environ.get("JWT_SECRET", "eee")
+    return hashlib.sha256(f"{salt}|{day}|{ip}".encode()).hexdigest()[:20]
+
+
+def _client_ip(request: Request) -> str:
+    fwd = (request.headers.get("x-forwarded-for") or "").split(",")[0].strip()
+    return fwd or (request.client.host if request.client else "")
+
+
+async def rollup_old_traffic() -> int:
+    """Turn raw page views older than TRAFFIC_RAW_DAYS into daily totals, then delete the raw rows."""
+    cutoff = (datetime.utcnow() - timedelta(days=TRAFFIC_RAW_DAYS)).strftime("%Y-%m-%d")
+    days = sorted(d for d in await db.traffic_logs.distinct("day", {"day": {"$lt": cutoff}}) if d)
+    for day in days:
+        views, visitors, pages = 0, set(), {}
+        async for log in db.traffic_logs.find({"day": day}, {"_id": 0, "page": 1, "visitor": 1}):
+            views += 1
+            if log.get("visitor"):
+                visitors.add(log["visitor"])
+            pg = log.get("page") or "/"
+            pages[pg] = pages.get(pg, 0) + 1
+        top = dict(sorted(pages.items(), key=lambda x: x[1], reverse=True)[:50])
+        await db.traffic_daily.update_one(
+            {"day": day},
+            {"$inc": {"views": views, "unique_visitors": len(visitors), **{f"pages.{k.replace('.', '%2E')}": v for k, v in top.items()}}},
+            upsert=True,
+        )
+        await db.traffic_logs.delete_many({"day": day})
+    # rows from before visitor codes existed: drop the stored IP addresses
+    await db.traffic_logs.update_many({"ip_address": {"$exists": True}}, {"$unset": {"ip_address": "", "user_agent": "", "user_id": ""}})
+    return len(days)
+
+
 @api_router.get("/admin/traffic")
 async def admin_get_traffic(
     request: Request,
     days: int = 7,
     session_token: Optional[str] = Cookie(None)
 ):
-    """Get website traffic statistics"""
+    """Website traffic: page views per day, unique visitors per day and the most viewed pages.
+    Recent days come from the raw page views, older days from the daily totals."""
     admin = await get_admin_user(request, session_token)
-    
-    # Get traffic for last N days
-    start_date = datetime.now(timezone.utc) - timedelta(days=days)
-    
-    traffic_logs = await db.traffic_logs.find(
-        {"timestamp": {"$gte": start_date}},
-        {"_id": 0}
-    ).to_list(10000)
-    
-    # Aggregate by day and page
-    daily_stats = {}
-    page_stats = {}
-    unique_visitors = set()
-    
-    for log in traffic_logs:
-        # Daily aggregation
-        day = log["timestamp"].strftime("%Y-%m-%d") if isinstance(log["timestamp"], datetime) else log["timestamp"][:10]
-        if day not in daily_stats:
-            daily_stats[day] = {"views": 0, "unique_visitors": set()}
-        daily_stats[day]["views"] += 1
-        if log.get("ip_address"):
-            daily_stats[day]["unique_visitors"].add(log["ip_address"])
-            unique_visitors.add(log["ip_address"])
-        
-        # Page aggregation
-        page = log.get("page", "unknown")
-        if page not in page_stats:
-            page_stats[page] = 0
-        page_stats[page] += 1
-    
-    # Convert sets to counts
-    daily_data = []
-    for day, stats in sorted(daily_stats.items()):
-        daily_data.append({
-            "date": day,
-            "views": stats["views"],
-            "unique_visitors": len(stats["unique_visitors"])
-        })
-    
+    days = max(1, min(int(days or 7), 365))
+    today = datetime.utcnow().date()
+    start = (today - timedelta(days=days - 1)).strftime("%Y-%m-%d")
+
+    daily: Dict[str, Dict[str, Any]] = {}
+    page_stats: Dict[str, int] = {}
+    async for log in db.traffic_logs.find({"day": {"$gte": start}}, {"_id": 0, "day": 1, "page": 1, "visitor": 1}):
+        d = daily.setdefault(log["day"], {"views": 0, "visitors": set()})
+        d["views"] += 1
+        if log.get("visitor"):
+            d["visitors"].add(log["visitor"])
+        pg = log.get("page") or "/"
+        page_stats[pg] = page_stats.get(pg, 0) + 1
+    rows = {k: {"views": v["views"], "unique_visitors": len(v["visitors"])} for k, v in daily.items()}
+    async for row in db.traffic_daily.find({"day": {"$gte": start}}, {"_id": 0}):
+        r = rows.setdefault(row["day"], {"views": 0, "unique_visitors": 0})
+        r["views"] += row.get("views", 0)
+        r["unique_visitors"] += row.get("unique_visitors", 0)
+        for k, v in (row.get("pages") or {}).items():
+            k = k.replace("%2E", ".")
+            page_stats[k] = page_stats.get(k, 0) + v
+
+    daily_data = [{"date": k, **v} for k, v in sorted(rows.items())]
     return {
         "period_days": days,
-        "total_views": len(traffic_logs),
-        "total_unique_visitors": len(unique_visitors),
+        "total_views": sum(r["views"] for r in daily_data),
+        # visitor codes change every day, so this is the sum of the daily unique visitors
+        "total_unique_visitors": sum(r["unique_visitors"] for r in daily_data),
         "daily_stats": daily_data,
-        "page_stats": dict(sorted(page_stats.items(), key=lambda x: x[1], reverse=True)[:10])
+        "page_stats": dict(sorted(page_stats.items(), key=lambda x: x[1], reverse=True)[:10]),
     }
+
 
 @api_router.post("/track")
 async def track_page_view(request: Request):
-    """Track a page view"""
-    body = await request.json()
-    
-    log_doc = {
-        "log_id": f"log_{uuid.uuid4().hex[:12]}",
-        "page": body.get("page", "/"),
-        "user_id": body.get("user_id"),
-        "ip_address": request.client.host if request.client else None,
-        "user_agent": request.headers.get("user-agent"),
-        "timestamp": datetime.now(timezone.utc)
-    }
-    
-    await db.traffic_logs.insert_one(log_doc)
+    """Count one page view. No cookies, no IP address stored: only a scrambled visitor code
+    that changes every day, so a visitor can't be followed from one day to the next."""
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    page = str(body.get("page") or "/")[:200]
+    if not page.startswith("/") or page.startswith("/admin"):
+        return {"status": "ignored"}
+    now = datetime.now(timezone.utc)
+    day = now.strftime("%Y-%m-%d")
+    await db.traffic_logs.insert_one({
+        "page": page,
+        "day": day,
+        "visitor": _visitor_code(_client_ip(request), day),
+        "timestamp": now,
+    })
     return {"status": "tracked"}
 
 @api_router.post("/admin/providers/{provider_id}/verify")
@@ -3489,6 +3539,8 @@ async def start_background_jobs():
     await db.users.update_many({"email_verified": {"$exists": False}}, {"$set": {"email_verified": True}})
     await db.email_verification_tokens.create_index("expires_at", expireAfterSeconds=0)
     await db.email_verification_tokens.create_index("token")
+    await db.traffic_logs.create_index("day")
+    await db.traffic_daily.create_index("day", unique=True)
     asyncio.create_task(_renewal_notice_loop())
 
 @app.on_event("shutdown")

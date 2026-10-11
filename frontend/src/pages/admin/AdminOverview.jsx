@@ -74,7 +74,7 @@ export default function AdminOverview() {
   const s = stats || {};
   const today = new Date();
   const waiting = queue.length;
-  const sub = `${DAYS[today.getDay()]} ${fmtDay(today.toISOString())} · ${plural(waiting, 'verification', 'verifications')} and ${plural(s.providers_needing_action || 0, 'advertiser', 'advertisers')} with media waiting for review`;
+  const sub = `${DAYS[today.getDay()]} ${fmtDay(today.toISOString())} · ${plural(waiting, 'verification', 'verifications')} and ${plural(s.providers_needing_action || 0, 'advertiser', 'advertisers')} with media or services waiting for review`;
   const data = series(traffic?.daily_stats, days);
   const pages = Object.entries(traffic?.page_stats || {}).slice(0, 5);
   const topMax = Math.max(1, ...pages.map(([, v]) => v));
@@ -88,7 +88,7 @@ export default function AdminOverview() {
         <div className="adm-stat"><span className="t">Total providers</span><span className="i">{AI.users}</span><b>{nf(s.total_providers)}</b><span className="s">{s.independents?.total ?? 0} independent · {s.agencies?.companions ?? 0} agency</span></div>
         <div className="adm-stat hide-m"><span className="t">Total clients</span><span className="i">{AI.user}</span><b>{nf(s.total_clients)}</b><span className="s">+{s.clients_this_week || 0} this week</span></div>
         <div className="adm-stat"><span className="t">Pending media</span><span className="i amber">{AI.clock}</span><b className="amber">{nf(s.pending_media)}</b><span className="s">Photos and videos to review</span></div>
-        <div className={`adm-stat${s.providers_needing_action ? ' alert' : ''}`}><span className="t">Need action</span><span className="i red">{AI.warn}</span><b className={s.providers_needing_action ? 'red' : ''}>{nf(s.providers_needing_action)}</b><span className="s">Advertisers with pending media</span></div>
+        <div className={`adm-stat${s.providers_needing_action ? ' alert' : ''}`}><span className="t">Need action</span><span className="i red">{AI.warn}</span><b className={s.providers_needing_action ? 'red' : ''}>{nf(s.providers_needing_action)}</b><span className="s">Advertisers with media or services to review</span></div>
         <div className="adm-stat"><span className="t">Verified</span><span className="i green">{AI.shield}</span><b>{nf(s.verified)}</b><span className="s">{s.not_verified || 0} not verified yet</span></div>
       </div>
 
@@ -148,7 +148,7 @@ export default function AdminOverview() {
         <div className="hd">
           <div>
             <h2 id="tr-t">Website traffic</h2>
-            <p>{first && `${first.getDate()} ${MON[first.getMonth()]} – ${lastD.getDate()} ${MON[lastD.getMonth()]} ${lastD.getFullYear()}`} · page views counted per visit, unique visitors per IP</p>
+            <p>{first && `${first.getDate()} ${MON[first.getMonth()]} – ${lastD.getDate()} ${MON[lastD.getMonth()]} ${lastD.getFullYear()}`} · page views per page visited · unique visitors counted per day, without storing IP addresses</p>
           </div>
           <div className="adm-seg" role="group" aria-label="Period">
             {[7, 14, 30].map((d) => <button key={d} type="button" className={days === d ? 'on' : ''} aria-pressed={days === d} onClick={() => setDays(d)}>Last {d} days</button>)}
