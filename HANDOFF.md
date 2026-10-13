@@ -137,6 +137,8 @@ The old screens were removed:
 - **Privacy and cookie text updated** to match: no Google Analytics, no statistics cookies, what the counter stores and the 90-day limit.
 - **Privacy fix:** the public profile no longer returns the advertiser's account e-mail address.
 - **Emergent tooling removed:** the Emergent scripts in `index.html` (emergent-main.js and the visual-edit debug monitor) and the PostHog analytics snippet are gone. PostHog was Emergent's visitor tracking with session recording, which contradicted the privacy text. The Emergent build plugins (`frontend/plugins`), the `.emergent` folder and its Emergent git identity (`.gitconfig`) are removed too, and the tests now default to `http://localhost:8001`. The only Emergent dependency left is `emergentintegrations` for the Stripe checkout.
+- **Fonts are served by the site itself.** Manrope and Playfair Display come from the `@fontsource` packages and are bundled with the frontend, so visitors' browsers no longer contact Google Fonts. The unused Inter font was dropped. The site now loads nothing from other domains.
+- **Old Emergent notes removed:** the change notes, test reports, test accounts, the `memory` folder and the Emergent design brief. `README.md` now points to this file.
 
 ## Database
 
