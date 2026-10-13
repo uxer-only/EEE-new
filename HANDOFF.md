@@ -10,7 +10,7 @@ This folder is the existing EEE code base (the copy from 7 October) with the new
   - The backend is FastAPI with MongoDB (motor).
   - See "Next.js for the public pages" below.
 - **Git:** the history is kept. The redesign is in the last commits on the current branch. Nothing has been pushed.
-- **Try it locally:** run `demo/run_demo.sh`. It installs the dependencies, builds both apps and starts the backend on port 8001 and the site on <http://localhost:3000> with an in-memory database and demo data. Open port 3000. All demo passwords are `demo1234`.
+- **Try it locally:** on a Mac, double-click `Start demo.command`; elsewhere run `bash demo/run_demo.sh`. It downloads what it needs into `.demo-tools/` (Python through uv, and Node.js if missing), builds both apps and starts the backend on port 8001 and the site on <http://localhost:3000>, with an in-memory database and demo data. The browser opens by itself. All demo passwords are `demo1234`.
 
   | Role | Account |
   |---|---|
