@@ -6,7 +6,7 @@ Log in, register, dashboards and admin are the React app in `../frontend`; this 
 | Command | What it does |
 |---|---|
 | `npm run dev` | Development server on http://localhost:3000 |
-| `npm run build:app` | Builds the React app and copies it to `public/app` (run `yarn install` in `../frontend` first) |
+| `npm run build:app` | Builds the React app and copies it to `public/app` (install its packages first: `npx yarn@1.22.22 install` in `../frontend`) |
 | `npm run build:all` | `build:app`, then builds this site |
 | `npm start` | Runs the built site on port 3000 |
 

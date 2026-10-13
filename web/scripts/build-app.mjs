@@ -11,7 +11,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const frontend = path.join(here, '..', '..', 'frontend');
 const target = path.join(here, '..', 'public', 'app');
 
-execSync('yarn build', {
+execSync('npm run build', { // npm, so Yarn doesn't have to be installed globally
   cwd: frontend,
   stdio: 'inherit',
   env: {

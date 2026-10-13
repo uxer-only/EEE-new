@@ -34,12 +34,12 @@ UV="$(command -v uv || true)"
 [ -z "$UV" ] && [ -x "$TOOLS/uv/uv" ] && UV="$TOOLS/uv/uv"
 [ -z "$UV" ] && [ -x "$TOOLS/uv/bin/uv" ] && UV="$TOOLS/uv/bin/uv"
 if [ -z "$UV" ]; then
-  say "Downloading uv (gets Python for the backend)…"
+  say "Downloading uv (gets Python for the backend)..."
   curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="$TOOLS/uv" UV_NO_MODIFY_PATH=1 sh >/dev/null
   if [ -x "$TOOLS/uv/uv" ]; then UV="$TOOLS/uv/uv"; else UV="$TOOLS/uv/bin/uv"; fi
 fi
 if [ ! -x ".venv-demo/bin/python" ]; then
-  say "Setting up Python for the backend…"
+  say "Setting up Python for the backend..."
   "$UV" venv -q --python 3.12 .venv-demo
 fi
 "$UV" pip install -q --python .venv-demo/bin/python -r demo/requirements-demo.txt
@@ -50,9 +50,9 @@ node_ok() { command -v node >/dev/null 2>&1 && [ "$(node -p 'process.versions.no
 if [ -x "$TOOLS/node/bin/node" ]; then
   export PATH="$TOOLS/node/bin:$PATH"
 elif ! node_ok; then
-  say "Downloading Node.js $NODE_VERSION…"
-  curl -fsSL "https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-$OS-$ARCH.tar.gz" | tar -xz -C "$TOOLS"
-  mv "$TOOLS/node-$NODE_VERSION-$OS-$ARCH" "$TOOLS/node"
+  say "Downloading Node.js ${NODE_VERSION}..."
+  curl -fsSL "https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-$OS-$ARCH.tar.gz" | tar -xz -C "$TOOLS"
+  mv "$TOOLS/node-${NODE_VERSION}-$OS-$ARCH" "$TOOLS/node"
   export PATH="$TOOLS/node/bin:$PATH"
 fi
 
@@ -60,14 +60,14 @@ fi
 STAMP="$TOOLS/built-version"
 VERSION="$(git rev-parse HEAD 2>/dev/null || date +%s)"
 if [ ! -f "$STAMP" ] || [ "$(cat "$STAMP")" != "$VERSION" ] || [ ! -d web/.next ] || [ ! -f web/public/app/index.html ]; then
-  say "Installing the site's packages and building it (a few minutes the first time)…"
+  say "Installing the site's packages and building it (a few minutes the first time)..."
   (cd frontend && npx --yes yarn@1.22.22 install --frozen-lockfile --silent --network-timeout 600000)
   (cd web && npm ci --no-audit --no-fund --loglevel=error && API_URL=http://localhost:8001 SITE_URL=http://localhost:3000 npm run build:all)
   echo "$VERSION" > "$STAMP"
 fi
 
 # ---------- start ----------
-say "Starting the backend…"
+say "Starting the backend..."
 (cd demo && exec ../.venv-demo/bin/uvicorn launch:app --port 8001 --log-level warning) &
 BACKEND_PID=$!
 trap 'kill $BACKEND_PID 2>/dev/null || true' EXIT INT TERM
