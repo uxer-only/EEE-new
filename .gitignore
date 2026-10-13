@@ -91,3 +91,4 @@ credentials.json
 
 .venv-demo/
 backend/uploads/
+.demo-tools/
