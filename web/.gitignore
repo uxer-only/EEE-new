@@ -1,0 +1,4 @@
+node_modules/
+.next/
+# Build of the React app (npm run build:app)
+public/app/

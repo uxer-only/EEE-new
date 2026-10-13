@@ -1,12 +1,13 @@
-"""Run the EEE backend + built frontend on one port with an in-memory MongoDB and demo data.
-Local preview only. Not for production. Start with demo/run_demo.sh, then open http://localhost:8001 (all demo passwords: demo1234)."""
+"""Run the EEE backend on port 8001 with an in-memory MongoDB and demo data.
+The site itself (Next.js, ../web) runs on port 3000 and talks to this backend.
+Local preview only. Not for production. Start with demo/run_demo.sh, then open http://localhost:3000 (all demo passwords: demo1234)."""
 import os, sys, asyncio, uuid
 from datetime import datetime, timedelta
 
 os.environ.update({
     "MONGO_URL": "mongodb://localhost:27017", "DB_NAME": "eee_demo",
-    "JWT_SECRET": "local-preview-only", "CORS_ORIGINS": "http://localhost:8001",
-    "APP_URL": "http://localhost:8001",
+    "JWT_SECRET": "local-preview-only", "CORS_ORIGINS": "http://localhost:3000",
+    "APP_URL": "http://localhost:3000",
 })
 import motor.motor_asyncio as mm
 import mongomock_motor
@@ -21,25 +22,15 @@ import server  # noqa: E402
 import seed_admin_demo as seed  # noqa: E402
 import bcrypt  # noqa: E402
 
-PHOTOS = [f"http://localhost:8001/demo/p{i}.jpg" for i in range(8)]
+PHOTOS = [f"/demo/p{i}.jpg" for i in range(8)]
 seed.PHOTOS[:] = PHOTOS
 PW = "demo1234"
 
 from fastapi.staticfiles import StaticFiles  # noqa: E402
-from starlette.responses import FileResponse  # noqa: E402
 
-BUILD = os.path.join(HERE, "..", "frontend", "build")
 app = server.app
+# Demo photos and video. The Next.js site forwards /demo/... here.
 app.mount("/demo", StaticFiles(directory=os.path.join(HERE, "assets")), name="demo")
-app.mount("/static", StaticFiles(directory=f"{BUILD}/static"), name="static")
-
-
-@app.get("/{full_path:path}", include_in_schema=False)
-async def spa(full_path: str):
-    p = os.path.join(BUILD, full_path)
-    if full_path and os.path.isfile(p):
-        return FileResponse(p)
-    return FileResponse(os.path.join(BUILD, "index.html"))
 
 
 async def _user(email, name, role, account_type=None):
@@ -80,10 +71,10 @@ async def seed_demo():
     # one approved video + extra photos, schedule and options on the first VIP profile (profile page demo)
     first = await db.provider_profiles.find_one({"display_name": "Chloé Laurent"})
     if first:
-        await db.provider_media.insert_one({"media_id": "media_demo_v1", "provider_id": first["provider_id"], "url": "http://localhost:8001/demo/v1.mp4",
+        await db.provider_media.insert_one({"media_id": "media_demo_v1", "provider_id": first["provider_id"], "url": "/demo/v1.mp4",
                                             "media_type": "video", "status": "approved", "uploaded_at": now})
         await db.provider_profiles.update_one({"provider_id": first["provider_id"]}, {"$set": {
-            "photos": [f"http://localhost:8001/demo/p{i}.jpg" for i in (1, 2, 4, 5, 6)],
+            "photos": [f"/demo/p{i}.jpg" for i in (1, 2, 4, 5, 6)],
             "booking_advance": True, "worldwide_travel": True, "availability_type": "both",
             "schedule": {d: ({"available": True, "start": "18:00", "end": "02:00"} if d != "sunday" else {"available": False}) for d in
                          ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]},
@@ -108,7 +99,7 @@ async def seed_demo():
             await db.enquiries.insert_one(doc)
     # admin demo: a verification queue, media to review and some traffic
     import random
-    D = "http://localhost:8001/demo/"
+    D = "/demo/"
     mia = await db.provider_profiles.find_one({"display_name": "Mia König"})
     noor = await db.provider_profiles.find_one({"display_name": "Noor"})
     for prof, n_docs, mins in ((mia, 3, 60 * 30), (noor, 2, 60 * 6)):

@@ -1,7 +1,8 @@
+'use client';
+
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { PublicPage } from '@/components/site/Shell';
-import '@/styles/public.css';
 
 const PARTS = [['introduction', 'Introduction'], ['about-our-website', 'About our website'], ['advertising-conditions', 'Advertising Conditions'], ['privacy-policy', 'Privacy Policy'], ['cookie-policy', 'Cookie Policy']];
 
@@ -18,7 +19,7 @@ const UL = ({ items }) => (
   <ul>{items.map((it, i) => <li key={i}>{it}</li>)}</ul>
 );
 
-export default function TermsPrivacy() {
+export default function TermsContent() {
   const [current, setCurrent] = useState(PARTS[0][0]);
   useEffect(() => {
     const els = PARTS.map(([id]) => document.getElementById(id)).filter(Boolean);
@@ -52,7 +53,7 @@ export default function TermsPrivacy() {
                 <li key={id}><a href={`#${id}`} aria-current={current === id ? 'true' : undefined} onClick={(e) => jump(e, id)}>{label}</a></li>
               ))}
             </ol>
-            <div className="q">Questions? <Link to="/contact">Contact us</Link></div>
+            <div className="q">Questions? <Link href="/contact">Contact us</Link></div>
           </nav>
           <article className="x-glass doc">
 

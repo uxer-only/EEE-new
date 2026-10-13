@@ -1,15 +1,16 @@
+'use client';
+
 /**
  * "More filters" panel content on /browse.
  * Every filter maps to a field advertisers fill in on their profile, using the
  * same option lists, so a filter can always match a real profile.
  *
- * Exports helpers used by Browse.js:
+ * Exports helpers used by the Browse page:
  *  - EXTRA_FILTER_DEFAULTS  blank values for every extra filter
  *  - extraFilterParams()    filters → query params for GET /providers
  *  - extraFilterChips()     filters → removable chips shown above the results
  */
-import { SERVICE_CATEGORIES } from '@/constants/companionData';
-import { NATIONALITIES, ETHNICITIES, BREAST_SIZES, BREAST_TYPES } from '@/components/CharacteristicsForm';
+import { SERVICE_CATEGORIES, NATIONALITIES, ETHNICITIES, BREAST_SIZES, BREAST_TYPES } from '@/lib/filterOptions';
 
 const ORIENTATIONS = ['Straight', 'Bi', 'Lesbian', 'Gay'];
 const LANGUAGES = ['English', 'Dutch', 'French', 'German', 'Russian'];

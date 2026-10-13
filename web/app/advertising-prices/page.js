@@ -1,6 +1,11 @@
-import { Link } from 'react-router-dom';
-import { PublicPage, Icon } from '@/components/site/Shell';
-import '@/styles/public.css';
+import { PublicPage } from '@/components/site/Shell';
+import { Icon } from '@/components/icons';
+
+export const metadata = {
+  title: 'Advertisement plans and prices',
+  description: 'Advertise as an independent escort or agency. Simple prices per profile for 7 days, 15 days, 1 month or 3 months, with an optional VIP upgrade.',
+  alternates: { canonical: '/advertising-prices' },
+};
 
 // Prices per profile (pp). Keep in sync with PLANS / AGENCY_PLANS in backend/server.py.
 const PERIODS = [['7 days', '7d'], ['15 days', '15d'], ['1 month', '1m'], ['3 months', '3m']];
@@ -13,7 +18,7 @@ const AGENCY = [
 
 const Per = ({ long, short }) => (<><span className="lg">{long}</span><span className="sh">{short}</span></>);
 
-export default function AdvertisingPrices() {
+export default function AdvertisingPricesPage() {
   return (
     <PublicPage bg="photo" mainClass="pub-prices">
       <div className="x-wrap" data-testid="advertising-prices-page">
@@ -24,7 +29,7 @@ export default function AdvertisingPrices() {
             <p>www.eliteescortseurope.eu charges the following rates per advertisement (1 advertisement = 1 profile). You pay once for the period you choose.</p>
             <span className="upd">Elite Escorts Europe — last updated {new Date().getFullYear()}</span>
           </div>
-          <Link to="/register/provider" className="x-btn primary">Start advertising</Link>
+          <a href="/register/provider" className="x-btn primary">Start advertising</a>
         </section>
 
         <section aria-labelledby="ind-h" className="x-glass card">

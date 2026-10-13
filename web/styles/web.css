@@ -1,0 +1,11 @@
+/* Rules that only the Next.js pages need. */
+
+/* Age check: hidden straight away for visitors who already confirmed (see the script in app/layout.js). */
+.age-ok .x-age { display: none; }
+
+/* Toast description colour (the React app uses Tailwind's text-muted-foreground). */
+.eee-toast-desc { color: hsl(240 4% 66%) !important; }
+
+/* From the React app's App.css */
+:root { color-scheme: dark; }
+.App { min-height: 100vh; position: relative; }

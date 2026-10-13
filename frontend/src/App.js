@@ -1,21 +1,16 @@
 import { useEffect } from 'react';
 import '@/App.css';
 import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
+import PublicSite, { isAppPath } from '@/components/PublicSite';
 import { trackPageView } from '@/services/api';
 import { AuthProvider } from '@/context/AuthContext';
 import { Toaster } from '@/components/ui/sonner';
 
 // Pages
-import Landing from '@/pages/Landing';
 import Login from '@/pages/Login';
 import AdminLogin from '@/pages/AdminLogin';
-import TermsPrivacy from '@/pages/TermsPrivacy';
 import VerifyEmail from '@/pages/VerifyEmail';
-import AdvertisingPrices from '@/pages/AdvertisingPrices';
-import Contact from '@/pages/Contact';
 import ProviderRegister from '@/pages/ProviderRegister';
-import Browse from '@/pages/Browse';
-import ProviderDetail from '@/pages/ProviderDetail';
 import ProviderDashboard from '@/pages/ProviderDashboard';
 import AgencyArea from '@/pages/AgencyArea';
 import Messages from '@/pages/Messages';
@@ -33,31 +28,24 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 function PageTracker() {
   const { pathname, search } = useLocation();
   useEffect(() => {
-    if (pathname.startsWith('/admin')) return;
+    // Admin pages aren't counted; public pages are counted by the Next.js site.
+    if (pathname.startsWith('/admin') || !isAppPath(pathname)) return;
     trackPageView(`${pathname}${search}`);
   }, [pathname, search]);
   return null;
 }
 
+/** Pages of this app. The public pages moved to the Next.js site (../web). */
 function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/terms" element={<TermsPrivacy />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
-      <Route path="/advertising-prices" element={<AdvertisingPrices />} />
-      <Route path="/contact" element={<Contact />} />
       <Route path="/register" element={<Navigate to="/register/provider" replace />} />
       <Route path="/register/provider" element={<ProviderRegister />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      
-      <Route path="/browse" element={<Browse />} />
-      <Route path="/providers/:id" element={<ProviderDetail />} />
-      {/* Agencies no longer have a public page — any /agency/* URL redirects to /browse */}
-      <Route path="/agency/*" element={<Navigate to="/browse" replace />} />
       
       <Route
         path="/dashboard"
@@ -101,6 +89,9 @@ function AppRouter() {
       <Route path="/admin/providers/:providerId" element={<ProtectedRoute requiredRole="admin"><AdminAdvertiser /></ProtectedRoute>} />
       <Route path="/admin/agencies" element={<ProtectedRoute requiredRole="admin"><AdminAgencies /></ProtectedRoute>} />
       <Route path="/admin/verifications" element={<ProtectedRoute requiredRole="admin"><AdminVerifications /></ProtectedRoute>} />
+
+      {/* Public pages (Home, Browse, profiles, plans, contact, terms) are served by the Next.js site in ../web. */}
+      <Route path="*" element={<PublicSite />} />
     </Routes>
   );
 }

@@ -1,11 +1,16 @@
+'use client';
+
+/* Profile page. The profile arrives already rendered from the server (app/providers/[id]/page.js);
+   the gallery, phone number, request form and report dialog work here in the browser. */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { getProviderById, getProviders, createEnquiry, reportProvider } from '@/services/api';
-import { notifyError, notifyProblem } from '../lib/notify';
-import { PublicPage, Icon, isVip } from '@/components/site/Shell';
-import '@/styles/profile.css';
+import { getProviders, createEnquiry, reportProvider } from '@/lib/api';
+import { notifyError, notifyProblem } from '@/lib/notify';
+import { Icon } from '@/components/icons';
+import { isVip } from '@/lib/vip';
 
 const DAYS = [
   ['monday', 'Monday'], ['tuesday', 'Tuesday'], ['wednesday', 'Wednesday'], ['thursday', 'Thursday'],
@@ -87,11 +92,9 @@ function fmtDur(s) {
   return `${m}:${String(r).padStart(2, '0')}`;
 }
 
-export default function ProviderDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [provider, setProvider] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function ProfileClient({ provider }) {
+  const id = provider.provider_id;
+  const router = useRouter();
   const [idx, setIdx] = useState(0);
   const [lightbox, setLightbox] = useState(false);
   const [durations, setDurations] = useState({});
@@ -107,21 +110,16 @@ export default function ProviderDetail() {
   /* ---------- data ---------- */
   useEffect(() => {
     let alive = true;
-    setLoading(true); setIdx(0); setShowPhone(false); setSent(false);
-    getProviderById(id)
-      .then((r) => {
-        if (!alive) return;
-        const p = r.data;
-        setProvider(p);
-        try {
-          const KEY = 'lumiere-recent-providers';
-          const existing = JSON.parse(localStorage.getItem(KEY) || '[]');
-          const slim = { provider_id: p.provider_id, display_name: p.display_name, age: p.age, photos: (p.photos || []).slice(0, 1), location: p.location, verified: p.verified, viewed_at: Date.now() };
-          localStorage.setItem(KEY, JSON.stringify([slim, ...existing.filter((x) => x.provider_id !== slim.provider_id)].slice(0, 10)));
-        } catch (e) { /* best effort */ }
-      })
-      .catch((err) => { notifyError(err, "We couldn't load this profile."); navigate('/browse'); })
-      .finally(() => alive && setLoading(false));
+    setIdx(0); setShowPhone(false); setSent(false);
+    // Remember recently viewed profiles, so Browse can show them when the visitor is offline.
+    try {
+      const p = provider;
+      const KEY = 'lumiere-recent-providers';
+      const existing = JSON.parse(localStorage.getItem(KEY) || '[]');
+      const slim = { provider_id: p.provider_id, display_name: p.display_name, age: p.age, photos: (p.photos || []).slice(0, 1), location: p.location, verified: p.verified, viewed_at: Date.now() };
+      localStorage.setItem(KEY, JSON.stringify([slim, ...existing.filter((x) => x.provider_id !== slim.provider_id)].slice(0, 10)));
+    } catch (e) { /* best effort */ }
+    // Previous / next profile follow the Browse order.
     getProviders({ limit: 200 })
       .then((r) => {
         if (!alive) return;
@@ -130,9 +128,8 @@ export default function ProviderDetail() {
         setNeighbors(i === -1 ? { prev: null, next: null } : { prev: i > 0 ? list[i - 1].provider_id : null, next: i < list.length - 1 ? list[i + 1].provider_id : null });
       })
       .catch(() => setNeighbors({ prev: null, next: null }));
-    window.scrollTo(0, 0);
     return () => { alive = false; };
-  }, [id, navigate]);
+  }, [id, provider]);
 
   const media = useMemo(() => {
     if (!provider) return [];
@@ -155,13 +152,13 @@ export default function ProviderDetail() {
         else if (e.key === 'ArrowLeft') go(-1);
         return;
       }
-      if (e.key === 'ArrowRight' && neighbors.next) navigate(`/providers/${neighbors.next}`);
-      else if (e.key === 'ArrowLeft' && neighbors.prev) navigate(`/providers/${neighbors.prev}`);
+      if (e.key === 'ArrowRight' && neighbors.next) router.push(`/providers/${neighbors.next}`);
+      else if (e.key === 'ArrowLeft' && neighbors.prev) router.push(`/providers/${neighbors.prev}`);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [neighbors, lightbox, report, N, navigate]);
+  }, [neighbors, lightbox, report, N, router]);
 
   useEffect(() => {
     if (!lightbox && !report) return undefined;
@@ -169,14 +166,6 @@ export default function ProviderDetail() {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = prev; };
   }, [lightbox, report]);
-
-  if (loading || !provider) {
-    return (
-      <PublicPage bg="glow" mainClass="pub-profile">
-        <div className="x-wrap"><div className="pp-loading" aria-busy="true" aria-label="Loading profile" /></div>
-      </PublicPage>
-    );
-  }
 
   const p = provider;
   const c = p.characteristics || {};
@@ -293,17 +282,17 @@ export default function ProviderDetail() {
   };
 
   return (
-    <PublicPage bg="glow" mainClass="pub-profile">
+    <>
       <div className="x-wrap">
         <div className="pp-top">
           <nav aria-label="Breadcrumb" className="crumbs">
-            <Link to="/browse">Elite Escorts</Link><Chev size={14} />
-            {city && <><Link to={`/browse?city=${encodeURIComponent(city)}`}>{city}</Link><Chev size={14} /></>}
+            <Link href="/browse">Elite Escorts</Link><Chev size={14} />
+            {city && <><Link href={`/browse?city=${encodeURIComponent(city)}`}>{city}</Link><Chev size={14} /></>}
             <span aria-current="page">{p.display_name}</span>
           </nav>
           <div className="pnavs">
-            {neighbors.prev && <Link className="pnav" to={`/providers/${neighbors.prev}`} title="Previous profile (←)" data-testid="prev-profile-btn"><Chev dir="left" />Previous profile</Link>}
-            {neighbors.next && <Link className="pnav" to={`/providers/${neighbors.next}`} title="Next profile (→)" data-testid="next-profile-btn">Next profile<Chev /></Link>}
+            {neighbors.prev && <Link className="pnav" href={`/providers/${neighbors.prev}`} prefetch={false} title="Previous profile (←)" data-testid="prev-profile-btn"><Chev dir="left" />Previous profile</Link>}
+            {neighbors.next && <Link className="pnav" href={`/providers/${neighbors.next}`} prefetch={false} title="Next profile (→)" data-testid="next-profile-btn">Next profile<Chev /></Link>}
           </div>
         </div>
 
@@ -584,6 +573,6 @@ export default function ProviderDetail() {
         </div>,
         document.body
       )}
-    </PublicPage>
+    </>
   );
 }

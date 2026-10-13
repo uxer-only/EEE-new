@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+// Empty when the app runs behind the Next.js site (same domain): requests then go to /api.
+export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
 const API = `${BACKEND_URL}/api`;
 
 const api = axios.create({

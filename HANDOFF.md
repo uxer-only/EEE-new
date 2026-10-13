@@ -4,9 +4,13 @@ This folder is the existing EEE code base (the copy from 7 October) with the new
 
 ## What a developer needs to know first
 
-- **Stack:** the same as before. The frontend is React (CRA + craco, Tailwind available, react-router). The backend is FastAPI with MongoDB (motor). No new frameworks were added.
+- **Stack:**
+  - **Public pages** (Home, Browse, profiles, plans, contact, terms) are a **Next.js** app in `web/`. The server renders them, so search engines get the full content.
+  - **Everything else** (log in, register, dashboards, admin, inbox, payment result) is still the React app in `frontend/` (CRA + craco, react-router). Next.js serves its build for those addresses.
+  - The backend is FastAPI with MongoDB (motor).
+  - See "Next.js for the public pages" below.
 - **Git:** the history is kept. The redesign is in the last commits on the current branch. Nothing has been pushed.
-- **Try it locally:** run `demo/run_demo.sh`. It installs the dependencies, builds the frontend and starts everything on <http://localhost:8001> with an in-memory database and demo data. All demo passwords are `demo1234`.
+- **Try it locally:** run `demo/run_demo.sh`. It installs the dependencies, builds both apps and starts the backend on port 8001 and the site on <http://localhost:3000> with an in-memory database and demo data. Open port 3000. All demo passwords are `demo1234`.
 
   | Role | Account |
   |---|---|
@@ -17,11 +21,13 @@ This folder is the existing EEE code base (the copy from 7 October) with the new
   | New agency, not set up yet | `new.agency@demo.com` |
   | Admin | `admin@demo.com` (log in at `/admin/login`) |
 
-  The demo is for previews only. Production still needs MongoDB and the usual environment variables: `MONGO_URL`, `DB_NAME`, `JWT_SECRET`, `APP_URL`, `CORS_ORIGINS`, `RESEND_API_KEY`, `SENDER_EMAIL`, `STRIPE_API_KEY`, `UPLOAD_DIR`, `REPORT_EMAIL` and `IPGEOLOCATION_API_KEY`.
+  The demo is for previews only. Production needs:
+  - **Backend:** MongoDB and `MONGO_URL`, `DB_NAME`, `JWT_SECRET`, `APP_URL` (the site's public address), `CORS_ORIGINS`, `RESEND_API_KEY`, `SENDER_EMAIL`, `STRIPE_API_KEY`, `UPLOAD_DIR`, `REPORT_EMAIL` and `IPGEOLOCATION_API_KEY`.
+  - **Site (`web/`):** `API_URL` (the backend's own address, for example `http://localhost:8001`) and `SITE_URL` (the public address, for example `https://www.eliteescortseurope.com`). Set both when building and when running.
 
 ## Design system in code
 
-- `src/styles/site.css` holds the colour tokens (`--x-*`, with a gutter of 120 / 48 / 16 px), the page frames, the header and footer, the buttons, the glass cards and the age check.
+- `src/styles/site.css` and `public.css` are shared: the Next.js pages import them from `frontend/src/styles`, so both apps always look the same. `site.css` holds the colour tokens (`--x-*`, with a gutter of 120 / 48 / 16 px), the page frames, the header and footer, the buttons, the glass cards and the age check.
 - `src/components/site/Shell.jsx` provides the page frames: `PublicPage` (dark pages with a photo or glow background) and `LightPage` (light pages). It also has the site navigation, which includes an admin variant, and the footer.
 - `src/components/site/Form.jsx` has the form building blocks: cards, fields, segmented controls, pills, switches, the stepper, the info note and the error summary.
 - CSS files by area:
@@ -29,7 +35,7 @@ This folder is the existing EEE code base (the copy from 7 October) with the new
   | File | Area |
   |---|---|
   | `public.css` | Home, Browse, plans, contact, terms, payment result |
-  | `profile.css` | Profile page |
+  | `web/styles/profile.css` | Profile page (Next.js only) |
   | `auth.css` | Log in and register |
   | `advertiser.css` | Advertiser forms |
   | `dashboard.css` | Dashboards and inbox |
@@ -39,11 +45,11 @@ This folder is the existing EEE code base (the copy from 7 October) with the new
 
 ## Pages by design row
 
-1. **Public pages:**
-   - Home: `Landing.js`.
-   - Browse: `Browse.js` and `ExtraFilters.jsx`. Includes "close to me" with reverse geocoding.
-   - Profile page: `ProviderDetail.js`. Includes the gallery with videos, the lightbox, the request form and the report dialog.
-   - Advertisement plans, Contact, and Terms & Privacy.
+1. **Public pages** (Next.js, `web/app/`):
+   - Home: `page.js`.
+   - Browse: `browse/page.js` and `browse/BrowseClient.jsx`, with `components/ExtraFilters.jsx`. Includes "close to me" with reverse geocoding.
+   - Profile page: `providers/[id]/page.js` and `ProfileClient.jsx`. Includes the gallery with videos, the lightbox, the request form and the report dialog.
+   - Advertisement plans, Contact, and Terms & Privacy: `advertising-prices/`, `contact/`, `terms/`.
 2. **Accounts:** Log in, Register as advertiser, Verify e-mail, Forgot password and Reset password.
 3. **Independent onboarding:** `pages/advertiser/ProfileWizard.jsx`, five steps.
    - The profile is created when step 1 is saved, so photos can be uploaded straight away.
@@ -139,6 +145,32 @@ The old screens were removed:
 - **Emergent tooling removed:** the Emergent scripts in `index.html` (emergent-main.js and the visual-edit debug monitor) and the PostHog analytics snippet are gone. PostHog was Emergent's visitor tracking with session recording, which contradicted the privacy text. The Emergent build plugins (`frontend/plugins`), the `.emergent` folder and its Emergent git identity (`.gitconfig`) are removed too, and the tests now default to `http://localhost:8001`. The only Emergent dependency left is `emergentintegrations` for the Stripe checkout.
 - **Fonts are served by the site itself.** Manrope and Playfair Display come from the `@fontsource` packages and are bundled with the frontend, so visitors' browsers no longer contact Google Fonts. The unused Inter font was dropped. The site now loads nothing from other domains.
 - **Old Emergent notes removed:** the change notes, test reports, test accounts, the `memory` folder and the Emergent design brief. `README.md` now points to this file.
+
+## Next.js for the public pages (third round)
+
+- **Why:** the public pages are now rendered on the server. Search engines and link previews get the full page (profiles, photos, prices, text) instead of an empty page that needs JavaScript. The look is unchanged: every public page was compared pixel by pixel with the previous version, at desktop and phone width.
+- **How the two apps fit together:**
+  - `web/` (Next.js 16, App Router) answers every request on the site's address.
+  - It forwards `/api/...` to the backend (`API_URL`), so the browser only talks to one domain and the log-in cookie works for both apps.
+  - `npm run build:app` builds the React app with `PUBLIC_URL=/app` and copies it to `web/public/app`. Next.js serves it for the addresses in `APP_ROUTES` in `web/next.config.mjs` (log in, register, dashboard, admin, …). Add new React routes there.
+  - In the React app, any other address (for example a link to `/browse`) loads the page from the Next.js site: `frontend/src/components/PublicSite.jsx`.
+  - Production build: `cd web && npm ci && npm run build:all`, then `npm start` (port 3000). The React app needs `yarn install` in `frontend` first.
+- **What each page does on the server and in the browser:**
+  - The server fetches the data from the backend (`web/lib/server-api.js`) and renders the page. It passes the visitor's IP address to the backend, so "nearest first" sorting still works.
+  - Filters, the gallery, "Show number", the request form, the report dialog, the age check and the header's log-in state run in the browser (files marked `'use client'`).
+  - Browse keeps one shuffle order per visit: the server picks the seed and the filters reuse it.
+- **SEO added:**
+  - A title, description and canonical link for every page. Profiles get "Name, age – Elite escort in City" and their first photo as the preview image.
+  - `/sitemap.xml` lists the public pages, every city with live profiles (`/browse?city=…`) and every live profile. `/robots.txt` keeps dashboards, admin and the API out.
+  - Breadcrumb structured data on profiles; profiles whose plan ended are not indexed (`noindex`) but stay reachable by link.
+  - A real 404 page for unknown addresses and removed profiles (before, the page redirected to Browse).
+- **Smaller changes:**
+  - The age check is rendered on the server; a small script hides it straight away for visitors who already confirmed.
+  - Fonts are bundled (`@fontsource`); the site still loads nothing from other domains.
+  - The old offline service worker is removed for visitors who still have it.
+  - The demo's photos use relative addresses (`/demo/...`), and the demo backend no longer serves the React app.
+- **Working on the React app alone:** `cd frontend && REACT_APP_BACKEND_URL=http://localhost:8001 REACT_APP_SITE_URL=http://localhost:3000 yarn start`, with the Next.js site running on port 3000 for the public pages.
+- **Next steps for a full conversion:** move the remaining React pages into `web/app/` one area at a time (log in and register first, then the dashboards, then admin), remove each route from `APP_ROUTES`, and finally delete `frontend/`.
 
 ## Database
 

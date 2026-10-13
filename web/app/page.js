@@ -1,8 +1,17 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { getProviders } from '@/services/api';
-import { PublicPage, ProfileTile, Icon } from '@/components/site/Shell';
-import '@/styles/public.css';
+import Link from 'next/link';
+import { PublicPage } from '@/components/site/Shell';
+import ProfileTile from '@/components/ProfileTile';
+import { Icon } from '@/components/icons';
+import { listProviders } from '@/lib/server-api';
+import { SITE_URL, SITE_NAME } from '@/lib/site';
+
+export const dynamic = 'force-dynamic';
+
+export const metadata = {
+  title: { absolute: `${SITE_NAME} — Discreet, curated companionship` },
+  description: 'Browse verified independent escorts and agency companions in a discreet, premium directory. Contact them directly by phone, message or e-mail.',
+  alternates: { canonical: '/' },
+};
 
 const WHY = [
   {
@@ -23,19 +32,19 @@ const WHY = [
   },
 ];
 
-export default function Landing() {
-  const [providers, setProviders] = useState([]);
-  const [loading, setLoading] = useState(true);
+const JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE_NAME,
+  url: `${SITE_URL}/`,
+};
 
-  useEffect(() => {
-    getProviders({ limit: 10 })
-      .then((r) => setProviders((Array.isArray(r.data) ? r.data : []).slice(0, 10)))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+export default async function Home() {
+  const providers = (await listProviders()).slice(0, 10);
 
   return (
     <PublicPage bg="photo" mainClass="pub-home">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
       <section className="hero" aria-labelledby="hero-title" data-testid="hero-section">
         <span className="x-eyebrow">Discreet · Curated · Exceptional</span>
         <h1 id="hero-title" className="x-serif" data-testid="hero-title">
@@ -43,8 +52,8 @@ export default function Landing() {
         </h1>
         <p data-testid="hero-subtitle">Connect with verified independent professionals in a safe, premium environment.</p>
         <div className="ctas">
-          <Link to="/browse" className="x-btn lg primary" data-testid="hero-browse">Browse profiles <Icon.arrow /></Link>
-          <Link to="/register/provider" className="x-btn lg glass" data-testid="hero-advertise">Advertise with us</Link>
+          <Link href="/browse" className="x-btn lg primary" data-testid="hero-browse">Browse profiles <Icon.arrow /></Link>
+          <a href="/register/provider" className="x-btn lg glass" data-testid="hero-advertise">Advertise with us</a>
         </div>
       </section>
 
@@ -54,12 +63,10 @@ export default function Landing() {
           <h2 id="latest-title" className="x-h2">Latest profiles</h2>
         </div>
         <div className="x-tiles c5">
-          {loading
-            ? [...Array(10)].map((_, i) => <div key={i} className="x-tile skeleton" aria-hidden="true"><div className="ph" /></div>)
-            : providers.map((p, i) => <ProfileTile key={p.provider_id} provider={p} index={i} testId={`profile-card-${i}`} />)}
+          {providers.map((p, i) => <ProfileTile key={p.provider_id} provider={p} index={i} testId={`profile-card-${i}`} />)}
         </div>
         <div className="more">
-          <Link to="/browse" className="x-btn glass" data-testid="cta-browse-button">All profiles <Icon.arrow /></Link>
+          <Link href="/browse" className="x-btn glass" data-testid="cta-browse-button">All profiles <Icon.arrow /></Link>
         </div>
       </section>
 
@@ -74,7 +81,7 @@ export default function Landing() {
               <span className="ic">{w.icon}</span>
               <h3>{w.title}</h3>
               <p>{w.text}</p>
-              {w.link && <Link to={w.link.to} className="lnk">{w.link.label} <Icon.arrow /></Link>}
+              {w.link && <Link href={w.link.to} className="lnk">{w.link.label} <Icon.arrow /></Link>}
             </div>
           ))}
         </div>
