@@ -90,6 +90,7 @@ export function SiteFoot({ theme = 'dark' }) {
         <Link href="/terms" aria-current={cur('/terms')} data-testid="footer-terms-link">Terms, Privacy &amp; Cookies</Link>
         <Link href="/advertising-prices" aria-current={cur('/advertising-prices')} data-testid="footer-advertising-link">Advertisement plans</Link>
         <Link href="/contact" aria-current={cur('/contact')} data-testid="footer-contact-link">Contact</Link>
+        <a href="/admin/login" data-testid="footer-admin-link">Admin</a>
       </nav>
     </footer>
   );
