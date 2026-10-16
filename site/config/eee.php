@@ -16,6 +16,8 @@ return [
 
     // Payments (temporary: Stripe, to be replaced by the chosen payment provider).
     'stripe_api_key' => env('STRIPE_API_KEY'),
+    // Signing secret of the Stripe webhook (Stripe dashboard → Webhooks). When set, webhook calls are checked.
+    'stripe_webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
 
     // Optional: visitor IP → location, for "nearest first" on Browse (ipgeolocation.io).
     'ipgeolocation_api_key' => env('IPGEOLOCATION_API_KEY'),
@@ -32,4 +34,8 @@ return [
 
     // Raw page views are kept this many days, then only daily totals remain.
     'traffic_raw_days' => 90,
+
+    // Added to the style and script addresses, so browsers load new files after an update. Change it when you change public/css or public/js.
+    'asset_version' => env('ASSET_VERSION', '1'),
+
 ];

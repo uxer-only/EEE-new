@@ -88,7 +88,11 @@ credentials.json
 .env
 .env.*
 *.env
+!.env.example
 
 .venv-demo/
 backend/uploads/
 .demo-tools/
+
+# Upload packages made by site/make-release.sh
+/releases/

@@ -2,9 +2,9 @@
 
 Advertising directory for independent escorts and agencies.
 
-- `web/`: the site, built with Next.js. It renders the public pages (Home, Browse, profiles, plans, contact, terms) on the server.
-- `frontend/`: the React app for log in, register, dashboards and admin. The site serves its build.
-- `backend/`: FastAPI with MongoDB.
-- Local demo: on a Mac double-click `Start demo.command` (or run `bash demo/run_demo.sh`); it opens http://localhost:3000
+- `site/`: **the website in PHP (Laravel) with MySQL.** It serves the public pages (Home, Browse, profiles, plans, contact, terms), the API, and the ready-built React screens for log in, register, dashboards and admin (`site/public/app`). This is the version to put online: see `site/HOSTING.md`.
+- `frontend/`: the source of those React screens. After a change, rebuild them with `bash site/build-app.sh` (needs Node.js on your computer only).
+- `web/` (Next.js) and `backend/` (FastAPI + MongoDB): the earlier version. The PHP version replaces both; they can be removed once it is online.
+- Local demo: on a Mac double-click `Start demo.command` (or run `bash demo/run_php_demo.sh`); it opens http://localhost:3000
 
-Read `HANDOFF.md` first: it explains the redesign, the pages, how the two apps fit together, the backend changes and the open decisions.
+Read `HANDOFF.md` first: it explains the redesign, the pages, the PHP version and the open decisions.

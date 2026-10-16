@@ -43,6 +43,16 @@ class Auth
         return self::shape($u);
     }
 
+    /** The signed-in user, or null for visitors (used by the public pages' header). */
+    public static function optional(Request $request): ?array
+    {
+        try {
+            return self::user($request);
+        } catch (\Illuminate\Http\Exceptions\HttpResponseException $e) {
+            return null;
+        }
+    }
+
     public static function provider(Request $request): array
     {
         $u = self::user($request);

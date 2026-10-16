@@ -4,13 +4,14 @@ This folder is the existing EEE code base (the copy from 7 October) with the new
 
 ## What a developer needs to know first
 
-- **Stack:**
-  - **Public pages** (Home, Browse, profiles, plans, contact, terms) are a **Next.js** app in `web/`. The server renders them, so search engines get the full content.
-  - **Everything else** (log in, register, dashboards, admin, inbox, payment result) is still the React app in `frontend/` (CRA + craco, react-router). Next.js serves its build for those addresses.
-  - The backend is FastAPI with MongoDB (motor).
-  - See "Next.js for the public pages" below.
+- **Stack (PHP version, the one to put online):**
+  - Everything runs in **`site/`**, a **Laravel 13** app (PHP 8.3+) with **MySQL/MariaDB**. It works on ordinary PHP web hosting; `site/HOSTING.md` explains the set-up step by step.
+  - **Public pages** (Home, Browse, profiles, plans, contact, terms) are PHP templates rendered on the server (`site/resources/views`), with small plain-JavaScript files for the interactive parts (`site/public/js`).
+  - **Log in, register, dashboards, admin, inbox, payment result** are still the React app from `frontend/`, built once into `site/public/app` (no Node.js on the server).
+  - The **API** (`site/routes/api.php`) has the same addresses and answers as the earlier Python backend, so the React app works unchanged.
+  - The earlier stack (Next.js in `web/`, FastAPI + MongoDB in `backend/`) is still in the folder. See "PHP version (fourth round)" below.
 - **Git:** the history is kept. The redesign is in the last commits on the current branch. Nothing has been pushed.
-- **Try it locally:** on a Mac, double-click `Start demo.command`; elsewhere run `bash demo/run_demo.sh`. It downloads what it needs into `.demo-tools/` (Python through uv, and Node.js if missing), builds both apps and starts the backend on port 8001 and the site on <http://localhost:3000>, with an in-memory database and demo data. The browser opens by itself. All demo passwords are `demo1234`.
+- **Try it locally:** on a Mac, double-click `Start demo.command`; elsewhere run `bash demo/run_php_demo.sh`. The first time it downloads a stand-alone PHP (when PHP 8.3+ isn't installed) and Composer into `.demo-tools/`, and installs the site's PHP packages. Every start fills a small demo database (`site/database/demo.sqlite`) and opens <http://localhost:3000>. All demo passwords are `demo1234`. (The earlier Python + Next.js demo still runs with `bash demo/run_demo.sh`.)
 
   | Role | Account |
   |---|---|
@@ -21,9 +22,7 @@ This folder is the existing EEE code base (the copy from 7 October) with the new
   | New agency, not set up yet | `new.agency@demo.com` |
   | Admin | `admin@demo.com` (log in at `/admin/login`) |
 
-  The demo is for previews only. Production needs:
-  - **Backend:** MongoDB and `MONGO_URL`, `DB_NAME`, `JWT_SECRET`, `APP_URL` (the site's public address), `CORS_ORIGINS`, `RESEND_API_KEY`, `SENDER_EMAIL`, `STRIPE_API_KEY`, `UPLOAD_DIR`, `REPORT_EMAIL` and `IPGEOLOCATION_API_KEY`.
-  - **Site (`web/`):** `API_URL` (the backend's own address, for example `http://localhost:8001`) and `SITE_URL` (the public address, for example `https://www.eliteescortseurope.com`). Set both when building and when running.
+  The demo is for previews only. For the web server, follow `site/HOSTING.md`: PHP 8.3+, a MySQL database, the settings in `site/.env` (copy `site/.env.example`), one cron job, and `php artisan eee:admin you@example.com` for the first admin account.
 
 ## Design system in code
 
@@ -146,6 +145,29 @@ The old screens were removed:
 - **Fonts are served by the site itself.** Manrope and Playfair Display come from the `@fontsource` packages and are bundled with the frontend, so visitors' browsers no longer contact Google Fonts. The unused Inter font was dropped. The site now loads nothing from other domains.
 - **Old Emergent notes removed:** the change notes, test reports, test accounts, the `memory` folder and the Emergent design brief. `README.md` now points to this file.
 
+## PHP version (fourth round)
+
+- **Why:** the site had to run on ordinary PHP + MySQL hosting, without Node.js, Python or MongoDB on the server.
+- **Same behaviour, same look:**
+  - Every API call was compared between the Python backend and the PHP version (the answers' shape, status codes and error messages), for visitors, advertisers, agencies and admin, including uploads, enquiries, verification, plans and suspending. Tested on SQLite and on MariaDB.
+  - Every public page was compared pixel by pixel with the Next.js version at desktop and phone width; the page sizes are identical and only the shuffled order of profiles differs. Filters, gallery, lightbox, phone number, request form, report dialog, age check, menus and the log-in state in the header were tested in a real browser.
+  - Addresses, titles, descriptions, canonical links, `noindex` rules, breadcrumbs, `sitemap.xml` and `robots.txt` are the same.
+- **Where things are (`site/`):**
+  - `routes/api.php` → `app/Http/Controllers/Api/*`: the API. Shared logic in `app/Support/` (`Profiles`, `Browse`, `Plans`, `Payments`, `Emails`, `Mail`, `Pdf` for invoices, `Geo`).
+  - `routes/web.php` → `app/Http/Controllers/PublicController.php` → `resources/views/pages/*`: the public pages. Header, footer and age check in `resources/views/partials`, page frame in `resources/views/layout.blade.php`.
+  - `public/js/site.js` (header, age check, toasts, page counter, API calls), `browse.js`, `profile.js`, `terms.js`. `public/css`: the same style sheets as before (`site.css` and `public.css` are copies of `frontend/src/styles`; keep them in step).
+  - `Site::APP_ROUTES` in `app/Support/Site.php`: the addresses served by the React app. Add a route there when you add a page to that app, then rebuild it with `bash site/build-app.sh`.
+  - Database tables: `database/migrations`. Each record keeps its full data as JSON in a `doc` column, plus separate columns for what the site searches on (`app/Support/Docs.php`), so the data looks the same as in MongoDB.
+- **Commands (`php artisan …`):** `eee:admin` (create an admin), `eee:jobs` (renewal e-mails, traffic totals, clean-up; runs every 6 hours through the cron job), `eee:demo --fresh` (demo data; refuses to run on a live site).
+- **Changes compared with the Python backend:**
+  - Registration only accepts advertiser and client accounts (the old code also accepted "admin"), and passwords need at least 8 characters.
+  - Text typed by visitors is escaped in all e-mails; links in e-mails always use the site's own address (`APP_URL`).
+  - Payments: when no `STRIPE_WEBHOOK_SECRET` is set, the payment state is checked with Stripe instead of trusting the webhook message. Errors from the payment provider come back as a readable message.
+  - Public pages set no cookies of their own; the header knows who is logged in straight away (no flash of the "Log in" link).
+  - The city search is a plain text search (the old one accepted search patterns).
+- **Package for the server:** `bash site/make-release.sh` makes `releases/eee-site-DATE.zip` with everything included (about 30 MB).
+- **Removing the earlier version:** once the PHP site is online, `web/`, `backend/`, `demo/launch.py`, `demo/mm_patch.py`, `demo/requirements-demo.txt` and `demo/run_demo.sh` can be deleted.
+
 ## Next.js for the public pages (third round)
 
 - **Why:** the public pages are now rendered on the server. Search engines and link previews get the full page (profiles, photos, prices, text) instead of an empty page that needs JavaScript. The look is unchanged: every public page was compared pixel by pixel with the previous version, at desktop and phone width.
@@ -174,14 +196,14 @@ The old screens were removed:
 
 ## Database
 
-The code uses **MongoDB** (via `motor`). It is ready to connect: set `MONGO_URL` (for example a MongoDB Atlas connection string) and `DB_NAME`. Collections and indexes are created automatically on first use. A MySQL or PostgreSQL database would need the data layer rewritten.
+The PHP version uses **MySQL or MariaDB** (SQLite for the demo). `php artisan migrate --force` creates the tables. The earlier Python backend used MongoDB.
 
 ## Known limitations and open decisions
 
-1. **Payments still use Stripe** through the `emergentintegrations` package. Stripe is not usable for this business. A high-risk payment provider has to be integrated before launch. The checkout calls are in one place: `createSubscriptionCheckout`, `createBulkCheckout` and `/subscriptions/status`.
-2. **`emergentintegrations`** is still used for the Stripe checkout only; it goes when the payment provider is replaced. Google log-in has been removed.
-3. **Verification documents** are stored as base64 inside MongoDB. They should move to private object storage.
-4. **Uploads are stored on the server's local disk** (`UPLOAD_DIR`). Production needs persistent storage or object storage.
+1. **Payments still use Stripe** (in the PHP version through Stripe's own web API, `site/app/Support/Payments.php`). Stripe is not usable for this business. A high-risk payment provider has to be integrated before launch; all payment calls are in that one file and in `SubscriptionController`.
+2. **Google log-in** has been removed.
+3. **Verification documents** are stored inside the database (as in the Python version). They should move to private storage.
+4. **Uploads are stored on the server's disk** (`storage/app/uploads`). Include that folder in the back-ups.
 5. **E-mails are only sent when `RESEND_API_KEY` is set.** Without it, replies and decisions are saved and the inbox says the e-mail was not sent.
 6. **The "Show in Advertisers" link** from the Agencies design was left out, because it had no clear destination.
 7. **The old automated tests** in `backend/tests` expect the original hosted environment and its accounts, so they fail locally. The redesign was instead checked end to end in a real browser for every flow:

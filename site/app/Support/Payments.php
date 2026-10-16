@@ -65,7 +65,7 @@ class Payments
      */
     public static function webhook(string $body, ?string $signature): array
     {
-        $secret = env('STRIPE_WEBHOOK_SECRET');
+        $secret = config('eee.stripe_webhook_secret');
         if ($secret) {
             $parts = [];
             foreach (explode(',', (string) $signature) as $kv) {

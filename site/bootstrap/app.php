@@ -19,6 +19,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         // The log-in cookie is read by the API itself; it is random and not encrypted by Laravel.
         $middleware->encryptCookies(except: ['session_token', 'ageConfirmed']);
+        // The public pages have no forms that post to Laravel and set no cookies of their own
+        // (the Terms page promises only essential cookies), so no Laravel session or form token.
+        $middleware->web(remove: [
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // API errors look like the earlier backend: {"detail": "..."}

@@ -138,6 +138,13 @@ class SubscriptionController
     public function webhook(Request $request)
     {
         $evt = Payments::webhook($request->getContent(), $request->header('Stripe-Signature'));
+        if ($evt['session_id'] && !config('eee.stripe_webhook_secret')) {
+            // Unsigned call: don't trust what it says, ask Stripe for the real state of the payment.
+            if (!Docs::count('payment_transactions', ['session_id' => $evt['session_id']])) {
+                return Api::json(['received' => true]);
+            }
+            $evt['payment_status'] = Payments::status($evt['session_id'])['payment_status'];
+        }
         if ($evt['session_id']) {
             Docs::update('payment_transactions', ['session_id' => $evt['session_id']], [
                 'payment_status' => $evt['payment_status'], 'webhook_event_type' => $evt['event_type'], 'webhook_event_id' => $evt['event_id'],

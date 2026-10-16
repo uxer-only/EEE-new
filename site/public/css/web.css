@@ -1,0 +1,35 @@
+/* Small rules the PHP pages need on top of the shared styles. */
+
+/* Age check: hidden straight away for visitors who already confirmed (see the script in resources/views/layout.blade.php). */
+.age-ok .x-age { display: none; }
+
+/* Toast description colour (the React app uses Tailwind's text-muted-foreground). */
+.eee-toast-desc { color: hsl(240 4% 66%) !important; }
+
+/* From the React app's App.css */
+:root { color-scheme: dark; }
+.App { min-height: 100vh; position: relative; }
+
+/* Mobile menu: shown when the menu button is pressed (public/js/site.js). */
+.x-menu[hidden] { display: none !important; }
+.x-burger .i-open, .x-burger .i-close { display: contents; }
+.x-burger .i-close, .x-nav.open .x-burger .i-open { display: none; }
+.x-nav.open .x-burger .i-close { display: contents; }
+
+/* Parts of a page that the browser shows or hides (for example the filter panel). */
+[hidden] { display: none !important; }
+
+/* Toast messages (bottom right), same colours as the React app's toasts. */
+.eee-toaster { position: fixed; z-index: 999999999; right: 24px; bottom: 24px; width: 356px; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+.eee-toast { position: relative; display: flex; align-items: center; gap: 6px; padding: 16px; box-sizing: border-box; border-radius: 8px; border: 1px solid hsl(240 6% 15%); background: hsl(210 10% 4%); color: hsl(40 20% 95%); box-shadow: 0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1); font-size: 13px; animation: eee-toast-in .35s ease; transition: opacity .2s, transform .2s; }
+.eee-toast.out { opacity: 0; transform: translateY(8px); }
+.eee-toast .ti { display: flex; flex-shrink: 0; width: 16px; height: 16px; margin: 0 4px 0 -3px; align-self: flex-start; margin-top: 1px; }
+.eee-toast .ti svg { width: 16px; height: 16px; }
+.eee-toast .tc { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.eee-toast .tt { font-weight: 500; line-height: 1.5; }
+.eee-toast .eee-toast-desc { line-height: 1.4; }
+.eee-toast .tx { position: absolute; top: -8px; left: -8px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid hsl(240 6% 15%); background: hsl(210 10% 4%); color: inherit; font-size: 14px; line-height: 1; cursor: pointer; opacity: 0; transition: opacity .1s; display: flex; align-items: center; justify-content: center; padding: 0; }
+.eee-toast:hover .tx, .eee-toast .tx:focus-visible { opacity: 1; }
+@keyframes eee-toast-in { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: none; } }
+@media (max-width: 600px) { .eee-toaster { left: 16px; right: 16px; bottom: 16px; width: auto; } }
+.x-btn .ci { display: contents; }
