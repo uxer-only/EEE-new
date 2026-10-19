@@ -4,7 +4,7 @@
 # Needs Node.js (only here, never on the web server).
 set -e
 cd "$(dirname "$0")/../frontend"
-[ -d node_modules ] || npm install --legacy-peer-deps
+[ -d node_modules ] || npx --yes yarn@1.22.22 install --frozen-lockfile   # exact versions from yarn.lock
 PUBLIC_URL=/app REACT_APP_BACKEND_URL= GENERATE_SOURCEMAP=false CI=false npm run build
 rm -rf ../site/public/app
 cp -R build ../site/public/app
