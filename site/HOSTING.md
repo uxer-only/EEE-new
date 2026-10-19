@@ -86,6 +86,15 @@ php artisan optimize                  # makes the site faster (run again after e
 The folders `storage/` and `bootstrap/cache/` must be writable by PHP (usually they already are).
 Uploaded photos and videos are stored in `storage/app/uploads` (outside `public/`, served through the site). ID documents are kept in the database.
 
+### No terminal? Use the setup page
+
+Instead of the commands in step 4 you can use a one-time page in the browser:
+
+1. Add a line `SETUP_TOKEN=` followed by a long secret code of your own (at least 20 characters) to `.env`.
+2. Open `https://www.eliteescortseurope.eu/setup`, type that code, your admin e-mail and a password (12+ characters) and click **Set up the site**.
+   This creates the database tables and your admin account.
+3. Remove the `SETUP_TOKEN` line from `.env` again. (The page already switched itself off once an admin exists.)
+
 ## 5. Scheduled tasks (cron)
 
 Add one cron job in the control panel. Best, every minute:

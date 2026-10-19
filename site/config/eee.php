@@ -40,6 +40,10 @@ return [
     // Raw page views are kept this many days, then only daily totals remain.
     'traffic_raw_days' => 90,
 
+    // One-time setup page /setup (for hosting without a terminal): set SETUP_TOKEN in .env to a long secret.
+    // The page creates the database tables and the first admin, then switches itself off.
+    'setup_token' => env('SETUP_TOKEN'),
+
     // Added to the style and script addresses, so browsers load new files after an update. Change it when you change public/css or public/js.
     'asset_version' => env('ASSET_VERSION', '3'),
 

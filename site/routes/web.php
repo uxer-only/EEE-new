@@ -18,6 +18,11 @@ Route::get('/terms', [Pages::class, 'terms']);
 Route::get('/sitemap.xml', [Pages::class, 'sitemap']);
 Route::get('/robots.txt', [Pages::class, 'robots']);
 
+// One-time setup (database tables + first admin) for hosting without a terminal. Off unless SETUP_TOKEN is set,
+// and off for good once an admin account exists. See app/Http/Controllers/SetupController.php.
+Route::get('/setup', [\App\Http\Controllers\SetupController::class, 'show']);
+Route::post('/setup', [\App\Http\Controllers\SetupController::class, 'run'])->middleware('throttle:10,1');
+
 // Agencies have no public page.
 Route::redirect('/agency', '/browse');
 Route::get('/agency/{any}', fn () => redirect('/browse'))->where('any', '.*');
