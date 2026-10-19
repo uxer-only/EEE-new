@@ -36,6 +36,6 @@ return [
     'traffic_raw_days' => 90,
 
     // Added to the style and script addresses, so browsers load new files after an update. Change it when you change public/css or public/js.
-    'asset_version' => env('ASSET_VERSION', '2'),
+    'asset_version' => env('ASSET_VERSION', '3'),
 
 ];
