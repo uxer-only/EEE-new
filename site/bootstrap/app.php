@@ -7,7 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
-return Application::configure(basePath: dirname(__DIR__))
+$app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
@@ -47,3 +47,16 @@ return Application::configure(basePath: dirname(__DIR__))
             return Api::json(['detail' => config('app.debug') ? $e->getMessage() : 'Internal Server Error'], 500);
         });
     })->create();
+
+// Hosting where the web folder is fixed (Combell: /www): the files of "public" are in that folder and the rest
+// of the site is in a folder "laravel" next to it or inside it (see HOSTING.md). Tell Laravel where they are.
+if (!is_dir($app->basePath('public'))) {
+    foreach ([dirname($app->basePath()).'/www', dirname($app->basePath())] as $web) {
+        if (is_file($web.'/index.php')) {
+            $app->usePublicPath($web);
+            break;
+        }
+    }
+}
+
+return $app;

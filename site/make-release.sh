@@ -4,6 +4,8 @@
 # Without .env, uploads and databases: those stay on the server. See HOSTING.md.
 #
 # Run on your computer from the project folder:   bash site/make-release.sh
+# For hosting where the web folder is fixed (Combell: /www):  bash site/make-release.sh combell
+#   → releases/eee-site-combell-YYYY-MM-DD.zip with two folders: www/ (put its contents in /www) and laravel/.
 # Needs PHP 8.3+ (the demo's copy in .demo-tools/ is used when there is one) and git.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -30,8 +32,25 @@ rm -f build-app.sh make-release.sh database/*.sqlite
 rm -rf public/demo   # demo photos and video: only for the demo on your computer
 mkdir -p storage/app/uploads storage/framework/{cache/data,sessions,views} storage/logs bootstrap/cache
 
-NAME="eee-site-$(date +%Y-%m-%d).zip"
 mkdir -p "$ROOT/releases"
-rm -f "$ROOT/releases/$NAME"
-cd "$BUILD" && zip -qr "$ROOT/releases/$NAME" site -x 'site/.env' 'site/storage/logs/*.log'
+if [ "${1:-}" = "combell" ]; then
+  # www/ = the files of public/ (with the Combell index.php); laravel/ = everything else, locked off for visitors.
+  cd "$BUILD"
+  mkdir combell
+  mv site/public combell/www
+  cp site/deploy/combell/index.php combell/www/index.php
+  # Block the laravel folder too when it ends up inside /www.
+  sed -i.bak 's|    RewriteEngine On|    RewriteEngine On\n\n    # The site code may be in /www/laravel: never show it\n    RewriteRule ^laravel(/\|$) - [F,L]|' combell/www/.htaccess && rm combell/www/.htaccess.bak
+  rm -rf site/deploy
+  mv site combell/laravel
+  printf '%s\n' '# This folder holds the site code, settings (.env) and uploads. Nobody may open it from the internet.' 'Require all denied' > combell/laravel/.htaccess
+  NAME="eee-site-combell-$(date +%Y-%m-%d).zip"
+  rm -f "$ROOT/releases/$NAME"
+  cd combell && zip -qr "$ROOT/releases/$NAME" www laravel -x 'laravel/.env' 'laravel/storage/logs/*.log'
+else
+  rm -rf site/deploy
+  NAME="eee-site-$(date +%Y-%m-%d).zip"
+  rm -f "$ROOT/releases/$NAME"
+  cd "$BUILD" && zip -qr "$ROOT/releases/$NAME" site -x 'site/.env' 'site/storage/logs/*.log'
+fi
 echo "Package ready: releases/$NAME ($(du -h "$ROOT/releases/$NAME" | cut -f1))"

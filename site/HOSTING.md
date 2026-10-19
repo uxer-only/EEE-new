@@ -35,6 +35,30 @@ It contains no passwords and no data.
    `public_html/index.php` change the two paths `__DIR__.'/../vendor/autoload.php'` and `__DIR__.'/../bootstrap/app.php'`
    to point at that folder.
 
+## Combell (web folder fixed at `/www`)
+
+At Combell the website's folder is always `/www`; it can't be pointed at `public`. Use the Combell package instead:
+
+```
+bash site/make-release.sh combell
+```
+
+This makes `releases/eee-site-combell-YYYY-MM-DD.zip` with two folders:
+
+- `www/`: what visitors may see (`index.php`, styles, images, the dashboards in `app/`, and the hidden files `.htaccess` and `.user.ini`).
+- `laravel/`: the rest of the site (code, settings, uploads).
+
+Upload:
+
+1. Put the **contents** of `www/` into `/www` (so `/www/index.php` exists). Make sure the hidden files `.htaccess` and `.user.ini` are there too.
+2. Put the folder `laravel/` **next to** `/www` (so `/laravel` and `/www` are side by side), if Combell lets you. That is the safest: it can't be reached from the internet.
+   If that's not possible, put it **inside** `/www` (`/www/laravel`). It is then locked: `/www/laravel/.htaccess` and a rule in `/www/.htaccess` refuse every visit to it.
+3. The settings file goes into the `laravel` folder: `/laravel/.env` (or `/www/laravel/.env`).
+4. Over SSH, run the commands from step 4 below **inside the `laravel` folder**. The cron job (step 5) also uses that folder, for example
+   `cd /path/to/laravel && php artisan schedule:run`.
+
+`index.php` finds the `laravel` folder by itself in both places. After uploading, check that `https://www.eliteescortseurope.eu/laravel/.env` shows "Forbidden".
+
 ## 3. Settings (`.env`)
 
 In the site folder, copy `.env.example` to `.env` and fill it in:
