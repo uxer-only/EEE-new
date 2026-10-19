@@ -13,7 +13,7 @@ Log in, register, dashboards and admin are the React app in `../frontend`; this 
 Environment variables (needed when building and when running):
 
 - `API_URL`: the backend's own address, for example `http://localhost:8001`. Requests to `/api/...` are forwarded there.
-- `SITE_URL`: the public address, for example `https://www.eliteescortseurope.com`. Used for canonical links, the sitemap and link previews.
+- `SITE_URL`: the public address, for example `https://www.eliteescortseurope.eu`. Used for canonical links, the sitemap and link previews.
 
 Where things are:
 

@@ -6,7 +6,7 @@
 return [
     'product_name' => 'Elite Escorts Europe',
 
-    // Public address of the site, e.g. https://www.eliteescortseurope.com (also used in e-mails).
+    // Public address of the site, e.g. https://www.eliteescortseurope.eu (also used in e-mails).
     'site_url' => rtrim(env('APP_URL', 'http://localhost:8000'), '/'),
 
     // E-mails go out through Resend (resend.com). Without a key, e-mails are only written to the log.

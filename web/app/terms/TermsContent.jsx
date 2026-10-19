@@ -59,8 +59,8 @@ export default function TermsContent() {
 
         {/* Introduction */}
         <H2 n={1} id="introduction">Introduction</H2>
-        <P>www.eliteescortseurope.com is not an escort agency. We are an advertising platform, portal website, for independent models and escort agencies with the aim of bringing adults in contact with each other. www.eliteescortseurope.com doesn't arrange meetings itself, we only provide an advertising space.</P>
-        <P>Adults, both in advertiser and user, are clearly defined as the minimum age required by the law of your country (Belgium = 18 years old) to use www.eliteescortseurope.com. We can therefore not guarantee that any expectations will be met or vouch for anyone's behaviour. When using our website, you must always respect the rights and obligations stated on the website as described in the Terms and Conditions.</P>
+        <P>www.eliteescortseurope.eu is not an escort agency. We are an advertising platform, portal website, for independent models and escort agencies with the aim of bringing adults in contact with each other. www.eliteescortseurope.eu doesn't arrange meetings itself, we only provide an advertising space.</P>
+        <P>Adults, both in advertiser and user, are clearly defined as the minimum age required by the law of your country (Belgium = 18 years old) to use www.eliteescortseurope.eu. We can therefore not guarantee that any expectations will be met or vouch for anyone's behaviour. When using our website, you must always respect the rights and obligations stated on the website as described in the Terms and Conditions.</P>
 
         {/* About our website */}
         <H2 n={2} id="about-our-website">About our website</H2>

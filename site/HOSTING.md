@@ -41,7 +41,7 @@ In the site folder, copy `.env.example` to `.env` and fill it in:
 
 | Setting | What to put |
 |---|---|
-| `APP_URL` | The public address, for example `https://www.eliteescortseurope.com` |
+| `APP_URL` | The public address, for example `https://www.eliteescortseurope.eu` |
 | `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | From the hosting control panel (MySQL section) |
 | `RESEND_API_KEY` | A **new** key from resend.com (API keys → Create, "Sending access") |
 | `SENDER_EMAIL`, `REPORT_EMAIL` | The address e-mails are sent from (a domain verified in Resend), and where fake-profile reports go |
