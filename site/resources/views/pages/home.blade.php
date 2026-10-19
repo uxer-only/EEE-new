@@ -12,7 +12,10 @@
 @section('content')
 <section class="hero" aria-labelledby="hero-title" data-testid="hero-section"><span class="x-eyebrow">Discreet · Curated · Exceptional</span><h1 id="hero-title" class="x-serif" data-testid="hero-title">Bringing your secret desire<br><span>closer to you</span></h1><p data-testid="hero-subtitle">Connect with verified independent professionals in a safe, premium environment.</p><div class="ctas"><a class="x-btn lg primary" data-testid="hero-browse" href="/browse">Browse profiles {{ Icon::svg('arrow') }}</a><a href="/register/provider" class="x-btn lg glass" data-testid="hero-advertise">Advertise with us</a></div></section>
 
+{{-- Hidden until the first profile is live. --}}
+@if (count($providers))
 <section class="x-wrap latest" aria-labelledby="latest-title" data-testid="latest-profiles-section"><div class="x-sechead"><span class="x-eyebrow">Discover</span><h2 id="latest-title" class="x-h2">Latest profiles</h2></div><div class="x-tiles c5">@foreach ($providers as $i => $p){{ \App\Support\Site::tile($p, $i, 'profile-card-'.$i) }}@endforeach</div><div class="more"><a class="x-btn glass" data-testid="cta-browse-button" href="/browse">All profiles {{ Icon::svg('arrow') }}</a></div></section>
+@endif
 
 <section class="x-wrap why" aria-labelledby="why-title"><div class="x-sechead"><span class="x-eyebrow">Why Elite Escorts Europe</span><h2 id="why-title" class="x-h2">A curated, discreet directory</h2></div><div class="cards">
 <div class="x-glass card"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"></path><path d="m9 12 2 2 4-4"></path></svg></span><h3>Verified profiles</h3><p>The green tick shows the advertiser has completed our verification, so you know the profile is genuine.</p></div>

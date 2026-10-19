@@ -27,6 +27,7 @@ cd "$BUILD/site"
 "$PHP" "$COMPOSER" install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader --classmap-authoritative
 find vendor -name .git -type d -prune -exec rm -rf {} +   # in case a package came as a git copy
 rm -f build-app.sh make-release.sh database/*.sqlite
+rm -rf public/demo   # demo photos and video: only for the demo on your computer
 mkdir -p storage/app/uploads storage/framework/{cache/data,sessions,views} storage/logs bootstrap/cache
 
 NAME="eee-site-$(date +%Y-%m-%d).zip"
