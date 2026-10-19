@@ -39,8 +39,8 @@ if [ "${1:-}" = "combell" ]; then
   mkdir combell
   mv site/public combell/www
   cp site/deploy/combell/index.php combell/www/index.php
-  # Block the laravel folder too when it ends up inside /www.
-  sed -i.bak 's|    RewriteEngine On|    RewriteEngine On\n\n    # The site code may be in /www/laravel: never show it\n    RewriteRule ^laravel(/\|$) - [F,L]|' combell/www/.htaccess && rm combell/www/.htaccess.bak
+  # Simpler web-folder rules (shared hosting refuses "Options" in .htaccess); also blocks /www/laravel.
+  cp site/deploy/combell/htaccess combell/www/.htaccess
   rm -rf site/deploy
   mv site combell/laravel
   printf '%s\n' '# This folder holds the site code, settings (.env) and uploads. Nobody may open it from the internet.' 'Require all denied' > combell/laravel/.htaccess

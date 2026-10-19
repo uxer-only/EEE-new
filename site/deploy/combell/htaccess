@@ -1,0 +1,14 @@
+# Web folder rules for Combell (/www). Kept simple: shared hosting doesn't allow "Options" here.
+RewriteEngine On
+
+# The site code may be in /www/laravel: never show it
+RewriteRule ^laravel(/|$) - [F,L]
+
+# Pass the log-in header on to the site
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Send every address that isn't a file or folder to the site
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]
