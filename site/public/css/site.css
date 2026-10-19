@@ -107,7 +107,8 @@
 .x-btn.white { background: #fff; color: var(--x-ink); border: 1px solid #DFDAE4; }
 .x-btn.white:hover { background: #F5F2F7; border-color: #BDB4C5; }
 .x-btn.text { background: none; color: var(--x-cta); padding: 0 8px; }
-.x-page a:focus-visible, .x-page button:focus-visible, .x-page input:focus-visible { outline: 2px solid var(--x-pink); outline-offset: 2px; }
+.x-page a:focus-visible, .x-page button:focus-visible, .x-page input[type="checkbox"]:focus-visible, .x-page input[type="radio"]:focus-visible { outline: 2px solid var(--x-pink); outline-offset: 2px; }
+.x-page input:not([type="checkbox"]):not([type="radio"]):focus-visible, .x-page textarea:focus-visible, .x-page select:focus-visible { outline: none; } /* their box shows the focus instead */
 .x-page.light a:focus-visible, .x-page.light button:focus-visible { outline-color: var(--x-wine); }
 
 /* ---------- headings ---------- */

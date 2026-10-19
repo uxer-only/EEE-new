@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/app/static/css/main.5869ad3e.css",
+    "main.css": "/app/static/css/main.e7fad896.css",
     "main.js": "/app/static/js/main.9ae48ae4.js",
     "static/media/playfair-display-latin-600-normal.woff": "/app/static/media/playfair-display-latin-600-normal.9d993db7549b0f1efc9d.woff",
     "static/media/playfair-display-latin-400-normal.woff": "/app/static/media/playfair-display-latin-400-normal.bee8cc9108d1713a64fe.woff",
@@ -93,7 +93,7 @@
     "index.html": "/app/index.html"
   },
   "entrypoints": [
-    "static/css/main.5869ad3e.css",
+    "static/css/main.e7fad896.css",
     "static/js/main.9ae48ae4.js"
   ]
 }
