@@ -17,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Behind the hosting company's proxy: trust its X-Forwarded-* headers (https, visitor IP).
         $middleware->trustProxies(at: '*');
+        // Other domains, no "www" or plain http → permanent redirect to APP_URL (live site only).
+        $middleware->append(\App\Http\Middleware\CanonicalHost::class);
         // The log-in cookie is read by the API itself; it is random and not encrypted by Laravel.
         $middleware->encryptCookies(except: ['session_token', 'ageConfirmed']);
         // The public pages have no forms that post to Laravel and set no cookies of their own

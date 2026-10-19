@@ -79,6 +79,26 @@ If the host only allows hourly cron jobs, use this instead, every 6 hours:
 This sends the renewal e-mails when a listing ends, turns page views older than 90 days into daily totals,
 and removes expired log-in sessions.
 
+## Extra domain names (redirects)
+
+All other domain names (for example eliteescortseurope.com, eliteescortseurope.be) should lead to the one main address in `APP_URL`
+(`https://www.eliteescortseurope.eu`). The site does this itself with a **permanent redirect (301)** to the same page, for example
+`eliteescortseurope.com/browse?city=Paris` → `https://www.eliteescortseurope.eu/browse?city=Paris`. The address without "www" and plain
+`http://` are sent there too. Search engines move the old addresses' ranking to the main address, and old links keep working.
+
+What to do at Combell, for each extra domain:
+
+1. Add it to the **same hosting** as an extra domain name (alias). Do **not** use Combell's own "redirect" or "forward" option and don't
+   point it at a separate empty website: those often send everything to the home page or use a temporary redirect.
+2. Turn on a free **HTTPS certificate** (Let's Encrypt) for it too, including the "www" version. Without it, visitors typing
+   `https://other-domain` see a security warning before the redirect can happen.
+3. Add only the main domain in Google Search Console (as a "Domain" property) and submit `https://www.eliteescortseurope.eu/sitemap.xml`.
+   If an extra domain ever had its own website with pages in Google, add it to Search Console as well and use
+   "Settings → Change of address" to tell Google it moved.
+
+Payment and e-mail settings (Stripe/CCBill webhooks, Resend) should always use the main address.
+The redirects only work on the live site (`APP_ENV=production`); `CANONICAL_REDIRECT=false` in `.env` switches them off.
+
 ## 6. Stripe (while it is used)
 
 In the Stripe dashboard, add a webhook to `https://YOUR-DOMAIN/api/webhook/stripe` for the event

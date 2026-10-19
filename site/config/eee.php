@@ -9,6 +9,11 @@ return [
     // Public address of the site, e.g. https://www.eliteescortseurope.eu (also used in e-mails).
     'site_url' => rtrim(env('APP_URL', 'http://localhost:8000'), '/'),
 
+    // Live site: send visitors from other domains, the address without "www" and plain http
+    // to the same page on APP_URL with a permanent redirect (app/Http/Middleware/CanonicalHost.php).
+    'canonical_redirect' => (bool) env('CANONICAL_REDIRECT', true),
+    'force_https' => (bool) env('FORCE_HTTPS', true),
+
     // E-mails go out through Resend (resend.com). Without a key, e-mails are only written to the log.
     'resend_api_key' => env('RESEND_API_KEY'),
     'sender_email' => env('SENDER_EMAIL', 'onboarding@resend.dev'),
