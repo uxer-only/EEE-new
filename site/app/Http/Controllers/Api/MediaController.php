@@ -8,6 +8,7 @@ use App\Support\Docs;
 use App\Support\Profiles;
 use App\Support\Time;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Photos and videos of a profile. New uploads wait for an admin ("pending"); approved photos are
@@ -15,6 +16,12 @@ use Illuminate\Http\Request;
  */
 class MediaController
 {
+    /** Text drawn on every uploaded photo: white, 40% opacity, centred. */
+    private const WATERMARK = 'eliteescortseurope.eu';
+    private const WATERMARK_OPACITY = 0.4;
+    private const WATERMARK_WIDTH = 0.55;   // share of the photo's width the text takes
+    private const MAX_SIDE = 2000;          // larger photos are scaled down to this (pixels, longest side)
+
     private const TYPES = [
         'image/jpeg' => ['photo', '.jpg'], 'image/png' => ['photo', '.png'], 'image/webp' => ['photo', '.webp'],
         'video/mp4' => ['video', '.mp4'], 'video/quicktime' => ['video', '.mov'],
@@ -87,6 +94,9 @@ class MediaController
             mkdir($dir, 0775, true);
         }
         $file->move($dir, $name);
+        if ($type === 'photo') {
+            self::watermark($dir, $name, $ext);
+        }
         $last = Docs::find('provider_media', ['provider_id' => $profile['provider_id']]);
         $pos = $last ? max(array_map(fn ($m) => (int) ($m['position'] ?? 0), $last)) + 1 : 1;
         // Uploads by the admin need no review: they are approved and photos go straight onto the profile.
@@ -154,6 +164,10 @@ class MediaController
         if (is_file($file)) {
             @unlink($file);
         }
+        $orig = rtrim(config('eee.upload_dir'), '/').'/originals/'.basename((string) ($m['url'] ?? ''));
+        if (is_file($orig)) {
+            @unlink($orig);
+        }
         return Api::json(['status' => 'deleted']);
     }
 
@@ -182,6 +196,81 @@ class MediaController
             }
         }
         return Api::json(['status' => 'ok']);
+    }
+
+    /**
+     * Put the site's watermark on an uploaded photo. The photo is also turned upright (phone photos), scaled down
+     * to MAX_SIDE and saved without its EXIF data (no camera or GPS details). The untouched original is kept in
+     * uploads/originals/, which is never shown on the site. If the server can't do this (no GD), the photo stays as it is.
+     */
+    private static function watermark(string $dir, string $name, string $ext): void
+    {
+        $path = rtrim($dir, '/').'/'.$name;
+        $font = resource_path('fonts/watermark.ttf');
+        if (!function_exists('imagettftext') || !is_file($font)) {
+            Log::warning('Watermark skipped: PHP GD with FreeType or the font is missing', ['file' => $name]);
+            return;
+        }
+        @ini_set('memory_limit', '512M');
+        try {
+            $img = match ($ext) {
+                '.jpg' => @imagecreatefromjpeg($path),
+                '.png' => @imagecreatefrompng($path),
+                '.webp' => @imagecreatefromwebp($path),
+                default => false,
+            };
+            if (!$img) {
+                Log::warning('Watermark skipped: photo could not be read', ['file' => $name]);
+                return;
+            }
+            $origDir = rtrim($dir, '/').'/originals';
+            if (!is_dir($origDir)) {
+                @mkdir($origDir, 0775, true);
+            }
+            @copy($path, $origDir.'/'.$name);
+
+            // Upright, as the phone took it
+            if ($ext === '.jpg' && function_exists('exif_read_data')) {
+                $o = (int) (@exif_read_data($path)['Orientation'] ?? 1);
+                $angle = [3 => 180, 6 => -90, 8 => 90][$o] ?? 0;
+                if ($angle) {
+                    $img = imagerotate($img, $angle, 0);
+                }
+            }
+            // Not larger than needed
+            $w = imagesx($img);
+            $h = imagesy($img);
+            if (max($w, $h) > self::MAX_SIDE) {
+                $f = self::MAX_SIDE / max($w, $h);
+                $img = imagescale($img, (int) round($w * $f), (int) round($h * $f), IMG_BICUBIC);
+                $w = imagesx($img);
+                $h = imagesy($img);
+            }
+            imagealphablending($img, true);
+            imagesavealpha($img, true);
+
+            // Text size so it takes WATERMARK_WIDTH of the width, centred both ways
+            $box = imagettfbbox(100, 0, $font, self::WATERMARK);
+            $size = 100 * ($w * self::WATERMARK_WIDTH) / max(1, $box[2] - $box[0]);
+            $box = imagettfbbox($size, 0, $font, self::WATERMARK);
+            $tw = $box[2] - $box[0];
+            $th = $box[1] - $box[7];
+            $x = (int) round(($w - $tw) / 2 - $box[0]);
+            $y = (int) round(($h + $th) / 2 - $box[1]);
+            $white = imagecolorallocatealpha($img, 255, 255, 255, (int) round(127 * (1 - self::WATERMARK_OPACITY)));
+            imagettftext($img, $size, 0, $x, $y, $white, $font, self::WATERMARK);
+
+            $ok = match ($ext) {
+                '.jpg' => imagejpeg($img, $path, 90),
+                '.png' => imagepng($img, $path, 6),
+                '.webp' => imagewebp($img, $path, 88),
+            };
+            if (!$ok) {
+                Log::warning('Watermark: saving the photo failed', ['file' => $name]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Watermark failed: '.$e->getMessage(), ['file' => $name]);
+        }
     }
 
     /** Remove one URL from a profile's photos. */
