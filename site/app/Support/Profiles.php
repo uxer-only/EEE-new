@@ -194,6 +194,41 @@ class Profiles
         return [(int) $basic + (int) $services + (int) $rates + (int) $avail + (int) $photos, 5, $basic && $services && $rates];
     }
 
+    /** E-mail domain of the accounts behind profiles the admin adds himself (".invalid": never a real address, nothing is sent to it). */
+    public const MANAGED_DOMAIN = 'managed.invalid';
+
+    public static function isManaged(?string $email): bool
+    {
+        return $email !== null && str_ends_with($email, '@'.self::MANAGED_DOMAIN);
+    }
+
+    /**
+     * A profile the signed-in user may edit (profile text, photos): the provider's own profile,
+     * or for the admin any profile picked with $providerId.
+     */
+    public static function editable(array $user, ?string $providerId = null): ?array
+    {
+        if ($user['role'] === 'admin') {
+            return $providerId ? Docs::first('provider_profiles', ['provider_id' => $providerId]) : null;
+        }
+        return self::owned($user, $providerId);
+    }
+
+    /** Custom services added by the admin need no review. */
+    public static function approveServices($services)
+    {
+        if (!is_array($services) || array_is_list($services)) {
+            return $services;
+        }
+        foreach ($services as $name => $v) {
+            if (is_array($v) && !empty($v['custom'])) {
+                $services[$name]['review'] = 'approved';
+                unset($services[$name]['reason']);
+            }
+        }
+        return $services;
+    }
+
     /** A profile owned by the signed-in provider (an agency picks one with $providerId). */
     public static function owned(array $user, ?string $providerId = null): ?array
     {

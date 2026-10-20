@@ -19,6 +19,7 @@ import AdminIndependents from '@/pages/admin/AdminIndependents';
 import AdminAdvertiser from '@/pages/admin/AdminAdvertiser';
 import AdminAgencies from '@/pages/admin/AdminAgencies';
 import AdminVerifications from '@/pages/admin/AdminVerifications';
+import AdminProfileWizard from '@/pages/admin/AdminProfileWizard';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import PaymentSuccess from '@/pages/PaymentSuccess';
@@ -89,6 +90,8 @@ function AppRouter() {
       <Route path="/admin/providers/:providerId" element={<ProtectedRoute requiredRole="admin"><AdminAdvertiser /></ProtectedRoute>} />
       <Route path="/admin/agencies" element={<ProtectedRoute requiredRole="admin"><AdminAgencies /></ProtectedRoute>} />
       <Route path="/admin/verifications" element={<ProtectedRoute requiredRole="admin"><AdminVerifications /></ProtectedRoute>} />
+      <Route path="/admin/profiles/new" element={<ProtectedRoute requiredRole="admin"><AdminProfileWizard /></ProtectedRoute>} />
+      <Route path="/admin/profiles/:providerId" element={<ProtectedRoute requiredRole="admin"><AdminProfileWizard /></ProtectedRoute>} />
 
       {/* Public pages (Home, Browse, profiles, plans, contact, terms) are served by the Next.js site in ../web. */}
       <Route path="*" element={<PublicSite />} />

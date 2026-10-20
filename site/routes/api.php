@@ -77,6 +77,7 @@ Route::put('/admin/verifications/{providerId}', [Admin::class, 'decideVerificati
 Route::get('/admin/providers', [Admin::class, 'providers']);
 Route::get('/admin/providers/{providerId}', [Admin::class, 'provider']);
 Route::post('/admin/providers/{providerId}/verify', [Admin::class, 'verifyProvider']);
+Route::post('/admin/providers/{providerId}/publish', [Admin::class, 'publish']);
 Route::put('/admin/providers/{providerId}/services/review', [Admin::class, 'service']);
 Route::put('/admin/media/{mediaId}/approve', [Admin::class, 'media']);
 Route::get('/admin/stats', [Admin::class, 'stats']);

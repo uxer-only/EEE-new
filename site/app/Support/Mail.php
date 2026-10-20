@@ -19,6 +19,11 @@ class Mail
      */
     public static function send(string|array $to, string $subject, string $html, array $options = [], ?string $fromName = null): bool
     {
+        // Accounts of profiles added by the admin have no real address (see Profiles::MANAGED_DOMAIN).
+        $to = array_values(array_filter((array) $to, fn ($a) => !str_ends_with(mb_strtolower((string) $a), '.invalid')));
+        if (!$to) {
+            return false;
+        }
         if (!self::enabled()) {
             Log::warning('RESEND_API_KEY not configured; e-mail not sent', ['to' => $to, 'subject' => $subject]);
             return false;

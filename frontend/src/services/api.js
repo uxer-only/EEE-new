@@ -57,6 +57,8 @@ export const updateVerification = (providerId, data) =>
 // Admin Dashboard
 export const getAdminProviders = () => api.get('/admin/providers');
 export const getAdminProviderDetail = (providerId) => api.get(`/admin/providers/${providerId}`);
+// Put a profile online without payment: { featured_plan, vip_plan }
+export const publishProvider = (providerId, data) => api.post(`/admin/providers/${providerId}/publish`, data);
 export const approveMedia = (mediaId, status, reason) => 
   api.put(`/admin/media/${mediaId}/approve`, { status, reason });
 export const getAdminStats = () => api.get('/admin/stats');

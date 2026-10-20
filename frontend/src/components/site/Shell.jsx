@@ -61,6 +61,7 @@ export function SiteNav({ theme = 'dark', links = null, admin = null }) {
     { to: '/admin', label: 'Overview', key: 'overview' },
     { to: '/admin/independents', label: 'Independents', key: 'independents' },
     { to: '/admin/agencies', label: 'Agencies', key: 'agencies' },
+    { to: '/admin/profiles/new', label: 'Add profile', key: 'profiles' },
     { sep: true, label: 'sep' },
     { href: '/browse', label: 'View site', ext: true },
     { label: 'Log out', onClick: doLogout, cta: true },

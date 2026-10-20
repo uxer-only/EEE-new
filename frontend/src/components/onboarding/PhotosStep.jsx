@@ -29,7 +29,7 @@ const PlayIcon = () => (
  * Step 2 — Photos & videos. Files upload straight away and are queued for review.
  * Props: providerId (agency companion; omit for an independent's own profile), level, who ('your' | 'her').
  */
-export default function PhotosStep({ providerId = null, level = 1, who = 'your', onChange }) {
+export default function PhotosStep({ providerId = null, level = 1, who = 'your', onChange, reviewed = true }) {
   const [items, setItems] = useState([]); // server items + uploading placeholders
   const [loading, setLoading] = useState(true);
   const [dragOver, setDragOver] = useState(false);
@@ -145,7 +145,7 @@ export default function PhotosStep({ providerId = null, level = 1, who = 'your',
   };
 
   return (
-    <Card level={level} title="Photos & videos" sub={`${who === 'your' ? 'Your' : 'Her'} first photo is ${who} cover in search results. Every item is reviewed before it’s published.`} testId="photos-card">
+    <Card level={level} title="Photos & videos" sub={`${who === 'your' ? 'Your' : 'Her'} first photo is ${who} cover in search results.${reviewed ? ' Every item is reviewed before it’s published.' : ''}`} testId="photos-card">
       <div
         className={`ph-drop${dragOver ? ' over' : ''}`}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}

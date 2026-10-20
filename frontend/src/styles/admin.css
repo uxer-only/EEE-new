@@ -322,3 +322,10 @@
 .adm-svcs .bt { display: flex; gap: 8px; flex-shrink: 0; }
 .adm-svcs .bt button { height: 40px; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
 @media (max-width: 767px) { .adm-svcs li { flex-direction: column; align-items: stretch; } .adm-svcs .bt button { flex: 1; justify-content: center; } }
+
+/* Profiles the admin adds himself (AdminProfileWizard, AdminAdvertiser) */
+.adm-acts { display: flex; flex-wrap: wrap; gap: 12px; margin: 4px 0 16px; }
+.adm-pubvip { display: flex; align-items: flex-start; gap: 12px; margin-top: 16px; padding: 16px; border: 1px solid #DFDAE4; border-radius: 12px; cursor: pointer; }
+.adm-pubvip input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--x-cta); flex: none; }
+.adm-pubvip span { display: flex; flex-direction: column; gap: 2px; }
+.adm-pubvip small { font-size: 14px; color: #5F5966; }

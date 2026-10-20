@@ -22,8 +22,8 @@ class MediaController
 
     public function mine(Request $request)
     {
-        $me = Auth::provider($request);
-        $profile = Profiles::owned($me, $request->query('provider_id'));
+        $me = Auth::user($request);
+        $profile = Profiles::editable($me, $request->query('provider_id'));
         if (!$profile) {
             Api::fail(404, 'Profile not found');
         }
@@ -61,7 +61,7 @@ class MediaController
     public function upload(Request $request)
     {
         $me = Auth::user($request);
-        $profile = Profiles::owned($me, $request->input('provider_id') ?: null);
+        $profile = Profiles::editable($me, $request->input('provider_id') ?: null);
         if (!$profile) {
             Api::fail(404, 'Create your profile first, then add photos and videos.');
         }
@@ -89,17 +89,29 @@ class MediaController
         $file->move($dir, $name);
         $last = Docs::find('provider_media', ['provider_id' => $profile['provider_id']]);
         $pos = $last ? max(array_map(fn ($m) => (int) ($m['position'] ?? 0), $last)) + 1 : 1;
+        // Uploads by the admin need no review: they are approved and photos go straight onto the profile.
+        $admin = $me['role'] === 'admin';
         $doc = [
             'media_id' => $mediaId,
             'provider_id' => $profile['provider_id'],
             'url' => '/api/media/files/'.$name,
             'media_type' => $type,
-            'status' => 'pending',
+            'status' => $admin ? 'approved' : 'pending',
             'file_name' => mb_substr($file->getClientOriginalName() ?: $name, 0, 120),
             'position' => $pos,
             'uploaded_at' => Time::iso(Time::now()),
         ];
+        if ($admin) {
+            $doc['reviewed_at'] = $doc['uploaded_at'];
+            $doc['reviewed_by'] = $me['user_id'];
+        }
         Docs::insert('provider_media', $doc);
+        if ($admin && $type === 'photo') {
+            Docs::update('provider_profiles', ['provider_id' => $profile['provider_id']], function ($p) use ($doc) {
+                $p['photos'] = array_values(array_unique(array_merge($p['photos'] ?? [], [$doc['url']])));
+                return $p;
+            });
+        }
         return Api::json($doc);
     }
 
@@ -118,7 +130,7 @@ class MediaController
     public function destroy(Request $request, string $mediaId)
     {
         $me = Auth::user($request);
-        $profile = Profiles::owned($me, $request->query('provider_id'));
+        $profile = Profiles::editable($me, $request->query('provider_id'));
         if (!$profile) {
             Api::fail(404, 'Profile not found');
         }
@@ -148,7 +160,7 @@ class MediaController
     public function order(Request $request)
     {
         $me = Auth::user($request);
-        $profile = Profiles::owned($me, $request->query('provider_id'));
+        $profile = Profiles::editable($me, $request->query('provider_id'));
         if (!$profile) {
             Api::fail(404, 'Profile not found');
         }

@@ -7,6 +7,7 @@ use App\Support\Auth;
 use App\Support\Docs;
 use App\Support\Emails;
 use App\Support\Mail;
+use App\Support\Plans;
 use App\Support\Profiles;
 use App\Support\Time;
 use Illuminate\Http\Request;
@@ -88,6 +89,7 @@ class AdminController
             $u = $users[$p['user_id']] ?? null;
             $p['user'] = $u ? Auth::shape($u) : null;
             $p['owner_type'] = ($u->account_type ?? null) === 'agency' ? 'agency' : 'independent';
+            $p['managed'] = Profiles::isManaged($u->email ?? null);
             $p = array_merge($p, Profiles::adminPlan($p, $now));
             unset($p['photos_data']);
             $out[] = $p;
@@ -105,6 +107,7 @@ class AdminController
         }
         $u = DB::table('users')->where('user_id', $p['user_id'])->first();
         $p['user'] = $u ? Auth::shape($u) : null;
+        $p['managed'] = Profiles::isManaged($u->email ?? null);
         $media = Docs::find('provider_media', ['provider_id' => $providerId], 'uploaded_at', 'desc', 100);
         foreach ($media as &$m) {
             if (($m['rejection_reason'] ?? null) === null && !empty($m['reason'])) {
@@ -210,6 +213,51 @@ class AdminController
         }
         Docs::update('provider_profiles', ['provider_id' => $providerId], ['verified' => $verified, 'verification_status' => $verified ? 'approved' : 'pending']);
         return Api::json(['status' => 'success', 'verified' => $verified]);
+    }
+
+    /**
+     * Put a profile online without payment (for profiles the admin adds himself, or to give an advertiser free days):
+     * verified, all photos/videos and custom services approved, and the chosen plan's days added.
+     */
+    public function publish(Request $request, string $providerId)
+    {
+        $me = Auth::admin($request);
+        $b = Api::validate(Api::body($request), ['featured_plan' => 'str', 'vip_plan' => '?str']);
+        $featured = Plans::PLANS[$b['featured_plan']] ?? null;
+        if (!$featured || $featured['kind'] !== 'featured') {
+            Api::fail(400, 'Choose how long the profile stays online.');
+        }
+        $vip = $b['vip_plan'] ? (Plans::PLANS[$b['vip_plan']] ?? null) : null;
+        if ($b['vip_plan'] && (!$vip || $vip['kind'] !== 'vip')) {
+            Api::fail(400, 'Unknown VIP plan.');
+        }
+        $p = Docs::first('provider_profiles', ['provider_id' => $providerId]);
+        if (!$p) {
+            Api::fail(404, 'Provider not found');
+        }
+        $now = Time::now();
+        $photos = $p['photos'] ?? [];
+        foreach (Docs::find('provider_media', ['provider_id' => $providerId, 'status' => 'pending'], 'position', 'asc', 200) as $m) {
+            Docs::update('provider_media', ['media_id' => $m['media_id']], ['status' => 'approved', 'reviewed_at' => Time::iso($now), 'reviewed_by' => $me['user_id']]);
+            if (($m['media_type'] ?? 'photo') === 'photo' && !empty($m['url']) && !in_array($m['url'], $photos, true)) {
+                $photos[] = $m['url'];
+            }
+        }
+        if (!$photos) {
+            Api::fail(400, 'Add at least one photo before publishing.');
+        }
+        Docs::update('provider_profiles', ['provider_id' => $providerId], function ($d) use ($photos) {
+            $d['photos'] = $photos;
+            $d['services'] = Profiles::approveServices($d['services'] ?? []);
+            $d['verified'] = true;
+            $d['verification_status'] = 'approved';
+            $d['available'] = true;
+            $d['suspended'] = false;
+            return $d;
+        });
+        SubscriptionController::applyPlan($providerId, $b['featured_plan'], $b['vip_plan'], $now);
+        $p = Docs::first('provider_profiles', ['provider_id' => $providerId]);
+        return Api::json(array_merge(['status' => 'success', 'provider_id' => $providerId], Profiles::adminPlan($p, $now)));
     }
 
     // ------------------------------------------------------------- statistics

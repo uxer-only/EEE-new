@@ -108,7 +108,7 @@ export default function AdminAdvertiser() {
             {p.vip_active && <span className="apill" style={{ background: '#F5EAF0', color: '#B04585' }}>{AI.crown}VIP</span>}
           </h1>
           <div className="facts">
-            <span>{AI.mail}{p.user?.email}{agency && <small>(agency)</small>}</span>
+            <span>{AI.mail}{p.managed ? 'Added by you · no advertiser account' : p.user?.email}{agency && <small>(agency)</small>}</span>
             {(p.location?.city || p.location?.country) && <span>{AI.pin}{[p.location?.city, p.location?.country].filter(Boolean).join(', ')}</span>}
             {p.created_at && <span>{AI.cal}{agency ? 'Added' : 'Joined'} {fmtDay(p.created_at)}</span>}
           </div>
@@ -120,8 +120,12 @@ export default function AdminAdvertiser() {
               <Link to={`/admin/agencies#${p.user_id}`}>View agency{AI.arrow}</Link>
             </div>
           )}
+          <div className="adm-acts">
+            {!agency && <Link to={`/admin/profiles/${p.provider_id}`} className="x-btn primary sm" data-testid="edit-profile">{p.managed ? 'Edit or publish' : 'Edit profile'}</Link>}
+            <a href={`/providers/${p.provider_id}`} target="_blank" rel="noreferrer" className="x-btn ghostl sm">View public page</a>
+          </div>
           <div className="adm-plan">
-            <div><span>Plan</span><b>{p.featured_active ? `Featured${p.plan_length ? ` · ${p.plan_length}` : ''}${agency ? ' · paid by agency' : ''}` : 'No active plan'}</b></div>
+            <div><span>Plan</span><b>{p.featured_active ? `Featured${p.plan_length ? ` · ${p.plan_length.replace(/^Featured · /, '')}` : ''}${agency ? ' · paid by agency' : ''}` : 'No active plan'}</b></div>
             {p.featured_until && <div><span>Featured until</span><b>{fmtDay(p.featured_until)}{p.featured_active ? ` · ${Math.round(p.featured_days_left)} days left` : ' · ended'}</b></div>}
             {p.vip_active && <div><span>VIP until</span><b>{fmtDay(p.vip_until)} · {Math.round(p.vip_days_left)} days left</b></div>}
             <div><span>Visibility</span>{p.live ? <b className="lv">Live</b> : <b className="off">{p.suspended ? 'Suspended' : 'Offline'}</b>}</div>
