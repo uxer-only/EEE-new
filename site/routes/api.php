@@ -18,14 +18,14 @@ use App\Support\Api;
 use Illuminate\Support\Facades\Route;
 
 // Accounts
-Route::post('/auth/register', [AuthC::class, 'register']);
-Route::post('/auth/login', [AuthC::class, 'login']);
+Route::post('/auth/register', [AuthC::class, 'register'])->middleware('throttle:account-mail');
+Route::post('/auth/login', [AuthC::class, 'login'])->middleware('throttle:login');
 Route::get('/auth/me', [AuthC::class, 'me']);
 Route::post('/auth/logout', [AuthC::class, 'logout']);
-Route::post('/auth/forgot-password', [AuthC::class, 'forgotPassword']);
-Route::post('/auth/reset-password', [AuthC::class, 'resetPassword']);
+Route::post('/auth/forgot-password', [AuthC::class, 'forgotPassword'])->middleware('throttle:account-mail');
+Route::post('/auth/reset-password', [AuthC::class, 'resetPassword'])->middleware('throttle:login');
 Route::get('/auth/verify-email', [AuthC::class, 'verifyEmail']);
-Route::post('/auth/resend-verification', [AuthC::class, 'resendVerification']);
+Route::post('/auth/resend-verification', [AuthC::class, 'resendVerification'])->middleware('throttle:account-mail');
 
 // Profiles and media (specific addresses before /providers/{id})
 Route::get('/providers/media/mine', [Media::class, 'mine']);

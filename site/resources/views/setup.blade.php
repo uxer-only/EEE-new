@@ -24,17 +24,26 @@
 <body>
 <div class="box">
 @if ($done)
-  <h1>Setup complete</h1>
+  <h1>{{ $done['reset'] ? 'New login saved' : 'Setup complete' }}</h1>
   <div class="ok">
-    The database tables are ready and the administrator <strong>{{ $done['email'] }}</strong> was created.
+    @if ($done['reset'])
+      The administrator now logs in with <strong>{{ $done['email'] }}</strong> and the new password.
+    @else
+      The database tables are ready and the administrator <strong>{{ $done['email'] }}</strong> was created.
+    @endif
     <ol>
-      <li>Remove the line <code>SETUP_TOKEN=…</code> from the <code>.env</code> file (this page is already switched off).</li>
+      <li>Remove the line <code>SETUP_TOKEN=…</code> from the <code>.env</code> file. This switches the page off.</li>
       <li>Log in at <a href="/admin/login">/admin/login</a>.</li>
     </ol>
   </div>
 @else
+  @if ($mode === 'reset')
+  <h1>New admin login</h1>
+  <p>Forgot the admin login? Choose the e-mail address and a new password for the administrator. Afterwards, remove SETUP_TOKEN from .env.</p>
+  @else
   <h1>Set up the site</h1>
   <p>Creates the database tables and your administrator account. This page works once and then switches itself off.</p>
+  @endif
   @if ($error)<div class="err">{{ $error }}</div>@endif
   <form method="post" action="/setup" autocomplete="off">
     <label for="token">Setup code (SETUP_TOKEN in .env)</label>
@@ -45,7 +54,7 @@
     <input id="password" name="password" type="password" minlength="12" required autocomplete="new-password">
     <label for="password_again">Password again</label>
     <input id="password_again" name="password_again" type="password" minlength="12" required autocomplete="new-password">
-    <button type="submit">Set up the site</button>
+    <button type="submit">{{ $mode === 'reset' ? 'Save new login' : 'Set up the site' }}</button>
   </form>
 @endif
 </div>

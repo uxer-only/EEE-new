@@ -124,7 +124,6 @@ export function SiteFoot({ theme = 'dark' }) {
         <Link to="/terms" aria-current={cur('/terms')} data-testid="footer-terms-link">Terms, Privacy &amp; Cookies</Link>
         <Link to="/advertising-prices" aria-current={cur('/advertising-prices')} data-testid="footer-advertising-link">Advertisement plans</Link>
         <Link to="/contact" aria-current={cur('/contact')} data-testid="footer-contact-link">Contact</Link>
-        <Link to="/admin/login" aria-current={cur('/admin/login')} data-testid="footer-admin-link">Admin</Link>
       </nav>
     </footer>
   );
