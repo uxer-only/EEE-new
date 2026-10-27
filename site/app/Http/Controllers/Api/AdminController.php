@@ -237,7 +237,7 @@ class AdminController
         }
         $now = Time::now();
         $photos = $p['photos'] ?? [];
-        foreach (Docs::find('provider_media', ['provider_id' => $providerId, 'status' => 'pending'], 'position', 'asc', 200) as $m) {
+        foreach (Docs::find('provider_media', ['provider_id' => $providerId, 'status' => 'pending'], 'uploaded_at', 'asc', 200) as $m) {
             Docs::update('provider_media', ['media_id' => $m['media_id']], ['status' => 'approved', 'reviewed_at' => Time::iso($now), 'reviewed_by' => $me['user_id']]);
             if (($m['media_type'] ?? 'photo') === 'photo' && !empty($m['url']) && !in_array($m['url'], $photos, true)) {
                 $photos[] = $m['url'];

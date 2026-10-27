@@ -90,8 +90,9 @@ class MediaController
         $mediaId = 'media_'.substr(bin2hex(random_bytes(8)), 0, 16);
         $name = $mediaId.$ext;
         $dir = config('eee.upload_dir');
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
+        // Several uploads at once may create the folder at the same moment: that is fine.
+        if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
+            Api::fail(500, 'The upload folder could not be created.');
         }
         $file->move($dir, $name);
         if ($type === 'photo') {
