@@ -320,3 +320,11 @@
   .pay-btns { flex-direction: column; width: 100%; }
   .pay-btns .x-btn { width: 100%; justify-content: center; }
 }
+
+/* Plans page: launch offer (shown while FREE_PUBLISHING is on) */
+.pub-prices .launch { display: flex; align-items: center; gap: 24px; border-color: rgba(233,196,215,.6); background: rgba(176,69,133,.18); }
+.pub-prices .launch > div { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.pub-prices .launch p { margin: 0; font-size: 16px; line-height: 1.6; color: rgba(255,255,255,.88); max-width: 720px; }
+.pub-prices .launch .lic { flex-shrink: 0; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: var(--x-rose); color: var(--x-wine); }
+.pub-prices .launch .x-btn { flex-shrink: 0; }
+@media (max-width: 767px) { .pub-prices .launch { flex-direction: column; align-items: flex-start; padding: 24px 20px; } }

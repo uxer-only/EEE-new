@@ -50,6 +50,6 @@ return [
     'free_publishing' => (bool) env('FREE_PUBLISHING', true),
 
     // Added to the style and script addresses, so browsers load new files after an update. Change it when you change public/css or public/js.
-    'asset_version' => env('ASSET_VERSION', '3'),
+    'asset_version' => env('ASSET_VERSION', '4'),
 
 ];

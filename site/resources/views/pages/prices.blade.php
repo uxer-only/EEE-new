@@ -22,6 +22,10 @@
 <div class="x-wrap" data-testid="advertising-prices-page">
 <section class="intro"><div><span class="ey">Advertisement plans</span><h1>Simple, transparent pricing</h1><p>www.eliteescortseurope.eu charges the following rates per advertisement (1 advertisement = 1 profile). You pay once for the period you choose.</p><span class="upd">Elite Escorts Europe — last updated {{ date('Y') }}</span></div><a href="/register/provider" class="x-btn primary">Start advertising</a></section>
 
+@if (config('eee.free_publishing'))
+<section aria-labelledby="launch-h" class="x-glass card launch" data-testid="launch-banner"><span class="lic" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"></path><path d="M2 7h20v5H2z"></path><path d="M12 21V7"></path><path d="M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"></path></svg></span><div><span class="ey">Launch offer</span><h2 id="launch-h">Free during our launch</h2><p>Advertising on Elite Escorts Europe is free while we launch: publish your profile with no payment and no end date. The prices below apply once paid plans start. Before that happens you keep your listing for at least 30 more days, so you have time to choose a plan.</p></div><a href="/register/provider" class="x-btn primary" data-testid="launch-cta">Publish for free</a></section>
+@endif
+
 <section aria-labelledby="ind-h" class="x-glass card"><div class="head"><div><h2 id="ind-h">Independent escorts</h2><p>Price per profile (pp). Choose how long your advertisement stays live.</p></div></div>
 <table class="pt" data-testid="price-table-independent"><caption>Prices for independent escorts per profile, by period</caption><thead><tr>@foreach ($periods as [$l, $s])<th scope="col">{!! $per($l, $s) !!}</th>@endforeach</tr></thead><tbody><tr>@foreach ($independent as [$price, $vip])<td><span class="pr">€{{ $price }} <small>/pp</small></span><span class="vip">{!! $per("VIP +€$vip (optional)", "VIP +€$vip") !!}</span></td>@endforeach</tr></tbody></table></section>
 
