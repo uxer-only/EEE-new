@@ -262,7 +262,9 @@ class Profiles
         $grace = self::grace($fu, $now);
         $meta = Plans::get($p['active_featured_plan'] ?? '');
         $live = empty($p['suspended']) && !empty($p['verified']) && ($p['available'] ?? true) && ($fa || $grace['in_grace']);
-        if ($fa) {
+        if ($fa && Plans::isFree($p)) {
+            $label = 'Free launch listing'.($va ? ' + VIP' : '');
+        } elseif ($fa) {
             $label = ($va ? 'VIP' : 'Featured').' · '.round(Time::daysLeft($fu, $now)).' days left';
         } elseif ($fu) {
             $label = 'Plan ended '.$fu->day.' '.$fu->format('M');

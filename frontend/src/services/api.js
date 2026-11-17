@@ -83,6 +83,9 @@ export const createSubscriptionCheckout = (data) =>
   api.post('/subscriptions/checkout', data);
 export const getSubscriptionStatus = (sessionId) =>
   api.get(`/subscriptions/status/${sessionId}`);
+// Launch phase: publish without payment (independent: no ids; agency: the chosen companion profiles)
+export const publishProfiles = (providerIds) =>
+  api.post('/subscriptions/publish', providerIds ? { provider_ids: providerIds } : {});
 export const createBulkCheckout = (data) =>
   api.post('/subscriptions/checkout-bulk', data);
 export const updateAutoRenew = (autoRenew, providerId) =>

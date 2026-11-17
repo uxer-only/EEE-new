@@ -44,6 +44,11 @@ return [
     // The page creates the database tables and the first admin, then switches itself off.
     'setup_token' => env('SETUP_TOKEN'),
 
+    // Launch phase: advertisers publish without paying (a "Publish" button instead of checkout) and the listing has no
+    // end date. Set FREE_PUBLISHING=false in .env when payments start: free listings then end 30 days later
+    // (the scheduled job sends the usual renewal e-mail) and the plan choice with checkout comes back.
+    'free_publishing' => (bool) env('FREE_PUBLISHING', true),
+
     // Added to the style and script addresses, so browsers load new files after an update. Change it when you change public/css or public/js.
     'asset_version' => env('ASSET_VERSION', '3'),
 

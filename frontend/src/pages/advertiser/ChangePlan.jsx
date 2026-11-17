@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { createSubscriptionCheckout } from '@/services/api';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { createSubscriptionCheckout, publishProfiles } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { notifyError, notifyProblem } from '@/lib/notify';
 import { LightPage } from '@/components/site/Shell';
-import { Card, Arrow, ArrowL } from '@/components/site/Form';
+import { Card, Arrow, ArrowL, Check } from '@/components/site/Form';
 import PlanPicker, { planTotal } from '@/components/onboarding/PlanPicker';
 import { fmtDate } from '@/components/advertiser/DashboardParts';
 
 /** Extend, upgrade or renew the plan of the advertiser's profile. */
 export default function ChangePlan({ adv, providerId = null, backHref = '/dashboard' }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const sub = adv.sub || {};
   const [plan, setPlan] = useState('featured_1m');
   const [vip, setVip] = useState(!!sub.vip_active);
@@ -40,6 +42,55 @@ export default function ChangePlan({ adv, providerId = null, backHref = '/dashbo
       setPaying(false);
     }
   };
+
+  // Launch phase: no plans or payment, one Publish button.
+  if (sub.free_publishing) {
+    const published = !!sub.featured_active; // a free listing, or a plan bought earlier that still runs
+    const publish = async () => {
+      if (user && user.email_verified === false) {
+        notifyProblem('Please confirm your e-mail first.', 'Check your inbox for the confirmation link, then come back to publish.');
+        return;
+      }
+      setPaying(true);
+      try {
+        await publishProfiles();
+        toast.success('Your profile is published. It appears on Browse as soon as your ID verification is approved.');
+        if (adv.reload) await adv.reload();
+        navigate(backHref);
+      } catch (err) { notifyError(err, "We couldn't publish your profile."); setPaying(false); }
+    };
+    return (
+      <LightPage>
+        <div className="adv" data-testid="publish-page">
+          <header className="ob-head ed">
+            <Link to={backHref} className="back"><ArrowL />Back to dashboard</Link>
+            <div className="tt">
+              <span className="ey">Manage profile</span>
+              <h1 className="h">{published ? 'Your profile is published' : 'Publish your profile'}</h1>
+              <span className="sub">Publishing is free during our launch, with no end date.</span>
+            </div>
+          </header>
+          <div className="ob-stack">
+            <Card level={1} title={published ? 'Nothing to do' : 'How it works'}>
+              {published
+                ? <p className="pub-steps" style={{ paddingLeft: 0 }}>Your profile stays online without an end date. If it is not on Browse yet, it is waiting for your ID verification to be approved.</p>
+                : (
+                  <ul className="pub-steps">
+                    <li>Click <b>Publish profile</b>.</li>
+                    <li>We check your photos and any services you added yourself.</li>
+                    <li>Your profile appears on Browse as soon as your ID verification is approved.</li>
+                  </ul>
+                )}
+            </Card>
+            <div role="group" aria-label="Publish or cancel" className="ob-nav">
+              <Link to={backHref} className="x-btn back" style={{ padding: '0 22px' }}>{published ? 'Back' : 'Cancel'}</Link>
+              {!published && <div><button type="button" className="x-btn primary" onClick={publish} disabled={paying} data-testid="publish-profile"><Check size={16} />{paying ? 'Publishing…' : 'Publish profile'}</button></div>}
+            </div>
+          </div>
+        </div>
+      </LightPage>
+    );
+  }
 
   return (
     <LightPage>

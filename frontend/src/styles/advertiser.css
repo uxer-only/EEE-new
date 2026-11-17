@@ -391,3 +391,7 @@ fieldset.fs > legend.split { display: flex; align-items: baseline; justify-conte
 .ob-head .sub { font-size: 15px; color: var(--x-muted); }
 .sv-rv { height: 20px; display: inline-flex; align-items: center; padding: 0 8px; margin-left: 4px; background: #FFF4E0; color: #7A4A00; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
 .sv-rv.ok { background: #EEF4F1; color: #24603F; }
+
+/* Launch phase: publish without payment */
+.pub-steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 16px; line-height: 1.55; color: var(--x-ink); }
+.pub-steps b { font-weight: 700; }

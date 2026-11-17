@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { setProfilePlan, createBulkCheckout, syncAgencyDefaults, deleteAgencyProfile, deleteProviderProfile } from '@/services/api';
+import { setProfilePlan, createBulkCheckout, publishProfiles, syncAgencyDefaults, deleteAgencyProfile, deleteProviderProfile } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { notifyError, notifyProblem } from '@/lib/notify';
 import { LightPage } from '@/components/site/Shell';
@@ -54,6 +54,7 @@ const I = {
 /** Status of one companion row: [kind, label]. kind = live | renew | expired | ready | draft. */
 function statusOf(p) {
   const days = (n) => `${n} day${n === 1 ? '' : 's'} left`;
+  if (p.featured_active && p.free_listing) return p.verified ? ['live', 'Live · free listing'] : ['ready', 'Published · awaiting verification'];
   if (p.featured_active) return ['live', `Live · ${days(Math.max(0, Math.round(p.featured_days_left || 0)))}`];
   if (p.in_grace) return ['renew', `Renew · ${days(Math.max(1, Math.ceil(p.grace_days_left || 0)))}`];
   if (p.featured_until) return ['expired', `Expired ${dm(p.featured_until)}`];
@@ -61,12 +62,12 @@ function statusOf(p) {
   return ['draft', `Draft · ${p.completed_steps || 0} of ${p.total_steps || 5} steps`];
 }
 
-function CompanionRow({ p, tier, onPlan, onVerify, onDelete }) {
+function CompanionRow({ p, tier, onPlan, onVerify, onDelete, free = false, picked = false, onPick }) {
   const [open, setOpen] = useState(false);
   const [kind, status] = statusOf(p);
   const pp = p.pending_plan || {};
   const canPick = !p.featured_active && p.plan_selectable;
-  const has = canPick && !!pp.featured_plan;
+  const has = free ? canPick && picked : canPick && !!pp.featured_plan;
   const plan = PLAN[pp.featured_plan];
   const meta = [p.age, p.city].filter(Boolean).join(' · ');
   const unread = p.unread_enquiries || 0;
@@ -82,7 +83,16 @@ function CompanionRow({ p, tier, onPlan, onVerify, onDelete }) {
       </span>
       <span className="desc">{p.bio || 'New profile — description not added yet.'}</span>
       <div className="plan">
-        {canPick && (
+        {free && canPick && (
+          <label className="vip" data-testid={`publish-pick-${p.provider_id}`}>
+            <input type="checkbox" checked={picked} onChange={(e) => onPick(p, e.target.checked)} />
+            <span>Publish · free, no end date</span>
+          </label>
+        )}
+        {free && p.featured_active && p.free_listing && (
+          <span className="act"><b>Free launch listing</b><span>No end date</span></span>
+        )}
+        {!free && canPick && (
           <>
             <span className="sbx">
               <select aria-label={`Plan for ${p.display_name}`} className={has ? 'on' : ''} value={pp.featured_plan || ''} onChange={(e) => onPlan(p, e.target.value || null, !!pp.vip_plan)} data-testid={`plan-select-${p.provider_id}`}>
@@ -99,10 +109,10 @@ function CompanionRow({ p, tier, onPlan, onVerify, onDelete }) {
             )}
           </>
         )}
-        {p.featured_active && (
+        {p.featured_active && !(free && p.free_listing) && (
           <span className="act"><b>{/^featured/i.test(p.active_plan_label || '') ? p.active_plan_label : `Featured · ${p.active_plan_label || 'active'}`}</b><span>Until {dm(p.featured_until)} · auto-renew {p.auto_renew ? 'on' : 'off'}</span></span>
         )}
-        {!p.featured_active && !p.plan_selectable && <span className="blk">Complete the profile to choose a plan</span>}
+        {!p.featured_active && !p.plan_selectable && <span className="blk">{free ? 'Complete the profile to publish it' : 'Complete the profile to choose a plan'}</span>}
       </div>
       <span className="st"><span className={`pill ${kind}`} data-testid={`status-${p.provider_id}`}><i aria-hidden="true" />{status}</span></span>
       <span className="acts">
@@ -121,8 +131,9 @@ function CompanionRow({ p, tier, onPlan, onVerify, onDelete }) {
 export default function AgencyDashboard({ ag }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { agency, profiles, setProfiles, reload } = ag;
+  const { agency, profiles, setProfiles, reload, freePublishing: free } = ag;
   const [paying, setPaying] = useState(false);
+  const [unpicked, setUnpicked] = useState({}); // launch phase: ready profiles are picked to publish unless unticked
   const [verifyFor, setVerifyFor] = useState(null);
   const [verInfo, setVerInfo] = useState(null);
   const [delFor, setDelFor] = useState(null);
@@ -134,7 +145,9 @@ export default function AgencyDashboard({ ag }) {
   const d = useMemo(() => agencyToForm(agency), [agency]);
   const sum = summarize(d);
   const liveN = profiles.filter((p) => p.featured_active).length;
-  const queued = profiles.filter((p) => !p.featured_active && p.plan_selectable && p.pending_plan?.featured_plan);
+  const ready = profiles.filter((p) => !p.featured_active && p.plan_selectable);
+  const picked = ready.filter((p) => !unpicked[p.provider_id]);
+  const queued = free ? [] : ready.filter((p) => p.pending_plan?.featured_plan);
   const tier = tierFor(liveN + queued.length);
   const total = queued.reduce((s, p) => s + cost(p.pending_plan, tier), 0);
   const unread = profiles.reduce((s, p) => s + (p.unread_enquiries || 0), 0);
@@ -159,6 +172,22 @@ export default function AgencyDashboard({ ag }) {
       if (data?.url) window.location.href = data.url;
       else { notifyProblem("We couldn't start checkout.", 'Please try again in a moment.'); setPaying(false); }
     } catch (err) { notifyError(err, "We couldn't start checkout."); setPaying(false); }
+  };
+
+  const publish = async () => {
+    if (!picked.length) return;
+    if (user && user.email_verified === false) {
+      notifyProblem('Please confirm your e-mail first.', 'Check your inbox for the confirmation link. You can resend it from the banner at the top.');
+      return;
+    }
+    setPaying(true);
+    try {
+      await publishProfiles(picked.map((p) => p.provider_id));
+      toast.success(picked.length === 1 ? `${picked[0].display_name} is published.` : `${picked.length} profiles are published.`);
+      setUnpicked({});
+      await reload();
+    } catch (err) { notifyError(err, "We couldn't publish these profiles."); }
+    finally { setPaying(false); }
   };
 
   const onVerify = (p) => {
@@ -210,7 +239,7 @@ export default function AgencyDashboard({ ag }) {
           <div className="tt">
             <span className="ey">Agency dashboard</span>
             <h1>{d.display_name || user?.name}</h1>
-            <span className="lead">Add a profile for each companion, choose a plan, then pay for all at once.</span>
+            <span className="lead">{free ? 'Add a profile for each companion, then publish them. Publishing is free during our launch.' : 'Add a profile for each companion, choose a plan, then pay for all at once.'}</span>
           </div>
         </header>
 
@@ -229,8 +258,20 @@ export default function AgencyDashboard({ ag }) {
               <>
                 <div className="acr-list" data-testid="agency-profiles-table">
                   <div className="acr hd" aria-hidden="true"><span>Profile</span><span>Description</span><span>Plan</span><span>Status</span><span className="r">Actions</span></div>
-                  {profiles.map((p) => <CompanionRow key={p.provider_id} p={p} tier={tier} onPlan={onPlan} onVerify={onVerify} onDelete={setDelFor} />)}
+                  {profiles.map((p) => <CompanionRow key={p.provider_id} p={p} tier={tier} onPlan={onPlan} onVerify={onVerify} onDelete={setDelFor} free={free} picked={!unpicked[p.provider_id]} onPick={(x, on) => setUnpicked((u) => ({ ...u, [x.provider_id]: !on }))} />)}
                 </div>
+                {free ? (
+                <div className="cart" data-testid="publish-bar">
+                  <span className="cl">
+                    <b>{picked.length ? `${picked.length} profile${picked.length === 1 ? '' : 's'} ready to publish` : 'No profiles to publish'}</b>
+                    <span>{picked.length ? picked.map((p) => p.display_name).join(' · ') : 'Complete a profile, or tick one above, to publish it.'}</span>
+                    <span className="tn">Free during our launch, no end date. A profile appears on Browse once her ID verification is approved.</span>
+                  </span>
+                  <span className="cr">
+                    <button type="button" className="x-btn primary" aria-disabled={picked.length ? 'false' : 'true'} disabled={paying || !picked.length} onClick={publish} data-testid="publish-btn">{paying ? 'Publishing…' : picked.length > 1 ? `Publish ${picked.length} profiles` : 'Publish'}</button>
+                  </span>
+                </div>
+                ) : (
                 <div className="cart" data-testid="cart">
                   <span className="cl">
                     <b>{queued.length ? `${queued.length} plan${queued.length === 1 ? '' : 's'} selected` : 'No plans selected'}</b>
@@ -242,6 +283,7 @@ export default function AgencyDashboard({ ag }) {
                     <button type="button" className="x-btn primary" aria-disabled={queued.length ? 'false' : 'true'} disabled={paying || !queued.length} onClick={pay} data-testid="pay-btn">{paying ? 'Opening payment…' : 'Activate here'}</button>
                   </span>
                 </div>
+                )}
               </>
             )}
           </section>

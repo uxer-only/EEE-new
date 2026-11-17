@@ -5,12 +5,14 @@ namespace App\Console\Commands;
 use App\Support\Docs;
 use App\Support\Emails;
 use App\Support\Mail;
+use App\Support\Plans;
 use App\Support\Time;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Background work, run every 6 hours by the scheduler (see routes/console.php and HOSTING.md):
+ *  - once free publishing is switched off (FREE_PUBLISHING=false): free listings end FREE_RUN_OUT_DAYS later
  *  - e-mail advertisers whose listing ended and is now in the grace period (once per ended plan)
  *  - turn page views older than 90 days into daily totals
  *  - remove expired log-in sessions and e-mail links
@@ -22,6 +24,7 @@ class Jobs extends Command
 
     public function handle(): int
     {
+        $this->info('Free listings set to end: '.self::runOutFreeListings());
         $this->info('Renewal notices sent: '.self::renewalNotices());
         $this->info('Days of page views turned into totals: '.self::rollupTraffic());
         $this->info('Expired sessions and links removed: '.self::cleanUp());
@@ -55,6 +58,25 @@ class Jobs extends Command
             $sent++;
         }
         return $sent;
+    }
+
+    /** When free publishing is switched off, give every free listing an end date (once), so it can be renewed with a plan. */
+    public static function runOutFreeListings(): int
+    {
+        if (config('eee.free_publishing')) {
+            return 0;
+        }
+        $now = Time::now();
+        $end = $now->addDays(Plans::FREE_RUN_OUT_DAYS);
+        $n = 0;
+        foreach (Docs::find('provider_profiles', ['featured_until' => ['>', $end]]) as $p) {
+            if (!Plans::isFree($p) || !empty($p['free_run_out'])) {
+                continue;
+            }
+            Docs::update('provider_profiles', ['provider_id' => $p['provider_id']], ['featured_until' => Time::iso($end), 'free_run_out' => Time::iso($now)]);
+            $n++;
+        }
+        return $n;
     }
 
     /** Turn raw page views older than traffic_raw_days into daily totals, then delete the raw rows. */

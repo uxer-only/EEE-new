@@ -51,6 +51,7 @@ Route::put('/agency/profiles/{providerId}/plan', [Agency::class, 'plan']);
 
 // Plans and payments
 Route::post('/subscriptions/checkout', [Sub::class, 'checkout']);
+Route::post('/subscriptions/publish', [Sub::class, 'publish']);
 Route::post('/subscriptions/checkout-bulk', [Sub::class, 'bulk']);
 Route::get('/subscriptions/status/{sessionId}', [Sub::class, 'status']);
 Route::get('/subscriptions/me', [Sub::class, 'me']);

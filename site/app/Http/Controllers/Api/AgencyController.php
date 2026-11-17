@@ -48,6 +48,7 @@ class AgencyController
                 'featured_days_left' => Time::daysLeft($fu, $now),
                 'vip_active' => $va,
                 'active_plan_label' => $label,
+                'free_listing' => $fa && Plans::isFree($p),
                 'auto_renew' => $autoRenew,
             ], Profiles::grace($fu, $now), [
                 'pending_plan' => $p['pending_plan'] ?? null,
@@ -57,7 +58,7 @@ class AgencyController
                 'unread_enquiries' => Docs::count('enquiries', ['provider_id' => $p['provider_id'], 'read' => 0]),
             ]);
         }
-        return Api::json(['profiles' => $out, 'account_type' => $me['account_type']]);
+        return Api::json(['profiles' => $out, 'account_type' => $me['account_type'], 'free_publishing' => (bool) config('eee.free_publishing')]);
     }
 
     public function show(Request $request)

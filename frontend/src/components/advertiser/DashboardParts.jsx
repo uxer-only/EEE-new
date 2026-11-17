@@ -64,8 +64,10 @@ export function StatusCard({ state, sub, latestInvoice, planHref, onToggleRenew 
   const name = planName(sub);
   const renew = sub?.auto_renew !== false;
   const delDate = sub?.featured_until ? fmtDate(new Date(new Date(sub.featured_until).getTime() + 61 * 86400000).toISOString()) : '';
+  const free = !!sub?.free_listing;
+  const freeMode = !!sub?.free_publishing;
   const line = {
-    live: ['live', `Online · ${name}`],
+    live: ['live', free ? 'Online · free launch listing' : `Online · ${name}`],
     pending: ['pend', 'Not live yet · waiting for verification'],
     expired: ['exp', 'Offline · plan expired'],
     draft: ['pend', 'Not live yet · no plan chosen'],
@@ -79,30 +81,35 @@ export function StatusCard({ state, sub, latestInvoice, planHref, onToggleRenew 
         <span className="ic">{Ico.pulse}</span>
         <span className="tx"><h2 id="st-title">Profile status</h2><span className={`line ${line[0]}`}><span className="dot" aria-hidden="true" />{line[1]}</span></span>
       </div>
-      {state === 'live' && (
+      {state === 'live' && free && (
+        <div className="info"><b>Free launch listing</b><span>Your profile stays online with no end date during our launch.</span></div>
+      )}
+      {state === 'live' && !free && (
         <div className="prog">
           <div className="r"><b>{daysLeft} of {total} days left</b><span>Ends {ends}</span></div>
           <div className="bar"><div style={{ width: `${pct}%` }} /></div>
         </div>
       )}
       {state === 'pending' && (
-        <div className="info"><b>{name || 'Plan'}{sub?.featured_until ? '' : ''}</b><span>Paid. Your profile goes live as soon as your verification is approved.</span></div>
+        free
+          ? <div className="info"><b>Published</b><span>Your profile goes live as soon as your ID verification is approved.</span></div>
+          : <div className="info"><b>{name || 'Plan'}</b><span>Paid. Your profile goes live as soon as your verification is approved.</span></div>
       )}
       {state === 'expired' && (
         <div className="info"><b>{name} · ended {ends}</b><span>Your profile is offline and hidden from Browse. Renew before {delDate}, after that your profile is deleted.</span></div>
       )}
       {state === 'draft' && (
-        <div className="info"><b>Your profile is saved</b><span>Choose a plan to appear on Browse. Your profile goes live once it is verified.</span></div>
+        <div className="info"><b>Your profile is saved</b><span>{freeMode ? 'Publish it for free to appear on Browse. It goes live once your ID verification is approved.' : 'Choose a plan to appear on Browse. Your profile goes live once it is verified.'}</span></div>
       )}
-      {(state === 'live' || state === 'pending') && (
+      {(state === 'live' || state === 'pending') && !free && (
         <div className="ren">
           <span className="tx"><span id="ren-l" className="t">Auto-renew</span><span className="d">{renewNote}</span></span>
           <Switch checked={renew} onChange={onToggleRenew} labelledBy="ren-l" testId="dash-auto-renew" />
         </div>
       )}
-      {(state === 'live' || state === 'pending') && <Link to={planHref} className="lnk" data-testid="extend-plan-link">Extend or upgrade plan</Link>}
-      {state === 'expired' && <Link to={planHref} className="x-btn primary sm" style={{ height: 44 }} data-testid="renew-plan">Renew plan</Link>}
-      {state === 'draft' && <Link to={planHref} className="x-btn primary sm" style={{ height: 44 }} data-testid="activate-plan">Activate profile</Link>}
+      {(state === 'live' || state === 'pending') && !free && !freeMode && <Link to={planHref} className="lnk" data-testid="extend-plan-link">Extend or upgrade plan</Link>}
+      {state === 'expired' && <Link to={planHref} className="x-btn primary sm" style={{ height: 44 }} data-testid="renew-plan">{freeMode ? 'Publish again' : 'Renew plan'}</Link>}
+      {state === 'draft' && <Link to={planHref} className="x-btn primary sm" style={{ height: 44 }} data-testid="activate-plan">{freeMode ? 'Publish profile' : 'Activate profile'}</Link>}
     </section>
   );
 }

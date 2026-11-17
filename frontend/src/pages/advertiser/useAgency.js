@@ -3,17 +3,19 @@ import { getAgencyProfile, getAgencyProfiles } from '@/services/api';
 
 /** Loads the agency master profile (defaults) and its companion roster. */
 export default function useAgency() {
-  const [state, setState] = useState({ loading: true, agency: null, profiles: [], error: false });
+  const [state, setState] = useState({ loading: true, agency: null, profiles: [], freePublishing: false, error: false });
 
   const load = useCallback(async () => {
     try {
       const { data: agency } = await getAgencyProfile();
       let profiles = [];
+      let freePublishing = false;
       if (agency?.onboarded) {
         const { data } = await getAgencyProfiles();
         profiles = data?.profiles || [];
+        freePublishing = !!data?.free_publishing;
       }
-      setState({ loading: false, agency, profiles, error: false });
+      setState({ loading: false, agency, profiles, freePublishing, error: false });
     } catch (e) {
       setState((s) => ({ ...s, loading: false, error: true }));
     }

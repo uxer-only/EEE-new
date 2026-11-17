@@ -65,9 +65,20 @@ class Plans
         return (float) ($p['price'][$tier] ?? $p['price']['t1']);
     }
 
+    /** The free listing of the launch phase (config eee.free_publishing): no payment, no end date. */
+    public const FREE = 'free_launch';
+    public const FREE_PLAN = ['label' => 'Free launch listing', 'amount' => 0.00, 'duration_days' => 36500, 'kind' => 'featured'];
+    /** Days a free listing still runs once free publishing is switched off. */
+    public const FREE_RUN_OUT_DAYS = 30;
+
+    public static function isFree(array $profile): bool
+    {
+        return ($profile['active_featured_plan'] ?? null) === self::FREE;
+    }
+
     /** Any plan (independent or agency) by key. */
     public static function get(?string $key): ?array
     {
-        return self::PLANS[$key ?? ''] ?? self::AGENCY_PLANS[$key ?? ''] ?? null;
+        return $key === self::FREE ? self::FREE_PLAN : (self::PLANS[$key ?? ''] ?? self::AGENCY_PLANS[$key ?? ''] ?? null);
     }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createProviderProfile, updateProviderProfile, createSubscriptionCheckout } from '@/services/api';
+import { toast } from 'sonner';
+import { createProviderProfile, updateProviderProfile, createSubscriptionCheckout, getMySubscription, publishProfiles } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { notifyError, notifyProblem } from '@/lib/notify';
 import { LightPage } from '@/components/site/Shell';
@@ -17,7 +18,7 @@ const STEPS = [
   { id: 'photos', label: 'Photos & videos', mins: 5 },
   { id: 'services', label: 'Services', mins: 4 },
   { id: 'rates', label: 'Rates & availability', mins: 2 },
-  { id: 'activate', label: 'Activate', mins: 1 },
+  { id: 'activate', label: 'Publish', mins: 1 },
 ];
 
 /**
@@ -40,7 +41,14 @@ export default function ProfileWizard({ initial = null, startStep = 0, onExit })
   const [vip, setVip] = useState(false);
   const [autoRenew, setAutoRenew] = useState(true);
   const [paying, setPaying] = useState(false);
+  const [free, setFree] = useState(null); // launch phase: publish without payment (null = not known yet)
   const dirty = useRef(false);
+
+  // On the last step, ask the server whether publishing is free (launch phase) or needs a plan.
+  useEffect(() => {
+    if (step !== 4 || free !== null) return;
+    getMySubscription().then(({ data: s }) => setFree(!!s?.free_publishing)).catch(() => setFree(false));
+  }, [step, free]);
 
   const update = (patch) => { dirty.current = true; setData((d) => ({ ...d, ...patch })); };
 
@@ -110,6 +118,23 @@ export default function ProfileWizard({ initial = null, startStep = 0, onExit })
     }
   };
 
+  const publish = async () => {
+    if (user && user.email_verified === false) {
+      notifyProblem('Please confirm your e-mail first.', 'Check your inbox for the confirmation link, then come back to publish.');
+      return;
+    }
+    setPaying(true);
+    try {
+      if (dirty.current && !(await save())) { setPaying(false); return; }
+      await publishProfiles();
+      toast.success('Your profile is published. It appears on Browse as soon as your ID verification is approved.');
+      if (onExit) onExit(); else navigate('/dashboard');
+    } catch (err) {
+      notifyError(err, "We couldn't publish your profile.");
+      setPaying(false);
+    }
+  };
+
   const cur = STEPS[step];
   const errList = errorItems(errors);
 
@@ -138,7 +163,16 @@ export default function ProfileWizard({ initial = null, startStep = 0, onExit })
           {step === 1 && <PhotosStep />}
           {step === 2 && <ServicesStep data={data} update={update} />}
           {step === 3 && <RatesAvailabilityStep data={data} update={update} />}
-          {step === 4 && (
+          {step === 4 && free === true && (
+            <Card level={1} title="Publish your profile" sub="Publishing is free during our launch, with no end date." testId="publish-card">
+              <ul className="pub-steps">
+                <li>Click <b>Publish profile</b>. Your profile is saved and published.</li>
+                <li>We check your photos and any services you added yourself.</li>
+                <li>Verify your ID from your dashboard. Your profile appears on Browse as soon as it is approved.</li>
+              </ul>
+            </Card>
+          )}
+          {step === 4 && free === false && (
             <Card level={1} title="Activate your profile" sub="Your profile is saved. Pick how long it stays visible on Browse." testId="activate-card">
               <PlanPicker plan={plan} setPlan={setPlan} vip={vip} setVip={setVip} autoRenew={autoRenew} setAutoRenew={setAutoRenew} />
             </Card>
@@ -152,8 +186,10 @@ export default function ProfileWizard({ initial = null, startStep = 0, onExit })
               {step === 4 && <span className="note">Not ready? Your profile stays saved as a draft.</span>}
               {step < 4 ? (
                 <button type="button" className="x-btn primary" onClick={next} disabled={saving} data-testid="step-next">{saving ? 'Saving…' : 'Save & continue'}<Arrow /></button>
+              ) : free ? (
+                <button type="button" className="x-btn primary" onClick={publish} disabled={paying} data-testid="publish-profile"><Check size={16} />{paying ? 'Publishing…' : 'Publish profile'}</button>
               ) : (
-                <button type="button" className="x-btn primary" onClick={pay} disabled={paying} data-testid="pay-activate">{paying ? 'Opening payment…' : `Pay €${planTotal(plan, vip)} & activate`}<Arrow /></button>
+                <button type="button" className="x-btn primary" onClick={pay} disabled={paying || free === null} data-testid="pay-activate">{paying ? 'Opening payment…' : `Pay €${planTotal(plan, vip)} & activate`}<Arrow /></button>
               )}
             </div>
           </div>

@@ -16,6 +16,57 @@ use Illuminate\Http\Request;
 /** Buying plans (checkout), the payment result, plan status, auto-renew and invoices. */
 class SubscriptionController
 {
+    /**
+     * Launch phase (config eee.free_publishing): put one or more of the advertiser's own profiles online without
+     * payment and without an end date. An agency sends provider_ids, an independent nothing. The usual checks stay:
+     * the profile must be complete, and it shows on Browse only once its ID verification is approved
+     * (photos and custom services only once approved).
+     */
+    public function publish(Request $request)
+    {
+        $me = Auth::provider($request);
+        if (!config('eee.free_publishing')) {
+            Api::fail(403, 'Publishing without a plan is no longer available. Choose a plan instead.');
+        }
+        if (empty($me['email_verified'])) {
+            Api::fail(400, 'Please confirm your e-mail address first.');
+        }
+        $b = Api::validate(Api::body($request), ['provider_ids' => '?strlist']);
+        $profiles = [];
+        if ($me['account_type'] === 'agency') {
+            foreach ($b['provider_ids'] ?? [] as $pid) {
+                $p = Profiles::owned($me, $pid);
+                if (!$p) {
+                    Api::fail(404, 'Profile not found');
+                }
+                $profiles[] = $p;
+            }
+        } elseif ($p = Profiles::owned($me)) {
+            $profiles[] = $p;
+        }
+        if (!$profiles) {
+            Api::fail(400, 'Choose at least one profile to publish.');
+        }
+        foreach ($profiles as $p) {
+            if (!Profiles::completion($p)[2]) {
+                Api::fail(400, (($p['display_name'] ?? '') ?: 'This profile').' is not complete yet: add the basic info, services and rates first.');
+            }
+        }
+        $now = Time::now();
+        $out = [];
+        foreach ($profiles as $p) {
+            Docs::update('provider_profiles', ['provider_id' => $p['provider_id']], [
+                'featured_until' => Time::iso($now->addDays(Plans::FREE_PLAN['duration_days'])),
+                'active_featured_plan' => Plans::FREE,
+                'pending_plan' => null,
+                'free_published_at' => Time::iso($now),
+                'free_run_out' => null,
+            ]);
+            $out[] = ['provider_id' => $p['provider_id'], 'verified' => !empty($p['verified'])];
+        }
+        return Api::json(['published' => $out]);
+    }
+
     public function checkout(Request $request)
     {
         $me = Auth::user($request);
@@ -174,6 +225,8 @@ class SubscriptionController
             'in_grace' => $g['in_grace'], 'grace_days_left' => $g['grace_days_left'],
             'vip_active' => Time::after($vu, $now), 'vip_until' => Time::iso($vu), 'vip_days_left' => Time::daysLeft($vu, $now),
             'auto_renew' => $sub ? (bool) ($sub['auto_renew'] ?? true) : true,
+            'free_listing' => Plans::isFree($profile) && Time::after($fu, $now),
+            'free_publishing' => (bool) config('eee.free_publishing'),
             'plans' => Plans::PLANS,
         ]);
     }
